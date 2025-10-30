@@ -64,22 +64,32 @@ struct CardTests {
       return
     }
 
-    // Test search card type localization
-    let searchKey = "card.type.search"
-    let searchValue = NSLocalizedString(
-      searchKey,
+    // Create cards
+    let searchCard = Card(cardType: .search)
+    let suttaCard = Card(cardType: .sutta)
+
+    // Get the localized names from the cards
+    let searchLocalized = searchCard.localizedCardTypeName()
+    let suttaLocalized = suttaCard.localizedCardTypeName()
+
+    // Verify Portuguese translations are available in the bundle for the same keys
+    let searchPortuguese = NSLocalizedString(
+      "card.type.search",
       bundle: localizedBundle,
       comment: "Card type label for search card"
     )
-    #expect(searchValue == "Pesquisa")
-
-    // Test sutta card type localization
-    let suttaKey = "card.type.sutta"
-    let suttaValue = NSLocalizedString(
-      suttaKey,
+    let suttaPortuguese = NSLocalizedString(
+      "card.type.sutta",
       bundle: localizedBundle,
       comment: "Card type label for sutta viewer card"
     )
-    #expect(suttaValue == "Sutta")
+
+    // Verify that the Portuguese translations are different from English (i.e., they're actually translated)
+    #expect(searchPortuguese == "Pesquisa")
+    #expect(searchLocalized == "Search") // In test env, uses system locale (English)
+
+    // Sutta is the same in both languages (proper noun)
+    #expect(suttaPortuguese == "Sutta")
+    #expect(suttaLocalized == "Sutta")
   }
 }
