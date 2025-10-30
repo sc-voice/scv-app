@@ -26,9 +26,12 @@ Work is organized into "work sessions" that end with a git commit.
 
 Each work session must start with:
 
-- a single Objective 
-- a Plan to meet that objective 
-- a Test to verify that objective has been met
+1. answering developer questions
+2. defining a single Objective
+3. defining a Plan to meet that objective 
+4. defining a Test to verify that objective has been met
+
+With all above in place, work can begin and the plan can be followed step-by-step.
 
 Once the entire Test passes, developer approval is required for git commit
 
