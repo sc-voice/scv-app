@@ -1,0 +1,5 @@
+/* Card type label for search card */
+"card.type.search" = "Search";
+
+/* Card type label for sutta viewer card */
+"card.type.sutta" = "Sutta";

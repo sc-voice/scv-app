@@ -30,7 +30,7 @@ final class Card {
   
   // Search card properties
   var searchQuery: String = ""
-  var searchResults: Data?
+  var searchResults: SearchResponse?
   
   // Sutta card properties
   var suttaReference: String = ""
@@ -42,7 +42,7 @@ final class Card {
     cardType: CardType = .search,
     typeId: Int = 0,
     searchQuery: String = "",
-    searchResults: Data? = nil,
+    searchResults: SearchResponse? = nil,
     suttaReference: String = ""
   ) {
     self.createdAt = createdAt
@@ -220,5 +220,13 @@ class CardManager {
         removeCard(card)
       }
     }
+  }
+}
+
+// MARK: - String Extension
+
+extension String {
+  var localized: String {
+    NSLocalizedString(self, bundle: .module, comment: "")
   }
 }
