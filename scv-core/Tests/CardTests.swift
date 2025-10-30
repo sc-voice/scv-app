@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 import SwiftData
 @testable import scvCore
@@ -52,5 +53,33 @@ struct CardTests {
 
     #expect(card.searchResults != nil)
     #expect(card.searchResults?.pattern == "mindfulness")
+  }
+
+  @Test
+  func cardPortugueseLocalization() {
+    // Load the pt-PT localization bundle
+    guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
+          let localizedBundle = Bundle(url: bundle) else {
+      #expect(Bool(false), "Failed to load pt-PT localization bundle")
+      return
+    }
+
+    // Test search card type localization
+    let searchKey = "card.type.search"
+    let searchValue = NSLocalizedString(
+      searchKey,
+      bundle: localizedBundle,
+      comment: "Card type label for search card"
+    )
+    #expect(searchValue == "Pesquisa")
+
+    // Test sutta card type localization
+    let suttaKey = "card.type.sutta"
+    let suttaValue = NSLocalizedString(
+      suttaKey,
+      bundle: localizedBundle,
+      comment: "Card type label for sutta viewer card"
+    )
+    #expect(suttaValue == "Sutta")
   }
 }
