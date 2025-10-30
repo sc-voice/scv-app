@@ -38,14 +38,13 @@ final class Card {
   // MARK: - Initialization
 
   init(
-    createdAt: Date = Date(),
     cardType: CardType = .search,
     typeId: Int = 0,
     searchQuery: String = "",
     searchResults: SearchResponse? = nil,
     suttaReference: String = ""
   ) {
-    self.createdAt = createdAt
+    self.createdAt = Date()
     self.cardType = cardType
     self.typeId = typeId
     self.searchQuery = searchQuery
@@ -153,7 +152,6 @@ class CardManager {
   func addCard(cardType: CardType = .search) -> Card {
     // Create a new card with the correct ID
     let newCard = Card(
-      createdAt: Date(),
       cardType: cardType,
       typeId: largestId(for: cardType) + 1
     )
