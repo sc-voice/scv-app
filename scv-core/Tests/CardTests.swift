@@ -413,4 +413,99 @@ struct CardTests {
     #expect(decodedCard.searchResults?.mlDocs.count == 0)
     #expect(decodedCard.searchResults?.pattern == "")
   }
+
+  // MARK: - SwiftData Persistence Tests
+
+  @Test
+  @MainActor
+  func cardIdentityPreservesThroughSwiftDataRoundTrip() throws {
+    // Setup in-memory model context
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    // Create and save search card
+    let originalCard = Card(cardType: .search, typeId: 1, searchQuery: "test")
+    let originalUUID = originalCard.uuid
+    let originalCreatedAt = originalCard.createdAt
+
+    context.insert(originalCard)
+    try context.save()
+
+    // Load from SwiftData
+    let fetchDescriptor = FetchDescriptor<Card>()
+    let loadedCards = try context.fetch(fetchDescriptor)
+    let loadedCard = loadedCards.first!
+
+    // Verify uuid and createdAt preserved
+    #expect(loadedCard.uuid == originalUUID)
+    #expect(loadedCard.createdAt == originalCreatedAt)
+  }
+
+  @Test
+  @MainActor
+  func cardIdentityPreservesSuttaCardTypeSwiftData() throws {
+    // Setup in-memory model context
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    // Create and save sutta card
+    let originalCard = Card(cardType: .sutta, typeId: 5, suttaReference: "MN 10")
+    let originalUUID = originalCard.uuid
+    let originalCreatedAt = originalCard.createdAt
+
+    context.insert(originalCard)
+    try context.save()
+
+    // Load from SwiftData
+    let fetchDescriptor = FetchDescriptor<Card>()
+    let loadedCards = try context.fetch(fetchDescriptor)
+    let loadedCard = loadedCards.first!
+
+    // Verify uuid and createdAt preserved for sutta card
+    #expect(loadedCard.uuid == originalUUID)
+    #expect(loadedCard.createdAt == originalCreatedAt)
+    #expect(loadedCard.cardType == .sutta)
+    #expect(loadedCard.suttaReference == "MN 10")
+  }
+
+  @Test
+  @MainActor
+  func cardIdentityPreservesMultipleRoundTrips() throws {
+    // Setup in-memory model context
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    // Create and save card
+    let originalCard = Card(cardType: .search, typeId: 2, searchQuery: "dhamma")
+    let originalUUID = originalCard.uuid
+    let originalCreatedAt = originalCard.createdAt
+
+    context.insert(originalCard)
+    try context.save()
+
+    // First reload
+    var fetchDescriptor = FetchDescriptor<Card>()
+    var loadedCards = try context.fetch(fetchDescriptor)
+    var card = loadedCards.first!
+
+    #expect(card.uuid == originalUUID)
+    #expect(card.createdAt == originalCreatedAt)
+
+    // Modify and save again
+    card.searchQuery = "updated search"
+    try context.save()
+
+    // Second reload
+    fetchDescriptor = FetchDescriptor<Card>()
+    loadedCards = try context.fetch(fetchDescriptor)
+    card = loadedCards.first!
+
+    // Verify uuid and createdAt still preserved after modification
+    #expect(card.uuid == originalUUID)
+    #expect(card.createdAt == originalCreatedAt)
+    #expect(card.searchQuery == "updated search")
+  }
 }
