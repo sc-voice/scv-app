@@ -1,0 +1,250 @@
+import Foundation
+import Testing
+import SwiftData
+@testable import scvCore
+
+@Suite
+struct CardManagerTests {
+
+  // MARK: - Initialization Tests
+
+  @Test
+  @MainActor
+  func cardManagerInitializesWithDefaultCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    #expect(manager.allCards.count == 1)
+    #expect(manager.selectedCard != nil)
+    #expect(manager.selectedCard?.cardType == .search)
+  }
+
+  @Test
+  @MainActor
+  func cardManagerSelectsFirstCardByDefault() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let firstCard = manager.allCards.first
+
+    #expect(manager.selectedCard == firstCard)
+    #expect(manager.selectedCardId == firstCard?.id)
+  }
+
+  // MARK: - Selection After Deletion Tests
+
+  @Test
+  @MainActor
+  func deletingSelectedCardSelectsNextCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Add a second card
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+
+    // Select first card and delete it
+    manager.selectCard(card1)
+    #expect(manager.selectedCard == card1)
+
+    manager.removeCard(card1)
+
+    // Should select the next card
+    #expect(manager.selectedCard == card2)
+    #expect(manager.selectedCard?.id == card2.id)
+  }
+
+  @Test
+  @MainActor
+  func deletingSelectedCardFromMiddleSelectsNext() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create three cards
+    #expect(manager.allCards.count == 1)
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .sutta)
+
+    // Select middle card and delete it
+    manager.selectCard(card2)
+    #expect(manager.selectedCard == card2)
+
+    manager.removeCard(card2)
+
+    // Should select card3 (next card after deletion)
+    #expect(manager.selectedCard == card3)
+    #expect(manager.selectedCard?.id == card3.id)
+  }
+
+  @Test
+  @MainActor
+  func deletingSelectedCardFromEndSelectsLastRemaining() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create three cards
+    #expect(manager.allCards.count == 1)
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .sutta)
+
+    // Select last card and delete it
+    manager.selectCard(card3)
+    #expect(manager.selectedCard == card3)
+
+    manager.removeCard(card3)
+
+    // Should select card2 (last remaining)
+    #expect(manager.selectedCard == card2)
+    #expect(manager.selectedCard?.id == card2.id)
+  }
+
+  @Test
+  @MainActor
+  func deletingLastRemainingCardKeepsSelectionNil() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let onlyCard = manager.allCards.first!
+
+    manager.selectCard(onlyCard)
+    #expect(manager.selectedCard == onlyCard)
+
+    manager.removeCard(onlyCard)
+
+    // After deleting the only card, selectedCard should be nil
+    #expect(manager.selectedCard == nil)
+    #expect(manager.allCards.isEmpty)
+  }
+
+  @Test
+  @MainActor
+  func deletingNonSelectedCardMaintainsSelection() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    #expect(manager.allCards.count == 2)
+
+    // Select card2
+    manager.selectCard(card2)
+    let selectedCardId = manager.selectedCard?.id
+
+    // Delete card1 (not selected)
+    manager.removeCard(card1)
+
+    // Selection should remain card2
+    #expect(manager.selectedCard?.id == selectedCardId)
+    #expect(manager.selectedCard == card2)
+  }
+
+  // MARK: - Count and State Tests
+
+  @Test
+  @MainActor
+  func totalCountDecrementsAfterDeletion() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let initialCard = manager.allCards.first!
+    let newCard = manager.addCard(cardType: .search)
+
+    #expect(manager.totalCount == 2)
+
+    manager.removeCard(initialCard)
+
+    #expect(manager.totalCount == 1)
+    #expect(manager.selectedCard == newCard)
+  }
+
+  @Test
+  @MainActor
+  func countByCardTypeUpdatesAfterDeletion() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    let searchCard1 = manager.allCards.first!
+    manager.addCard(cardType: .search)
+    manager.addCard(cardType: .sutta)
+
+    #expect(manager.count(for: .search) == 2)
+    #expect(manager.count(for: .sutta) == 1)
+
+    manager.removeCard(searchCard1)
+
+    #expect(manager.count(for: .search) == 1)
+    #expect(manager.count(for: .sutta) == 1)
+  }
+
+  // MARK: - Index-based Deletion Tests
+
+  @Test
+  @MainActor
+  func removeCardsAtIndices() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    #expect(manager.allCards.count == 1)
+    manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card3)
+    let initialCount = manager.totalCount
+
+    // Remove cards at indices 0 and 1
+    manager.removeCards(at: IndexSet([0, 1]))
+
+    #expect(manager.totalCount == initialCount - 2)
+    #expect(manager.selectedCard == card3)
+  }
+
+  @Test
+  @MainActor
+  func removeCardsAtIndicesWithSelectedCardDeletion() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card1)
+
+    // Remove card at index 0 (which is the selected card1)
+    manager.removeCards(at: IndexSet([0]))
+
+    // Should select card2 (next card)
+    #expect(manager.selectedCard == card2)
+    #expect(manager.totalCount == 2)
+  }
+}
