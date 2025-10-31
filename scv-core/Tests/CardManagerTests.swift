@@ -247,4 +247,162 @@ struct CardManagerTests {
     #expect(manager.selectedCard == card2)
     #expect(manager.totalCount == 2)
   }
+
+  // MARK: - Concurrent Deletion Tests
+
+  @Test
+  @MainActor
+  func concurrentDeletionRapidSequentialDeletes() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 5 cards
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .search)
+    let card4 = manager.addCard(cardType: .sutta)
+    let card5 = manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card1)
+
+    // Delete cards in rapid sequence
+    manager.removeCard(card1)
+    manager.removeCard(card3)
+    manager.removeCard(card5)
+
+    // Should always have at least one card
+    #expect(manager.totalCount >= 1)
+    #expect(manager.totalCount == 2)
+    // Selection should be valid and exist in remaining cards
+    #expect(manager.selectedCard != nil)
+    #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+  }
+
+  @Test
+  @MainActor
+  func concurrentDeletionNonContiguousCards() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 5 cards
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .search)
+    let card4 = manager.addCard(cardType: .sutta)
+    let card5 = manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card3)
+
+    // Delete non-contiguous cards while card3 is selected
+    manager.removeCard(card1)
+    manager.removeCard(card5)
+
+    // Should always have at least one card
+    #expect(manager.totalCount >= 1)
+    // card3 should still be selected
+    #expect(manager.selectedCard == card3)
+    #expect(manager.totalCount == 3)
+  }
+
+  @Test
+  @MainActor
+  func concurrentDeletionWithSelectionReplacement() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 4 cards
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .search)
+    let card4 = manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card2)
+
+    // Delete selected card - should select next (card3)
+    manager.removeCard(card2)
+    #expect(manager.selectedCard == card3)
+    #expect(manager.totalCount >= 1)
+
+    // Delete the new selection - should select next (card4)
+    manager.removeCard(card3)
+    #expect(manager.selectedCard == card4)
+    #expect(manager.totalCount >= 1)
+
+    // Delete card4 - should select card1 (remaining)
+    manager.removeCard(card4)
+    #expect(manager.selectedCard == card1)
+    #expect(manager.totalCount == 1)
+  }
+
+  @Test
+  @MainActor
+  func concurrentDeletionMultipleIndicesIncludingSelected() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 6 cards
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(cardType: .search)
+    let card3 = manager.addCard(cardType: .search)
+    let card4 = manager.addCard(cardType: .sutta)
+    let card5 = manager.addCard(cardType: .sutta)
+    let card6 = manager.addCard(cardType: .sutta)
+
+    manager.selectCard(card3)
+
+    // Delete indices 0, 2, 5 (cards 1, 3, 6) - card3 is at index 2
+    manager.removeCards(at: IndexSet([0, 2, 5]))
+
+    // Should always have at least one card
+    #expect(manager.totalCount >= 1)
+    // Should have 3 cards remaining (cards 2, 4, 5)
+    #expect(manager.totalCount == 3)
+    // Selection should have moved from card3
+    #expect(manager.selectedCard == card4)
+  }
+
+  @Test
+  @MainActor
+  func concurrentDeletionCountByTypeRemainsAccurate() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 3 search and 3 sutta cards
+    let searchCard1 = manager.allCards.first!
+    let searchCard2 = manager.addCard(cardType: .search)
+    let searchCard3 = manager.addCard(cardType: .search)
+    let suttaCard1 = manager.addCard(cardType: .sutta)
+    let suttaCard2 = manager.addCard(cardType: .sutta)
+    let suttaCard3 = manager.addCard(cardType: .sutta)
+
+    #expect(manager.count(for: .search) == 3)
+    #expect(manager.count(for: .sutta) == 3)
+
+    // Delete alternating cards
+    manager.removeCard(searchCard1)
+    manager.removeCard(suttaCard1)
+    manager.removeCard(searchCard3)
+
+    // Should always have at least one card
+    #expect(manager.totalCount >= 1)
+    // Should have 1 search and 2 sutta remaining
+    #expect(manager.count(for: .search) == 1)
+    #expect(manager.count(for: .sutta) == 2)
+    #expect(manager.totalCount == 3)
+  }
 }
