@@ -23,6 +23,7 @@ final class Card {
 
   private(set) var createdAt: Date
   private(set) var cardType: CardType
+  @MainActor
   var name: String {
     return "\(localizedCardTypeName()) \(typeId)"
   }
@@ -65,6 +66,7 @@ final class Card {
   }
 
   /// Returns the localized name for the card type
+  @MainActor
   func localizedCardTypeName() -> String {
     switch cardType {
     case .search:
@@ -75,6 +77,7 @@ final class Card {
   }
 
   /// Returns the display title for the card
+  @MainActor
   func title() -> String {
     // Always return localized CardType + ID (don't store in name)
     return "\(localizedCardTypeName()) \(typeId)"
@@ -218,13 +221,5 @@ class CardManager {
         removeCard(card)
       }
     }
-  }
-}
-
-// MARK: - String Extension
-
-extension String {
-  var localized: String {
-    NSLocalizedString(self, bundle: .module, comment: "")
   }
 }

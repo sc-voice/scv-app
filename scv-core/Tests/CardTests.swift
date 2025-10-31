@@ -3,6 +3,15 @@ import Testing
 import SwiftData
 @testable import scvCore
 
+/// Test helper to temporarily swap localization bundle
+@MainActor
+func withLocalizationBundle(_ bundle: Bundle, _ test: () -> Void) {
+  let originalBundle = localizationBundle
+  localizationBundle = bundle
+  defer { localizationBundle = originalBundle }
+  test()
+}
+
 @Suite
 struct CardTests {
 
@@ -27,6 +36,7 @@ struct CardTests {
   }
 
   @Test
+  @MainActor
   func cardTitle() {
     let card = Card(cardType: .search, typeId: 5)
     let title = card.title()
@@ -36,6 +46,7 @@ struct CardTests {
   }
 
   @Test
+  @MainActor
   func cardLocalizedCardTypeName() {
     let searchCard = Card(cardType: .search)
     let searchName = searchCard.localizedCardTypeName()
@@ -56,40 +67,75 @@ struct CardTests {
   }
 
   @Test
+  @MainActor
   func cardPortugueseLocalization() {
     // Load the pt-PT localization bundle
     guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
-          let localizedBundle = Bundle(url: bundle) else {
+          let portugueseBundle = Bundle(url: bundle) else {
       #expect(Bool(false), "Failed to load pt-PT localization bundle")
       return
     }
 
-    // Create cards
+    withLocalizationBundle(portugueseBundle) {
+      let searchCard = Card(cardType: .search)
+      let suttaCard = Card(cardType: .sutta)
+
+      let searchLocalized = searchCard.localizedCardTypeName()
+      let suttaLocalized = suttaCard.localizedCardTypeName()
+
+      #expect(searchLocalized == "Pesquisa")
+      #expect(suttaLocalized == "Sutta")
+    }
+  }
+
+  @Test
+  @MainActor
+  func cardEnglishLocalization() {
     let searchCard = Card(cardType: .search)
     let suttaCard = Card(cardType: .sutta)
 
-    // Get the localized names from the cards
-    let searchLocalized = searchCard.localizedCardTypeName()
-    let suttaLocalized = suttaCard.localizedCardTypeName()
+    #expect(searchCard.localizedCardTypeName() == "Search")
+    #expect(suttaCard.localizedCardTypeName() == "Sutta")
+  }
 
-    // Verify Portuguese translations are available in the bundle for the same keys
-    let searchPortuguese = NSLocalizedString(
-      "card.type.search",
-      bundle: localizedBundle,
-      comment: "Card type label for search card"
-    )
-    let suttaPortuguese = NSLocalizedString(
-      "card.type.sutta",
-      bundle: localizedBundle,
-      comment: "Card type label for sutta viewer card"
-    )
+  @Test
+  @MainActor
+  func cardLocalizationKeysExist() {
+    // Verify all required localization keys exist in the default bundle
+    let searchKey = "card.type.search"
+    let suttaKey = "card.type.sutta"
 
-    // Verify that the Portuguese translations are different from English (i.e., they're actually translated)
-    #expect(searchPortuguese == "Pesquisa")
-    #expect(searchLocalized == "Search") // In test env, uses system locale (English)
+    let searchString = searchKey.localized
+    let suttaString = suttaKey.localized
 
-    // Sutta is the same in both languages (proper noun)
-    #expect(suttaPortuguese == "Sutta")
-    #expect(suttaLocalized == "Sutta")
+    // Keys should resolve to non-empty strings (not remain as keys)
+    #expect(!searchString.isEmpty)
+    #expect(!suttaString.isEmpty)
+    #expect(searchString == "Search")
+    #expect(suttaString == "Sutta")
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationKeysExistInPortuguese() {
+    guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
+          let portugueseBundle = Bundle(url: bundle) else {
+      #expect(Bool(false), "Failed to load pt-PT localization bundle")
+      return
+    }
+
+    withLocalizationBundle(portugueseBundle) {
+      let searchKey = "card.type.search"
+      let suttaKey = "card.type.sutta"
+
+      let searchString = searchKey.localized
+      let suttaString = suttaKey.localized
+
+      // Keys should resolve to translations in Portuguese
+      #expect(!searchString.isEmpty)
+      #expect(!suttaString.isEmpty)
+      #expect(searchString == "Pesquisa")
+      #expect(suttaString == "Sutta")
+    }
   }
 }
