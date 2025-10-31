@@ -35,3 +35,24 @@ With all above in place, work can begin and the plan can be followed step-by-ste
 
 Once the entire Test passes, developer approval is required for git commit
 
+## Testing
+
+### scv-core Package Tests
+
+Run tests with:
+```bash
+make test
+```
+
+**Important:** Tests must run **serially** (not in parallel) because scv-core uses a global mutable localization bundle for testing. The `withLocalizationBundle()` helper in CardTests.swift swaps bundles to test multiple languages, which causes conflicts if tests run in parallel.
+
+For verbose output:
+```bash
+make test-verbose
+```
+
+To run a specific test:
+```bash
+cd scv-core && swift test --filter CardTests
+```
+
