@@ -275,4 +275,142 @@ struct CardTests {
     // But PersistentIdentifier should be different (regenerated)
     #expect(card1.id != card2.id)
   }
+
+  // MARK: - Card/SearchResponse Relationship Tests
+
+  @Test
+  func cardWithMockSearchResponse() throws {
+    guard let mockResponse = SearchResponse.createMockResponse() else {
+      #expect(Bool(false), "Failed to load mock SearchResponse")
+      return
+    }
+
+    let card = Card(
+      cardType: .search,
+      typeId: 1,
+      searchQuery: "root of suffering",
+      searchResults: mockResponse
+    )
+
+    #expect(card.searchResults != nil)
+    #expect(card.searchResults?.pattern == "root of suffering")
+    #expect(card.searchResults?.author == "sujato")
+    #expect(card.searchResults?.mlDocs.count == 1)
+  }
+
+  @Test
+  func cardMockSearchResponseNestedDataIntegrity() throws {
+    guard let mockResponse = SearchResponse.createMockResponse() else {
+      #expect(Bool(false), "Failed to load mock SearchResponse")
+      return
+    }
+
+    let card = Card(
+      cardType: .search,
+      typeId: 1,
+      searchResults: mockResponse
+    )
+
+    guard let response = card.searchResults else {
+      #expect(Bool(false), "SearchResponse should not be nil")
+      return
+    }
+
+    // Verify SearchResponse fields
+    #expect(response.author == "sujato")
+    #expect(response.lang == "en")
+    #expect(response.pattern == "root of suffering")
+    #expect(response.segsMatched == 14)
+
+    // Verify MLDocument
+    #expect(response.mlDocs.count == 1)
+    let doc = response.mlDocs.first!
+    #expect(doc.author == "Bhikkhu Sujato")
+    #expect(doc.segMap.count == 55)
+
+    // Verify Segment data
+    let segment = doc.segMap["sn42.11:2.11"]
+    #expect(segment != nil)
+    #expect(segment?.matched == true)
+    #expect(segment?.en != nil)
+  }
+
+  @Test
+  func cardWithMockSearchResponseRoundTrip() throws {
+    guard let mockResponse = SearchResponse.createMockResponse() else {
+      #expect(Bool(false), "Failed to load mock SearchResponse")
+      return
+    }
+
+    let originalCard = Card(
+      cardType: .search,
+      typeId: 2,
+      searchQuery: "root of suffering",
+      searchResults: mockResponse
+    )
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(originalCard)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    // Verify SearchResponse survived round-trip
+    #expect(decodedCard.searchResults != nil)
+    #expect(decodedCard.searchResults?.pattern == "root of suffering")
+    #expect(decodedCard.searchResults?.author == "sujato")
+    #expect(decodedCard.searchResults?.mlDocs.count == 1)
+
+    // Verify nested MLDocument data
+    let doc = decodedCard.searchResults?.mlDocs.first
+    #expect(doc?.sutta_uid == "sn42.11")
+    #expect(doc?.segMap.count == 55)
+  }
+
+  @Test
+  func cardWithNilSearchResponse() throws {
+    let card = Card(
+      cardType: .search,
+      typeId: 3,
+      searchQuery: "test",
+      searchResults: nil
+    )
+
+    #expect(card.searchResults == nil)
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    #expect(decodedCard.searchResults == nil)
+  }
+
+  @Test
+  func cardWithEmptySearchResponse() throws {
+    let emptyResponse = SearchResponse()
+    let card = Card(
+      cardType: .search,
+      typeId: 4,
+      searchResults: emptyResponse
+    )
+
+    #expect(card.searchResults != nil)
+    #expect(card.searchResults?.mlDocs.count == 0)
+    #expect(card.searchResults?.pattern == "")
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    #expect(decodedCard.searchResults != nil)
+    #expect(decodedCard.searchResults?.mlDocs.count == 0)
+    #expect(decodedCard.searchResults?.pattern == "")
+  }
 }

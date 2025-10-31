@@ -24,7 +24,8 @@ let package = Package(
     .testTarget(
       name: "scvCoreTests",
       dependencies: ["scvCore"],
-      path: "Tests"
+      path: "Tests",
+      resources: [.process("../Resources")]
     )
   ]
 )

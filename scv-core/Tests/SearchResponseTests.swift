@@ -57,24 +57,17 @@ struct SearchResponseTests {
   @Test func testSegmentIsMatched() async throws {
     let matchedSegment = Segment(
       scid: "test-scid",
-      pli: nil,
-      ref: nil,
       en: "test",
       matched: true
     )
     let unmatchedSegment = Segment(
       scid: "test-scid",
-      pli: nil,
-      ref: nil,
       en: "test",
       matched: false
     )
     let nilMatchedSegment = Segment(
       scid: "test-scid",
-      pli: nil,
-      ref: nil,
-      en: "test",
-      matched: nil
+      en: "test"
     )
 
     #expect(matchedSegment.isMatched == true)
@@ -108,8 +101,6 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        pli: nil,
-        ref: nil,
         en: "Test segment",
         matched: true
       )
@@ -125,31 +116,27 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Buddha",
       segMap: segMap,
-      suttaCode: "mn1",
       blurb: "The First Discourse.",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
 
     #expect(doc.author == "Buddha")
-    #expect(doc.suttaCode == "mn1")
+    #expect(doc.sutta_uid == "mn1")
     #expect(doc.blurb == "The First Discourse.")
     #expect(doc.segMap.count == 1)
-    #expect(doc.stats.text == 1000)
+    #expect(doc.stats?.text == 1000)
   }
 
   @Test func testMLDocumentAllSegments() async throws {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        pli: nil,
-        ref: nil,
         en: "First segment",
         matched: true
       ),
       "seg2": Segment(
         scid: "seg2",
-        pli: nil,
-        ref: nil,
         en: "Second segment",
         matched: false
       ),
@@ -165,9 +152,9 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Test",
       segMap: segMap,
-      suttaCode: "mn1",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
 
     let allSegments = doc.allSegments
@@ -180,15 +167,11 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        pli: nil,
-        ref: nil,
         en: "Matched segment",
         matched: true
       ),
       "seg2": Segment(
         scid: "seg2",
-        pli: nil,
-        ref: nil,
         en: "Unmatched segment",
         matched: false
       ),
@@ -204,9 +187,9 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Test",
       segMap: segMap,
-      suttaCode: "mn1",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
 
     let matchedSegments = doc.matchedSegments
@@ -226,12 +209,12 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Test",
       segMap: [:],
-      suttaCode: "mn1",
       blurb: "This is the first discourse. It contains important teachings.",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
 
-    #expect(doc.title == "This is the first discourse")
+    #expect(doc.computedTitle == "This is the first discourse")
   }
 
   @Test func testMLDocumentTitleFallbackToSuttaCode() async throws {
@@ -246,12 +229,12 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Test",
       segMap: [:],
-      suttaCode: "mn1",
       blurb: "",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
 
-    #expect(doc.title == "")  // Empty blurb results in empty title, not suttaCode fallback
+    #expect(doc.computedTitle == "mn1")  // Empty blurb falls back to sutta_uid
   }
 
   // MARK: - SearchResponse Tests
@@ -260,8 +243,6 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        pli: nil,
-        ref: nil,
         en: "Test segment",
         matched: true
       )
@@ -277,7 +258,6 @@ struct SearchResponseTests {
     let mlDoc = MLDocument(
       author: "Test",
       segMap: segMap,
-      suttaCode: "mn1",
       blurb: "Test",
       stats: stats
     )
@@ -322,7 +302,7 @@ struct SearchResponseTests {
     #expect(response.suttaRefs == [])
     #expect(response.mlDocs == [])
     #expect(response.searchError == nil)
-    #expect(response.searchSuggestion == nil)
+    #expect(response.searchSuggestion == "")
     #expect(response.isSuccess == true)
   }
 
@@ -330,8 +310,6 @@ struct SearchResponseTests {
     let segMap1 = [
       "seg1": Segment(
         scid: "seg1",
-        pli: nil,
-        ref: nil,
         en: "Matched segment 1",
         matched: true
       )
@@ -339,8 +317,6 @@ struct SearchResponseTests {
     let segMap2 = [
       "seg2": Segment(
         scid: "seg2",
-        pli: nil,
-        ref: nil,
         en: "Unmatched segment 2",
         matched: false
       )
@@ -356,16 +332,16 @@ struct SearchResponseTests {
     let doc1 = MLDocument(
       author: "Test",
       segMap: segMap1,
-      suttaCode: "mn1",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
     let doc2 = MLDocument(
       author: "Test",
       segMap: segMap2,
-      suttaCode: "mn2",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn2"
     )
     let response = SearchResponse(
       author: "Test",
@@ -400,16 +376,16 @@ struct SearchResponseTests {
     let doc1 = MLDocument(
       author: "Test",
       segMap: [:],
-      suttaCode: "mn1",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn1"
     )
     let doc2 = MLDocument(
       author: "Test",
       segMap: [:],
-      suttaCode: "mn2",
       blurb: "Test",
-      stats: stats
+      stats: stats,
+      sutta_uid: "mn2"
     )
     let response = SearchResponse(
       author: "Test",
@@ -487,7 +463,6 @@ struct SearchResponseTests {
     let mlDoc = MLDocument(
       author: "Test",
       segMap: [:],
-      suttaCode: "mn1",
       blurb: "Test",
       stats: stats
     )
@@ -534,7 +509,6 @@ struct SearchResponseTests {
     let mlDoc = MLDocument(
       author: "Test Author",
       segMap: [:],
-      suttaCode: "mn1",
       blurb: "Test blurb",
       stats: stats
     )
@@ -583,5 +557,65 @@ struct SearchResponseTests {
     #expect(decoded.bilaraPaths == originalResponse.bilaraPaths)
     #expect(decoded.suttaRefs == originalResponse.suttaRefs)
     #expect(decoded.mlDocs.count == originalResponse.mlDocs.count)
+  }
+
+  // MARK: - Factory Method Tests
+
+  @Test func testCreateMockResponse() async throws {
+    // Load mock response from bundle resource
+    let mockResponse = SearchResponse.createMockResponse()
+
+    // Verify it loaded successfully
+    #expect(mockResponse != nil, "createMockResponse() should load MockResponse.json")
+
+    guard let response = mockResponse else {
+      return
+    }
+
+    // Verify core properties from MockResponse.json
+    #expect(response.pattern == "root of suffering")
+    #expect(response.segsMatched == 14)
+    #expect(response.mlDocs.count == 1)
+    #expect(response.author == "sujato")
+    #expect(response.lang == "en")
+    #expect(response.searchLang == "en")
+    #expect(response.method == "phrase")
+  }
+
+  @Test func testCreateMockResponseIdempotency() async throws {
+    // Call factory method multiple times
+    let mockResponse1 = SearchResponse.createMockResponse()
+    let mockResponse2 = SearchResponse.createMockResponse()
+
+    // Both should load successfully
+    #expect(mockResponse1 != nil)
+    #expect(mockResponse2 != nil)
+
+    // Results should be equal (idempotent)
+    #expect(mockResponse1 == mockResponse2)
+  }
+
+  @Test func testCreateMockResponseDocuments() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    // Verify mlDocs structure is properly decoded
+    let firstDoc = response.mlDocs.first
+    #expect(firstDoc != nil)
+
+    guard let doc = firstDoc else {
+      return
+    }
+
+    // Verify document contains segments
+    #expect(doc.segMap.count > 0, "Document should have segments from MockResponse.json")
+
+    // Verify matched segments exist
+    let matchedSegments = doc.matchedSegments
+    #expect(matchedSegments.count > 0, "Document should have matched segments")
   }
 }
