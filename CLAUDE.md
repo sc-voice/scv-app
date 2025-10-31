@@ -50,7 +50,7 @@ cd scv-core && swift test --filter CardTests
 02. [x] Add Codable to Card - Enable JSON serialization/deserialization of Card
 03. [x] Card/SearchResponse relationship - Verify SearchResponse is properly modeled for SwiftData persistence
 04. [x] Card identity preservation - Test that Card ID and createdAt survive save/load cycles
-05. [ ] SearchResults persistence - Test that SearchResponse data in searchResults field survives SwiftData round-trip
+05. [x] SearchResults persistence - Test that SearchResponse data in searchResults field survives SwiftData round-trip
 
 ### CardManager Testing
 06. [ ] CardManager selection logic - Test that selectedCard remains valid after deletions
