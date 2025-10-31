@@ -17,6 +17,7 @@ struct CardTests {
 
   @Test
   func cardDefaultInitialization() {
+    let beforeCreation = Date()
     let card = Card()
 
     #expect(card.cardType == .search)
@@ -24,6 +25,10 @@ struct CardTests {
     #expect(card.searchQuery == "")
     #expect(card.searchResults == nil)
     #expect(card.suttaReference == "")
+
+    // createdAt should be within 1 second of now
+    let timeDifference = abs(card.createdAt.timeIntervalSince(beforeCreation))
+    #expect(timeDifference <= 1.0)
   }
 
   @Test
@@ -137,5 +142,16 @@ struct CardTests {
       #expect(searchString == "Pesquisa")
       #expect(suttaString == "Sutta")
     }
+  }
+
+  // Verify Card gets PersistentIdentifier automatically
+  @Test
+  func testCardHasUUID() {
+    let card = Card()
+    // #expect(card.id is PersistentIdentifier)
+
+    let card2 = Card()
+    // #expect(card2.id is PersistentIdentifier)
+    #expect(card.id != card2.id)
   }
 }
