@@ -1,0 +1,405 @@
+{
+  "author": "sujato",
+  "lang": "en",
+  "searchLang": "en",
+  "minLang": 1,
+  "maxDoc": 1,
+  "maxResults": 500,
+  "pattern": "root of suffering",
+  "method": "phrase",
+  "resultPattern": "\\broot\\sof\\ssuffering",
+  "segsMatched": 14,
+  "bilaraPaths": [
+    "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+    "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json",
+    "root/pli/ms/sutta/mn/mn105_root-pli-ms.json",
+    "translation/en/sujato/sutta/mn/mn105_translation-en-sujato.json",
+    "root/pli/ms/sutta/mn/mn1_root-pli-ms.json",
+    "translation/en/sujato/sutta/mn/mn1_translation-en-sujato.json",
+    "root/pli/ms/sutta/sn/sn56/sn56.21_root-pli-ms.json",
+    "translation/en/sujato/sutta/sn/sn56/sn56.21_translation-en-sujato.json",
+    "root/pli/ms/sutta/mn/mn66_root-pli-ms.json",
+    "translation/en/sujato/sutta/mn/mn66_translation-en-sujato.json",
+    "root/pli/ms/sutta/mn/mn116_root-pli-ms.json",
+    "translation/en/sujato/sutta/mn/mn116_translation-en-sujato.json",
+    "root/pli/ms/sutta/dn/dn16_root-pli-ms.json",
+    "translation/en/sujato/sutta/dn/dn16_translation-en-sujato.json"
+  ],
+  "suttaRefs": [
+    "sn42.11/en/sujato"
+  ],
+  "mlDocs": [
+    {
+      "author": "Bhikkhu Sujato",
+      "segMap": {
+        "sn42.11:0.1": {
+          "scid": "sn42.11:0.1",
+          "pli": "Sa\u1e41yutta Nik\u0101ya 42.11 ",
+          "ref": "Linked Discourses 42.11 ",
+          "en": "Linked Discourses 42.11 "
+        },
+        "sn42.11:0.2": {
+          "scid": "sn42.11:0.2",
+          "pli": "1. G\u0101ma\u1e47ivagga ",
+          "ref": "1. Chiefs ",
+          "en": "1. Chiefs "
+        },
+        "sn42.11:0.3": {
+          "scid": "sn42.11:0.3",
+          "pli": "Bhadrakasutta ",
+          "ref": "With Bhadraka ",
+          "en": "With Bhadraka "
+        },
+        "sn42.11:1.1": {
+          "scid": "sn42.11:1.1",
+          "pli": "Eka\u1e41 samaya\u1e41 bhagav\u0101 mallesu viharati uruvelakappa\u1e41 n\u0101ma mall\u0101na\u1e41 nigamo. ",
+          "ref": "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. ",
+          "en": "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. "
+        },
+        "sn42.11:1.2": {
+          "scid": "sn42.11:1.2",
+          "pli": "Atha kho bhadrako g\u0101ma\u1e47i yena bhagav\u0101 tenupasa\u1e45kami; upasa\u1e45kamitv\u0101 bhagavanta\u1e41 abhiv\u0101detv\u0101 ekamanta\u1e41 nis\u012bdi. Ekamanta\u1e41 nisinno kho bhadrako g\u0101ma\u1e47i bhagavanta\u1e41 etadavoca: ",
+          "ref": "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: ",
+          "en": "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: "
+        },
+        "sn42.11:1.3": {
+          "scid": "sn42.11:1.3",
+          "pli": "\u201cs\u0101dhu me, bhante, bhagav\u0101 dukkhassa samudaya\u00f1ca attha\u1e45gama\u00f1ca deset\u016b\u201dti. ",
+          "ref": "\u201cPlease, sir, let the Blessed One teach me the origin and cessation of suffering.\u201d ",
+          "en": "\u201cPlease, sir, let the Blessed One teach me the origin and cessation of suffering.\u201d "
+        },
+        "sn42.11:1.4": {
+          "scid": "sn42.11:1.4",
+          "pli": "\u201cAha\u00f1ce te, g\u0101ma\u1e47i, at\u012btamaddh\u0101na\u1e41 \u0101rabbha dukkhassa samudaya\u00f1ca attha\u1e45gama\u00f1ca deseyya\u1e41: ",
+          "ref": "\u201cChief, if I were to teach you about the origin and disappearance of suffering in the past, saying ",
+          "en": "\u201cChief, if I were to teach you about the origin and disappearance of suffering in the past, saying "
+        },
+        "sn42.11:1.5": {
+          "scid": "sn42.11:1.5",
+          "pli": "\u2018eva\u1e41 ahosi at\u012btamaddh\u0101nan\u2019ti, tatra te siy\u0101 ka\u1e45kh\u0101, siy\u0101 vimati. ",
+          "ref": "\u2018this is how it was in the past,\u2019 you might have doubts or uncertainties about that. ",
+          "en": "\u2018this is how it was in the past,\u2019 you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.6": {
+          "scid": "sn42.11:1.6",
+          "pli": "Aha\u00f1ce te, g\u0101ma\u1e47i, an\u0101gatamaddh\u0101na\u1e41 \u0101rabbha dukkhassa samudaya\u00f1ca attha\u1e45gama\u00f1ca deseyya\u1e41: ",
+          "ref": "If I were to teach you about the origin and disappearance of suffering in the future, saying ",
+          "en": "If I were to teach you about the origin and disappearance of suffering in the future, saying "
+        },
+        "sn42.11:1.7": {
+          "scid": "sn42.11:1.7",
+          "pli": "\u2018eva\u1e41 bhavissati an\u0101gatamaddh\u0101nan\u2019ti, tatr\u0101pi te siy\u0101 ka\u1e45kh\u0101, siy\u0101 vimati. ",
+          "ref": "\u2018this is how it will be in the future,\u2019 you might have doubts or uncertainties about that. ",
+          "en": "\u2018this is how it will be in the future,\u2019 you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.8": {
+          "scid": "sn42.11:1.8",
+          "pli": "Api c\u0101ha\u1e41, g\u0101ma\u1e47i, idheva nisinno ettheva te nisinnassa dukkhassa samudaya\u00f1ca attha\u1e45gama\u00f1ca desess\u0101mi. ",
+          "ref": "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. ",
+          "en": "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. "
+        },
+        "sn42.11:1.9": {
+          "scid": "sn42.11:1.9",
+          "pli": "Ta\u1e41 su\u1e47\u0101hi, s\u0101dhuka\u1e41 manasi karohi; bh\u0101siss\u0101m\u012b\u201dti. ",
+          "ref": "Listen and apply your mind well, I will speak.\u201d ",
+          "en": "Listen and apply your mind well, I will speak.\u201d "
+        },
+        "sn42.11:1.10": {
+          "scid": "sn42.11:1.10",
+          "pli": "\u201cEva\u1e41, bhante\u201dti kho bhadrako g\u0101ma\u1e47i bhagavato paccassosi. ",
+          "ref": "\u201cYes, sir,\u201d Bhadraka replied. ",
+          "en": "\u201cYes, sir,\u201d Bhadraka replied. "
+        },
+        "sn42.11:1.11": {
+          "scid": "sn42.11:1.11",
+          "pli": "Bhagav\u0101 etadavoca: ",
+          "ref": "The Buddha said this: ",
+          "en": "The Buddha said this: "
+        },
+        "sn42.11:2.1": {
+          "scid": "sn42.11:2.1",
+          "pli": "\u201cTa\u1e41 ki\u1e41 ma\u00f1\u00f1asi, g\u0101ma\u1e47i, ",
+          "ref": "\u201cWhat do you think, chief? ",
+          "en": "\u201cWhat do you think, chief? "
+        },
+        "sn42.11:2.2": {
+          "scid": "sn42.11:2.2",
+          "pli": "atthi te uruvelakappe manuss\u0101 yesa\u1e41 te vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti? ",
+          "ref": "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?\u201d ",
+          "en": "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?\u201d "
+        },
+        "sn42.11:2.3": {
+          "scid": "sn42.11:2.3",
+          "pli": "\u201cAtthi me, bhante, uruvelakappe manuss\u0101 yesa\u1e41 me vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti. ",
+          "ref": "\u201cThere are, sir.\u201d ",
+          "en": "\u201cThere are, sir.\u201d "
+        },
+        "sn42.11:2.4": {
+          "scid": "sn42.11:2.4",
+          "pli": "\u201cAtthi pana te, g\u0101ma\u1e47i, uruvelakappe manuss\u0101 yesa\u1e41 te vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 nuppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti? ",
+          "ref": "\u201cBut are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?\u201d ",
+          "en": "\u201cBut are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?\u201d "
+        },
+        "sn42.11:2.5": {
+          "scid": "sn42.11:2.5",
+          "pli": "\u201cAtthi me, bhante, uruvelakappe manuss\u0101 yesa\u1e41 me vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 nuppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti. ",
+          "ref": "\u201cThere are, sir.\u201d ",
+          "en": "\u201cThere are, sir.\u201d "
+        },
+        "sn42.11:2.6": {
+          "scid": "sn42.11:2.6",
+          "pli": "\u201cKo nu kho, g\u0101ma\u1e47i, hetu, ko paccayo yena te ekacc\u0101na\u1e41 uruvelakappiy\u0101na\u1e41 manuss\u0101na\u1e41 vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti? ",
+          "ref": "\u201cWhat\u2019s the cause, chief, what\u2019s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?\u201d ",
+          "en": "\u201cWhat\u2019s the cause, chief, what\u2019s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?\u201d "
+        },
+        "sn42.11:2.7": {
+          "scid": "sn42.11:2.7",
+          "pli": "\u201cYesa\u1e41 me, bhante, uruvelakappiy\u0101na\u1e41 manuss\u0101na\u1e41 vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101, atthi me tesu chandar\u0101go. ",
+          "ref": "\u201cThe people regarding whom this would give rise to sorrow are those I have desire and passion. ",
+          "en": "\u201cThe people regarding whom this would give rise to sorrow are those I have desire and passion. "
+        },
+        "sn42.11:2.8": {
+          "scid": "sn42.11:2.8",
+          "pli": "Yesa\u1e41 pana, bhante, uruvelakappiy\u0101na\u1e41 manuss\u0101na\u1e41 vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 nuppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101, natthi me tesu chandar\u0101go\u201dti. ",
+          "ref": "The people regarding whom this would not give rise to sorrow are those I don\u2019t have desire and passion.\u201d ",
+          "en": "The people regarding whom this would not give rise to sorrow are those I don\u2019t have desire and passion.\u201d "
+        },
+        "sn42.11:2.9": {
+          "scid": "sn42.11:2.9",
+          "pli": "\u201cImin\u0101 tva\u1e41, g\u0101ma\u1e47i, dhammena di\u1e6d\u1e6dhena viditena ak\u0101likena pattena pariyog\u0101\u1e37hena at\u012bt\u0101n\u0101gate naya\u1e41 nehi: ",
+          "ref": "\u201cWith this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: ",
+          "en": "\u201cWith this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: "
+        },
+        "sn42.11:2.10": {
+          "scid": "sn42.11:2.10",
+          "pli": "\u2018ya\u1e41 kho ki\u00f1ci at\u012btamaddh\u0101na\u1e41 dukkha\u1e41 uppajjam\u0101na\u1e41 uppajji sabba\u1e41 ta\u1e41 chandam\u016blaka\u1e41 chandanid\u0101na\u1e41. ",
+          "ref": "\u2018All the suffering that arose in the past was rooted and sourced in desire. ",
+          "en": "\u2018All the suffering that arose in the past was rooted and sourced in desire. "
+        },
+        "sn42.11:2.11": {
+          "scid": "sn42.11:2.11",
+          "pli": "Chando hi m\u016bla\u1e41 dukkhassa. ",
+          "ref": "For desire is the <span class=\"scv-matched\">root of suffering</span>. ",
+          "en": "For desire is the <span class=\"scv-matched\">root of suffering</span>. ",
+          "matched": true
+        },
+        "sn42.11:2.12": {
+          "scid": "sn42.11:2.12",
+          "pli": "Yampi hi ki\u00f1ci an\u0101gatamaddh\u0101na\u1e41 dukkha\u1e41 uppajjam\u0101na\u1e41 uppajjissati, sabba\u1e41 ta\u1e41 chandam\u016blaka\u1e41 chandanid\u0101na\u1e41. ",
+          "ref": "All the suffering that will arise in the future will be rooted and sourced in desire. ",
+          "en": "All the suffering that will arise in the future will be rooted and sourced in desire. "
+        },
+        "sn42.11:2.13": {
+          "scid": "sn42.11:2.13",
+          "pli": "Chando hi m\u016bla\u1e41 dukkhass\u0101\u2019\u201dti. ",
+          "ref": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019\u201d ",
+          "en": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019\u201d ",
+          "matched": true
+        },
+        "sn42.11:2.14": {
+          "scid": "sn42.11:2.14",
+          "pli": "\u201cAcchariya\u1e41, bhante, abbhuta\u1e41, bhante. ",
+          "ref": "\u201cIt\u2019s incredible, sir, it\u2019s amazing! ",
+          "en": "\u201cIt\u2019s incredible, sir, it\u2019s amazing! "
+        },
+        "sn42.11:2.15": {
+          "scid": "sn42.11:2.15",
+          "pli": "Y\u0101va subh\u0101sita\u00f1cida\u1e41, bhante, bhagavat\u0101: ",
+          "ref": "How well said this was by the Buddha! ",
+          "en": "How well said this was by the Buddha! "
+        },
+        "sn42.11:2.16": {
+          "scid": "sn42.11:2.16",
+          "pli": "\u2018ya\u1e41 ki\u00f1ci dukkha\u1e41 uppajjam\u0101na\u1e41 uppajjati, sabba\u1e41 ta\u1e41 chandam\u016blaka\u1e41 chandanid\u0101na\u1e41. ",
+          "ref": "\u2018All the suffering that arises is rooted and sourced in desire. ",
+          "en": "\u2018All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:2.17": {
+          "scid": "sn42.11:2.17",
+          "pli": "Chando hi m\u016bla\u1e41 dukkhass\u0101\u2019ti. ",
+          "ref": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019 ",
+          "en": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019 ",
+          "matched": true
+        },
+        "sn42.11:2.18": {
+          "scid": "sn42.11:2.18",
+          "pli": "Atthi me, bhante, cirav\u0101s\u012b n\u0101ma kum\u0101ro bahi \u0101vasathe pa\u1e6divasati. ",
+          "ref": "I have a boy called Cirav\u0101si, who resides in a house away from here. ",
+          "en": "I have a boy called Cirav\u0101si, who resides in a house away from here. "
+        },
+        "sn42.11:2.19": {
+          "scid": "sn42.11:2.19",
+          "pli": "So khv\u0101ha\u1e41, bhante, k\u0101lasseva vu\u1e6d\u1e6dh\u0101ya purisa\u1e41 uyyojemi: ",
+          "ref": "I rise early and dispatch someone, saying: ",
+          "en": "I rise early and dispatch someone, saying: "
+        },
+        "sn42.11:2.20": {
+          "scid": "sn42.11:2.20",
+          "pli": "\u2018gaccha, bha\u1e47e, cirav\u0101si\u1e41 kum\u0101ra\u1e41 j\u0101n\u0101h\u012b\u2019ti. ",
+          "ref": "\u2018Go, my man, and check on my boy Cirav\u0101si.\u2019 ",
+          "en": "\u2018Go, my man, and check on my boy Cirav\u0101si.\u2019 "
+        },
+        "sn42.11:2.21": {
+          "scid": "sn42.11:2.21",
+          "pli": "Y\u0101vak\u012bva\u00f1ca, bhante, so puriso n\u0101gacchati, tassa me hoteva a\u00f1\u00f1athatta\u1e41: ",
+          "ref": "Until they get back I worry: ",
+          "en": "Until they get back I worry: "
+        },
+        "sn42.11:2.22": {
+          "scid": "sn42.11:2.22",
+          "pli": "\u2018m\u0101 heva cirav\u0101sissa kum\u0101rassa ki\u00f1ci \u0101b\u0101dhayitth\u0101\u2019\u201dti. ",
+          "ref": "\u2018I hope nothing\u2019s wrong with Cirav\u0101si!\u2019\u201d ",
+          "en": "\u2018I hope nothing\u2019s wrong with Cirav\u0101si!\u2019\u201d "
+        },
+        "sn42.11:3.1": {
+          "scid": "sn42.11:3.1",
+          "pli": "\u201cTa\u1e41 ki\u1e41 ma\u00f1\u00f1asi, g\u0101ma\u1e47i, ",
+          "ref": "\u201cWhat do you think, chief? ",
+          "en": "\u201cWhat do you think, chief? "
+        },
+        "sn42.11:3.2": {
+          "scid": "sn42.11:3.2",
+          "pli": "cirav\u0101sissa kum\u0101rassa vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti? ",
+          "ref": "If Cirav\u0101si was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?\u201d ",
+          "en": "If Cirav\u0101si was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?\u201d "
+        },
+        "sn42.11:3.3": {
+          "scid": "sn42.11:3.3",
+          "pli": "\u201cCirav\u0101sissa me, bhante, kum\u0101rassa vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 j\u012bvitassapi siy\u0101 a\u00f1\u00f1athatta\u1e41, ki\u1e41 pana me nuppajjissanti sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti. ",
+          "ref": "\u201cHow could it not, sir?\u201d ",
+          "en": "\u201cHow could it not, sir?\u201d "
+        },
+        "sn42.11:3.4": {
+          "scid": "sn42.11:3.4",
+          "pli": "\u201cImin\u0101pi kho eta\u1e41, g\u0101ma\u1e47i, pariy\u0101yena veditabba\u1e41: ",
+          "ref": "\u201cThis too is a way to understand: ",
+          "en": "\u201cThis too is a way to understand: "
+        },
+        "sn42.11:3.5": {
+          "scid": "sn42.11:3.5",
+          "pli": "\u2018ya\u1e41 ki\u00f1ci dukkha\u1e41 uppajjam\u0101na\u1e41 uppajjati, sabba\u1e41 ta\u1e41 chandam\u016blaka\u1e41 chandanid\u0101na\u1e41. ",
+          "ref": "\u2018All the suffering that arises is rooted and sourced in desire. ",
+          "en": "\u2018All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:3.6": {
+          "scid": "sn42.11:3.6",
+          "pli": "Chando hi m\u016bla\u1e41 dukkhass\u0101\u2019ti. ",
+          "ref": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019 ",
+          "en": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019 ",
+          "matched": true
+        },
+        "sn42.11:4.1": {
+          "scid": "sn42.11:4.1",
+          "pli": "Ta\u1e41 ki\u1e41 ma\u00f1\u00f1asi, g\u0101ma\u1e47i, ",
+          "ref": "What do you think, chief? ",
+          "en": "What do you think, chief? "
+        },
+        "sn42.11:4.2": {
+          "scid": "sn42.11:4.2",
+          "pli": "yad\u0101 te cirav\u0101sim\u0101t\u0101 adi\u1e6d\u1e6dh\u0101 ahosi, assut\u0101 ahosi, te cirav\u0101sim\u0101tuy\u0101 chando v\u0101 r\u0101go v\u0101 pema\u1e41 v\u0101\u201dti? ",
+          "ref": "Before you\u2019d seen or heard of Cirav\u0101si\u2019s mother, did you have any desire or passion or fondness for her?\u201d ",
+          "en": "Before you\u2019d seen or heard of Cirav\u0101si\u2019s mother, did you have any desire or passion or fondness for her?\u201d "
+        },
+        "sn42.11:4.3": {
+          "scid": "sn42.11:4.3",
+          "pli": "\u201cNo heta\u1e41, bhante\u201d. ",
+          "ref": "\u201cNo, sir.\u201d ",
+          "en": "\u201cNo, sir.\u201d "
+        },
+        "sn42.11:4.4": {
+          "scid": "sn42.11:4.4",
+          "pli": "\u201cDassana\u1e41 v\u0101 te, g\u0101ma\u1e47i, \u0101gamma savana\u1e41 v\u0101 eva\u1e41 te ahosi: ",
+          "ref": "\u201cThen was it because you saw or heard of her that you had ",
+          "en": "\u201cThen was it because you saw or heard of her that you had "
+        },
+        "sn42.11:4.5": {
+          "scid": "sn42.11:4.5",
+          "pli": "\u2018cirav\u0101sim\u0101tuy\u0101 chando v\u0101 r\u0101go v\u0101 pema\u1e41 v\u0101\u2019\u201dti? ",
+          "ref": "desire or passion or fondness for her?\u201d ",
+          "en": "desire or passion or fondness for her?\u201d "
+        },
+        "sn42.11:4.6": {
+          "scid": "sn42.11:4.6",
+          "pli": "\u201cEva\u1e41, bhante\u201d. ",
+          "ref": "\u201cYes, sir.\u201d ",
+          "en": "\u201cYes, sir.\u201d "
+        },
+        "sn42.11:5.1": {
+          "scid": "sn42.11:5.1",
+          "pli": "\u201cTa\u1e41 ki\u1e41 ma\u00f1\u00f1asi, g\u0101ma\u1e47i, ",
+          "ref": "\u201cWhat do you think, chief? ",
+          "en": "\u201cWhat do you think, chief? "
+        },
+        "sn42.11:5.2": {
+          "scid": "sn42.11:5.2",
+          "pli": "cirav\u0101sim\u0101tuy\u0101 te vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 uppajjeyyu\u1e41 sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti? ",
+          "ref": "If Cirav\u0101si\u2019s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?\u201d ",
+          "en": "If Cirav\u0101si\u2019s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?\u201d "
+        },
+        "sn42.11:5.3": {
+          "scid": "sn42.11:5.3",
+          "pli": "\u201cCirav\u0101sim\u0101tuy\u0101 me, bhante, vadhena v\u0101 bandhena v\u0101 j\u0101niy\u0101 v\u0101 garah\u0101ya v\u0101 j\u012bvitassapi siy\u0101 a\u00f1\u00f1athatta\u1e41, ki\u1e41 pana me nuppajjissanti sokaparidevadukkhadomanassup\u0101y\u0101s\u0101\u201dti. ",
+          "ref": "\u201cHow could it not, sir?\u201d ",
+          "en": "\u201cHow could it not, sir?\u201d "
+        },
+        "sn42.11:5.4": {
+          "scid": "sn42.11:5.4",
+          "pli": "\u201cImin\u0101pi kho eta\u1e41, g\u0101ma\u1e47i, pariy\u0101yena veditabba\u1e41: ",
+          "ref": "\u201cThis too is a way to understand: ",
+          "en": "\u201cThis too is a way to understand: "
+        },
+        "sn42.11:5.5": {
+          "scid": "sn42.11:5.5",
+          "pli": "\u2018ya\u1e41 ki\u00f1ci dukkha\u1e41 uppajjam\u0101na\u1e41 uppajjati, sabba\u1e41 ta\u1e41 chandam\u016blaka\u1e41 chandanid\u0101na\u1e41. ",
+          "ref": "\u2018All the suffering that arises is rooted and sourced in desire. ",
+          "en": "\u2018All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:5.6": {
+          "scid": "sn42.11:5.6",
+          "pli": "Chando hi m\u016bla\u1e41 dukkhass\u0101\u2019\u201dti. ",
+          "ref": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019\u201d ",
+          "en": "For desire is the <span class=\"scv-matched\">root of suffering</span>.\u2019\u201d ",
+          "matched": true
+        },
+        "sn42.11:5.7": {
+          "scid": "sn42.11:5.7",
+          "pli": "Ek\u0101dasama\u1e41. "
+        }
+      },
+      "author_uid": "sujato",
+      "bilaraPaths": [
+        "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+        "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json"
+      ],
+      "category": "sutta",
+      "footer": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "hyphen": "\u00ad",
+      "lang": "en",
+      "langSegs": {
+        "pli": 55,
+        "ref": 54
+      },
+      "maxWord": 30,
+      "minWord": 5,
+      "score": 5.091,
+      "segsMatched": 5,
+      "sutta_uid": "sn42.11",
+      "title": "Linked Discourses 42.11\n1. Chiefs\nWith Bhadraka",
+      "type": "translation",
+      "trilingual": true,
+      "docLang": "en",
+      "docAuthor": "sujato",
+      "docAuthorName": "Bhikkhu Sujato",
+      "docFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "refLang": "en",
+      "refAuthor": "sujato",
+      "refAuthorName": "Bhikkhu Sujato",
+      "refFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>"
+    },
+  ],
+  "refLang": "en",
+  "refAuthor": "sujato",
+  "docLang": "en",
+  "docAuthor": "sujato",
+  "trilingual": true
+}
