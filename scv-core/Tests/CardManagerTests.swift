@@ -405,4 +405,107 @@ struct CardManagerTests {
     #expect(manager.count(for: .sutta) == 2)
     #expect(manager.totalCount == 3)
   }
+
+  // MARK: - Rapid Addition Tests
+
+  @Test
+  @MainActor
+  func rapidAdditionsMaintainSelectedInvariant() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Start with one card, then rapidly add up to 10 cards
+    for _ in 0..<9 {
+      manager.addCard(cardType: .search)
+
+      // After each add, validate invariant
+      #expect(manager.selectedCard != nil)
+      #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+    }
+
+    #expect(manager.totalCount == 10)
+  }
+
+  // MARK: - Rapid Removal Tests
+
+  @Test
+  @MainActor
+  func rapidRemovalsMaintainSelectedInvariant() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Create 10 cards
+    for _ in 0..<9 {
+      manager.addCard(cardType: .search)
+    }
+    #expect(manager.totalCount == 10)
+
+    // Rapidly remove cards until one remains
+    while manager.allCards.count > 1 {
+      let cardToRemove = manager.allCards.first!
+      manager.removeCard(cardToRemove)
+
+      // After each removal, validate invariant
+      #expect(manager.selectedCard != nil)
+      #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+    }
+
+    #expect(manager.totalCount == 1)
+    #expect(manager.selectedCard != nil)
+  }
+
+  // MARK: - Mixed Operations Tests
+
+  @Test
+  @MainActor
+  func mixedRapidAddRemoveOperationsMaintainInvariant() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Mix of rapid adds and removes
+    // Add 5 cards
+    for _ in 0..<5 {
+      manager.addCard(cardType: .search)
+      #expect(manager.selectedCard != nil)
+      #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+    }
+    #expect(manager.totalCount == 6) // 1 initial + 5 added
+
+    // Remove 2 cards
+    manager.removeCard(manager.allCards[0])
+    #expect(manager.selectedCard != nil)
+    #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+
+    manager.removeCard(manager.allCards[0])
+    #expect(manager.selectedCard != nil)
+    #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+
+    #expect(manager.totalCount == 4)
+
+    // Add 3 more cards
+    for _ in 0..<3 {
+      manager.addCard(cardType: .sutta)
+      #expect(manager.selectedCard != nil)
+      #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+    }
+    #expect(manager.totalCount == 7)
+
+    // Remove 5 cards
+    for _ in 0..<5 {
+      manager.removeCard(manager.allCards[0])
+      #expect(manager.selectedCard != nil)
+      #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
+    }
+
+    #expect(manager.totalCount == 2)
+  }
 }
