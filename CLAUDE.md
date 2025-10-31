@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+See also ~/.claude/CLAUDE.md
+
 ## Communication Style
 
 - Be direct and terse
@@ -19,21 +21,6 @@ and provides a card-based interface where users can create multiple search and s
 ## Permissions
 
 - you can read any file in project except those in secret/
-
-## Workflow
-
-Work is organized into "work sessions" that end with a git commit.
-
-Each work session must start with:
-
-1. answering developer questions
-2. defining a single Objective
-3. defining a Plan to meet that objective 
-4. defining a Test to verify that objective has been met
-
-With all above in place, work can begin and the plan can be followed step-by-step.
-
-Once the entire Test passes, developer approval is required for git commit
 
 ## Testing
 
@@ -55,4 +42,22 @@ To run a specific test:
 ```bash
 cd scv-core && swift test --filter CardTests
 ```
+
+## Backlog
+
+### Card Testing
+01. [x] Verify Card has UUID - Check if @Model auto-generates ID or if explicit UUID needed
+02. [x] Add Codable to Card - Enable JSON serialization/deserialization of Card
+03. [ ] Card/SearchResponse relationship - Verify SearchResponse is properly modeled for SwiftData persistence
+04. [ ] Card identity preservation - Test that Card ID and createdAt survive save/load cycles
+05. [ ] SearchResults persistence - Test that SearchResponse data in searchResults field survives SwiftData round-trip
+
+### CardManager Testing
+06. [ ] CardManager selection logic - Test that selectedCard remains valid after deletions
+07. [ ] CardManager deletion tests - Test edge cases (delete last card, delete middle card, concurrent deletes)
+08. [ ] CardManager concurrent operations - Test rapid add/remove operations
+
+### Card Validation
+09. [ ] Card validation - Test constraints (e.g., typeId uniqueness per cardType)
+10. [ ] Localization edge cases - Test localization with invalid bundle or missing keys
 

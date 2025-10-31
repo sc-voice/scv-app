@@ -18,9 +18,10 @@ enum CardType: String, CaseIterable, Codable {
 // MARK: - Card Model
 
 @Model
-final class Card {
+final class Card: Codable {
   // MARK: - Properties
 
+  private(set) var uuid: UUID = UUID()
   private(set) var createdAt: Date
   private(set) var cardType: CardType
   @MainActor
@@ -28,11 +29,11 @@ final class Card {
     return "\(localizedCardTypeName()) \(typeId)"
   }
   private(set) var typeId: Int
-  
+
   // Search card properties
   var searchQuery: String = ""
   var searchResults: SearchResponse?
-  
+
   // Sutta card properties
   var suttaReference: String = ""
 
@@ -51,6 +52,40 @@ final class Card {
     self.searchQuery = searchQuery
     self.searchResults = searchResults
     self.suttaReference = suttaReference
+  }
+
+  // MARK: - Codable
+
+  enum CodingKeys: String, CodingKey {
+    case uuid
+    case createdAt
+    case cardType
+    case typeId
+    case searchQuery
+    case searchResults
+    case suttaReference
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(uuid, forKey: .uuid)
+    try container.encode(createdAt, forKey: .createdAt)
+    try container.encode(cardType, forKey: .cardType)
+    try container.encode(typeId, forKey: .typeId)
+    try container.encode(searchQuery, forKey: .searchQuery)
+    try container.encode(searchResults, forKey: .searchResults)
+    try container.encode(suttaReference, forKey: .suttaReference)
+  }
+
+  required init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.uuid = try container.decode(UUID.self, forKey: .uuid)
+    self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+    self.cardType = try container.decode(CardType.self, forKey: .cardType)
+    self.typeId = try container.decode(Int.self, forKey: .typeId)
+    self.searchQuery = try container.decode(String.self, forKey: .searchQuery)
+    self.searchResults = try container.decodeIfPresent(SearchResponse.self, forKey: .searchResults)
+    self.suttaReference = try container.decode(String.self, forKey: .suttaReference)
   }
 
   // MARK: - Public Methods

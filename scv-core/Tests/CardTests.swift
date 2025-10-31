@@ -154,4 +154,125 @@ struct CardTests {
     // #expect(card2.id is PersistentIdentifier)
     #expect(card.id != card2.id)
   }
+
+  // MARK: - Codable Tests
+
+  @Test
+  func cardEncodesToJSON() throws {
+    let card = Card(
+      cardType: .search,
+      typeId: 1,
+      searchQuery: "mindfulness"
+    )
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card)
+    let jsonString = String(data: jsonData, encoding: .utf8)
+
+    #expect(jsonString != nil)
+    #expect(jsonString?.contains("\"uuid\"") ?? false)
+    #expect(jsonString?.contains("\"cardType\":\"search\"") ?? false)
+    #expect(jsonString?.contains("\"typeId\":1") ?? false)
+    #expect(jsonString?.contains("\"searchQuery\":\"mindfulness\"") ?? false)
+  }
+
+  @Test
+  func cardDecodesFromJSON() throws {
+    let json = """
+    {
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "createdAt": 725846400.0,
+      "cardType": "search",
+      "typeId": 2,
+      "searchQuery": "dhamma",
+      "searchResults": null,
+      "suttaReference": ""
+    }
+    """
+
+    let decoder = JSONDecoder()
+    let card = try decoder.decode(Card.self, from: json.data(using: .utf8)!)
+
+    #expect(card.uuid == UUID(uuidString: "550e8400-e29b-41d4-a716-446655440000"))
+    #expect(card.cardType == .search)
+    #expect(card.typeId == 2)
+    #expect(card.searchQuery == "dhamma")
+    #expect(card.searchResults == nil)
+    #expect(card.suttaReference == "")
+  }
+
+  @Test
+  func cardRoundTripSerialization() throws {
+    let originalCard = Card(
+      cardType: .sutta,
+      typeId: 5,
+      searchQuery: "",
+      suttaReference: "MN 10"
+    )
+    let originalUUID = originalCard.uuid
+
+    // Encode to JSON
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(originalCard)
+
+    // Decode from JSON
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    // Verify properties match
+    #expect(decodedCard.uuid == originalUUID)
+    #expect(decodedCard.cardType == originalCard.cardType)
+    #expect(decodedCard.typeId == originalCard.typeId)
+    #expect(decodedCard.searchQuery == originalCard.searchQuery)
+    #expect(decodedCard.suttaReference == originalCard.suttaReference)
+    #expect(decodedCard.createdAt == originalCard.createdAt)
+  }
+
+  @Test
+  func cardWithSearchResponseRoundTrip() throws {
+    let searchResponse = SearchResponse(
+      author: "test",
+      lang: "en",
+      pattern: "anicca",
+      segsMatched: 10
+    )
+    let originalCard = Card(
+      cardType: .search,
+      typeId: 3,
+      searchQuery: "anicca",
+      searchResults: searchResponse
+    )
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(originalCard)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    // Verify SearchResponse survived round-trip
+    #expect(decodedCard.searchResults != nil)
+    #expect(decodedCard.searchResults?.pattern == "anicca")
+    #expect(decodedCard.searchResults?.author == "test")
+    #expect(decodedCard.searchResults?.segsMatched == 10)
+  }
+
+  @Test
+  func cardUUIDPreservedAcrossInstances() throws {
+    let card1 = Card(cardType: .search, typeId: 1)
+    let uuid1 = card1.uuid
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card1)
+
+    let decoder = JSONDecoder()
+    let card2 = try decoder.decode(Card.self, from: jsonData)
+
+    // UUID should be the same
+    #expect(card2.uuid == uuid1)
+
+    // But PersistentIdentifier should be different (regenerated)
+    #expect(card1.id != card2.id)
+  }
 }
