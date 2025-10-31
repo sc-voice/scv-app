@@ -48,7 +48,7 @@ cd scv-core && swift test --filter CardTests
 ### Card Testing
 01. [x] Verify Card has UUID - Check if @Model auto-generates ID or if explicit UUID needed
 02. [x] Add Codable to Card - Enable JSON serialization/deserialization of Card
-03. [ ] Card/SearchResponse relationship - Verify SearchResponse is properly modeled for SwiftData persistence
+03. [x] Card/SearchResponse relationship - Verify SearchResponse is properly modeled for SwiftData persistence
 04. [ ] Card identity preservation - Test that Card ID and createdAt survive save/load cycles
 05. [ ] SearchResults persistence - Test that SearchResponse data in searchResults field survives SwiftData round-trip
 
