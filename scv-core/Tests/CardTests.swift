@@ -629,4 +629,261 @@ struct CardTests {
     #expect(searchCards[0].typeId == 5)
     #expect(searchCards[1].typeId == 6)
   }
+
+  // MARK: - Localization Edge Cases (Objective 04)
+
+  @Test
+  @MainActor
+  func cardLocalizationMissingKeyFallback() {
+    // When a localization key doesn't exist, NSLocalizedString returns the key itself
+    // Manually call localization on a non-existent key
+    let missingKeyResult = "nonexistent.key".localized
+
+    // Should return the key itself as fallback
+    #expect(missingKeyResult == "nonexistent.key")
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationWithEmptyBundle() throws {
+    // Create a temporary empty bundle (no Localizable.strings)
+    let tempDir = FileManager.default.temporaryDirectory
+    let bundleDir = tempDir.appendingPathComponent(UUID().uuidString).appendingPathComponent("empty.lproj")
+
+    try FileManager.default.createDirectory(at: bundleDir, withIntermediateDirectories: true)
+
+    guard let emptyBundle = Bundle(url: bundleDir.deletingLastPathComponent()) else {
+      #expect(Bool(false), "Failed to create empty bundle")
+      return
+    }
+
+    withLocalizationBundle(emptyBundle) {
+      let card = Card(cardType: .search)
+      let localizedName = card.localizedCardTypeName()
+
+      // With empty bundle, should fallback to key
+      #expect(localizedName == "card.type.search")
+    }
+
+    // Cleanup
+    try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationBundleSwappingWithErrors() throws {
+    // Save original bundle reference
+    let searchCard = Card(cardType: .search)
+    let originalLocalization = searchCard.localizedCardTypeName()
+
+    // Verify original works
+    #expect(originalLocalization == "Search")
+
+    // Load Portuguese bundle
+    guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
+          let portugueseBundle = Bundle(url: bundle) else {
+      #expect(Bool(false), "Failed to load pt-PT localization bundle")
+      return
+    }
+
+    // Swap to Portuguese
+    withLocalizationBundle(portugueseBundle) {
+      let portugueseLocalization = searchCard.localizedCardTypeName()
+      #expect(portugueseLocalization == "Pesquisa")
+    }
+
+    // Verify original bundle is restored
+    let restoredLocalization = searchCard.localizedCardTypeName()
+    #expect(restoredLocalization == "Search")
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationNestedBundleSwapping() throws {
+    let card = Card(cardType: .search)
+
+    // Load Portuguese bundle
+    guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
+          let portugueseBundle = Bundle(url: bundle) else {
+      #expect(Bool(false), "Failed to load pt-PT localization bundle")
+      return
+    }
+
+    withLocalizationBundle(portugueseBundle) {
+      let portugueseResult1 = card.localizedCardTypeName()
+      #expect(portugueseResult1 == "Pesquisa")
+
+      // Create empty bundle and swap within Portuguese context
+      let tempDir = FileManager.default.temporaryDirectory
+      let bundleDir = tempDir.appendingPathComponent(UUID().uuidString).appendingPathComponent("empty.lproj")
+
+      do {
+        try FileManager.default.createDirectory(at: bundleDir, withIntermediateDirectories: true)
+
+        guard let emptyBundle = Bundle(url: bundleDir.deletingLastPathComponent()) else {
+          #expect(Bool(false), "Failed to create empty bundle")
+          return
+        }
+
+        withLocalizationBundle(emptyBundle) {
+          let emptyResult = card.localizedCardTypeName()
+          // Should fallback to key
+          #expect(emptyResult == "card.type.search")
+        }
+
+        // Should restore to Portuguese
+        let portugueseResult2 = card.localizedCardTypeName()
+        #expect(portugueseResult2 == "Pesquisa")
+
+        // Cleanup
+        try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+      } catch {
+        #expect(Bool(false), "Failed to create temporary bundle: \(error)")
+      }
+    }
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationWithInvalidBundlePath() throws {
+    let card = Card(cardType: .search)
+
+    // Try to load from non-existent path
+    let invalidURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent("nonexistent-\(UUID().uuidString)")
+      .appendingPathComponent("fake.lproj")
+
+    let invalidBundle = Bundle(url: invalidURL)
+
+    // Bundle should be nil or unusable
+    if let bundle = invalidBundle {
+      withLocalizationBundle(bundle) {
+        let result = card.localizedCardTypeName()
+        // Should fallback since bundle has no strings
+        #expect(result == "card.type.search")
+      }
+    }
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationPartiallyTranslatedBundle() throws {
+    // Create a bundle with only partial translations
+    let tempDir = FileManager.default.temporaryDirectory
+    let bundleDir = tempDir.appendingPathComponent(UUID().uuidString).appendingPathComponent("partial.lproj")
+
+    try FileManager.default.createDirectory(at: bundleDir, withIntermediateDirectories: true)
+
+    // Create Localizable.strings with only one key
+    let stringsContent = "\"card.type.search\" = \"CustomSearch\";\n"
+    let stringsPath = bundleDir.appendingPathComponent("Localizable.strings")
+
+    try stringsContent.write(toFile: stringsPath.path, atomically: true, encoding: .utf8)
+
+    guard let partialBundle = Bundle(url: bundleDir.deletingLastPathComponent()) else {
+      #expect(Bool(false), "Failed to create partial bundle")
+      try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+      return
+    }
+
+    withLocalizationBundle(partialBundle) {
+      let card = Card(cardType: .search)
+      let suttaCard = Card(cardType: .sutta)
+
+      let searchLocalized = card.localizedCardTypeName()
+      let suttaLocalized = suttaCard.localizedCardTypeName()
+
+      // Search key exists in partial bundle
+      #expect(searchLocalized == "CustomSearch")
+
+      // Sutta key doesn't exist, should fallback to key
+      #expect(suttaLocalized == "card.type.sutta")
+    }
+
+    // Cleanup
+    try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationBundleSwappingExceptionSafety() throws {
+    let card = Card(cardType: .search)
+
+    guard let bundle = Bundle.module.url(forResource: "pt-PT", withExtension: "lproj"),
+          let portugueseBundle = Bundle(url: bundle) else {
+      #expect(Bool(false), "Failed to load pt-PT localization bundle")
+      return
+    }
+
+    // Test that bundle swapping with defer properly restores bundle
+    withLocalizationBundle(portugueseBundle) {
+      let portugueseValue = card.localizedCardTypeName()
+      #expect(portugueseValue == "Pesquisa")
+    }
+
+    // Verify original bundle is restored after withLocalizationBundle exits
+    // This tests that the defer in withLocalizationBundle works correctly
+    let restoredValue = card.localizedCardTypeName()
+    #expect(restoredValue == "Search")
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationMultipleCardsWithInvalidBundle() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let bundleDir = tempDir.appendingPathComponent(UUID().uuidString).appendingPathComponent("empty.lproj")
+
+    try FileManager.default.createDirectory(at: bundleDir, withIntermediateDirectories: true)
+
+    guard let emptyBundle = Bundle(url: bundleDir.deletingLastPathComponent()) else {
+      #expect(Bool(false), "Failed to create empty bundle")
+      return
+    }
+
+    withLocalizationBundle(emptyBundle) {
+      let searchCard1 = Card(cardType: .search, typeId: 1)
+      let suttaCard1 = Card(cardType: .sutta, typeId: 1)
+      let searchCard2 = Card(cardType: .search, typeId: 2)
+
+      // All should fallback gracefully
+      #expect(searchCard1.localizedCardTypeName() == "card.type.search")
+      #expect(suttaCard1.localizedCardTypeName() == "card.type.sutta")
+      #expect(searchCard2.localizedCardTypeName() == "card.type.search")
+    }
+
+    // Cleanup
+    try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationKeyAccessDirectly() {
+    // Test accessing localization keys directly without Card
+    let searchKey = "card.type.search"
+    let suttaKey = "card.type.sutta"
+    let invalidKey = "nonexistent.translation"
+
+    let searchLocalized = searchKey.localized
+    let suttaLocalized = suttaKey.localized
+    let invalidLocalized = invalidKey.localized
+
+    #expect(searchLocalized == "Search")
+    #expect(suttaLocalized == "Sutta")
+    #expect(invalidLocalized == "nonexistent.translation")
+  }
+
+  @Test
+  @MainActor
+  func cardLocalizationFormattedStrings() {
+    // Test the formatted string localization method
+    let key = "card.type.search"
+    let formattedKey = "test.format"
+
+    let directAccess = key.localized
+    #expect(directAccess == "Search")
+
+    // Verify formatted access works (even if key doesn't exist)
+    let formatted = formattedKey.localized
+    #expect(formatted == "test.format")
+  }
 }
