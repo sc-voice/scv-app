@@ -874,16 +874,32 @@ struct CardTests {
 
   @Test
   @MainActor
-  func cardLocalizationFormattedStrings() {
-    // Test the formatted string localization method
-    let key = "card.type.search"
-    let formattedKey = "test.format"
+  func cardLocalizationFormattedStrings() throws {
+    // Create a temporary bundle with a formatted string template
+    let tempDir = FileManager.default.temporaryDirectory
+    let bundleDir = tempDir.appendingPathComponent(UUID().uuidString).appendingPathComponent("format.lproj")
 
-    let directAccess = key.localized
-    #expect(directAccess == "Search")
+    try FileManager.default.createDirectory(at: bundleDir, withIntermediateDirectories: true)
 
-    // Verify formatted access works (even if key doesn't exist)
-    let formatted = formattedKey.localized
-    #expect(formatted == "test.format")
+    // Create Localizable.strings with a format string
+    let stringsContent = "\"format.test\" = \"Card %d: %@\";\n"
+    let stringsPath = bundleDir.appendingPathComponent("Localizable.strings")
+
+    try stringsContent.write(toFile: stringsPath.path, atomically: true, encoding: .utf8)
+
+    guard let formatBundle = Bundle(url: bundleDir.deletingLastPathComponent()) else {
+      #expect(Bool(false), "Failed to create format bundle")
+      try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
+      return
+    }
+
+    withLocalizationBundle(formatBundle) {
+      // Test the localized(_:) method with format arguments
+      let formatted = "format.test".localized(1, "Search" as CVarArg)
+      #expect(formatted == "Card 1: Search")
+    }
+
+    // Cleanup
+    try FileManager.default.removeItem(at: bundleDir.deletingLastPathComponent())
   }
 }
