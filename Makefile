@@ -1,9 +1,13 @@
-.PHONY: test test-verbose build clean
+.PHONY: test test-all test-core test-core-verbose build clean
 
-test:
+test: test-all
+
+test-all: test-core
+
+test-core:
 	@cd scv-core && swift test --no-parallel
 
-test-verbose:
+test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
 
 build:
@@ -17,7 +21,9 @@ clean:
 help:
 	@echo "SC-Voice Build Targets"
 	@echo ""
-	@echo "  make test          Run scv-core tests serially"
-	@echo "  make test-verbose  Run scv-core tests serially with verbose output"
-	@echo "  make build         Build all packages"
-	@echo "  make clean         Clean build artifacts"
+	@echo "  make test              Run all package tests (shortcut for test-all)"
+	@echo "  make test-all          Run all package tests"
+	@echo "  make test-core         Run scv-core tests serially"
+	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make build             Build all packages"
+	@echo "  make clean             Clean build artifacts"
