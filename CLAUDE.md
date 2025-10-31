@@ -53,7 +53,7 @@ cd scv-core && swift test --filter CardTests
 05. [x] SearchResults persistence - Test that SearchResponse data in searchResults field survives SwiftData round-trip
 
 ### CardManager Testing
-06. [ ] CardManager selection logic - Test that selectedCard remains valid after deletions
+06. [x] CardManager selection logic - Test that selectedCard remains valid after deletions
 07. [ ] CardManager deletion tests - Test edge cases (delete last card, delete middle card, concurrent deletes)
 08. [ ] CardManager concurrent operations - Test rapid add/remove operations
 
