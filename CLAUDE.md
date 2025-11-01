@@ -45,11 +45,3 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
-### Card Validation (completed)
-04. [x] Localization edge cases - Test localization with invalid bundle or missing keys
-03. [x] Card validation - Test constraints (e.g., typeId uniqueness per cardType)
-
-### CardManager Testing (completed)
-01. [x] CardManager deletion tests - Test edge cases (delete last card, delete middle card, concurrent deletes)
-02. [x] CardManager concurrent operations - Test rapid add/remove operations
-
