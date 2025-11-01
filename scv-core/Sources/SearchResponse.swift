@@ -320,6 +320,13 @@ public struct MLDocument: Codable, Equatable {
     )
   }
 
+  /// Returns segments sorted in SuttaCentralId order
+  func segments() -> [(key: String, value: Segment)] {
+    segMap.sorted { lhs, rhs in
+      SuttaCentralId.compareLow(lhs.key, rhs.key) < 0
+    }
+  }
+
   enum CodingKeys: String, CodingKey {
     case author
     case segMap

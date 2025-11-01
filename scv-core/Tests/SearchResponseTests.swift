@@ -618,4 +618,68 @@ struct SearchResponseTests {
     let matchedSegments = doc.matchedSegments
     #expect(matchedSegments.count > 0, "Document should have matched segments")
   }
+
+  // MARK: - Segments Method Tests
+
+  @Test func testMLDocumentSegmentsSorting() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse, let doc = response.mlDocs.first else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    let sortedSegments = doc.segments()
+
+    // Verify segments are returned
+    #expect(sortedSegments.count > 0, "Document should have segments")
+
+    // Verify they're sorted in SuttaCentralId order
+    for i in 0..<(sortedSegments.count - 1) {
+      let current = sortedSegments[i].key
+      let next = sortedSegments[i + 1].key
+
+      let cmp = SuttaCentralId.compareLow(current, next)
+      #expect(
+        cmp < 0,
+        "Segments should be sorted in order: \(current) should come before \(next)"
+      )
+    }
+  }
+
+  @Test func testMLDocumentSegmentsOrderForSn4211() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse, let doc = response.mlDocs.first else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    let sortedSegments = doc.segments()
+
+    // Verify first three segments are in correct order for sn42.11
+    #expect(sortedSegments.count >= 3)
+    #expect(sortedSegments[0].key == "sn42.11:0.1")
+    #expect(sortedSegments[1].key == "sn42.11:0.2")
+    #expect(sortedSegments[2].key == "sn42.11:0.3")
+  }
+
+  @Test func testMLDocumentSegmentsPreservesContent() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse, let doc = response.mlDocs.first else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    let sortedSegments = doc.segments()
+    let firstSeg = sortedSegments.first
+
+    // Verify segment content is preserved
+    #expect(firstSeg?.value.scid == "sn42.11:0.1")
+    #expect(
+      firstSeg?.value.en.contains("Linked Discourses") ?? false,
+      "Segment content should be preserved"
+    )
+  }
 }
