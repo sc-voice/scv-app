@@ -15,23 +15,23 @@ private let NIL_BOOL_DEFAULT = false
 
 // MARK: - Main Search Response
 public struct SearchResponse: Codable, Equatable {
-  let author: String
-  let lang: String
-  let searchLang: String
-  let minLang: Int
-  let maxDoc: Int
-  let maxResults: Int
-  let pattern: String
-  let method: String
-  let resultPattern: String
-  let segsMatched: Int
-  let bilaraPaths: [String]
-  let suttaRefs: [String]
-  let mlDocs: [MLDocument]
+  public let author: String
+  public let lang: String
+  public let searchLang: String
+  public let minLang: Int
+  public let maxDoc: Int
+  public let maxResults: Int
+  public let pattern: String
+  public let method: String
+  public let resultPattern: String
+  public let segsMatched: Int
+  public let bilaraPaths: [String]
+  public let suttaRefs: [String]
+  public let mlDocs: [MLDocument]
 
   // Error handling fields
-  let searchError: SearchErrorInfo?
-  let searchSuggestion: String
+  public let searchError: SearchErrorInfo?
+  public let searchSuggestion: String
 
   // Computed properties
   var isSuccess: Bool { searchError == nil }
@@ -496,7 +496,7 @@ extension SearchResponse {
   /// Creates a mock SearchResponse from MockResponse.json resource file
   /// Works in both production and test environments
   /// - Returns: A SearchResponse loaded from the resource, or nil if loading fails
-  static func createMockResponse() -> SearchResponse? {
+  public static func createMockResponse() -> SearchResponse? {
     guard let resourceURL = Bundle.module.url(forResource: "MockResponse", withExtension: "json"),
           let data = try? Data(contentsOf: resourceURL) else {
       return nil

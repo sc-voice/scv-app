@@ -12,6 +12,10 @@ let package = Package(
             name: "scvUI",
             targets: ["scvUI"]
         ),
+        .executable(
+            name: "mock-response-view",
+            targets: ["MockResponseView"]
+        ),
     ],
     dependencies: [
         .package(path: "../scv-core"),
@@ -25,6 +29,10 @@ let package = Package(
         ),
         .testTarget(
             name: "scvUITests",
+            dependencies: ["scvUI"]
+        ),
+        .executableTarget(
+            name: "MockResponseView",
             dependencies: ["scvUI"]
         ),
     ]
