@@ -74,4 +74,5 @@ cd scv-core && swift test --filter CardTests
 
 ### Completed
 - [x] Create scv-ui Swift package with scv-core dependency and re-export
+- [x] Create ScvDemo iOS app that loads scv-ui package
 
