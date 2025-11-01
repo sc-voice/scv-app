@@ -170,35 +170,35 @@ public struct SearchErrorInfo: Codable, Equatable {
 
 // MARK: - ML Document
 public struct MLDocument: Codable, Equatable {
-  let author: String
-  let segMap: [String: Segment]
-  let blurb: String
-  let stats: DocumentStats?
+  public let author: String
+  public let segMap: [String: Segment]
+  public let blurb: String
+  public let stats: DocumentStats?
 
   // Additional fields from MockResponse
-  let author_uid: String
-  let bilaraPaths: [String]
-  let category: String
-  let footer: String
-  let hyphen: String
-  let lang: String
-  let langSegs: [String: Int]
-  let maxWord: Int
-  let minWord: Int
-  let score: Double
-  let segsMatched: Int
-  let sutta_uid: String
-  let title: String
-  let type: String
-  let trilingual: Bool
-  let docLang: String
-  let docAuthor: String
-  let docAuthorName: String
-  let docFooter: String
-  let refLang: String
-  let refAuthor: String
-  let refAuthorName: String
-  let refFooter: String
+  public let author_uid: String
+  public let bilaraPaths: [String]
+  public let category: String
+  public let footer: String
+  public let hyphen: String
+  public let lang: String
+  public let langSegs: [String: Int]
+  public let maxWord: Int
+  public let minWord: Int
+  public let score: Double
+  public let segsMatched: Int
+  public let sutta_uid: String
+  public let title: String
+  public let type: String
+  public let trilingual: Bool
+  public let docLang: String
+  public let docAuthor: String
+  public let docAuthorName: String
+  public let docFooter: String
+  public let refLang: String
+  public let refAuthor: String
+  public let refAuthorName: String
+  public let refFooter: String
 
   init(
     author: String = NIL_STRING_DEFAULT,
@@ -321,7 +321,7 @@ public struct MLDocument: Codable, Equatable {
   }
 
   /// Returns segments sorted in SuttaCentralId order
-  func segments() -> [(key: String, value: Segment)] {
+  public func segments() -> [(key: String, value: Segment)] {
     segMap.sorted { lhs, rhs in
       SuttaCentralId.compareLow(lhs.key, rhs.key) < 0
     }
@@ -360,11 +360,11 @@ public struct MLDocument: Codable, Equatable {
 
 // MARK: - Segment
 public struct Segment: Codable, Equatable {
-  let scid: String
-  let pli: String
-  let ref: String
-  let en: String
-  let matched: Bool
+  public let scid: String
+  public let pli: String
+  public let ref: String
+  public let en: String
+  public let matched: Bool
 
   init(
     scid: String,

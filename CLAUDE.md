@@ -45,15 +45,6 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
-### SuttaView Implementation (displays sn42.11 in ScvDemo)
-**Objective:** Create SuttaView in ScvDemo that displays sn42.11
-
-01. [ ] Examine MLDoc structure for sn42.11
-02. [ ] Decide SuttaView display content
-03. [ ] Create SuttaView component
-04. [ ] Integrate SuttaView into ScvDemo
-05. [ ] Test SuttaView displays sn42.11 correctly
-
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 
@@ -85,9 +76,12 @@ cd scv-core && swift test --filter CardTests
 - [x] Create scv-ui Swift package with scv-core dependency and re-export
 - [x] Create ScvDemo iOS app that loads scv-ui package
 - [x] Implement SuttaCentralId.swift in scv-core based on scv-esm/src/sutta-central-id.mjs
-- [x] Add segments() method to MLDocument that returns array of segments in SuttaCentralId order
-  - Implemented method in SearchResponse.swift
-  - Created SuttaView.swift component that uses segments()
+- [x] Create SuttaView in ScvDemo that displays sn42.11
+  - Added segments() method to MLDocument for SuttaCentralId-ordered display
+  - Created SuttaView.swift component displaying title and segments
   - Updated ScvDemo to display SuttaView with sn42.11
+  - Made MLDocument, Segment properties public for cross-package access
+  - Made segments() method public
   - Added three unit tests verifying correct ordering and content preservation
+  - ScvDemo builds successfully
 
