@@ -84,4 +84,9 @@ cd scv-core && swift test --filter CardTests
   - Made segments() method public
   - Added three unit tests verifying correct ordering and content preservation
   - ScvDemo builds successfully
+- [x] Update SuttaView to display only language-matched segment text
+  - Implement getSegmentText() method that matches segment text to docLang
+  - Display segments with fallback to English if language property is empty
+  - Add blue scid prefix to each segment row
+  - Updated main ScvDemo app to display SuttaView (in scv-demo/Sources/ScvDemo/ContentView.swift)
 

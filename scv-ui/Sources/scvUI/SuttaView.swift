@@ -33,14 +33,15 @@ public struct SuttaView: View {
 
             // Segments Content
             ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
                     ForEach(mlDoc.segments(), id: \.key) { scid, segment in
-                        VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .top, spacing: 8) {
                             Text(scid)
                                 .font(.caption)
-                                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                .foregroundColor(.blue)
+                                .lineLimit(1)
 
-                            Text(segment.en)
+                            Text(getSegmentText(segment))
                                 .font(.body)
                                 .foregroundColor(.primary)
                                 .lineLimit(nil)
@@ -51,6 +52,17 @@ public struct SuttaView: View {
                 .padding(.vertical)
             }
             .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+        }
+    }
+
+    private func getSegmentText(_ segment: Segment) -> String {
+        switch mlDoc.docLang.lowercased() {
+        case "pli":
+            return segment.pli.isEmpty ? segment.en : segment.pli
+        case "ref":
+            return segment.ref.isEmpty ? segment.en : segment.ref
+        default: // "en" and others default to English
+            return segment.en
         }
     }
 }
