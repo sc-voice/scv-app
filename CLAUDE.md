@@ -45,3 +45,33 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
+### SearchCardView Implementation (new scv-ui package)
+**Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
+
+01. [ ] Decide SearchCardView display scope
+    - Just matched passages?
+    - Full document metadata (title, author, score) + matched passages?
+    - All documents in expandable/collapsible sections?
+
+02. [ ] Decide SearchCardView UI focus
+    - Scrollable list view of results?
+    - Highlighting which text matched the query?
+    - Navigation capability to view full documents?
+
+03. [ ] Decide SearchCardView interactivity
+    - Tapping to expand/collapse documents?
+    - Filtering by relevance score or other criteria?
+    - Pagination or lazy loading for large result sets?
+
+04. [ ] Decide SearchCardView styling
+    - Light/dark mode support?
+    - Specific design system or minimal SwiftUI defaults?
+    - Compact vs detailed display density?
+
+05. [ ] Implement SearchCardView with MockResponse example
+
+06. [ ] Add SearchCardView tests
+
+### Completed
+- [x] Create scv-ui Swift package with scv-core dependency and re-export
+
