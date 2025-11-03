@@ -72,6 +72,8 @@ cd scv-core && swift test --filter CardTests
 
 06. [ ] Add SearchCardView tests
 
+07. [ ] Test SuttaView audio playback feature
+
 ### Completed
 - [x] Create scv-ui Swift package with scv-core dependency and re-export
 - [x] Create ScvDemo iOS app that loads scv-ui package
