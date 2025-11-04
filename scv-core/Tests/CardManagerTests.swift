@@ -261,9 +261,9 @@ struct CardManagerTests {
 
     // Create 5 cards
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
+    let _ = manager.addCard(cardType: .search)
     let card3 = manager.addCard(cardType: .search)
-    let card4 = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
     let card5 = manager.addCard(cardType: .sutta)
 
     manager.selectCard(card1)
@@ -292,9 +292,9 @@ struct CardManagerTests {
 
     // Create 5 cards
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
+    let _ = manager.addCard(cardType: .search)
     let card3 = manager.addCard(cardType: .search)
-    let card4 = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
     let card5 = manager.addCard(cardType: .sutta)
 
     manager.selectCard(card3)
@@ -353,12 +353,12 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     // Create 6 cards
-    let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
+    let _ = manager.allCards.first!
+    let _ = manager.addCard(cardType: .search)
     let card3 = manager.addCard(cardType: .search)
     let card4 = manager.addCard(cardType: .sutta)
-    let card5 = manager.addCard(cardType: .sutta)
-    let card6 = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
 
     manager.selectCard(card3)
 
@@ -384,11 +384,11 @@ struct CardManagerTests {
 
     // Create 3 search and 3 sutta cards
     let searchCard1 = manager.allCards.first!
-    let searchCard2 = manager.addCard(cardType: .search)
+    let _ = manager.addCard(cardType: .search)
     let searchCard3 = manager.addCard(cardType: .search)
     let suttaCard1 = manager.addCard(cardType: .sutta)
-    let suttaCard2 = manager.addCard(cardType: .sutta)
-    let suttaCard3 = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
+    let _ = manager.addCard(cardType: .sutta)
 
     #expect(manager.count(for: .search) == 3)
     #expect(manager.count(for: .sutta) == 3)

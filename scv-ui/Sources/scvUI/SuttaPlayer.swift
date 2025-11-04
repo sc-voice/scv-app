@@ -98,7 +98,9 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         }
 
         // Apply speech configuration settings
-        utterance.rate = docSpeech.rate
+        // AVSpeechUtterance uses rate 0.0-1.0 with 0.5 as default (normal speed)
+        // docSpeech.rate is 0.1-2.0 multiplier, so scale it: 1.0 -> 0.5 (normal)
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docSpeech.rate
         utterance.pitchMultiplier = docSpeech.pitch
 
         synthesizer.speak(utterance)

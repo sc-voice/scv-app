@@ -49,7 +49,7 @@ public class Settings: Codable {
   nonisolated(unsafe) public static let shared = Settings()
 
   /// Current schema version (bumped when format changes incompatibly)
-  nonisolated(unsafe) public static let currentVersion: Int = 1
+  public static let currentVersion: Int = 1
 
   // MARK: - Instance Properties
 

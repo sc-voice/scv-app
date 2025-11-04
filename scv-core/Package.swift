@@ -34,7 +34,9 @@ let package = Package(
         .copy("../Resources/en.lproj"),
         .copy("../Resources/pt-PT.lproj"),
         .copy("../Resources/MockResponse.json"),
-        .copy("../Resources/MockResponse-raw.json")
+        .copy("../Resources/MockResponse-raw.json"),
+        .copy("Data/root-of-suffering.json"),
+        .copy("Data/root-of-suffering-raw.json")
       ]
     )
   ]
