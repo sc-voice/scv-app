@@ -7,10 +7,13 @@
 
 import SwiftUI
 import scvUI
+import scvCore
 
 struct ContentView: View {
     @EnvironmentObject var player: SuttaPlayer
     @State private var searchResponse: SearchResponse?
+    @State private var showSettings = false
+    @StateObject private var settingsController = SettingsModalController(from: Settings.shared)
 
     var buildNumber: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
@@ -27,6 +30,12 @@ struct ContentView: View {
                     .font(.caption)
                     .foregroundColor(.gray)
                     .padding(.trailing)
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gear")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
+                .padding(.trailing)
             }
             .padding()
 
@@ -52,6 +61,9 @@ struct ContentView: View {
                 print("DEBUG: mlDocs count: \(response.mlDocs.count)")
             }
             searchResponse = response
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(controller: settingsController)
         }
     }
 }
