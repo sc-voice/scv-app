@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import UIKit
 import scvCore
 
 @MainActor
@@ -52,18 +53,21 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
     public func play() {
         guard currentSutta != nil else { return }
         isPlaying = true
+        UIApplication.shared.isIdleTimerDisabled = true
         playSegment(at: currentSegmentIndex)
     }
 
     public func pause() {
         synthesizer.stopSpeaking(at: .immediate)
         isPlaying = false
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     private func playSegment(at index: Int) {
         guard index < segments.count else {
             isPlaying = false
             currentSegmentIndex = 0
+            UIApplication.shared.isIdleTimerDisabled = false
             return
         }
 
