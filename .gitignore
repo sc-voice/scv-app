@@ -1,4 +1,5 @@
 .build/
+.swiftpm/
 local/
 secret/
 venv/
@@ -6,4 +7,3 @@ DerivedData/
 .DS_Store
 **/*.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
-**/.swiftpm/xcode/xcuserdata/
