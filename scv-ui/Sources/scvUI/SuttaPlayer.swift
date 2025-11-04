@@ -84,8 +84,22 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         }
 
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+
+        // Use docSpeech configuration from Settings
+        let docSpeech = Settings.shared.docSpeech
+
+        // Set voice from docSpeech.voiceId if available, otherwise use language code
+        if !docSpeech.voiceId.isEmpty {
+            utterance.voice = AVSpeechSynthesisVoice(identifier: docSpeech.voiceId)
+        } else {
+            // Fallback to language-based voice selection
+            let languageCode = docSpeech.language.code
+            utterance.voice = AVSpeechSynthesisVoice(language: languageCode)
+        }
+
+        // Apply speech configuration settings
+        utterance.rate = docSpeech.rate
+        utterance.pitchMultiplier = docSpeech.pitch
 
         synthesizer.speak(utterance)
     }

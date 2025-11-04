@@ -45,6 +45,19 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
+### Set up themes
+**Status**: Planning phase
+
+01. [ ] Design theme system (light, dark, custom color schemes)
+
+02. [ ] Implement theme provider/context for SwiftUI app
+
+03. [ ] Apply themes to existing views (ContentView, SettingsView, SuttaView)
+
+04. [ ] Add theme selection to Settings
+
+05. [ ] Test theme switching and persistence
+
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 
@@ -93,4 +106,4 @@ cd scv-core && swift test --filter CardTests
   - Display segments with fallback to English if language property is empty
   - Add blue scid prefix to each segment row
   - Updated main ScvDemo app to display SuttaView (in scv-demo/Sources/ScvDemo/ContentView.swift)
-
+- date respond with "Hello today is {datetime}"
