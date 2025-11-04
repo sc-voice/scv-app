@@ -1,16 +1,14 @@
 import SwiftUI
-import AVFoundation
 import scvCore
 
 public struct SuttaView: View {
     let mlDoc: MLDocument
-    @State private var synthesizer = PlaybackSynthesizer()
-    @State private var isPlaying = false
-    @State private var currentSegmentIndex = 0
+    @ObservedObject var player: SuttaPlayer
     @State private var segments: [(key: String, value: Segment)] = []
 
-    public init(mlDoc: MLDocument) {
+    public init(mlDoc: MLDocument, player: SuttaPlayer = .shared) {
         self.mlDoc = mlDoc
+        self.player = player
     }
 
     public var body: some View {
@@ -37,8 +35,13 @@ public struct SuttaView: View {
 
                     Spacer()
 
-                    Button(action: togglePlayback) {
-                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    Button(action: {
+                        if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
+                            player.load(mlDoc)
+                        }
+                        player.togglePlayback()
+                    }) {
+                        Image(systemName: isCurrentlyPlaying && player.isPlaying ? "pause.fill" : "play.fill")
                             .font(.title2)
                             .foregroundColor(Color(red: 1.0, green: 0.85, blue: 0.0))
                             .padding()
@@ -62,12 +65,12 @@ public struct SuttaView: View {
 
                             Text(getSegmentText(segment))
                                 .font(.body)
-                                .foregroundColor(index == currentSegmentIndex && isPlaying ? Color(red: 1.0, green: 0.85, blue: 0.0) : .primary)
+                                .foregroundColor(shouldHighlight(index) ? Color(red: 1.0, green: 0.85, blue: 0.0) : .primary)
                                 .lineLimit(nil)
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 4)
-                        .background(index == currentSegmentIndex && isPlaying ? Color(red: 0.15, green: 0.15, blue: 0.15) : .clear)
+                        .background(shouldHighlight(index) ? Color(red: 0.15, green: 0.15, blue: 0.15) : .clear)
                     }
                 }
                 .padding(.vertical)
@@ -79,44 +82,12 @@ public struct SuttaView: View {
         }
     }
 
-    private func togglePlayback() {
-        if isPlaying {
-            synthesizer.stopSpeaking()
-            isPlaying = false
-        } else {
-            isPlaying = true
-            playSegment(at: currentSegmentIndex)
-        }
+    private var isCurrentlyPlaying: Bool {
+        player.currentSutta?.sutta_uid == mlDoc.sutta_uid
     }
 
-    private func playSegment(at index: Int) {
-        guard index < segments.count else {
-            isPlaying = false
-            currentSegmentIndex = 0
-            return
-        }
-
-        currentSegmentIndex = index
-        let (_, segment) = segments[index]
-        let text = getSegmentText(segment)
-
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
-
-        let nextIndex = index + 1
-        let hasNextSegment = nextIndex < segments.count
-
-        synthesizer.speak(utterance, onFinish: { [self] in
-            DispatchQueue.main.async {
-                if hasNextSegment && isPlaying {
-                    playSegment(at: nextIndex)
-                } else {
-                    isPlaying = false
-                    currentSegmentIndex = 0
-                }
-            }
-        })
+    private func shouldHighlight(_ index: Int) -> Bool {
+        isCurrentlyPlaying && player.isPlaying && index == player.currentSegmentIndex
     }
 
     private func getSegmentText(_ segment: Segment) -> String {
@@ -131,38 +102,8 @@ public struct SuttaView: View {
     }
 }
 
-// MARK: - Playback Synthesizer
-
-final class PlaybackSynthesizer: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
-    private let synthesizer = AVSpeechSynthesizer()
-    private var onFinish: (() -> Void)?
-    private let queue = DispatchQueue(label: "com.scv.playback")
-
-    override init() {
-        super.init()
-        synthesizer.delegate = self
-    }
-
-    func speak(_ utterance: AVSpeechUtterance, onFinish: @escaping () -> Void) {
-        queue.async {
-            self.onFinish = onFinish
-            self.synthesizer.speak(utterance)
-        }
-    }
-
-    func stopSpeaking() {
-        queue.async {
-            self.synthesizer.stopSpeaking(at: .immediate)
-        }
-    }
-
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        onFinish?()
-    }
-}
-
 #Preview {
     if let mockResponse = SearchResponse.createMockResponse(), let mlDoc = mockResponse.mlDocs.first {
-        SuttaView(mlDoc: mlDoc)
+        SuttaView(mlDoc: mlDoc, player: .shared)
     }
 }

@@ -74,6 +74,8 @@ cd scv-core && swift test --filter CardTests
 
 07. [ ] Test SuttaView audio playback feature
 
+08. [ ] macOS locked screen playback
+
 ### Completed
 - [x] Create scv-ui Swift package with scv-core dependency and re-export
 - [x] Create ScvDemo iOS app that loads scv-ui package

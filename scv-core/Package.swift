@@ -19,13 +19,23 @@ let package = Package(
       name: "scvCore",
       dependencies: [],
       path: "Sources",
-      resources: [.process("../Resources")]
+      resources: [
+        .copy("../Resources/en.lproj"),
+        .copy("../Resources/pt-PT.lproj"),
+        .copy("../Resources/MockResponse.json"),
+        .copy("../Resources/MockResponse-raw.json")
+      ]
     ),
     .testTarget(
       name: "scvCoreTests",
       dependencies: ["scvCore"],
       path: "Tests",
-      resources: [.process("../Resources")]
+      resources: [
+        .copy("../Resources/en.lproj"),
+        .copy("../Resources/pt-PT.lproj"),
+        .copy("../Resources/MockResponse.json"),
+        .copy("../Resources/MockResponse-raw.json")
+      ]
     )
   ]
 )
