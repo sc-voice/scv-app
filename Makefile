@@ -1,4 +1,4 @@
-.PHONY: test test-all test-core test-core-verbose build clean mock-response-view build-scv-demo scv-demo
+.PHONY: test test-all test-core test-core-verbose build clean mock-response-view scv-demo-ios increment-build-number
 
 test: test-all
 
@@ -19,11 +19,12 @@ clean:
 mock-response-view:
 	@cd scv-ui && swift run mock-response-view
 
-build-scv-demo:
-	@cd scv-demo && swift build
+scv-demo-ios: increment-build-number
+	@open scv-demo-iOS/scv-demo-ios.xcodeproj
 
-scv-demo:
-	@cd scv-demo && swift run ScvDemo
+increment-build-number:
+	@echo "Incrementing scv-demo-iOS build number..."
+	@swift scripts/increment_build_number.swift
 
 .DEFAULT_GOAL := help
 
@@ -37,5 +38,5 @@ help:
 	@echo "  make build             Build all packages"
 	@echo "  make clean             Clean build artifacts"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
-	@echo "  make build-scv-demo    Build ScvDemo iOS app"
-	@echo "  make scv-demo          Build and launch ScvDemo iOS app"
+	@echo "  make scv-demo-ios      Increment build number and open scv-demo-iOS in Xcode"
+	@echo "  make increment-build-number Increment scv-demo-iOS build number only"

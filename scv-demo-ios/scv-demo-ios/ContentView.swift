@@ -12,12 +12,23 @@ struct ContentView: View {
     @EnvironmentObject var player: SuttaPlayer
     @State private var searchResponse: SearchResponse?
 
+    var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+    }
+
     var body: some View {
         VStack {
-            Text("SuttaView - sn42.11")
-                .font(.title)
-                .foregroundStyle(Color(red: 1.0, green: 0.85, blue: 0.0))
-                .padding()
+            HStack {
+                Text("SuttaView - sn42.11")
+                    .font(.title)
+                    .foregroundStyle(Color(red: 1.0, green: 0.85, blue: 0.0))
+                Spacer()
+                Text("Build: \(buildNumber)")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.trailing)
+            }
+            .padding()
 
             if let searchResponse = searchResponse,
                let mlDoc = searchResponse.mlDocs.first {

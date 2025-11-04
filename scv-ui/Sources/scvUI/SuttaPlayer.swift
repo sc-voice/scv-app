@@ -23,7 +23,7 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         #if os(iOS)
         do {
             try AVAudioSession.sharedInstance()
-                .setCategory(.playback, mode: .default, options: [])
+                .setCategory(.playback, mode: .default, options: [.duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("Failed to configure audio session: \(error.localizedDescription)")
