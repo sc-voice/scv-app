@@ -17,7 +17,6 @@ build-demo-ios:
 	xcodebuild build -scheme scv-demo-ios -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' -quiet 2>/dev/null || true
 
 clean:
-	@swift scripts/version.swift minor
 	@cd scv-core && swift package clean 2>/dev/null || true
 	@cd scv-ui && swift package clean 2>/dev/null || true
 	rm -rf scv-demo-iOS/build

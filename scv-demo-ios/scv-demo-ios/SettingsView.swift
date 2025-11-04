@@ -156,7 +156,7 @@ struct SettingsView: View {
             selectedVoiceId: $controller.docVoiceId,
             pitch: $controller.docPitch,
             rate: $controller.docRate,
-            language: .english
+            language: controller.docLang
           )
         }
       }
@@ -203,7 +203,9 @@ struct VoicePickerView: View {
   var availableVoices: [AVSpeechSynthesisVoice] {
     AVSpeechSynthesisVoice.speechVoices()
       .filter { voice in
-        let voiceLanguage = ScvLanguage.toVoiceLanguage(voice.language)
+        guard let voiceLanguage = ScvLanguage.toVoiceLanguage(voice.language) else {
+          return false
+        }
         return voiceLanguage == language
       }
       .sorted { $0.name < $1.name }

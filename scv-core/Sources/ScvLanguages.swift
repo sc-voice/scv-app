@@ -81,11 +81,11 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   }
 
   /// Converts BCP 47 language tag to supported voice language
-  /// Extracts ISO 639-1 code from BCP 47 format (e.g., "en-US" -> "en")
-  /// Returns the matched voice language or default (.english) if unsupported
-  /// - Parameter bcp47Tag: BCP 47 language tag (e.g., "en", "en-US", "pt-PT")
-  /// - Returns: Supported voice language or .english as fallback
-  public static func toVoiceLanguage(_ bcp47Tag: String) -> ScvLanguage {
+  /// Extracts ISO 639-1 code from BCP 47 format (e.g., "en-US" -> "en", "de-AT" -> "de")
+  /// Maps to the base supported language or nil if unsupported
+  /// - Parameter bcp47Tag: BCP 47 language tag (e.g., "en", "en-US", "de-AT", "pt-PT")
+  /// - Returns: Base supported voice language or nil if not supported
+  public static func toVoiceLanguage(_ bcp47Tag: String) -> ScvLanguage? {
     // Extract language code (first part before hyphen)
     let languageCode = bcp47Tag.split(separator: "-").first.map(String.init) ?? bcp47Tag
 
@@ -99,8 +99,8 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
       return .pli
     }
 
-    // Fallback to default voice language
-    return .english
+    // Return nil if language is not supported (don't fallback to default)
+    return nil
   }
 
   /// Default language

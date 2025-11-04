@@ -91,26 +91,26 @@ import Testing
   }
 
   @Test func toVoiceLanguageWithUnsupportedLanguage() {
-    // Should fallback to English for unsupported languages
-    #expect(ScvLanguage.toVoiceLanguage("pt") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("es") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("fr") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("ru") == .english)
+    // Should return nil for unsupported languages
+    #expect(ScvLanguage.toVoiceLanguage("pt") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("es") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("fr") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("ru") == nil)
   }
 
   @Test func toVoiceLanguageWithUnsupportedBCP47Tag() {
-    // Should fallback to English for unsupported BCP 47 tags
-    #expect(ScvLanguage.toVoiceLanguage("pt-PT") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("pt-BR") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("es-ES") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("zh-Hans") == .english)
+    // Should return nil for unsupported BCP 47 tags
+    #expect(ScvLanguage.toVoiceLanguage("pt-PT") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("pt-BR") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("es-ES") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("zh-Hans") == nil)
   }
 
   @Test func toVoiceLanguageWithInvalidInput() {
-    // Should fallback to English for invalid input
-    #expect(ScvLanguage.toVoiceLanguage("") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("xx") == .english)
-    #expect(ScvLanguage.toVoiceLanguage("invalid") == .english)
+    // Should return nil for invalid input
+    #expect(ScvLanguage.toVoiceLanguage("") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("xx") == nil)
+    #expect(ScvLanguage.toVoiceLanguage("invalid") == nil)
   }
 
   // MARK: - Default Language Tests
