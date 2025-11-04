@@ -29,7 +29,6 @@ import Testing
     Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
-    Settings.shared.lastSelectedCardId = "card-123"
 
     Settings.shared.reset()
 
@@ -38,7 +37,6 @@ import Testing
     #expect(Settings.shared.uiLang == .english)
     #expect(Settings.shared.isDarkModeEnabled == false)
     #expect(Settings.shared.lastApplicationVersion == "")
-    #expect(Settings.shared.lastSelectedCardId == "")
   }
 
   // MARK: - Property Modification Tests
@@ -86,16 +84,6 @@ import Testing
     #expect(Settings.shared.lastApplicationVersion == "2.0.0")
   }
 
-  @Test func updateLastSelectedCardId() {
-    Settings.shared.reset()
-    Settings.shared.lastSelectedCardId = "card-123"
-
-    #expect(Settings.shared.lastSelectedCardId == "card-123")
-
-    Settings.shared.lastSelectedCardId = "card-456"
-
-    #expect(Settings.shared.lastSelectedCardId == "card-456")
-  }
 
   // MARK: - Codable Tests
 
@@ -106,7 +94,6 @@ import Testing
     Settings.shared.uiLang = .italian
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "2.0.0"
-    Settings.shared.lastSelectedCardId = "card-456"
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(Settings.shared)
@@ -117,7 +104,6 @@ import Testing
     #expect(json?["uiLang"] as? String == "it")
     #expect(json?["isDarkModeEnabled"] as? Bool == true)
     #expect(json?["lastApplicationVersion"] as? String == "2.0.0")
-    #expect(json?["lastSelectedCardId"] as? String == "card-456")
   }
 
   @Test func decode() throws {
@@ -127,8 +113,7 @@ import Testing
       "refLang": "es",
       "uiLang": "fr",
       "isDarkModeEnabled": false,
-      "lastApplicationVersion": "1.5.0",
-      "lastSelectedCardId": "card-789"
+      "lastApplicationVersion": "1.5.0"
     }
     """.data(using: .utf8)!
 
@@ -140,7 +125,6 @@ import Testing
     #expect(settings.uiLang == .french)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "1.5.0")
-    #expect(settings.lastSelectedCardId == "card-789")
   }
 
   @Test func decodeWithMissingFields() throws {
@@ -158,7 +142,6 @@ import Testing
     #expect(settings.uiLang == .english)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "")
-    #expect(settings.lastSelectedCardId == "")
   }
 
   @Test func decodeWithInvalidLanguageCode() throws {
@@ -187,7 +170,6 @@ import Testing
     Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
-    Settings.shared.lastSelectedCardId = "card-123"
 
     Settings.shared.save()
 
@@ -202,7 +184,6 @@ import Testing
     #expect(loadedSettings.uiLang == .spanish)
     #expect(loadedSettings.isDarkModeEnabled == true)
     #expect(loadedSettings.lastApplicationVersion == "1.0.0")
-    #expect(loadedSettings.lastSelectedCardId == "card-123")
   }
 
   @Test func allLanguagesIndependent() {
@@ -215,5 +196,98 @@ import Testing
     #expect(Settings.shared.docLang == .english)
     #expect(Settings.shared.refLang == .french)
     #expect(Settings.shared.uiLang == .spanish)
+  }
+
+  // MARK: - Versioning Tests
+
+  @Test func currentVersion() {
+    #expect(Settings.currentVersion == 1)
+  }
+
+  @Test func versionDefaultsToOne() {
+    Settings.shared.reset()
+
+    #expect(Settings.shared.version == 1)
+  }
+
+  @Test func encodeIncludesVersion() throws {
+    Settings.shared.reset()
+    Settings.shared.version = 1
+
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(Settings.shared)
+    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+    #expect(json?["version"] as? Int == 1)
+  }
+
+  @Test func decodeHandlesVersionOneData() throws {
+    let json = """
+    {
+      "version": 1,
+      "docLang": "de",
+      "refLang": "fr",
+      "uiLang": "es",
+      "isDarkModeEnabled": true,
+      "lastApplicationVersion": "1.5.0"
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let settings = try decoder.decode(Settings.self, from: json)
+
+    #expect(settings.version == 1)
+    #expect(settings.docLang == .german)
+    #expect(settings.refLang == .french)
+    #expect(settings.uiLang == .spanish)
+    #expect(settings.isDarkModeEnabled == true)
+  }
+
+  @Test func decodeHandlesOldDataWithoutVersion() throws {
+    // Pre-version data should default to version 1
+    let json = """
+    {
+      "docLang": "pt",
+      "refLang": "es",
+      "isDarkModeEnabled": false
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let settings = try decoder.decode(Settings.self, from: json)
+
+    #expect(settings.version == 1)
+    #expect(settings.docLang == .portuguese)
+    #expect(settings.refLang == .spanish)
+  }
+
+  @Test func decodeHandlesUnknownVersion() throws {
+    // Unknown future version should reset to defaults
+    let json = """
+    {
+      "version": 999,
+      "docLang": "de",
+      "refLang": "fr",
+      "uiLang": "es"
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let settings = try decoder.decode(Settings.self, from: json)
+
+    #expect(settings.version == 999)
+    #expect(settings.docLang == .english)
+    #expect(settings.refLang == .english)
+    #expect(settings.uiLang == .english)
+    #expect(settings.isDarkModeEnabled == false)
+  }
+
+  @Test func resetResetsVersion() {
+    Settings.shared.reset()
+    Settings.shared.version = 999
+
+    Settings.shared.reset()
+
+    #expect(Settings.shared.version == 1)
   }
 }
