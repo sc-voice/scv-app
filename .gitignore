@@ -1,4 +1,9 @@
-venv/
-secret/
-local/
 .build/
+local/
+secret/
+venv/
+DerivedData/
+.DS_Store
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/.swiftpm/xcode/xcuserdata/
