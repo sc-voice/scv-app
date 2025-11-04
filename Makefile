@@ -5,7 +5,7 @@ test: test-all
 test-all: test-core
 
 test-core:
-	@cd scv-core && swift test --no-parallel
+	@cd scv-core && swift test --no-parallel 2>&1 | grep -v "started\."
 
 test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
