@@ -34,7 +34,13 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(red: 0.08, green: 0.08, blue: 0.08))
         .onAppear {
-            searchResponse = SearchResponse.createMockResponse()
+            print("DEBUG: ContentView.onAppear called")
+            let response = SearchResponse.createMockResponse()
+            print("DEBUG: createMockResponse returned: \(response != nil ? "not nil" : "nil")")
+            if let response = response {
+                print("DEBUG: mlDocs count: \(response.mlDocs.count)")
+            }
+            searchResponse = response
         }
     }
 }

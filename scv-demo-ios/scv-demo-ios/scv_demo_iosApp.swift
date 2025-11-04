@@ -6,27 +6,16 @@
 //
 
 import SwiftUI
-import SwiftData
+import scvUI
 
 @main
 struct scv_demo_iosApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var player = SuttaPlayer.shared
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(player)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
