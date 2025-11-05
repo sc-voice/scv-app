@@ -11,6 +11,7 @@ import scvCore
 
 struct ContentView: View {
     @EnvironmentObject var player: SuttaPlayer
+    @StateObject private var themeProvider = ThemeProvider()
     @State private var searchResponse: SearchResponse?
     @State private var showSettings = false
     @StateObject private var settingsController = SettingsModalController(from: Settings.shared)
@@ -24,16 +25,16 @@ struct ContentView: View {
             HStack {
                 Text("SuttaView - sn42.11")
                     .font(.title)
-                    .foregroundStyle(Color(red: 1.0, green: 0.85, blue: 0.0))
+                    .foregroundStyle(themeProvider.theme.textColor)
                 Spacer()
                 Text("Build: \(buildNumber)")
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(themeProvider.theme.textColor)
                     .padding(.trailing)
                 Button(action: { showSettings = true }) {
                     Image(systemName: "gear")
                         .font(.title2)
-                        .foregroundColor(.gray)
+                        .foregroundColor(themeProvider.theme.textColor)
                 }
                 .padding(.trailing)
             }
@@ -42,6 +43,7 @@ struct ContentView: View {
             if let searchResponse = searchResponse,
                let mlDoc = searchResponse.mlDocs.first {
                 SuttaView(mlDoc: mlDoc, player: player)
+                    .environmentObject(themeProvider)
             } else {
                 VStack(spacing: 16) {
                     Text("ScvDemo")
@@ -62,8 +64,9 @@ struct ContentView: View {
             }
             searchResponse = response
         }
-        .sheet(isPresented: $showSettings) {
+        .popover(isPresented: $showSettings, attachmentAnchor: .point(.topTrailing)) {
             SettingsView(controller: settingsController)
+                .frame(maxWidth: 400, maxHeight: .infinity)
         }
     }
 }

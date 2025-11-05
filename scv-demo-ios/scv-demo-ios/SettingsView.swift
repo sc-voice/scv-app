@@ -9,20 +9,41 @@ import SwiftUI
 import AVFoundation
 import Combine
 import scvCore
+import scvUI
 
 // MARK: - SettingsModalController
 
 class SettingsModalController: NSObject, ObservableObject {
-  @Published var docLang: ScvLanguage
-  @Published var refLang: ScvLanguage
-  @Published var uiLang: ScvLanguage
-  @Published var isDarkModeEnabled: Bool
-  @Published var paliVoiceId: String
-  @Published var docVoiceId: String
-  @Published var paliPitch: Float
-  @Published var paliRate: Float
-  @Published var docPitch: Float
-  @Published var docRate: Float
+  @Published var docLang: ScvLanguage {
+    didSet { autosave() }
+  }
+  @Published var refLang: ScvLanguage {
+    didSet { autosave() }
+  }
+  @Published var uiLang: ScvLanguage {
+    didSet { autosave() }
+  }
+  @Published var isDarkModeEnabled: Bool {
+    didSet { autosave() }
+  }
+  @Published var paliVoiceId: String {
+    didSet { autosave() }
+  }
+  @Published var docVoiceId: String {
+    didSet { autosave() }
+  }
+  @Published var paliPitch: Float {
+    didSet { autosave() }
+  }
+  @Published var paliRate: Float {
+    didSet { autosave() }
+  }
+  @Published var docPitch: Float {
+    didSet { autosave() }
+  }
+  @Published var docRate: Float {
+    didSet { autosave() }
+  }
 
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
@@ -35,18 +56,8 @@ class SettingsModalController: NSObject, ObservableObject {
   private let originalDocPitch: Float
   private let originalDocRate: Float
 
-  var isDirty: Bool {
-    docLang != originalDocLang ||
-    refLang != originalRefLang ||
-    uiLang != originalUiLang ||
-    isDarkModeEnabled != originalIsDarkModeEnabled ||
-    paliVoiceId != originalPaliVoiceId ||
-    docVoiceId != originalDocVoiceId ||
-    paliPitch != originalPaliPitch ||
-    paliRate != originalPaliRate ||
-    docPitch != originalDocPitch ||
-    docRate != originalDocRate
-  }
+  private var pendingSave = false
+  private var saveTimer: Timer?
 
   init(from settings: Settings) {
     self.docLang = settings.docLang
@@ -72,7 +83,8 @@ class SettingsModalController: NSObject, ObservableObject {
     self.originalDocRate = settings.docSpeech.rate
   }
 
-  func save() {
+  private func autosave() {
+    // Always update in-memory settings for live player reads
     Settings.shared.docLang = docLang
     Settings.shared.refLang = refLang
     Settings.shared.uiLang = uiLang
@@ -83,20 +95,48 @@ class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.paliSpeech.rate = paliRate
     Settings.shared.docSpeech.pitch = docPitch
     Settings.shared.docSpeech.rate = docRate
-    Settings.shared.save()
+
+    // Only write to UserDefaults if audio is not playing
+    if !SuttaPlayer.shared.isPlaying {
+      Settings.shared.save()
+      pendingSave = false
+    } else {
+      // Mark for deferred save and schedule check
+      pendingSave = true
+      scheduleDeferredSave()
+    }
   }
 
-  func reset() {
-    docLang = originalDocLang
-    refLang = originalRefLang
-    uiLang = originalUiLang
-    isDarkModeEnabled = originalIsDarkModeEnabled
-    paliVoiceId = originalPaliVoiceId
-    docVoiceId = originalDocVoiceId
-    paliPitch = originalPaliPitch
-    paliRate = originalPaliRate
-    docPitch = originalDocPitch
-    docRate = originalDocRate
+  private func scheduleDeferredSave() {
+    saveTimer?.invalidate()
+    saveTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+      guard let self = self, self.pendingSave else {
+        self?.saveTimer?.invalidate()
+        self?.saveTimer = nil
+        return
+      }
+
+      if !SuttaPlayer.shared.isPlaying {
+        Settings.shared.save()
+        self.pendingSave = false
+        self.saveTimer?.invalidate()
+        self.saveTimer = nil
+      }
+    }
+  }
+
+  func resetToDefaults() {
+    // Reset to app defaults, not session originals
+    docLang = .default
+    refLang = .default
+    uiLang = .default
+    isDarkModeEnabled = true
+    paliVoiceId = ""
+    docVoiceId = ""
+    paliPitch = 1.0
+    paliRate = 1.0
+    docPitch = 1.0
+    docRate = 1.0
   }
 }
 
@@ -105,10 +145,23 @@ class SettingsModalController: NSObject, ObservableObject {
 struct SettingsView: View {
   @ObservedObject var controller: SettingsModalController
   @Environment(\.dismiss) var dismiss
-  @State private var showDiscardConfirmation = false
+  @State private var showResetConfirmation = false
 
   var body: some View {
-    NavigationStack {
+    VStack(spacing: 0) {
+      HStack {
+        Text("Settings")
+          .font(.headline)
+        Spacer()
+        Button(action: { dismiss() }) {
+          Image(systemName: "xmark")
+            .font(.body)
+            .foregroundColor(.gray)
+        }
+      }
+      .padding()
+      .borderBottom()
+
       Form {
         // MARK: - Languages Section
 
@@ -159,35 +212,33 @@ struct SettingsView: View {
             language: controller.docLang
           )
         }
-      }
-      .navigationTitle("Settings")
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") {
-            if controller.isDirty {
-              showDiscardConfirmation = true
-            } else {
-              dismiss()
-            }
-          }
-        }
 
-        ToolbarItem(placement: .confirmationAction) {
-          Button("Save") {
-            controller.save()
-            dismiss()
+        // MARK: - Reset Button Section
+
+        Section {
+          Button("Reset Settings", role: .destructive) {
+            showResetConfirmation = true
           }
         }
       }
-      .alert("Discard Changes?", isPresented: $showDiscardConfirmation) {
-        Button("Discard", role: .destructive) {
-          controller.reset()
-          dismiss()
-        }
-        Button("Keep Editing", role: .cancel) {}
-      } message: {
-        Text("You have unsaved changes. Do you want to discard them?")
+    }
+    .alert("Reset All Settings?", isPresented: $showResetConfirmation) {
+      Button("Reset", role: .destructive) {
+        controller.resetToDefaults()
       }
+      Button("Cancel", role: .cancel) {}
+    } message: {
+      Text("This will restore all settings to their default values.")
+    }
+  }
+}
+
+// MARK: - Helper Extension
+
+extension View {
+  func borderBottom() -> some View {
+    self.overlay(alignment: .bottom) {
+      Divider()
     }
   }
 }

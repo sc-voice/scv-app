@@ -4,6 +4,7 @@ import scvCore
 public struct SuttaView: View {
     let mlDoc: MLDocument
     @ObservedObject var player: SuttaPlayer
+    @EnvironmentObject var themeProvider: ThemeProvider
     @State private var segments: [(key: String, value: Segment)] = []
 
     public init(mlDoc: MLDocument, player: SuttaPlayer = .shared) {
@@ -19,17 +20,25 @@ public struct SuttaView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(mlDoc.title)
                             .font(.headline)
-                            .foregroundStyle(Color(red: 1.0, green: 0.85, blue: 0.0))
+                            .foregroundStyle(themeProvider.theme.textColor)
                             .lineLimit(nil)
 
                         HStack(spacing: 12) {
-                            Label(mlDoc.docAuthorName, systemImage: "person.fill")
-                                .font(.caption)
-                                .foregroundStyle(Color(red: 0.8, green: 0.65, blue: 0.0))
+                            HStack(spacing: 4) {
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(themeProvider.theme.textColor)
+                                Text(mlDoc.docAuthorName)
+                                    .foregroundColor(themeProvider.theme.textColor)
+                            }
+                            .font(.caption)
 
-                            Label("Score: \(String(format: "%.2f", mlDoc.score))", systemImage: "star.fill")
-                                .font(.caption)
-                                .foregroundStyle(Color(red: 0.8, green: 0.65, blue: 0.0))
+                            HStack(spacing: 4) {
+                                Image(systemName: "star.fill")
+                                    .foregroundColor(themeProvider.theme.textColor)
+                                Text("Score: \(String(format: "%.2f", mlDoc.score))")
+                                    .foregroundColor(themeProvider.theme.textColor)
+                            }
+                            .font(.caption)
                         }
                     }
 
@@ -43,14 +52,14 @@ public struct SuttaView: View {
                     }) {
                         Image(systemName: isCurrentlyPlaying && player.isPlaying ? "pause.fill" : "play.fill")
                             .font(.title2)
-                            .foregroundColor(Color(red: 1.0, green: 0.85, blue: 0.0))
+                            .foregroundColor(themeProvider.theme.textColor)
                             .padding()
                     }
                 }
             }
             .padding()
-            .background(Color(red: 0.12, green: 0.12, blue: 0.12))
-            .border(Color(red: 0.25, green: 0.25, blue: 0.25), width: 0.5)
+            .background(themeProvider.theme.cardBackground)
+            .border(themeProvider.theme.borderColor, width: 0.5)
 
             // Segments Content
             ScrollView(.vertical) {
@@ -60,12 +69,12 @@ public struct SuttaView: View {
                         HStack(alignment: .top, spacing: 8) {
                             Text(scid)
                                 .font(.caption)
-                                .foregroundColor(.blue)
+                                .foregroundColor(themeProvider.theme.secondaryTextColor)
                                 .lineLimit(1)
 
                             Text(getSegmentText(segment))
                                 .font(.body)
-                                .foregroundColor(shouldHighlight(index) ? Color(red: 1.0, green: 0.85, blue: 0.0) : .primary)
+                                .foregroundColor(themeProvider.theme.textColor)
                                 .lineLimit(nil)
                         }
                         .padding(.horizontal)
@@ -75,7 +84,7 @@ public struct SuttaView: View {
                 }
                 .padding(.vertical)
             }
-            .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+            .background(themeProvider.theme.backgroundColor)
         }
         .onAppear {
             segments = mlDoc.segments()
