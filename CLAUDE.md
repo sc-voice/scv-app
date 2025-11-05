@@ -63,6 +63,23 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
+### Refactor Segment struct for language-aware text
+**Status**: Completed
+
+01. [x] Refactor Segment properties: doc/ref/pli (optional) instead of en/pli/ref
+02. [x] Add CodingKeys for all ScvLanguage codes
+03. [x] Update Segment decoder with docLang mapping
+04. [x] Fix displayText property
+05. [x] Fix 15+ test compilation errors (Segment() calls with en: parameter)
+06. [x] Update MLDocument decoder to transform segMap keys
+07. [x] Replace segment.en with segment.doc in:
+    - SearchResponseTests.swift (15+ occurrences)
+    - CardTests.swift (2+ occurrences)
+    - SuttaView.swift (3 occurrences)
+    - SuttaPlayer.swift (3 occurrences)
+08. [x] Run make test to verify all tests pass
+09. [x] Commit changes with approval
+
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 
