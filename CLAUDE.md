@@ -38,17 +38,17 @@ cd scv-core && swift test --filter CardTests
 ## Backlog
 
 ### Set up themes
-**Status**: Planning phase
+**Status**: Complete
 
-01. [ ] Design theme system (light, dark, custom color schemes)
+01. [x] Design theme system (light, dark, custom color schemes)
 
-02. [ ] Implement theme provider/context for SwiftUI app
+02. [x] Implement theme provider/context for SwiftUI app
 
-03. [ ] Apply themes to existing views (ContentView, SettingsView, SuttaView)
+03. [x] Apply themes to existing views (ContentView, SettingsView, SuttaView)
 
-04. [ ] Add theme selection to Settings
+04. [x] Add theme selection to Settings
 
-05. [ ] Test theme switching and persistence
+05. [x] Test theme switching and persistence
 
 ### Create app privacy label
 **Status**: Backlog
