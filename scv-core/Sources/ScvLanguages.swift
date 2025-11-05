@@ -111,4 +111,32 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
 
   /// Supported user-interface languages
   public static let uiLanguages: [ScvLanguage] = [.english, .german, .french]
+
+  /// Novelty voices to exclude from narration voice selection
+  /// These voices are designed for entertainment and are unsuitable for serious content like sutta reading
+  public static let voiceDenyList: Set<String> = [
+    "Bahh",
+    "Boing",
+    "Cellos",
+    "Bubbles",
+    "Pipe Organ",
+    "Bad News",
+    "Good News",
+    "Deranged",
+    "Ellen",
+    "Hysterical",
+    "Jester",
+    "Princess",
+    "Tarik",
+    "Veena"
+  ]
+
+  /// Check if a voice name is in the deny list (case-insensitive)
+  /// - Parameter voiceName: The voice name to check
+  /// - Returns: true if the voice is in the deny list
+  public static func isVoiceDenied(_ voiceName: String) -> Bool {
+    voiceDenyList.contains { denyedVoice in
+      voiceName.localizedCaseInsensitiveCompare(denyedVoice) == .orderedSame
+    }
+  }
 }

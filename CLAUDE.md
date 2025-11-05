@@ -4,14 +4,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 See also ~/.claude/CLAUDE.md
 
-## Communication Style
-
-- Be direct and terse
-- Use neutral affect
-- Use hypotheses and avoid assertions
-- Assertions can be used with source code line references
-- Assertions can be used with url references
-
 ## Project Overview
 
 SC-Voice is a localizable set of Swift applications for searching and viewing 

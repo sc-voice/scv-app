@@ -1,4 +1,4 @@
-.PHONY: test test-all test-core test-core-verbose build build-demo-ios clean mock-response-view scv-demo-ios version-major version-minor version-patch
+.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios clean clean-core clean-demo-ios mock-response-view scv-demo-ios version-major version-minor version-patch
 
 test: test-all
 
@@ -10,15 +10,23 @@ test-core:
 test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
 
-build: build-demo-ios
+build: build-core build-demo-ios
+
+build-core:
+	@swift scripts/version.swift patch
+	@cd scv-core && swift build
 
 build-demo-ios:
 	@swift scripts/version.swift patch
 	xcodebuild build -scheme scv-demo-ios -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' -quiet 2>/dev/null || true
 
-clean:
+clean: clean-core clean-demo-ios
+
+clean-core:
 	@cd scv-core && swift package clean 2>/dev/null || true
 	@cd scv-ui && swift package clean 2>/dev/null || true
+
+clean-demo-ios:
 	rm -rf scv-demo-iOS/build
 	rm -rf scv-demo-iOS/.swiftpm
 	xcodebuild clean -scheme scv-demo-ios -quiet 2>/dev/null || true
@@ -47,9 +55,12 @@ help:
 	@echo "  make test-all          Run all package tests"
 	@echo "  make test-core         Run scv-core tests serially"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
-	@echo "  make build             Build iOS app (increments patch version)"
+	@echo "  make build             Build all (core and iOS)"
+	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-demo-ios    Build iOS app (increments patch version)"
-	@echo "  make clean             Clean build artifacts (increments major version)"
+	@echo "  make clean             Clean all build artifacts"
+	@echo "  make clean-core        Clean scv-core and scv-ui packages"
+	@echo "  make clean-demo-ios    Clean iOS app build artifacts"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
 	@echo "  make scv-demo-ios      Clean, build, and open scv-demo-iOS in Xcode"
 	@echo "  make version-major     Increment major version (X.0.0)"

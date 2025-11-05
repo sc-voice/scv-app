@@ -207,12 +207,23 @@ struct VoicePickerView: View {
           return false
         }
         return voiceLanguage == language
+          && !voice.voiceTraits.contains(.isNoveltyVoice)
       }
-      .sorted { $0.name < $1.name }
+      .sorted { a, b in
+        if a.quality.rawValue != b.quality.rawValue {
+          return a.quality.rawValue > b.quality.rawValue
+        }
+        return a.name < b.name
+      }
   }
 
   var selectedVoiceName: String {
     availableVoices.first(where: { $0.identifier == selectedVoiceId })?.name ?? "Default"
+  }
+
+  func voiceDisplayName(_ voice: AVSpeechSynthesisVoice) -> String {
+    let quality = voice.quality.rawValue
+    return "\(voice.name) (\(quality))"
   }
 
   var body: some View {
@@ -220,7 +231,7 @@ struct VoicePickerView: View {
       Picker("Voice", selection: $selectedVoiceId) {
         Text("Default").tag("")
         ForEach(availableVoices, id: \.identifier) { voice in
-          Text(voice.name).tag(voice.identifier)
+          Text(voiceDisplayName(voice)).tag(voice.identifier)
         }
       }
 
