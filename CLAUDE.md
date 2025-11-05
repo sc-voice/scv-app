@@ -63,8 +63,6 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
-### Refactor Segment struct for language-aware text
-
 ### Render segment text as HTML
 **Status**: Backlog
 
@@ -102,3 +100,8 @@ cd scv-core && swift test --filter CardTests
 07. [ ] Test SuttaView audio playback feature
 
 08. [ ] macOS locked screen playback
+
+### Refactor Segment struct for language-aware text
+**Status**: Complete
+
+01. [x] Review current Segment implementation (no refactoring needed - already language-aware)
