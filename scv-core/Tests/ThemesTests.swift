@@ -5,12 +5,13 @@
 //  Created by Visakha on 04/11/2025.
 //
 
-import XCTest
+import Testing
 @testable import scvCore
 
-final class ThemesTests: XCTestCase {
+struct ThemesTests {
+  @Test
   func test_inverseTheme() {
-    XCTAssertEqual(AppTheme.inverseTheme(.light), .dark)
-    XCTAssertEqual(AppTheme.inverseTheme(.dark), .light)
+    #expect(AppTheme.inverseTheme(.light) == .dark)
+    #expect(AppTheme.inverseTheme(.dark) == .light)
   }
 }
