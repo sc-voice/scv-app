@@ -50,6 +50,19 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test theme switching and persistence
 
+### Create app privacy label
+**Status**: Backlog
+
+01. [ ] Identify data categories app collects (search queries, viewing history, etc.)
+
+02. [ ] Map data to Apple privacy categories and purposes
+
+03. [ ] Configure privacy manifest in Xcode
+
+04. [ ] Add app privacy label to App Store Connect
+
+05. [ ] Test privacy label accuracy against actual app behavior
+
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 

@@ -53,7 +53,6 @@ do {
     let pattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
     let regex = try NSRegularExpression(pattern: pattern, options: [])
 
-    var newVersion = "0.0.0"
     let matches = regex.matches(in: content, options: [], range: NSRange(content.startIndex..., in: content))
 
     if matches.isEmpty {
@@ -61,8 +60,9 @@ do {
         exit(1)
     }
 
-    // Update all occurrences
-    for match in matches {
+    // Process matches in reverse order to avoid index shifting
+    var newVersion = "0.0.0"
+    for match in matches.reversed() {
         if let versionRange = Range(match.range(at: 1), in: content) {
             let currentVersion = String(content[versionRange])
             newVersion = bumpType.bump(version: currentVersion)
