@@ -1,0 +1,573 @@
+{
+  "author": "sabbamitta",
+  "lang": "de",
+  "searchLang": "de",
+  "minLang": 1,
+  "maxDoc": 5,
+  "maxResults": 500,
+  "pattern": "wurzel des leidens",
+  "method": "phrase",
+  "resultPattern": "\\bwurzel\\sdes\\sleidens",
+  "segsMatched": 11,
+  "bilaraPaths": [
+    "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+    "translation/de/sabbamitta/sutta/sn/sn42/sn42.11_translation-de-sabbamitta.json",
+    "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json",
+    "root/pli/ms/sutta/sn/sn56/sn56.21_root-pli-ms.json",
+    "translation/de/sabbamitta/sutta/sn/sn56/sn56.21_translation-de-sabbamitta.json",
+    "translation/en/sujato/sutta/sn/sn56/sn56.21_translation-en-sujato.json"
+  ],
+  "suttaRefs": [
+    "sn42.11/de/sabbamitta",
+    "sn56.21/de/sabbamitta",
+  ],
+  "mlDocs": [
+    {
+      "author": "Sabbamitta",
+      "segMap": {
+        "sn42.11:0.1": {
+          "scid": "sn42.11:0.1",
+          "pli": "Saṁyutta Nikāya 42.11 ",
+          "de": "Verbundene Lehrreden 42.11 ",
+          "ref": "Linked Discourses 42.11 "
+        },
+        "sn42.11:0.2": {
+          "scid": "sn42.11:0.2",
+          "pli": "1. Gāmaṇivagga ",
+          "de": "1. Das Kapitel mit Ortsvorstehern ",
+          "ref": "1. Chiefs "
+        },
+        "sn42.11:0.3": {
+          "scid": "sn42.11:0.3",
+          "pli": "Bhadrakasutta ",
+          "de": "Mit Bhadraka ",
+          "ref": "With Bhadraka "
+        },
+        "sn42.11:1.1": {
+          "scid": "sn42.11:1.1",
+          "pli": "Ekaṁ samayaṁ bhagavā mallesu viharati uruvelakappaṁ nāma mallānaṁ nigamo. ",
+          "de": "Einmal hielt sich der Buddha im Land der Maller auf, bei dem mallischen Marktflecken Uruvelakappa. ",
+          "ref": "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. "
+        },
+        "sn42.11:1.2": {
+          "scid": "sn42.11:1.2",
+          "pli": "Atha kho bhadrako gāmaṇi yena bhagavā tenupasaṅkami; upasaṅkamitvā bhagavantaṁ abhivādetvā ekamantaṁ nisīdi. Ekamantaṁ nisinno kho bhadrako gāmaṇi bhagavantaṁ etadavoca: ",
+          "de": "Da ging der Ortsvorsteher Bhadraka zum Buddha, verbeugte sich, setzte sich zur Seite hin und sagte zu ihm: ",
+          "ref": "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: "
+        },
+        "sn42.11:1.3": {
+          "scid": "sn42.11:1.3",
+          "pli": "“sādhu me, bhante, bhagavā dukkhassa samudayañca atthaṅgamañca desetū”ti. ",
+          "de": "„Bitte, Herr, lehre mich den Ursprung und das Vergehen des Leidens.“ ",
+          "ref": "“Please, sir, let the Blessed One teach me the origin and cessation of suffering.” "
+        },
+        "sn42.11:1.4": {
+          "scid": "sn42.11:1.4",
+          "pli": "“Ahañce te, gāmaṇi, atītamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+          "de": "„Vorsteher, wenn ich dir den Ursprung und das Vergehen des Leidens in der Vergangenheit erklären würde: ",
+          "ref": "“Chief, if I were to teach you about the origin and disappearance of suffering in the past, saying "
+        },
+        "sn42.11:1.5": {
+          "scid": "sn42.11:1.5",
+          "pli": "‘evaṁ ahosi atītamaddhānan’ti, tatra te siyā kaṅkhā, siyā vimati. ",
+          "de": "‚so war es in der Vergangenheit‘, würdest du vielleicht zweifeln oder unsicher sein. ",
+          "ref": "‘this is how it was in the past,’ you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.6": {
+          "scid": "sn42.11:1.6",
+          "pli": "Ahañce te, gāmaṇi, anāgatamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+          "de": "Wenn ich dir den Ursprung und das Vergehen des Leidens in der Zukunft erklären würde: ",
+          "ref": "If I were to teach you about the origin and disappearance of suffering in the future, saying "
+        },
+        "sn42.11:1.7": {
+          "scid": "sn42.11:1.7",
+          "pli": "‘evaṁ bhavissati anāgatamaddhānan’ti, tatrāpi te siyā kaṅkhā, siyā vimati. ",
+          "de": "‚so wird es in der Zukunft sein‘, würdest du vielleicht zweifeln oder unsicher sein. ",
+          "ref": "‘this is how it will be in the future,’ you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.8": {
+          "scid": "sn42.11:1.8",
+          "pli": "Api cāhaṁ, gāmaṇi, idheva nisinno ettheva te nisinnassa dukkhassa samudayañca atthaṅgamañca desessāmi. ",
+          "de": "Stattdessen werde ich dir den Ursprung und das Vergehen des Leidens erklären, so wie ich jetzt hier sitze und so wie du jetzt dort sitzt. ",
+          "ref": "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. "
+        },
+        "sn42.11:1.9": {
+          "scid": "sn42.11:1.9",
+          "pli": "Taṁ suṇāhi, sādhukaṁ manasi karohi; bhāsissāmī”ti. ",
+          "de": "Hör zu und gebrauche den Geist gut, ich werde sprechen.“ ",
+          "ref": "Listen and apply your mind well, I will speak.” "
+        },
+        "sn42.11:1.10": {
+          "scid": "sn42.11:1.10",
+          "pli": "“Evaṁ, bhante”ti kho bhadrako gāmaṇi bhagavato paccassosi. ",
+          "de": "„Ja, Herr“, erwiderte Bhadraka. ",
+          "ref": "“Yes, sir,” Bhadraka replied. "
+        },
+        "sn42.11:1.11": {
+          "scid": "sn42.11:1.11",
+          "pli": "Bhagavā etadavoca: ",
+          "de": "Der Buddha sagte: ",
+          "ref": "The Buddha said this: "
+        },
+        "sn42.11:2.1": {
+          "scid": "sn42.11:2.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "de": "„Was meinst du, Vorsteher? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:2.2": {
+          "scid": "sn42.11:2.2",
+          "pli": "atthi te uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "de": "Gibt es hier in Uruvelakappa Menschen, bei denen es für dich zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis käme, wenn sie hingerichtet würden, ins Gefängnis kämen, ihr Besitz eingezogen oder sie entehrt würden?“ ",
+          "ref": "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:2.3": {
+          "scid": "sn42.11:2.3",
+          "pli": "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "de": "„Solche gibt es, Herr.“ ",
+          "ref": "“There are, sir.” "
+        },
+        "sn42.11:2.4": {
+          "scid": "sn42.11:2.4",
+          "pli": "“Atthi pana te, gāmaṇi, uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "de": "„Aber gibt es hier in Uruvelakappa Menschen, bei denen es für dich nicht zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis käme, wenn sie hingerichtet würden, ins Gefängnis kämen, ihr Besitz eingezogen oder sie entehrt würden?“ ",
+          "ref": "“But are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:2.5": {
+          "scid": "sn42.11:2.5",
+          "pli": "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "de": "„Solche gibt es, Herr.“ ",
+          "ref": "“There are, sir.” "
+        },
+        "sn42.11:2.6": {
+          "scid": "sn42.11:2.6",
+          "pli": "“Ko nu kho, gāmaṇi, hetu, ko paccayo yena te ekaccānaṁ uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "de": "„Was ist der Grund, was ist die Ursache, dass es dich bekümmern kann, wenn diese Dinge manchen Menschen widerfahren, und wenn sie anderen widerfahren, bekümmert es dich nicht?“ ",
+          "ref": "“What’s the cause, chief, what’s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?” "
+        },
+        "sn42.11:2.7": {
+          "scid": "sn42.11:2.7",
+          "pli": "“Yesaṁ me, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, atthi me tesu chandarāgo. ",
+          "de": "„Die Menschen, bei denen mich das bekümmern würde, sind die, nach denen ich Sehnen und Begehren habe. ",
+          "ref": "“The people regarding whom this would give rise to sorrow are those I have desire and passion. "
+        },
+        "sn42.11:2.8": {
+          "scid": "sn42.11:2.8",
+          "pli": "Yesaṁ pana, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, natthi me tesu chandarāgo”ti. ",
+          "de": "Die Menschen, bei denen mich das nicht bekümmern würde, sind die, nach denen ich kein Sehnen und Begehren habe.“ ",
+          "ref": "The people regarding whom this would not give rise to sorrow are those I don’t have desire and passion.” "
+        },
+        "sn42.11:2.9": {
+          "scid": "sn42.11:2.9",
+          "pli": "“Iminā tvaṁ, gāmaṇi, dhammena diṭṭhena viditena akālikena pattena pariyogāḷhena atītānāgate nayaṁ nehi: ",
+          "de": "„Von diesem Gegenwärtigen, das du in der Gegenwart gesehen und erkannt hast, das unmittelbar ist, das du erfasst und ergründet hast, kannst du auf die Vergangenheit und Zukunft schließen: ",
+          "ref": "“With this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: "
+        },
+        "sn42.11:2.10": {
+          "scid": "sn42.11:2.10",
+          "pli": "‘yaṁ kho kiñci atītamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajji sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "de": "‚Alles Leiden, das in der Vergangenheit entstand, hatte im Sehnen seine Wurzel und seine Quelle. ",
+          "ref": "‘All the suffering that arose in the past was rooted and sourced in desire. "
+        },
+        "sn42.11:2.11": {
+          "scid": "sn42.11:2.11",
+          "pli": "Chando hi mūlaṁ dukkhassa. ",
+          "de": "Denn Sehnen ist die <span class=\"scv-matched\">Wurzel des Leidens</span>. ",
+          "ref": "For desire is the root of suffering. ",
+          "matched": true
+        },
+        "sn42.11:2.12": {
+          "scid": "sn42.11:2.12",
+          "pli": "Yampi hi kiñci anāgatamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajjissati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "de": "Alles Leiden, das in der Zukunft entstehen wird, wird im Sehnen seine Wurzel und seine Quelle haben. ",
+          "ref": "All the suffering that will arise in the future will be rooted and sourced in desire. "
+        },
+        "sn42.11:2.13": {
+          "scid": "sn42.11:2.13",
+          "pli": "Chando hi mūlaṁ dukkhassā’”ti. ",
+          "de": "Denn Sehnen ist die <span class=\"scv-matched\">Wurzel des Leidens</span>.‘“ ",
+          "ref": "For desire is the root of suffering.’” ",
+          "matched": true
+        },
+        "sn42.11:2.14": {
+          "scid": "sn42.11:2.14",
+          "pli": "“Acchariyaṁ, bhante, abbhutaṁ, bhante. ",
+          "de": "„Es ist unglaublich, Herr, es ist erstaunlich! ",
+          "ref": "“It’s incredible, sir, it’s amazing! "
+        },
+        "sn42.11:2.15": {
+          "scid": "sn42.11:2.15",
+          "pli": "Yāva subhāsitañcidaṁ, bhante, bhagavatā: ",
+          "de": "Wie treffend der Buddha das gesagt hat! ",
+          "ref": "How well said this was by the Buddha! "
+        },
+        "sn42.11:2.16": {
+          "scid": "sn42.11:2.16",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "de": "‚Alles Leiden, das entsteht, hat im Sehnen seine Wurzel und seine Quelle. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:2.17": {
+          "scid": "sn42.11:2.17",
+          "pli": "Chando hi mūlaṁ dukkhassā’ti. ",
+          "de": "Denn Sehnen ist die <span class=\"scv-matched\">Wurzel des Leidens</span>.‘ ",
+          "ref": "For desire is the root of suffering.’ ",
+          "matched": true
+        },
+        "sn42.11:2.18": {
+          "scid": "sn42.11:2.18",
+          "pli": "Atthi me, bhante, ciravāsī nāma kumāro bahi āvasathe paṭivasati. ",
+          "de": "Ich habe einen Jungen namens Ciravāsi, der sich in einem Haus weit weg von hier befindet. ",
+          "ref": "I have a boy called Ciravāsi, who resides in a house away from here. "
+        },
+        "sn42.11:2.19": {
+          "scid": "sn42.11:2.19",
+          "pli": "So khvāhaṁ, bhante, kālasseva vuṭṭhāya purisaṁ uyyojemi: ",
+          "de": "Morgens stehe ich früh auf und schicke jemanden: ",
+          "ref": "I rise early and dispatch someone, saying: "
+        },
+        "sn42.11:2.20": {
+          "scid": "sn42.11:2.20",
+          "pli": "‘gaccha, bhaṇe, ciravāsiṁ kumāraṁ jānāhī’ti. ",
+          "de": "‚Geh, sage ich, und sieh nach meinem Jungen Ciravāsi.‘ ",
+          "ref": "‘Go, my man, and check on my boy Ciravāsi.’ "
+        },
+        "sn42.11:2.21": {
+          "scid": "sn42.11:2.21",
+          "pli": "Yāvakīvañca, bhante, so puriso nāgacchati, tassa me hoteva aññathattaṁ: ",
+          "de": "Bis er zurückkommt, sorge ich mich: ",
+          "ref": "Until they get back I worry: "
+        },
+        "sn42.11:2.22": {
+          "scid": "sn42.11:2.22",
+          "pli": "‘mā heva ciravāsissa kumārassa kiñci ābādhayitthā’”ti. ",
+          "de": "‚Ich hoffe, mit Ciravāsi ist alles in Ordnung!‘“ ",
+          "ref": "‘I hope nothing’s wrong with Ciravāsi!’” "
+        },
+        "sn42.11:3.1": {
+          "scid": "sn42.11:3.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "de": "„Was meinst du, Vorsteher? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:3.2": {
+          "scid": "sn42.11:3.2",
+          "pli": "ciravāsissa kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "de": "Wenn Ciravāsi hingerichtet würde, ins Gefängnis käme, sein Besitz eingezogen oder er entehrt würde, würde es deswegen für dich zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis kommen?“ ",
+          "ref": "If Ciravāsi was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:3.3": {
+          "scid": "sn42.11:3.3",
+          "pli": "“Ciravāsissa me, bhante, kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "de": "„Das würde mein Leben auf den Kopf stellen, Herr! Wie könnte es da für mich nicht zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis kommen?“ ",
+          "ref": "“How could it not, sir?” "
+        },
+        "sn42.11:3.4": {
+          "scid": "sn42.11:3.4",
+          "pli": "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+          "de": "„Auch das ist eine Möglichkeit, zu verstehen: ",
+          "ref": "“This too is a way to understand: "
+        },
+        "sn42.11:3.5": {
+          "scid": "sn42.11:3.5",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "de": "‚Alles Leiden, das entsteht, hat im Sehnen seine Wurzel und seine Quelle. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:3.6": {
+          "scid": "sn42.11:3.6",
+          "pli": "Chando hi mūlaṁ dukkhassā’ti. ",
+          "de": "Denn Sehnen ist die <span class=\"scv-matched\">Wurzel des Leidens</span>.‘ ",
+          "ref": "For desire is the root of suffering.’ ",
+          "matched": true
+        },
+        "sn42.11:4.1": {
+          "scid": "sn42.11:4.1",
+          "pli": "Taṁ kiṁ maññasi, gāmaṇi, ",
+          "de": "Was meinst du, Vorsteher? ",
+          "ref": "What do you think, chief? "
+        },
+        "sn42.11:4.2": {
+          "scid": "sn42.11:4.2",
+          "pli": "yadā te ciravāsimātā adiṭṭhā ahosi, assutā ahosi, te ciravāsimātuyā chando vā rāgo vā pemaṁ vā”ti? ",
+          "de": "Bevor du Ciravāsis Mutter gesehen oder von ihr gehört hast, hattest du da irgendein Sehnen oder Begehren oder eine Zuneigung zu ihr?“ ",
+          "ref": "Before you’d seen or heard of Ciravāsi’s mother, did you have any desire or passion or fondness for her?” "
+        },
+        "sn42.11:4.3": {
+          "scid": "sn42.11:4.3",
+          "pli": "“No hetaṁ, bhante”. ",
+          "de": "„Nein, Herr.“ ",
+          "ref": "“No, sir.” "
+        },
+        "sn42.11:4.4": {
+          "scid": "sn42.11:4.4",
+          "pli": "“Dassanaṁ vā te, gāmaṇi, āgamma savanaṁ vā evaṁ te ahosi: ",
+          "de": "„Dann war es, weil du sie sahst oder von ihr hörtest, ",
+          "ref": "“Then was it because you saw or heard of her that you had "
+        },
+        "sn42.11:4.5": {
+          "scid": "sn42.11:4.5",
+          "pli": "‘ciravāsimātuyā chando vā rāgo vā pemaṁ vā’”ti? ",
+          "de": "dass du Sehnen oder Begehren oder Zuneigung zu ihr hattest?“ ",
+          "ref": "desire or passion or fondness for her?” "
+        },
+        "sn42.11:4.6": {
+          "scid": "sn42.11:4.6",
+          "pli": "“Evaṁ, bhante”. ",
+          "de": "„Ja, Herr.“ ",
+          "ref": "“Yes, sir.” "
+        },
+        "sn42.11:5.1": {
+          "scid": "sn42.11:5.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "de": "„Was meinst du, Vorsteher? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:5.2": {
+          "scid": "sn42.11:5.2",
+          "pli": "ciravāsimātuyā te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "de": "Wenn Ciravāsis Mutter hingerichtet würde, ins Gefängnis käme, ihr Besitz eingezogen oder sie entehrt würde, würde es deswegen für dich zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis kommen?“ ",
+          "ref": "If Ciravāsi’s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:5.3": {
+          "scid": "sn42.11:5.3",
+          "pli": "“Ciravāsimātuyā me, bhante, vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "de": "„Das würde mein Leben auf den Kopf stellen, Herr! Wie könnte es da für mich nicht zu Kummer, Klage, Schmerz, Traurigkeit und Bedrängnis kommen?“ ",
+          "ref": "“How could it not, sir?” "
+        },
+        "sn42.11:5.4": {
+          "scid": "sn42.11:5.4",
+          "pli": "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+          "de": "„Auch das ist eine Möglichkeit, zu verstehen: ",
+          "ref": "“This too is a way to understand: "
+        },
+        "sn42.11:5.5": {
+          "scid": "sn42.11:5.5",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "de": "‚Alles Leiden, das entsteht, hat im Sehnen seine Wurzel und seine Quelle. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:5.6": {
+          "scid": "sn42.11:5.6",
+          "pli": "Chando hi mūlaṁ dukkhassā’”ti. ",
+          "de": "Denn Sehnen ist die <span class=\"scv-matched\">Wurzel des Leidens</span>.‘“ ",
+          "ref": "For desire is the root of suffering.’” ",
+          "matched": true
+        },
+        "sn42.11:5.7": {
+          "scid": "sn42.11:5.7",
+          "pli": "Ekādasamaṁ. "
+        }
+      },
+      "author_uid": "sabbamitta",
+      "bilaraPaths": [
+        "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+        "translation/de/sabbamitta/sutta/sn/sn42/sn42.11_translation-de-sabbamitta.json",
+        "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json"
+      ],
+      "category": "sutta",
+      "footer": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "hyphen": "­",
+      "lang": "de",
+      "langSegs": {
+        "pli": 55,
+        "de": 54,
+        "ref": 54
+      },
+      "maxWord": 30,
+      "minWord": 5,
+      "score": 5.091,
+      "segsMatched": 5,
+      "sutta_uid": "sn42.11",
+      "title": "Verbundene Lehrreden 42.11\n1. Das Kapitel mit Ortsvorstehern\nMit Bhadraka",
+      "type": "translation",
+      "trilingual": true,
+      "docLang": "de",
+      "docAuthor": "sabbamitta",
+      "docAuthorName": "Sabbamitta",
+      "docFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "refLang": "en",
+      "refAuthor": "sujato",
+      "refAuthorName": "Bhikkhu Sujato",
+      "refFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>"
+    },
+    {
+      "author": "Sabbamitta",
+      "segMap": {
+        "sn56.21:0.1": {
+          "scid": "sn56.21:0.1",
+          "pli": "Saṁyutta Nikāya 56.21 ",
+          "de": "Verbundene Lehrreden 56.21 ",
+          "ref": "Linked Discourses 56.21 "
+        },
+        "sn56.21:0.2": {
+          "scid": "sn56.21:0.2",
+          "pli": "3. Koṭigāmavagga ",
+          "de": "3. Das Kapitel beim Dorf Koṭi ",
+          "ref": "3. At the Village of Koṭi "
+        },
+        "sn56.21:0.3": {
+          "scid": "sn56.21:0.3",
+          "pli": "Paṭhamakoṭigāmasutta ",
+          "de": "Beim Dorf Koṭi (1) ",
+          "ref": "At the Village of Koṭi (1st) "
+        },
+        "sn56.21:1.1": {
+          "scid": "sn56.21:1.1",
+          "pli": "Ekaṁ samayaṁ bhagavā vajjīsu viharati koṭigāme. ",
+          "de": "Einmal hielt sich der Buddha im Land der Vajjier beim Dorf Koṭi auf. ",
+          "ref": "At one time the Buddha was staying in the land of the Vajjis at the village of Koṭi. "
+        },
+        "sn56.21:1.2": {
+          "scid": "sn56.21:1.2",
+          "pli": "Tatra kho bhagavā bhikkhū āmantesi: ",
+          "de": "Da wandte sich der Buddha an die Mönche und Nonnen: ",
+          "ref": "There the Buddha addressed the mendicants: "
+        },
+        "sn56.21:1.3": {
+          "scid": "sn56.21:1.3",
+          "pli": "“catunnaṁ, bhikkhave, ariyasaccānaṁ ananubodhā appaṭivedhā evamidaṁ dīghamaddhānaṁ sandhāvitaṁ saṁsaritaṁ mamañceva tumhākañca. ",
+          "de": "„Mönche und Nonnen, weil wir vier edle Wahrheiten nicht verstanden und nicht durchdrungen hatten, sind wir, ihr sowohl als ich, solch eine sehr lange Zeit gewandert und umhergezogen. ",
+          "ref": "“Mendicants, due to not understanding and not penetrating four noble truths, both you and I have wandered and transmigrated for such a very long time. "
+        },
+        "sn56.21:2.1": {
+          "scid": "sn56.21:2.1",
+          "pli": "Katamesaṁ catunnaṁ? ",
+          "de": "Welche vier? ",
+          "ref": "What four? "
+        },
+        "sn56.21:2.2": {
+          "scid": "sn56.21:2.2",
+          "pli": "Dukkhassa, bhikkhave, ariyasaccassa ananubodhā appaṭivedhā evamidaṁ dīghamaddhānaṁ sandhāvitaṁ saṁsaritaṁ mamañceva tumhākañca. ",
+          "de": "Die edle Wahrheit vom Leiden, ",
+          "ref": "The noble truths of suffering, "
+        },
+        "sn56.21:2.3": {
+          "scid": "sn56.21:2.3",
+          "pli": "Dukkhasamudayassa ariyasaccassa …pe… ",
+          "de": "die edle Wahrheit vom Ursprung des Leidens, ",
+          "ref": "the origin of suffering, "
+        },
+        "sn56.21:2.4": {
+          "scid": "sn56.21:2.4",
+          "pli": "dukkhanirodhassa ariyasaccassa …pe… ",
+          "de": "die edle Wahrheit vom Aufhören des Leidens ",
+          "ref": "the cessation of suffering, "
+        },
+        "sn56.21:2.5": {
+          "scid": "sn56.21:2.5",
+          "pli": "dukkhanirodhagāminiyā paṭipadāya ariyasaccassa ananubodhā appaṭivedhā evamidaṁ dīghamaddhānaṁ sandhāvitaṁ saṁsaritaṁ mamañceva tumhākañca. ",
+          "de": "und die edle Wahrheit von der Übung, die zum Aufhören des Leidens führt. ",
+          "ref": "and the practice that leads to the cessation of suffering. "
+        },
+        "sn56.21:2.6": {
+          "scid": "sn56.21:2.6",
+          "pli": "Tayidaṁ, bhikkhave, dukkhaṁ ariyasaccaṁ anubuddhaṁ paṭividdhaṁ, dukkhasamudayaṁ ariyasaccaṁ anubuddhaṁ paṭividdhaṁ, dukkhanirodhaṁ ariyasaccaṁ anubuddhaṁ paṭividdhaṁ, dukkhanirodhagāminī paṭipadā ariyasaccaṁ anubuddhaṁ paṭividdhaṁ; ucchinnā bhavataṇhā, khīṇā bhavanetti; natthi dāni punabbhavo”ti. ",
+          "de": "Diese edlen Wahrheiten vom Leiden, vom Ursprung des Leidens, vom Aufhören des Leidens und von der Übung, die zum Aufhören des Leidens führt, wurden verstanden und durchdrungen. Das Verlangen nach Fortsetzung des Daseins wurde abgeschnitten, der Zug zum Dasein ist aufgelöst, künftige Leben wird es jetzt nicht mehr geben.“ ",
+          "ref": "These noble truths of suffering, origin, cessation, and the path have been understood and comprehended. Craving for continued existence has been cut off; the conduit to rebirth is ended; now there’ll be no more future lives.” "
+        },
+        "sn56.21:3.1": {
+          "scid": "sn56.21:3.1",
+          "pli": "Idamavoca bhagavā. ",
+          "de": "Das sagte der Buddha. ",
+          "ref": "That is what the Buddha said. "
+        },
+        "sn56.21:3.2": {
+          "scid": "sn56.21:3.2",
+          "pli": "Idaṁ vatvāna sugato athāparaṁ etadavoca satthā: ",
+          "de": "Und der Heilige, der Lehrer, fuhr fort: ",
+          "ref": "Then the Holy One, the Teacher, went on to say: "
+        },
+        "sn56.21:4.1": {
+          "scid": "sn56.21:4.1",
+          "pli": "“Catunnaṁ ariyasaccānaṁ, ",
+          "de": "„Weil wir die vier edlen Wahrheiten ",
+          "ref": "“Because of not truly seeing "
+        },
+        "sn56.21:4.2": {
+          "scid": "sn56.21:4.2",
+          "pli": "Yathābhūtaṁ adassanā; ",
+          "de": "nicht wahrhaftig gesehen haben, ",
+          "ref": "the four noble truths, "
+        },
+        "sn56.21:4.3": {
+          "scid": "sn56.21:4.3",
+          "pli": "Saṁsitaṁ dīghamaddhānaṁ, ",
+          "de": "sind wir eine sehr lange Zeit ",
+          "ref": "we have transmigrated for a long time "
+        },
+        "sn56.21:4.4": {
+          "scid": "sn56.21:4.4",
+          "pli": "Tāsu tāsveva jātisu. ",
+          "de": "von Wiedergeburt zu Wiedergeburt gewandert. ",
+          "ref": "from one rebirth to the next. "
+        },
+        "sn56.21:5.1": {
+          "scid": "sn56.21:5.1",
+          "pli": "Tāni etāni diṭṭhāni, ",
+          "de": "Doch jetzt, da diese Wahrheiten gesehen wurden, ",
+          "ref": "But now that these truths have been seen, "
+        },
+        "sn56.21:5.2": {
+          "scid": "sn56.21:5.2",
+          "pli": "bhavanetti samūhatā; ",
+          "de": "ist der Zug zum Dasein ausgerottet. ",
+          "ref": "the conduit to rebirth is eradicated. "
+        },
+        "sn56.21:5.3": {
+          "scid": "sn56.21:5.3",
+          "pli": "Ucchinnaṁ mūlaṁ dukkhassa, ",
+          "de": "Die <span class=\"scv-matched\">Wurzel des Leidens</span> ist abgeschnitten, ",
+          "ref": "The root of suffering is cut off, ",
+          "matched": true
+        },
+        "sn56.21:5.4": {
+          "scid": "sn56.21:5.4",
+          "pli": "natthi dāni punabbhavo”ti. ",
+          "de": "künftige Leben wird es jetzt nicht mehr geben.“ ",
+          "ref": "now there’ll be no more future lives.” "
+        },
+        "sn56.21:5.5": {
+          "scid": "sn56.21:5.5",
+          "pli": "Paṭhamaṁ. "
+        }
+      },
+      "author_uid": "sabbamitta",
+      "bilaraPaths": [
+        "root/pli/ms/sutta/sn/sn56/sn56.21_root-pli-ms.json",
+        "translation/de/sabbamitta/sutta/sn/sn56/sn56.21_translation-de-sabbamitta.json",
+        "translation/en/sujato/sutta/sn/sn56/sn56.21_translation-en-sujato.json"
+      ],
+      "category": "sutta",
+      "footer": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "hyphen": "­",
+      "lang": "de",
+      "langSegs": {
+        "pli": 23,
+        "de": 22,
+        "ref": 22
+      },
+      "maxWord": 30,
+      "minWord": 5,
+      "score": 1.043,
+      "segsMatched": 1,
+      "sutta_uid": "sn56.21",
+      "title": "Verbundene Lehrreden 56.21\n3. Das Kapitel beim Dorf Koṭi\nBeim Dorf Koṭi (1)",
+      "type": "translation",
+      "trilingual": true,
+      "docLang": "de",
+      "docAuthor": "sabbamitta",
+      "docAuthorName": "Sabbamitta",
+      "docFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "refLang": "en",
+      "refAuthor": "sujato",
+      "refAuthorName": "Bhikkhu Sujato",
+      "refFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>"
+    }
+  ],
+  "refLang": "en",
+  "refAuthor": "sujato",
+  "docLang": "de",
+  "docAuthor": "sabbamitta",
+  "trilingual": true
+}

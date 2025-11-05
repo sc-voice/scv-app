@@ -562,17 +562,17 @@ struct SearchResponseTests {
   // MARK: - Factory Method Tests
 
   @Test func testCreateMockResponse() async throws {
-    // Load mock response from bundle resource
+    // Load mock response from bundle resource (default English)
     let mockResponse = SearchResponse.createMockResponse()
 
     // Verify it loaded successfully
-    #expect(mockResponse != nil, "createMockResponse() should load MockResponse.json")
+    #expect(mockResponse != nil, "createMockResponse() should load mock-response-en.json")
 
     guard let response = mockResponse else {
       return
     }
 
-    // Verify core properties from MockResponse.json
+    // Verify core properties from mock-response-en.json
     #expect(response.pattern == "root of suffering")
     #expect(response.segsMatched == 14)
     #expect(response.mlDocs.count == 1)
@@ -593,6 +593,38 @@ struct SearchResponseTests {
 
     // Results should be equal (idempotent)
     #expect(mockResponse1 == mockResponse2)
+  }
+
+  @Test func testCreateMockResponseGerman() async throws {
+    // Load German mock response
+    let mockResponse = SearchResponse.createMockResponse(language: "de")
+
+    // Verify it loaded successfully
+    #expect(mockResponse != nil, "createMockResponse(language: \"de\") should load mock-response-de.json")
+
+    guard let response = mockResponse else {
+      return
+    }
+
+    // Verify it's a valid SearchResponse with German content
+    #expect(response.mlDocs.count > 0, "German mock response should have documents")
+    #expect(response.segsMatched > 0, "German mock response should have matched segments")
+  }
+
+  @Test func testCreateMockResponseLanguageFallback() async throws {
+    // Request non-existent language should fall back to English
+    let mockResponse = SearchResponse.createMockResponse(language: "fr")
+
+    // Should fall back to English
+    #expect(mockResponse != nil, "createMockResponse() should fall back to English for unsupported language")
+
+    guard let response = mockResponse else {
+      return
+    }
+
+    // Should have English properties
+    #expect(response.lang == "en", "Fallback response should be English")
+    #expect(response.author == "sujato", "Fallback response should be from mock-response-en.json")
   }
 
   @Test func testCreateMockResponseDocuments() async throws {

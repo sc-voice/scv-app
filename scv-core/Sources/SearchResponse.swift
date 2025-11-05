@@ -500,12 +500,22 @@ extension SearchResponse {
     )
   }
 
-  /// Creates a mock SearchResponse from MockResponse.json resource file
+  /// Creates a mock SearchResponse from language-specific mock response file
+  /// Loads from language-specific .lproj folder (e.g., en.lproj/mock-response-en.json)
   /// Works in both production and test environments
+  /// - Parameter language: Language code (e.g., "en", "de"). Defaults to "en"
   /// - Returns: A SearchResponse loaded from the resource, or nil if loading fails
-  public static func createMockResponse() -> SearchResponse? {
-    guard let resourceURL = Bundle.module.url(forResource: "MockResponse", withExtension: "json"),
+  public static func createMockResponse(language: String = "en") -> SearchResponse? {
+    // Build language folder name (e.g., "en.lproj", "de.lproj")
+    let languageFolder = "\(language).lproj"
+    let resourceName = "mock-response-\(language)"
+
+    guard let resourceURL = Bundle.module.url(forResource: resourceName, withExtension: "json", subdirectory: languageFolder),
           let data = try? Data(contentsOf: resourceURL) else {
+      // Fall back to English if language-specific file not found
+      if language != "en" {
+        return createMockResponse(language: "en")
+      }
       return nil
     }
 
