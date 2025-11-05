@@ -1,29 +1,6 @@
 import SwiftUI
 import scvCore
 
-// MARK: - Highlighted Span Parsing
-private struct HighlightedSpan {
-  let text: String
-  let isMatched: Bool
-}
-
-private func parseMatchedSpans(_ html: String) -> [HighlightedSpan] {
-  var spans: [HighlightedSpan] = []
-  let pattern = #"<span class="scv-matched">([^<]*)</span>|([^<]+)"#
-  guard let regex = try? NSRegularExpression(pattern: pattern) else { return [.init(text: html, isMatched: false)] }
-
-  let nsString = html as NSString
-  regex.enumerateMatches(in: html, range: NSRange(location: 0, length: nsString.length)) { match, _, _ in
-    guard let match = match else { return }
-    if let range = Range(match.range(at: 1), in: html) {
-      spans.append(.init(text: String(html[range]), isMatched: true))
-    } else if let range = Range(match.range(at: 2), in: html) {
-      spans.append(.init(text: String(html[range]), isMatched: false))
-    }
-  }
-  return spans.isEmpty ? [.init(text: html, isMatched: false)] : spans
-}
-
 public struct SuttaView: View {
   let mlDoc: MLDocument
   @ObservedObject var player: SuttaPlayer
@@ -127,29 +104,40 @@ public struct SuttaView: View {
     return value?.isEmpty ?? true ? EMPTY_SET : value!
   }
 
+  private func buildAttributedString(_ parseResult: HTMLParseResult) -> AttributedString {
+    var attributedString = AttributedString("")
+
+    for span in parseResult.spans {
+      var spanAttr = AttributedString(span.text)
+      if span.isMatched {
+        spanAttr.foregroundColor = themeProvider.theme.accentColor
+      } else {
+        spanAttr.foregroundColor = themeProvider.theme.textColor
+      }
+      attributedString.append(spanAttr)
+    }
+
+    return attributedString
+  }
+
   @ViewBuilder
   private func highlightedSegmentView(_ html: String) -> some View {
-    let spans = parseMatchedSpans(html)
-    HStack(spacing: 0) {
-      ForEach(spans.indices, id: \.self) { index in
-        let span = spans[index]
-        if span.isMatched {
-          Text(span.text)
-            .foregroundColor(themeProvider.theme.accentColor)
-            .contextMenu {
-              Button("Copy Matched") {
-                UIPasteboard.general.string = span.text
-              }
-              Button("Copy As Pali") {
-                // TODO: Implement copy as Pali
-              }
-            }
-        } else {
-          Text(span.text)
-            .foregroundColor(themeProvider.theme.textColor)
+    let parseResult = HTMLParser.parse(htmlString: html)
+    let attributedString = buildAttributedString(parseResult)
+
+    Text(attributedString)
+      .contextMenu {
+        Button("Copy Matched") {
+          let matched = parseResult.spans
+            .filter { $0.isMatched }
+            .map { $0.text }
+            .joined()
+          UIPasteboard.general.string = matched
+        }
+        Button("Copy As Pali") {
+          // TODO: Implement copy as Pali
         }
       }
-    }
   }
 }
 

@@ -64,11 +64,29 @@ cd scv-core && swift test --filter CardTests
 05. [ ] Test privacy label accuracy against actual app behavior
 
 ### Render segment text as HTML
+**Status**: Complete
+
+01. [x] Research HTML structure in segment data (found `<span class="scv-matched">` tags)
+02. [x] Implement HTMLParser with AttributedString for inline colored text
+03. [x] Update SuttaView to use HTMLParser (matched text shown with accentColor)
+
+### Add WebView wrapper for selected segment
 **Status**: Backlog
 
-01. [ ] Parse HTML tags in segment text (currently only extracts matched spans)
-02. [ ] Implement proper HTML rendering for semantic markup
-03. [ ] Style HTML elements according to theme
+01. [ ] Design WebView integration for full HTML rendering of selected segments
+02. [ ] Create WebView wrapper component
+03. [ ] Handle navigation between segments in WebView
+04. [ ] Style WebView content according to theme
+05. [ ] Test WebView interaction and rendering
+
+### Track current segment selection in MLDocument
+**Status**: Backlog
+
+01. [ ] Add currentScid: String? property to MLDocument
+02. [ ] Update SuttaView to set currentScid when user taps a segment
+03. [ ] Display dashed border around currently selected segment
+04. [ ] Persist currentScid selection in document state
+05. [ ] Test segment selection and highlighting
 
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
