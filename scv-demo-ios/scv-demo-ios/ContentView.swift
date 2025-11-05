@@ -16,10 +16,6 @@ struct ContentView: View {
     @State private var showSettings = false
     @StateObject private var settingsController = SettingsModalController(from: Settings.shared)
 
-    var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
-    }
-
     var body: some View {
         VStack {
             HStack {
@@ -27,10 +23,6 @@ struct ContentView: View {
                     .font(.title)
                     .foregroundStyle(themeProvider.theme.textColor)
                 Spacer()
-                Text("Build: \(buildNumber)")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.textColor)
-                    .padding(.trailing)
                 Button(action: { showSettings = true }) {
                     Image(systemName: "gear")
                         .font(.title2)
@@ -54,7 +46,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+        .background(themeProvider.theme.cardBackground)
         .onAppear {
             print("DEBUG: ContentView.onAppear called")
             let response = SearchResponse.createMockResponse()
@@ -66,6 +58,7 @@ struct ContentView: View {
         }
         .popover(isPresented: $showSettings, attachmentAnchor: .point(.topTrailing)) {
             SettingsView(controller: settingsController)
+                .environmentObject(themeProvider)
                 .frame(maxWidth: 400, maxHeight: .infinity)
         }
     }

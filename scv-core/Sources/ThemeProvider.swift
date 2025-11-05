@@ -14,8 +14,13 @@ public class ThemeProvider: ObservableObject {
   /// Current application theme
   @Published public var currentTheme: AppTheme = .dark
 
-  public init(theme: AppTheme = .dark) {
-    self.currentTheme = theme
+  public init(theme: AppTheme? = nil) {
+    if let theme = theme {
+      self.currentTheme = theme
+    } else {
+      // Initialize from Settings
+      self.currentTheme = Settings.shared.isDarkModeEnabled ? .dark : .light
+    }
   }
 
   /// Get the current theme configuration
@@ -26,11 +31,19 @@ public class ThemeProvider: ObservableObject {
   /// Toggle between light and dark themes
   public func toggleTheme() {
     currentTheme = currentTheme == .light ? .dark : .light
+    updateSettings()
   }
 
   /// Set theme to a specific value
   public func setTheme(_ theme: AppTheme) {
     currentTheme = theme
+    updateSettings()
+  }
+
+  /// Sync Settings with current theme
+  private func updateSettings() {
+    Settings.shared.isDarkModeEnabled = (currentTheme == .dark)
+    Settings.shared.save()
   }
 }
 

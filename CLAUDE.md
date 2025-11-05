@@ -65,6 +65,13 @@ cd scv-core && swift test --filter CardTests
 
 ### Refactor Segment struct for language-aware text
 
+### Render segment text as HTML
+**Status**: Backlog
+
+01. [ ] Parse HTML tags in segment text (currently only extracts matched spans)
+02. [ ] Implement proper HTML rendering for semantic markup
+03. [ ] Style HTML elements according to theme
+
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 

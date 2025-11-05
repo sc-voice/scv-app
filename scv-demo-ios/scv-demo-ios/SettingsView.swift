@@ -11,184 +11,115 @@ import Combine
 import scvCore
 import scvUI
 
-// MARK: - SettingsModalController
-
-class SettingsModalController: NSObject, ObservableObject {
-  @Published var docLang: ScvLanguage {
-    didSet { autosave() }
-  }
-  @Published var refLang: ScvLanguage {
-    didSet { autosave() }
-  }
-  @Published var uiLang: ScvLanguage {
-    didSet { autosave() }
-  }
-  @Published var isDarkModeEnabled: Bool {
-    didSet { autosave() }
-  }
-  @Published var paliVoiceId: String {
-    didSet { autosave() }
-  }
-  @Published var docVoiceId: String {
-    didSet { autosave() }
-  }
-  @Published var paliPitch: Float {
-    didSet { autosave() }
-  }
-  @Published var paliRate: Float {
-    didSet { autosave() }
-  }
-  @Published var docPitch: Float {
-    didSet { autosave() }
-  }
-  @Published var docRate: Float {
-    didSet { autosave() }
-  }
-
-  private let originalDocLang: ScvLanguage
-  private let originalRefLang: ScvLanguage
-  private let originalUiLang: ScvLanguage
-  private let originalIsDarkModeEnabled: Bool
-  private let originalPaliVoiceId: String
-  private let originalDocVoiceId: String
-  private let originalPaliPitch: Float
-  private let originalPaliRate: Float
-  private let originalDocPitch: Float
-  private let originalDocRate: Float
-
-  private var pendingSave = false
-  private var saveTimer: Timer?
-
-  init(from settings: Settings) {
-    self.docLang = settings.docLang
-    self.refLang = settings.refLang
-    self.uiLang = settings.uiLang
-    self.isDarkModeEnabled = settings.isDarkModeEnabled
-    self.paliVoiceId = settings.paliSpeech.voiceId
-    self.docVoiceId = settings.docSpeech.voiceId
-    self.paliPitch = settings.paliSpeech.pitch
-    self.paliRate = settings.paliSpeech.rate
-    self.docPitch = settings.docSpeech.pitch
-    self.docRate = settings.docSpeech.rate
-
-    self.originalDocLang = settings.docLang
-    self.originalRefLang = settings.refLang
-    self.originalUiLang = settings.uiLang
-    self.originalIsDarkModeEnabled = settings.isDarkModeEnabled
-    self.originalPaliVoiceId = settings.paliSpeech.voiceId
-    self.originalDocVoiceId = settings.docSpeech.voiceId
-    self.originalPaliPitch = settings.paliSpeech.pitch
-    self.originalPaliRate = settings.paliSpeech.rate
-    self.originalDocPitch = settings.docSpeech.pitch
-    self.originalDocRate = settings.docSpeech.rate
-  }
-
-  private func autosave() {
-    // Always update in-memory settings for live player reads
-    Settings.shared.docLang = docLang
-    Settings.shared.refLang = refLang
-    Settings.shared.uiLang = uiLang
-    Settings.shared.isDarkModeEnabled = isDarkModeEnabled
-    Settings.shared.paliSpeech.voiceId = paliVoiceId
-    Settings.shared.docSpeech.voiceId = docVoiceId
-    Settings.shared.paliSpeech.pitch = paliPitch
-    Settings.shared.paliSpeech.rate = paliRate
-    Settings.shared.docSpeech.pitch = docPitch
-    Settings.shared.docSpeech.rate = docRate
-
-    // Only write to UserDefaults if audio is not playing
-    if !SuttaPlayer.shared.isPlaying {
-      Settings.shared.save()
-      pendingSave = false
-    } else {
-      // Mark for deferred save and schedule check
-      pendingSave = true
-      scheduleDeferredSave()
-    }
-  }
-
-  private func scheduleDeferredSave() {
-    saveTimer?.invalidate()
-    saveTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-      guard let self = self, self.pendingSave else {
-        self?.saveTimer?.invalidate()
-        self?.saveTimer = nil
-        return
-      }
-
-      if !SuttaPlayer.shared.isPlaying {
-        Settings.shared.save()
-        self.pendingSave = false
-        self.saveTimer?.invalidate()
-        self.saveTimer = nil
-      }
-    }
-  }
-
-  func resetToDefaults() {
-    // Reset to app defaults, not session originals
-    docLang = .default
-    refLang = .default
-    uiLang = .default
-    isDarkModeEnabled = true
-    paliVoiceId = ""
-    docVoiceId = ""
-    paliPitch = 1.0
-    paliRate = 1.0
-    docPitch = 1.0
-    docRate = 1.0
-  }
-}
-
 // MARK: - SettingsView
 
 struct SettingsView: View {
   @ObservedObject var controller: SettingsModalController
+  @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
   @State private var showResetConfirmation = false
+  @State private var showDocLangPicker = false
+  @State private var showRefLangPicker = false
+  @State private var showUILangPicker = false
+
+  var buildNumber: String {
+    Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+  }
 
   var body: some View {
     VStack(spacing: 0) {
       HStack {
         Text("Settings")
           .font(.headline)
+          .foregroundStyle(themeProvider.theme.textColor)
         Spacer()
         Button(action: { dismiss() }) {
           Image(systemName: "xmark")
             .font(.body)
-            .foregroundColor(.gray)
+            .foregroundColor(themeProvider.theme.textColor)
         }
       }
       .padding()
-      .borderBottom()
+      .background(themeProvider.theme.cardBackground)
+      .overlay(alignment: .bottom) {
+        Rectangle()
+          .fill(themeProvider.theme.borderColor)
+          .frame(height: 0.5)
+      }
 
       Form {
         // MARK: - Languages Section
 
         Section("Languages") {
-          Picker("Document Language", selection: $controller.docLang) {
-            ForEach(ScvLanguage.allCases, id: \.self) { lang in
-              Text(lang.displayName).tag(lang)
+          HStack {
+            Text("Document Language")
+            Spacer()
+            Button(action: { showDocLangPicker = true }) {
+              Text(controller.docLang.displayName)
+                .foregroundColor(themeProvider.theme.valueColor)
             }
           }
-
-          Picker("Reference Language", selection: $controller.refLang) {
-            ForEach(ScvLanguage.allCases, id: \.self) { lang in
-              Text(lang.displayName).tag(lang)
+          .sheet(isPresented: $showDocLangPicker) {
+            Picker("Document Language", selection: $controller.docLang) {
+              ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                Text(lang.displayName).tag(lang)
+              }
             }
+            .pickerStyle(.wheel)
+            .presentationDetents([.medium])
           }
 
-          Picker("UI Language", selection: $controller.uiLang) {
-            ForEach(ScvLanguage.uiLanguages, id: \.self) { lang in
-              Text(lang.displayName).tag(lang)
+          HStack {
+            Text("Reference Language")
+            Spacer()
+            Button(action: { showRefLangPicker = true }) {
+              Text(controller.refLang.displayName)
+                .foregroundColor(themeProvider.theme.valueColor)
             }
+          }
+          .sheet(isPresented: $showRefLangPicker) {
+            Picker("Reference Language", selection: $controller.refLang) {
+              ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                Text(lang.displayName).tag(lang)
+              }
+            }
+            .pickerStyle(.wheel)
+            .presentationDetents([.medium])
+          }
+
+          HStack {
+            Text("UI Language")
+            Spacer()
+            Button(action: { showUILangPicker = true }) {
+              Text(controller.uiLang.displayName)
+                .foregroundColor(themeProvider.theme.valueColor)
+            }
+          }
+          .sheet(isPresented: $showUILangPicker) {
+            Picker("UI Language", selection: $controller.uiLang) {
+              ForEach(ScvLanguage.uiLanguages, id: \.self) { lang in
+                Text(lang.displayName).tag(lang)
+              }
+            }
+            .pickerStyle(.wheel)
+            .presentationDetents([.medium])
           }
         }
 
         // MARK: - Appearance Section
 
         Section("Appearance") {
-          Toggle("Dark Mode", isOn: $controller.isDarkModeEnabled)
+          HStack {
+            Image(systemName: controller.isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
+              .foregroundColor(themeProvider.theme.accentColor)
+            Toggle("Dark Mode", isOn: Binding(
+              get: { controller.isDarkModeEnabled },
+              set: { newValue in
+                controller.isDarkModeEnabled = newValue
+                themeProvider.setTheme(newValue ? .dark : .light)
+              }
+            ))
+          }
         }
 
         // MARK: - Pali Voice Section
@@ -213,6 +144,17 @@ struct SettingsView: View {
           )
         }
 
+        // MARK: - Build Section
+
+        Section {
+          HStack {
+            Text("Build")
+            Spacer()
+            Text(buildNumber)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
+          }
+        }
+
         // MARK: - Reset Button Section
 
         Section {
@@ -221,10 +163,14 @@ struct SettingsView: View {
           }
         }
       }
+      .scrollContentBackground(.hidden)
+      .background(themeProvider.theme.backgroundColor)
     }
+    .background(themeProvider.theme.backgroundColor)
     .alert("Reset All Settings?", isPresented: $showResetConfirmation) {
       Button("Reset", role: .destructive) {
         controller.resetToDefaults()
+        themeProvider.setTheme(.dark)
       }
       Button("Cancel", role: .cancel) {}
     } message: {
@@ -250,6 +196,8 @@ struct VoicePickerView: View {
   @Binding var pitch: Float
   @Binding var rate: Float
   let language: ScvLanguage
+  @EnvironmentObject var themeProvider: ThemeProvider
+  @State private var showVoicePicker = false
 
   var availableVoices: [AVSpeechSynthesisVoice] {
     AVSpeechSynthesisVoice.speechVoices()
@@ -279,11 +227,23 @@ struct VoicePickerView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Picker("Voice", selection: $selectedVoiceId) {
-        Text("Default").tag("")
-        ForEach(availableVoices, id: \.identifier) { voice in
-          Text(voiceDisplayName(voice)).tag(voice.identifier)
+      HStack {
+        Text("Voice")
+        Spacer()
+        Button(action: { showVoicePicker = true }) {
+          Text(selectedVoiceName)
+            .foregroundColor(themeProvider.theme.valueColor)
         }
+      }
+      .sheet(isPresented: $showVoicePicker) {
+        Picker("Select Voice", selection: $selectedVoiceId) {
+          Text("Default").tag("")
+          ForEach(availableVoices, id: \.identifier) { voice in
+            Text(voiceDisplayName(voice)).tag(voice.identifier)
+          }
+        }
+        .pickerStyle(.wheel)
+        .presentationDetents([.medium])
       }
 
       VStack(alignment: .leading, spacing: 8) {
@@ -291,6 +251,7 @@ struct VoicePickerView: View {
           Text("Pitch")
           Slider(value: $pitch, in: 0.5...2.0, step: 0.1)
           Text(String(format: "%.1f", pitch))
+            .foregroundColor(themeProvider.theme.valueColor)
             .frame(width: 35)
         }
 
@@ -298,6 +259,7 @@ struct VoicePickerView: View {
           Text("Rate")
           Slider(value: $rate, in: 0.1...2.0, step: 0.1)
           Text(String(format: "%.1f", rate))
+            .foregroundColor(themeProvider.theme.valueColor)
             .frame(width: 35)
         }
       }

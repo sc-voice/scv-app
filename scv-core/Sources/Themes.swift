@@ -29,13 +29,17 @@ public struct Theme {
   /// Border color
   public let borderColor: Color
 
+  /// Value color for user-mutable values (voices, settings, etc.)
+  public let valueColor: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
     secondaryTextColor: Color,
     accentColor: Color,
     cardBackground: Color,
-    borderColor: Color
+    borderColor: Color,
+    valueColor: Color
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -43,6 +47,7 @@ public struct Theme {
     self.accentColor = accentColor
     self.cardBackground = cardBackground
     self.borderColor = borderColor
+    self.valueColor = valueColor
   }
 }
 
@@ -50,6 +55,9 @@ public struct Theme {
 
 /// Saffron color used in both themes
 private let COLOR_SAFFRON = Color(red: 1.0, green: 0.6, blue: 0.2) // #ff9933
+
+/// Cyan color for user-mutable values
+private let COLOR_CYAN = Color(red: 0.0, green: 1.0, blue: 1.0) // #00ffff
 
 /// Application themes
 public enum AppTheme {
@@ -71,7 +79,8 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.5, green: 0.5, blue: 0.5), // medium grey
         accentColor: COLOR_SAFFRON, // #ff9933
         cardBackground: Color(red: 0.941, green: 0.941, blue: 0.941), // #f0f0f0
-        borderColor: Color(red: 0.9, green: 0.9, blue: 0.9) // light grey
+        borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
+        valueColor: COLOR_CYAN // #00ffff
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
@@ -82,7 +91,8 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.7, green: 0.7, blue: 0.7), // light grey
         accentColor: COLOR_SAFFRON, // #ff9933
         cardBackground: Color(red: 0.133, green: 0.133, blue: 0.133), // #222222
-        borderColor: Color(red: 0.3, green: 0.3, blue: 0.3) // dark grey
+        borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
+        valueColor: COLOR_CYAN // #00ffff
       )
     }
   }

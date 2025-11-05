@@ -46,23 +46,13 @@ public struct SuttaView: View {
               .foregroundStyle(themeProvider.theme.textColor)
               .lineLimit(nil)
 
-            HStack(spacing: 12) {
-              HStack(spacing: 4) {
-                Image(systemName: "person.fill")
-                  .foregroundColor(themeProvider.theme.textColor)
-                Text(mlDoc.docAuthorName)
-                  .foregroundColor(themeProvider.theme.textColor)
-              }
-              .font(.caption)
-
-              HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                  .foregroundColor(themeProvider.theme.textColor)
-                Text("Score: \(String(format: "%.2f", mlDoc.score))")
-                  .foregroundColor(themeProvider.theme.textColor)
-              }
-              .font(.caption)
+            HStack(spacing: 4) {
+              Image(systemName: "person.fill")
+                .foregroundColor(themeProvider.theme.textColor)
+              Text(mlDoc.docAuthorName)
+                .foregroundColor(themeProvider.theme.textColor)
             }
+            .font(.caption)
           }
 
           Spacer()
@@ -101,7 +91,7 @@ public struct SuttaView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 4)
-            .background(shouldHighlight(index) ? Color(red: 0.15, green: 0.15, blue: 0.15) : .clear)
+            .background(shouldHighlight(index) ? themeProvider.theme.accentColor.opacity(0.2) : .clear)
           }
         }
         .padding(.vertical)
@@ -145,7 +135,7 @@ public struct SuttaView: View {
         let span = spans[index]
         if span.isMatched {
           Text(span.text)
-            .foregroundColor(.accentColor)
+            .foregroundColor(themeProvider.theme.accentColor)
             .contextMenu {
               Button("Copy Matched") {
                 UIPasteboard.general.string = span.text
@@ -155,6 +145,8 @@ public struct SuttaView: View {
               }
             }
         } else {
+          Text(span.text)
+            .foregroundColor(themeProvider.theme.textColor)
         }
       }
     }

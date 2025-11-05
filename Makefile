@@ -11,7 +11,8 @@ test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
 
 test-demo-ios:
-	@echo "✓ scv-demo-ios built successfully"
+	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj | head -1 | sed 's/.*= //;s/;$$//'); \
+	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
 build: build-core build-demo-ios
 
@@ -21,7 +22,7 @@ build-core:
 
 build-demo-ios:
 	@swift scripts/version.swift patch
-	xcodebuild build -scheme scv-demo-ios -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' -quiet 2>/dev/null || true
+	cd scv-demo-ios && xcodebuild build -scheme scv-demo-ios -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15'
 
 clean: clean-core clean-ui clean-demo-ios
 
@@ -34,7 +35,7 @@ clean-ui:
 clean-demo-ios:
 	rm -rf scv-demo-iOS/build
 	rm -rf scv-demo-iOS/.swiftpm
-	xcodebuild clean -scheme scv-demo-ios -quiet 2>/dev/null || true
+	cd scv-demo-ios && xcodebuild clean -scheme scv-demo-ios 2>/dev/null || true
 
 mock-response-view:
 	@cd scv-ui && swift run mock-response-view
