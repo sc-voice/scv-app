@@ -79,15 +79,6 @@ cd scv-core && swift test --filter CardTests
 04. [ ] Style WebView content according to theme
 05. [ ] Test WebView interaction and rendering
 
-### Track current segment selection in MLDocument
-**Status**: Backlog
-
-01. [ ] Add currentScid: String? property to MLDocument
-02. [ ] Update SuttaView to set currentScid when user taps a segment
-03. [ ] Display dashed border around currently selected segment
-04. [ ] Persist currentScid selection in document state
-05. [ ] Test segment selection and highlighting
-
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
 
@@ -123,3 +114,12 @@ cd scv-core && swift test --filter CardTests
 **Status**: Complete
 
 01. [x] Review current Segment implementation (no refactoring needed - already language-aware)
+
+### Track current segment selection in MLDocument
+**Status**: Complete
+
+01. [x] Add currentScid: String? property to MLDocument
+02. [x] Update SuttaView to set currentScid when user taps a segment
+03. [x] Display dashed border around currently selected segment
+04. [x] Persist currentScid selection in document state
+05. [x] Test segment selection and highlighting

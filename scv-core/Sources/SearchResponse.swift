@@ -200,6 +200,9 @@ public struct MLDocument: Codable, Equatable {
   public let refAuthorName: String
   public let refFooter: String
 
+  // Selection tracking
+  public var currentScid: String?
+
   init(
     author: String = NIL_STRING_DEFAULT,
     segMap: [String: Segment] = [:],
@@ -227,7 +230,8 @@ public struct MLDocument: Codable, Equatable {
     refLang: String = NIL_STRING_DEFAULT,
     refAuthor: String = NIL_STRING_DEFAULT,
     refAuthorName: String = NIL_STRING_DEFAULT,
-    refFooter: String = NIL_STRING_DEFAULT
+    refFooter: String = NIL_STRING_DEFAULT,
+    currentScid: String? = nil
   ) {
     self.author = author
     self.segMap = segMap
@@ -256,6 +260,7 @@ public struct MLDocument: Codable, Equatable {
     self.refAuthor = refAuthor
     self.refAuthorName = refAuthorName
     self.refFooter = refFooter
+    self.currentScid = currentScid
   }
 
   public init(from decoder: Decoder) throws {
@@ -288,6 +293,7 @@ public struct MLDocument: Codable, Equatable {
     let refAuthor = try container.decodeIfPresent(String.self, forKey: .refAuthor) ?? NIL_STRING_DEFAULT
     let refAuthorName = try container.decodeIfPresent(String.self, forKey: .refAuthorName) ?? NIL_STRING_DEFAULT
     let refFooter = try container.decodeIfPresent(String.self, forKey: .refFooter) ?? NIL_STRING_DEFAULT
+    let currentScid = try container.decodeIfPresent(String.self, forKey: .currentScid)
 
     self.init(
       author: author,
@@ -316,7 +322,8 @@ public struct MLDocument: Codable, Equatable {
       refLang: refLang,
       refAuthor: refAuthor,
       refAuthorName: refAuthorName,
-      refFooter: refFooter
+      refFooter: refFooter,
+      currentScid: currentScid
     )
   }
 
@@ -355,6 +362,7 @@ public struct MLDocument: Codable, Equatable {
     case refAuthor
     case refAuthorName
     case refFooter
+    case currentScid
   }
 }
 

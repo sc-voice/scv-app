@@ -714,4 +714,113 @@ struct SearchResponseTests {
       "Segment content should be preserved"
     )
   }
+
+  // MARK: - MLDocument Segment Selection Tests (Objective 03)
+
+  @Test func testMLDocumentDefaultCurrentScidIsNil() async throws {
+    let doc = MLDocument()
+    #expect(doc.currentScid == nil)
+  }
+
+  @Test func testMLDocumentCanSetCurrentScid() async throws {
+    var doc = MLDocument()
+    doc.currentScid = "sn42.11:2.11"
+    #expect(doc.currentScid == "sn42.11:2.11")
+  }
+
+  @Test func testMLDocumentCurrentScidCanBeCleared() async throws {
+    var doc = MLDocument(currentScid: "sn42.11:2.11")
+    #expect(doc.currentScid == "sn42.11:2.11")
+    doc.currentScid = nil
+    #expect(doc.currentScid == nil)
+  }
+
+  @Test func testMLDocumentCurrentScidInitializer() async throws {
+    let doc = MLDocument(
+      sutta_uid: "sn42.11",
+      currentScid: "sn42.11:2.11"
+    )
+    #expect(doc.currentScid == "sn42.11:2.11")
+  }
+
+  @Test func testMLDocumentCurrentScidEncodingAndDecoding() async throws {
+    let originalDoc = MLDocument(
+      sutta_uid: "sn42.11",
+      title: "Test Sutta",
+      currentScid: "sn42.11:2.11"
+    )
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(originalDoc)
+
+    let decoder = JSONDecoder()
+    let decodedDoc = try decoder.decode(MLDocument.self, from: jsonData)
+
+    #expect(decodedDoc.currentScid == "sn42.11:2.11")
+    #expect(decodedDoc.sutta_uid == "sn42.11")
+  }
+
+  @Test func testMLDocumentCurrentScidNotInEncodedJSON() async throws {
+    let doc = MLDocument(
+      sutta_uid: "sn42.11",
+      currentScid: nil
+    )
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(doc)
+
+    let decodedDoc = try JSONDecoder().decode(MLDocument.self, from: jsonData)
+    #expect(decodedDoc.currentScid == nil)
+  }
+
+  @Test func testMLDocumentMultipleSelectionsIndependent() async throws {
+    var doc1 = MLDocument(sutta_uid: "sn42.11")
+    var doc2 = MLDocument(sutta_uid: "mn10")
+
+    doc1.currentScid = "sn42.11:2.11"
+    doc2.currentScid = "mn10:1.1"
+
+    #expect(doc1.currentScid == "sn42.11:2.11")
+    #expect(doc2.currentScid == "mn10:1.1")
+
+    // Change doc1 selection
+    doc1.currentScid = "sn42.11:3.5"
+    #expect(doc1.currentScid == "sn42.11:3.5")
+    #expect(doc2.currentScid == "mn10:1.1")
+  }
+
+  @Test func testMLDocumentWithMockResponseCurrentScid() async throws {
+    guard let mockResponse = SearchResponse.createMockResponse() else {
+      #expect(Bool(false), "Failed to load mock response")
+      return
+    }
+
+    // Create document with currentScid from mock response data
+    var doc = mockResponse.mlDocs[0]
+    doc.currentScid = "sn42.11:2.11"
+
+    #expect(doc.currentScid == "sn42.11:2.11")
+    #expect(doc.segMap["sn42.11:2.11"] != nil)
+  }
+
+  @Test func testMLDocumentCurrentScidRoundTripWithSearchResponse() async throws {
+    let mockDoc = MLDocument(
+      author: "Test Author",
+      segMap: [:],
+      sutta_uid: "sn42.11",
+      title: "Test Sutta",
+      currentScid: "sn42.11:2.11"
+    )
+
+    let response = SearchResponse(mlDocs: [mockDoc])
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(response)
+
+    let decoder = JSONDecoder()
+    let decodedResponse = try decoder.decode(SearchResponse.self, from: jsonData)
+
+    #expect(decodedResponse.mlDocs.count == 1)
+    #expect(decodedResponse.mlDocs[0].currentScid == "sn42.11:2.11")
+  }
 }

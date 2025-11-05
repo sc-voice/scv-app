@@ -414,6 +414,64 @@ struct CardTests {
     #expect(decodedCard.searchResults?.pattern == "")
   }
 
+  // MARK: - Card MLDocument Tests (Objective 04)
+
+  @Test
+  func cardMLDocDefaultNil() throws {
+    let card = Card(cardType: .sutta, typeId: 1)
+    #expect(card.mlDoc == nil)
+  }
+
+  @Test
+  func cardMLDocCanBeSet() throws {
+    let doc = MLDocument(sutta_uid: "sn42.11", title: "Test")
+    let card = Card(cardType: .sutta, typeId: 1, mlDoc: doc)
+    #expect(card.mlDoc != nil)
+    #expect(card.mlDoc?.sutta_uid == "sn42.11")
+  }
+
+  @Test
+  func cardMLDocWithCurrentScidPersists() throws {
+    var doc = MLDocument(sutta_uid: "sn42.11", title: "Test")
+    doc.currentScid = "sn42.11:2.11"
+
+    let card = Card(cardType: .sutta, typeId: 1, mlDoc: doc)
+
+    // Encode and decode
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    #expect(decodedCard.mlDoc != nil)
+    #expect(decodedCard.mlDoc?.sutta_uid == "sn42.11")
+    #expect(decodedCard.mlDoc?.currentScid == "sn42.11:2.11")
+  }
+
+  @Test
+  func cardMLDocRoundTripPreservesAllProperties() throws {
+    var doc = MLDocument(
+      author: "Bhikkhu Sujato",
+      sutta_uid: "sn42.11",
+      title: "Linked Discourses 42.11",
+      currentScid: "sn42.11:1.5"
+    )
+
+    let card = Card(cardType: .sutta, typeId: 2, mlDoc: doc)
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(card)
+
+    let decoder = JSONDecoder()
+    let decodedCard = try decoder.decode(Card.self, from: jsonData)
+
+    #expect(decodedCard.mlDoc?.author == "Bhikkhu Sujato")
+    #expect(decodedCard.mlDoc?.sutta_uid == "sn42.11")
+    #expect(decodedCard.mlDoc?.title == "Linked Discourses 42.11")
+    #expect(decodedCard.mlDoc?.currentScid == "sn42.11:1.5")
+  }
+
   // MARK: - SwiftData Persistence Tests
 
   @Test

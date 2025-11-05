@@ -2,13 +2,15 @@ import SwiftUI
 import scvCore
 
 public struct SuttaView: View {
-  let mlDoc: MLDocument
+  let initialDoc: MLDocument
+  @State private var mlDoc: MLDocument
   @ObservedObject var player: SuttaPlayer
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var segments: [(key: String, value: Segment)] = []
 
   public init(mlDoc: MLDocument, player: SuttaPlayer = .shared) {
-    self.mlDoc = mlDoc
+    self.initialDoc = mlDoc
+    _mlDoc = State(initialValue: mlDoc)
     self.player = player
   }
 
@@ -69,6 +71,16 @@ public struct SuttaView: View {
             .padding(.horizontal)
             .padding(.vertical, 4)
             .background(shouldHighlight(index) ? themeProvider.theme.accentColor.opacity(0.2) : .clear)
+            .overlay(
+              RoundedRectangle(cornerRadius: 4)
+                .stroke(
+                  isSegmentSelected(scid) ? themeProvider.theme.accentColor : .clear,
+                  style: StrokeStyle(lineWidth: 2, lineCap: .butt, lineJoin: .bevel, dash: [4, 3])
+                )
+            )
+            .onTapGesture {
+              mlDoc.currentScid = scid
+            }
           }
         }
         .padding(.vertical)
@@ -77,6 +89,10 @@ public struct SuttaView: View {
     }
     .onAppear {
       segments = mlDoc.segments()
+      // Initialize currentScid to first segment if nil
+      if mlDoc.currentScid == nil, let firstSegment = segments.first {
+        mlDoc.currentScid = firstSegment.key
+      }
     }
   }
 
@@ -86,6 +102,10 @@ public struct SuttaView: View {
 
   private func shouldHighlight(_ index: Int) -> Bool {
     isCurrentlyPlaying && player.isPlaying && index == player.currentSegmentIndex
+  }
+
+  private func isSegmentSelected(_ scid: String) -> Bool {
+    mlDoc.currentScid == scid
   }
 
   private func getSegmentText(_ segment: Segment, field: String = "doc") -> String {

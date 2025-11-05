@@ -38,6 +38,9 @@ final class Card: Codable {
   // Sutta card properties
   var suttaReference: String = ""
 
+  // Document display (for viewing segments with selection tracking)
+  var mlDoc: MLDocument?
+
   // MARK: - Initialization
 
   init(
@@ -45,7 +48,8 @@ final class Card: Codable {
     typeId: Int = 0,
     searchQuery: String = "",
     searchResults: SearchResponse? = nil,
-    suttaReference: String = ""
+    suttaReference: String = "",
+    mlDoc: MLDocument? = nil
   ) {
     self.createdAt = Date()
     self.cardType = cardType
@@ -53,6 +57,7 @@ final class Card: Codable {
     self.searchQuery = searchQuery
     self.searchResults = searchResults
     self.suttaReference = suttaReference
+    self.mlDoc = mlDoc
   }
 
   // MARK: - Codable
@@ -65,6 +70,7 @@ final class Card: Codable {
     case searchQuery
     case searchResults
     case suttaReference
+    case mlDoc
   }
 
   func encode(to encoder: Encoder) throws {
@@ -76,6 +82,7 @@ final class Card: Codable {
     try container.encode(searchQuery, forKey: .searchQuery)
     try container.encode(searchResults, forKey: .searchResults)
     try container.encode(suttaReference, forKey: .suttaReference)
+    try container.encodeIfPresent(mlDoc, forKey: .mlDoc)
   }
 
   required init(from decoder: Decoder) throws {
@@ -87,6 +94,7 @@ final class Card: Codable {
     self.searchQuery = try container.decode(String.self, forKey: .searchQuery)
     self.searchResults = try container.decodeIfPresent(SearchResponse.self, forKey: .searchResults)
     self.suttaReference = try container.decode(String.self, forKey: .suttaReference)
+    self.mlDoc = try container.decodeIfPresent(MLDocument.self, forKey: .mlDoc)
   }
 
   // MARK: - Public Methods
