@@ -86,4 +86,9 @@ public enum AppTheme {
       )
     }
   }
+
+  /// Return the inverse theme (light ↔ dark)
+  public static func inverseTheme(_ theme: AppTheme) -> AppTheme {
+    theme == .light ? .dark : .light
+  }
 }
