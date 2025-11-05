@@ -64,21 +64,6 @@ cd scv-core && swift test --filter CardTests
 05. [ ] Test privacy label accuracy against actual app behavior
 
 ### Refactor Segment struct for language-aware text
-**Status**: Completed
-
-01. [x] Refactor Segment properties: doc/ref/pli (optional) instead of en/pli/ref
-02. [x] Add CodingKeys for all ScvLanguage codes
-03. [x] Update Segment decoder with docLang mapping
-04. [x] Fix displayText property
-05. [x] Fix 15+ test compilation errors (Segment() calls with en: parameter)
-06. [x] Update MLDocument decoder to transform segMap keys
-07. [x] Replace segment.en with segment.doc in:
-    - SearchResponseTests.swift (15+ occurrences)
-    - CardTests.swift (2+ occurrences)
-    - SuttaView.swift (3 occurrences)
-    - SuttaPlayer.swift (3 occurrences)
-08. [x] Run make test to verify all tests pass
-09. [x] Commit changes with approval
 
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
@@ -110,22 +95,3 @@ cd scv-core && swift test --filter CardTests
 07. [ ] Test SuttaView audio playback feature
 
 08. [ ] macOS locked screen playback
-
-### Completed
-- [x] Create scv-ui Swift package with scv-core dependency and re-export
-- [x] Create ScvDemo iOS app that loads scv-ui package
-- [x] Implement SuttaCentralId.swift in scv-core based on scv-esm/src/sutta-central-id.mjs
-- [x] Create SuttaView in ScvDemo that displays sn42.11
-  - Added segments() method to MLDocument for SuttaCentralId-ordered display
-  - Created SuttaView.swift component displaying title and segments
-  - Updated ScvDemo to display SuttaView with sn42.11
-  - Made MLDocument, Segment properties public for cross-package access
-  - Made segments() method public
-  - Added three unit tests verifying correct ordering and content preservation
-  - ScvDemo builds successfully
-- [x] Update SuttaView to display only language-matched segment text
-  - Implement getSegmentText() method that matches segment text to docLang
-  - Display segments with fallback to English if language property is empty
-  - Add blue scid prefix to each segment row
-  - Updated main ScvDemo app to display SuttaView (in scv-demo/Sources/ScvDemo/ContentView.swift)
-- date respond with "Hello today is {datetime}"

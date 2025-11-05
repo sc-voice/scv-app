@@ -7,3 +7,4 @@ DerivedData/
 .DS_Store
 **/*.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
+.commit-msg

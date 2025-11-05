@@ -1,4 +1,4 @@
-.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios version-major version-minor version-patch
+.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios version-major version-minor version-patch commit
 
 test: test-all
 
@@ -51,6 +51,26 @@ version-minor:
 version-patch:
 	@swift scripts/version.swift patch
 
+commit:
+	@if [ ! -f .commit-msg ]; then \
+		echo "Error: .commit-msg file not found"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Commit message:"
+	@echo "==============="
+	@cat .commit-msg
+	@echo "==============="
+	@echo ""
+	@read -p "Approve commit? (y/n) " -n 1 -r; \
+	echo ""; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		git add -A && git commit -F .commit-msg && rm .commit-msg; \
+	else \
+		echo "Commit cancelled"; \
+		exit 1; \
+	fi
+
 .DEFAULT_GOAL := help
 
 help:
@@ -73,3 +93,4 @@ help:
 	@echo "  make version-major     Increment major version (X.0.0)"
 	@echo "  make version-minor     Increment minor version (X.Y.0)"
 	@echo "  make version-patch     Increment patch version (X.Y.Z)"
+	@echo "  make commit            Review and approve commit from .commit-msg file"
