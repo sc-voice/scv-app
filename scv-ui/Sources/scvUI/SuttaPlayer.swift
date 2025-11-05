@@ -111,15 +111,15 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         let playPali = UserDefaults.standard.bool(forKey: "playPali")
         let playEnglish = UserDefaults.standard.bool(forKey: "playEnglish")
 
-        if playPali, !segment.pli.isEmpty {
-            return segment.pli
+        if playPali, !(segment.pli?.isEmpty ?? true) {
+            return segment.pli!
         }
-        if playEnglish, !segment.en.isEmpty {
-            return segment.en
+        if playEnglish, !(segment.doc?.isEmpty ?? true) {
+            return segment.doc!
         }
 
-        // Fallback to English
-        return segment.en.isEmpty ? segment.pli : segment.en
+        // Fallback to doc, then pli
+        return (segment.doc?.isEmpty ?? true) ? (segment.pli ?? "") : segment.doc!
     }
 
     // MARK: - AVSpeechSynthesizerDelegate

@@ -332,7 +332,7 @@ struct CardTests {
     let segment = doc.segMap["sn42.11:2.11"]
     #expect(segment != nil)
     #expect(segment?.matched == true)
-    #expect(segment?.en != nil)
+    #expect(segment?.doc != nil)
   }
 
   @Test

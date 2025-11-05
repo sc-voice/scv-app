@@ -17,25 +17,25 @@ struct SearchResponseTests {
   @Test func testSegmentInitialization() async throws {
     let segment = Segment(
       scid: "test-scid",
-      pli: "pali text",
+      doc: "English text",
       ref: "mn1.1",
-      en: "English text",
+      pli: "pali text",
       matched: true
     )
 
     #expect(segment.scid == "test-scid")
-    #expect(segment.pli == "pali text")
+    #expect(segment.doc == "English text")
     #expect(segment.ref == "mn1.1")
-    #expect(segment.en == "English text")
+    #expect(segment.pli == "pali text")
     #expect(segment.matched == true)
   }
 
   @Test func testSegmentDisplayTextPrefersEnglish() async throws {
     let segment = Segment(
       scid: "test-scid",
-      pli: "pali text",
+      doc: "English text",
       ref: "mn1.1",
-      en: "English text",
+      pli: "pali text",
       matched: true
     )
 
@@ -45,9 +45,9 @@ struct SearchResponseTests {
   @Test func testSegmentDisplayTextFallsBackToPali() async throws {
     let segment = Segment(
       scid: "test-scid",
-      pli: "pali text",
+      doc: "",
       ref: "mn1.1",
-      en: "",
+      pli: "pali text",
       matched: true
     )
 
@@ -57,17 +57,17 @@ struct SearchResponseTests {
   @Test func testSegmentIsMatched() async throws {
     let matchedSegment = Segment(
       scid: "test-scid",
-      en: "test",
+      doc: "test",
       matched: true
     )
     let unmatchedSegment = Segment(
       scid: "test-scid",
-      en: "test",
+      doc: "test",
       matched: false
     )
     let nilMatchedSegment = Segment(
       scid: "test-scid",
-      en: "test"
+      doc: "test"
     )
 
     #expect(matchedSegment.isMatched == true)
@@ -101,7 +101,7 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        en: "Test segment",
+        doc: "Test segment",
         matched: true
       )
     ]
@@ -132,12 +132,12 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        en: "First segment",
+        doc: "First segment",
         matched: true
       ),
       "seg2": Segment(
         scid: "seg2",
-        en: "Second segment",
+        doc: "Second segment",
         matched: false
       ),
     ]
@@ -167,12 +167,12 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        en: "Matched segment",
+        doc: "Matched segment",
         matched: true
       ),
       "seg2": Segment(
         scid: "seg2",
-        en: "Unmatched segment",
+        doc: "Unmatched segment",
         matched: false
       ),
     ]
@@ -243,7 +243,7 @@ struct SearchResponseTests {
     let segMap = [
       "seg1": Segment(
         scid: "seg1",
-        en: "Test segment",
+        doc: "Test segment",
         matched: true
       )
     ]
@@ -310,14 +310,14 @@ struct SearchResponseTests {
     let segMap1 = [
       "seg1": Segment(
         scid: "seg1",
-        en: "Matched segment 1",
+        doc: "Matched segment 1",
         matched: true
       )
     ]
     let segMap2 = [
       "seg2": Segment(
         scid: "seg2",
-        en: "Unmatched segment 2",
+        doc: "Unmatched segment 2",
         matched: false
       )
     ]
@@ -435,9 +435,9 @@ struct SearchResponseTests {
   @Test func testSegmentCodable() async throws {
     let originalSegment = Segment(
       scid: "test-scid",
-      pli: "pali text",
+      doc: "English text",
       ref: "mn1.1",
-      en: "English text",
+      pli: "pali text",
       matched: true
     )
 
@@ -445,9 +445,9 @@ struct SearchResponseTests {
     let decodedSegment = try JSONDecoder().decode(Segment.self, from: data)
 
     #expect(decodedSegment.scid == originalSegment.scid)
-    #expect(decodedSegment.pli == originalSegment.pli)
+    #expect(decodedSegment.doc == originalSegment.doc)
     #expect(decodedSegment.ref == originalSegment.ref)
-    #expect(decodedSegment.en == originalSegment.en)
+    #expect(decodedSegment.pli == originalSegment.pli)
     #expect(decodedSegment.matched == originalSegment.matched)
   }
 
@@ -710,7 +710,7 @@ struct SearchResponseTests {
     // Verify segment content is preserved
     #expect(firstSeg?.value.scid == "sn42.11:0.1")
     #expect(
-      firstSeg?.value.en.contains("Linked Discourses") ?? false,
+      firstSeg?.value.displayText.contains("Linked Discourses") ?? false,
       "Segment content should be preserved"
     )
   }

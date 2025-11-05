@@ -361,22 +361,22 @@ public struct MLDocument: Codable, Equatable {
 // MARK: - Segment
 public struct Segment: Codable, Equatable {
   public let scid: String
-  public let pli: String
-  public let ref: String
-  public let en: String
+  public let doc: String?      // text in MLDocument's language
+  public let ref: String?      // reference language text
+  public let pli: String?      // Pali text
   public let matched: Bool
 
   init(
     scid: String,
-    pli: String = NIL_STRING_DEFAULT,
-    ref: String = NIL_STRING_DEFAULT,
-    en: String = NIL_STRING_DEFAULT,
+    doc: String? = nil,
+    ref: String? = nil,
+    pli: String? = nil,
     matched: Bool = NIL_BOOL_DEFAULT
   ) {
     self.scid = scid
-    self.pli = pli
+    self.doc = doc
     self.ref = ref
-    self.en = en
+    self.pli = pli
     self.matched = matched
   }
 
@@ -384,20 +384,37 @@ public struct Segment: Codable, Equatable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     let scid = try container.decode(String.self, forKey: .scid)
-    let pli = try container.decodeIfPresent(String.self, forKey: .pli) ?? NIL_STRING_DEFAULT
-    let ref = try container.decodeIfPresent(String.self, forKey: .ref) ?? NIL_STRING_DEFAULT
-    let en = try container.decodeIfPresent(String.self, forKey: .en) ?? NIL_STRING_DEFAULT
+    let pli = try container.decodeIfPresent(String.self, forKey: .pli)
+    let ref = try container.decodeIfPresent(String.self, forKey: .ref)
     let matched = try container.decodeIfPresent(Bool.self, forKey: .matched) ?? NIL_BOOL_DEFAULT
 
-    self.init(scid: scid, pli: pli, ref: ref, en: en, matched: matched)
+    // Map language field to doc based on docLang from decoder context
+    let docLang = decoder.userInfo[CodingUserInfoKey(rawValue: "docLang")!] as? String ?? "en"
+    let languageKey = CodingKeys(stringValue: docLang) ?? .en
+    var doc = try container.decodeIfPresent(String.self, forKey: languageKey)
+
+    // Fallback to .doc key if language-specific key not found
+    if doc == nil {
+      doc = try container.decodeIfPresent(String.self, forKey: .doc)
+    }
+
+    self.init(scid: scid, doc: doc, ref: ref, pli: pli, matched: matched)
   }
 
   enum CodingKeys: String, CodingKey {
-    case scid
-    case pli
-    case ref
-    case en
+    case scid, doc
+    case en, de, pt, es, fr, ru, it
+    case ref, pli
     case matched
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(scid, forKey: .scid)
+    try container.encodeIfPresent(doc, forKey: .doc)
+    try container.encodeIfPresent(ref, forKey: .ref)
+    try container.encodeIfPresent(pli, forKey: .pli)
+    try container.encode(matched, forKey: .matched)
   }
 }
 
@@ -558,13 +575,13 @@ extension MLDocument {
 
 // MARK: - Segment Extensions
 extension Segment {
-  /// Returns the best available text (prefers English, falls back to Pali)
+  /// Returns the best available text (prefers doc, falls back to Pali)
   var displayText: String {
-    if !en.isEmpty {
-      return en
-    } else if !pli.isEmpty {
+    if let doc = doc, !doc.isEmpty {
+      return doc
+    } else if let pli = pli, !pli.isEmpty {
       return pli
-    } else if !ref.isEmpty {
+    } else if let ref = ref, !ref.isEmpty {
       return ref
     }
     return scid

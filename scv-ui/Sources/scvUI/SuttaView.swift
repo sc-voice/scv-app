@@ -72,7 +72,7 @@ public struct SuttaView: View {
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
                 .lineLimit(1)
 
-              Text(getSegmentText(segment))
+              Text(getSegmentText(segment, field: "doc"))
                 .font(.body)
                 .foregroundColor(themeProvider.theme.textColor)
                 .lineLimit(nil)
@@ -99,15 +99,20 @@ public struct SuttaView: View {
     isCurrentlyPlaying && player.isPlaying && index == player.currentSegmentIndex
   }
 
-  private func getSegmentText(_ segment: Segment) -> String {
-    switch mlDoc.docLang.lowercased() {
+  private func getSegmentText(_ segment: Segment, field: String = "doc") -> String {
+    let EMPTY_SET = "∅"
+    let value: String?
+    switch field.lowercased() {
+    case "doc":
+      value = segment.doc
     case "pli":
-      return segment.pli.isEmpty ? segment.en : segment.pli
+      value = segment.pli
     case "ref":
-      return segment.ref.isEmpty ? segment.en : segment.ref
-    default: // "en" and others default to English
-      return segment.en
+      value = segment.ref
+    default:
+      value = nil
     }
+    return value?.isEmpty ?? true ? EMPTY_SET : value!
   }
 }
 
