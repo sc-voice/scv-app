@@ -72,7 +72,8 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         }
 
         currentSegmentIndex = index
-        let (_, segment) = segments[index]
+        let (scid, segment) = segments[index]
+        currentSutta?.currentScid = scid
         let text = getSegmentText(segment)
 
         guard !text.isEmpty else {

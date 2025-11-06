@@ -123,3 +123,11 @@ cd scv-core && swift test --filter CardTests
 03. [x] Display dashed border around currently selected segment
 04. [x] Persist currentScid selection in document state
 05. [x] Test segment selection and highlighting
+
+### Set currentScid when playing audio segment
+**Status**: Complete
+
+01. [x] Locate audio playback trigger in SuttaPlayer
+02. [x] Update currentScid when segment starts playing
+03. [x] Add test case to verify currentScid tracking during playback
+04. [x] Verify no regressions (all 203 tests pass)
