@@ -290,4 +290,47 @@ import Testing
 
     #expect(Settings.shared.version == 1)
   }
+
+  // MARK: - Validation Tests
+
+  @Test func validateSynchronizesDocSpeechToDocLang() {
+    Settings.shared.reset()
+    Settings.shared.docLang = .german
+    Settings.shared.docSpeech = SpeechConfig(language: .pli)
+
+    Settings.shared.validate()
+
+    // After validation, either german voice found or fell back to english
+    #expect(Settings.shared.docSpeech.language == Settings.shared.docLang)
+    if Settings.shared.docLang == .german {
+      #expect(!Settings.shared.docSpeech.voiceId.isEmpty)
+      #expect(!Settings.shared.docSpeech.voiceName.isEmpty)
+    }
+    Settings.shared.reset()
+  }
+
+  @Test func validateEnsuresSynchronization() {
+    Settings.shared.reset()
+    Settings.shared.docLang = .french
+    Settings.shared.docSpeech = SpeechConfig(language: .german)
+
+    Settings.shared.validate()
+
+    // After validation, docSpeech must match docLang (may have fallen back to english)
+    #expect(Settings.shared.docSpeech.language == Settings.shared.docLang)
+    Settings.shared.reset()
+  }
+
+  @Test func validateDoesNothingWhenAlreadySynchronized() {
+    Settings.shared.reset()
+    Settings.shared.docLang = .english
+    Settings.shared.docSpeech = SpeechConfig(language: .english)
+    let originalVoiceId = Settings.shared.docSpeech.voiceId
+
+    Settings.shared.validate()
+
+    #expect(Settings.shared.docSpeech.language == .english)
+    #expect(Settings.shared.docSpeech.voiceId == originalVoiceId)
+    Settings.shared.reset()
+  }
 }

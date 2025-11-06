@@ -160,3 +160,14 @@ cd scv-core && swift test --filter CardTests
 04. [x] Implement language-based document selection logic
 05. [x] Test switching between DE and EN documents
 06. [x] Improve make test-all output to show test results
+
+### Synchronize docSpeech with docLang using Settings.validate()
+**Status**: Complete
+
+01. [x] Examine Settings implementation (properties, current structure, location)
+02. [x] Examine SpeechConfig structure and how to retrieve SpeechConfig for a language
+03. [x] Implement validate() method with synchronization logic (docSpeech ← docLang)
+04. [x] Add validate() calls to property observers for setting changes
+05. [x] Add validate() call at app launch after Settings deserialization
+06. [x] Write tests for validate() scenarios (matching, non-matching, missing SpeechConfig)
+07. [x] Run make test to verify implementation

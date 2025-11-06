@@ -10,8 +10,9 @@ test: test-all
 
 test-all:
 	@mkdir -p local
+	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" > local/test-all.log
 	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \
-	  tee local/test-all.log | \
+	  tee -a local/test-all.log | \
 	  grep -E $(TEST_ALL_FILTER) || true
 
 test-core:

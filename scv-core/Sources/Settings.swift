@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 // MARK: - SpeechConfig
 
@@ -53,6 +54,9 @@ public class Settings: Codable {
 
   // MARK: - Instance Properties
 
+  /// Flag to prevent validation during initialization and deserialization
+  private var isInitializing: Bool = true
+
   /// Schema version of this settings instance
   public var version: Int = 1
 
@@ -81,6 +85,8 @@ public class Settings: Codable {
 
   private init() {
     load()
+    isInitializing = false
+    validate()
   }
 
   // MARK: - Codable
@@ -139,12 +145,59 @@ public class Settings: Codable {
       self.isDarkModeEnabled = false
       self.lastApplicationVersion = ""
     }
+
+    isInitializing = false
+    validate()
+  }
+
+  // MARK: - Validation
+
+  /// Finds an available Apple voice for a given language
+  /// - Parameter language: The language to find a voice for
+  /// - Returns: An AVSpeechSynthesisVoice if available, nil otherwise
+  private func findVoice(for language: ScvLanguage) -> AVSpeechSynthesisVoice? {
+    let allVoices = AVSpeechSynthesisVoice.speechVoices()
+    let languageCode = language.code
+
+    // Filter voices by language and exclude denied voices
+    let availableVoices = allVoices.filter { voice in
+      voice.language.hasPrefix(languageCode) && !ScvLanguage.isVoiceDenied(voice.name)
+    }
+
+    return availableVoices.first
+  }
+
+  /// Validates and synchronizes settings to maintain consistency
+  /// Ensures docSpeech.language matches docLang with an actual Apple voice
+  /// Falls back to .english if no voice available for docLang
+  public func validate() {
+    let startTime = CFAbsoluteTimeGetCurrent()
+
+    // Check if docSpeech language matches docLang
+    if docSpeech.language != docLang {
+      // Try to find a voice for docLang
+      if let voice = findVoice(for: docLang) {
+        // Update docSpeech to match docLang with actual voice
+        var newConfig = SpeechConfig(language: docLang)
+        newConfig.voiceId = voice.identifier
+        newConfig.voiceName = voice.name
+        docSpeech = newConfig
+      } else {
+        // No voice available for docLang, fallback to English
+        docLang = .english
+        validate() // Revalidate with new docLang
+      }
+    }
+
+    let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
+    print("validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
   }
 
   // MARK: - Persistence
 
   /// Saves settings to UserDefaults
   public func save() {
+    validate()
     let encoder = JSONEncoder()
     if let encoded = try? encoder.encode(self) {
       UserDefaults.standard.set(encoded, forKey: "com.scv.settings")

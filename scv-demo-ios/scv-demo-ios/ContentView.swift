@@ -61,7 +61,7 @@ struct ContentView: View {
             print("DEBUG: ContentView.onAppear called")
             loadMockResponse()
         }
-        .onChange(of: settingsController.docLang) { _ in
+        .onChange(of: settingsController.docLang) {
             loadMockResponse()
         }
         .popover(isPresented: $showSettings, attachmentAnchor: .point(.topTrailing)) {
