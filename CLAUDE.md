@@ -140,3 +140,13 @@ cd scv-core && swift test --filter CardTests
 03. [x] Update SuttaPlayer.play() to start at currentScid if set
 04. [x] Add jumpToSegment() for tapping during playback
 05. [x] Verify UI highlights stay in sync with playback
+
+### Synchronize SuttaPlayer audio with currentScid
+**Status**: Complete
+
+01. [x] Fix audio/currentScid desynchronization when user jumps to segment during playback
+02. [x] Implement nextIndexToPlay as single source of truth for next segment
+03. [x] Update jumpToSegment to set nextIndexToPlay without calling playSegmentAt
+04. [x] Add indexOfScid() method to MLDocument for segment index lookup
+05. [x] Add tests for indexOfScid and audio synchronization behavior
+06. [x] Verify all 207 tests pass

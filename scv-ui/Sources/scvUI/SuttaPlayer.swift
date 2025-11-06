@@ -13,6 +13,7 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
     private let synthesizer = AVSpeechSynthesizer()
     private var segments: [(key: String, value: Segment)] = []
     private var currentSegmentIndex = 0
+    private var nextIndexToPlay = 0
 
     override init() {
         super.init()
@@ -57,17 +58,18 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
 
         // Start playback at currentScid if set, otherwise use currentSegmentIndex
         if let currentScid = currentSutta?.currentScid,
-           let index = segments.firstIndex(where: { $0.key == currentScid }) {
-            playSegment(at: index)
+            let index = segments.firstIndex(where: { $0.key == currentScid }) {
+            playSegmentAt(at: index)
         } else {
-            playSegment(at: currentSegmentIndex)
+            playSegmentAt(at: currentSegmentIndex)
         }
     }
 
     public func jumpToSegment(scid: String) {
         guard let index = segments.firstIndex(where: { $0.key == scid }) else { return }
         if isPlaying {
-            playSegment(at: index)
+            nextIndexToPlay = index
+            synthesizer.stopSpeaking(at: .immediate)
         } else {
             currentSegmentIndex = index
             currentSutta?.currentScid = scid
@@ -80,7 +82,7 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         UIApplication.shared.isIdleTimerDisabled = false
     }
 
-    private func playSegment(at index: Int) {
+    private func playSegmentAt(at index: Int) {
         guard index < segments.count else {
             isPlaying = false
             currentSegmentIndex = 0
@@ -96,7 +98,7 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         guard !text.isEmpty else {
             // Skip segment, advance to next
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.playSegment(at: index + 1)
+                self.playSegmentAt(at: index + 1)
             }
             return
         }
@@ -121,6 +123,7 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docSpeech.rate
         utterance.pitchMultiplier = docSpeech.pitch
 
+        nextIndexToPlay = index + 1
         synthesizer.speak(utterance)
     }
 
@@ -147,8 +150,11 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         didFinish utterance: AVSpeechUtterance
     ) {
         Task { @MainActor in
+            // Play the next segment as determined by nextIndexToPlay
+            // When user jumps to a different segment, playSegmentAt updates nextIndexToPlay,
+            // so stale callbacks will use the updated target
             if self.isPlaying {
-                self.playSegment(at: self.currentSegmentIndex + 1)
+                self.playSegmentAt(at: self.nextIndexToPlay)
             }
         }
     }

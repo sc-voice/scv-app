@@ -236,4 +236,10 @@ extension MLDocument {
     }
     return sutta_uid
   }
+
+  /// Returns the index of a segment with the given scid in the sorted segments array
+  func indexOfScid(_ scid: String) -> Int? {
+    let sortedSegments = segments()
+    return sortedSegments.firstIndex { $0.key == scid }
+  }
 }

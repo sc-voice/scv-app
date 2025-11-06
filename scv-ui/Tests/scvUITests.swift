@@ -31,4 +31,43 @@ struct scvUITests {
       #expect(player.currentSutta?.currentScid == firstSegmentScid)
     }
   }
+
+  @Test
+  func testSuttaPlayerJumpToSegmentWhilePlaying() async {
+    // Create a mock MLDocument with segments
+    if let mockResponse = SearchResponse.createMockResponse(),
+       let mlDoc = mockResponse.mlDocs.first {
+      let player = SuttaPlayer.shared
+      let segments = mlDoc.segments()
+
+      // Load the document
+      player.load(mlDoc)
+
+      // Start playing segment 0
+      player.play()
+
+      // Give synthesizer time to start
+      try? await Task.sleep(nanoseconds: 100_000_000)
+
+      // Verify playing segment 0
+      #expect(player.currentSutta?.currentScid == segments[0].key)
+
+      // User jumps to segment 3 while segment 0 is still playing
+      // With correct fix: jumpToSegment sets nextIndexToPlay = 3 (without calling playSegmentAt)
+      player.jumpToSegment(scid: segments[3].key)
+
+      // Simulate segment 0's didFinish callback (stale callback from before the jump)
+      // It should play nextIndexToPlay, which should be 3 (not 4)
+      let staleUtterance = AVSpeechUtterance(string: "test")
+      player.speechSynthesizer(player.synthesizer, didFinish: staleUtterance)
+
+      // Give async task time to complete
+      try? await Task.sleep(nanoseconds: 100_000_000)
+
+      // Verify currentScid is segment 3 (not segment 4)
+      // If jumpToSegment called playSegmentAt(3) instead of just setting nextIndexToPlay = 3,
+      // then nextIndexToPlay would be 4, and this test would fail
+      #expect(player.currentSutta?.currentScid == segments[3].key)
+    }
+  }
 }

@@ -823,4 +823,60 @@ struct SearchResponseTests {
     #expect(decodedResponse.mlDocs.count == 1)
     #expect(decodedResponse.mlDocs[0].currentScid == "sn42.11:2.11")
   }
+
+  // MARK: - indexOfScid Tests
+
+  @Test func testIndexOfScidFound() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse, let doc = response.mlDocs.first else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    let sortedSegments = doc.segments()
+    let firstScid = sortedSegments[0].key
+
+    let index = doc.indexOfScid(firstScid)
+    #expect(index == 0)
+  }
+
+  @Test func testIndexOfScidFoundMiddle() async throws {
+    let mockResponse = SearchResponse.createMockResponse()
+
+    guard let response = mockResponse, let doc = response.mlDocs.first else {
+      #expect(Bool(false), "createMockResponse() should load successfully")
+      return
+    }
+
+    let sortedSegments = doc.segments()
+    let middleScid = sortedSegments[sortedSegments.count / 2].key
+
+    let index = doc.indexOfScid(middleScid)
+    #expect(index == sortedSegments.count / 2)
+  }
+
+  @Test func testIndexOfScidNotFound() async throws {
+    let doc = MLDocument(
+      author: "Test",
+      segMap: [
+        "sn42.11:0.1": Segment(scid: "sn42.11:0.1", doc: "Test segment")
+      ],
+      sutta_uid: "sn42.11"
+    )
+
+    let index = doc.indexOfScid("nonexistent:0.1")
+    #expect(index == nil)
+  }
+
+  @Test func testIndexOfScidEmptyDocument() async throws {
+    let doc = MLDocument(
+      author: "Test",
+      segMap: [:],
+      sutta_uid: "test"
+    )
+
+    let index = doc.indexOfScid("any:scid")
+    #expect(index == nil)
+  }
 }
