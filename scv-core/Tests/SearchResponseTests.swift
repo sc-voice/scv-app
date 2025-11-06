@@ -609,6 +609,23 @@ struct SearchResponseTests {
     // Verify it's a valid SearchResponse with German content
     #expect(response.mlDocs.count > 0, "German mock response should have documents")
     #expect(response.segsMatched > 0, "German mock response should have matched segments")
+
+    // Verify segments actually contain German text from the DE mock file
+    guard let firstDoc = response.mlDocs.first else {
+      #expect(Bool(false), "Should have at least one document")
+      return
+    }
+
+    // Check for specific German text that exists in mock-response-de.json
+    let segment0_1 = firstDoc.segMap["sn42.11:0.1"]
+    #expect(segment0_1 != nil, "Should have segment sn42.11:0.1")
+    #expect(segment0_1?.doc?.contains("Verbundene Lehrreden") == true,
+            "German segment should contain 'Verbundene Lehrreden' in doc field")
+
+    let segment1_1 = firstDoc.segMap["sn42.11:1.1"]
+    #expect(segment1_1 != nil, "Should have segment sn42.11:1.1")
+    #expect(segment1_1?.doc?.contains("Buddha im Land der Maller") == true,
+            "German segment should contain 'Buddha im Land der Maller' in doc field")
   }
 
   @Test func testCreateMockResponseLanguageFallback() async throws {
@@ -723,13 +740,13 @@ struct SearchResponseTests {
   }
 
   @Test func testMLDocumentCanSetCurrentScid() async throws {
-    var doc = MLDocument()
+    let doc = MLDocument()
     doc.currentScid = "sn42.11:2.11"
     #expect(doc.currentScid == "sn42.11:2.11")
   }
 
   @Test func testMLDocumentCurrentScidCanBeCleared() async throws {
-    var doc = MLDocument(currentScid: "sn42.11:2.11")
+    let doc = MLDocument(currentScid: "sn42.11:2.11")
     #expect(doc.currentScid == "sn42.11:2.11")
     doc.currentScid = nil
     #expect(doc.currentScid == nil)
@@ -774,8 +791,8 @@ struct SearchResponseTests {
   }
 
   @Test func testMLDocumentMultipleSelectionsIndependent() async throws {
-    var doc1 = MLDocument(sutta_uid: "sn42.11")
-    var doc2 = MLDocument(sutta_uid: "mn10")
+    let doc1 = MLDocument(sutta_uid: "sn42.11")
+    let doc2 = MLDocument(sutta_uid: "mn10")
 
     doc1.currentScid = "sn42.11:2.11"
     doc2.currentScid = "mn10:1.1"
@@ -796,7 +813,7 @@ struct SearchResponseTests {
     }
 
     // Create document with currentScid from mock response data
-    var doc = mockResponse.mlDocs[0]
+    let doc = mockResponse.mlDocs[0]
     doc.currentScid = "sn42.11:2.11"
 
     #expect(doc.currentScid == "sn42.11:2.11")

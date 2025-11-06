@@ -1,8 +1,18 @@
-.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios version-major version-minor version-patch commit
+.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios \
+        clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios \
+        version-major version-minor version-patch commit
+
+SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
+XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
+TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|✓)'
 
 test: test-all
 
-test-all: clean build test-core test-demo-ios
+test-all:
+	@mkdir -p local
+	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \
+	  tee local/test-all.log | \
+	  grep -E $(TEST_ALL_FILTER) || true
 
 test-core:
 	@cd scv-core && swift test --no-parallel 2>&1 | grep -v "started\."
@@ -11,18 +21,24 @@ test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
 
 test-demo-ios:
-	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj | head -1 | sed 's/.*= //;s/;$$//'); \
+	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION \
+	  scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj | \
+	  head -1 | sed 's/.*= //;s/;$$//'); \
 	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
 build: build-core build-demo-ios
+	@swift scripts/version.swift patch
 
 build-core:
-	@swift scripts/version.swift patch
-	@cd scv-core && swift build
+	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
 build-demo-ios:
-	@swift scripts/version.swift patch
-	cd scv-demo-ios && xcodebuild build -scheme scv-demo-ios -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15'
+	@cd scv-demo-ios && \
+	  xcodebuild build \
+	    -scheme scv-demo-ios \
+	    -configuration Debug \
+	    -destination 'platform=iOS Simulator,name=iPhone 15' \
+	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
 clean: clean-core clean-ui clean-demo-ios
 
@@ -35,7 +51,8 @@ clean-ui:
 clean-demo-ios:
 	rm -rf scv-demo-iOS/build
 	rm -rf scv-demo-iOS/.swiftpm
-	cd scv-demo-ios && xcodebuild clean -scheme scv-demo-ios 2>/dev/null || true
+	cd scv-demo-ios && \
+	  xcodebuild clean -scheme scv-demo-ios 2>/dev/null || true
 
 mock-response-view:
 	@cd scv-ui && swift run mock-response-view

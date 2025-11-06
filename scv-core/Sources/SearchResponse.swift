@@ -348,7 +348,9 @@ extension SearchResponse {
     }
 
     do {
-      return try JSONDecoder().decode(SearchResponse.self, from: data)
+      let decoder = JSONDecoder()
+      decoder.userInfo[CodingUserInfoKey(rawValue: "docLang")!] = language
+      return try decoder.decode(SearchResponse.self, from: data)
     } catch {
       return nil
     }

@@ -16,6 +16,16 @@ struct ContentView: View {
     @State private var showSettings = false
     @StateObject private var settingsController = SettingsModalController(from: Settings.shared)
 
+    private func loadMockResponse() {
+        let language = Settings.shared.docLang.code
+        let response = SearchResponse.createMockResponse(language: language)
+        print("DEBUG: createMockResponse(language: \(language)) returned: \(response != nil ? "not nil" : "nil")")
+        if let response = response {
+            print("DEBUG: mlDocs count: \(response.mlDocs.count)")
+        }
+        searchResponse = response
+    }
+
     var body: some View {
         VStack {
             HStack {
@@ -49,12 +59,10 @@ struct ContentView: View {
         .background(themeProvider.theme.cardBackground)
         .onAppear {
             print("DEBUG: ContentView.onAppear called")
-            let response = SearchResponse.createMockResponse()
-            print("DEBUG: createMockResponse returned: \(response != nil ? "not nil" : "nil")")
-            if let response = response {
-                print("DEBUG: mlDocs count: \(response.mlDocs.count)")
-            }
-            searchResponse = response
+            loadMockResponse()
+        }
+        .onChange(of: settingsController.docLang) { _ in
+            loadMockResponse()
         }
         .popover(isPresented: $showSettings, attachmentAnchor: .point(.topTrailing)) {
             SettingsView(controller: settingsController)

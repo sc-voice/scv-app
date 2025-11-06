@@ -432,7 +432,7 @@ struct CardTests {
 
   @Test
   func cardMLDocWithCurrentScidPersists() throws {
-    var doc = MLDocument(sutta_uid: "sn42.11", title: "Test")
+    let doc = MLDocument(sutta_uid: "sn42.11", title: "Test")
     doc.currentScid = "sn42.11:2.11"
 
     let card = Card(cardType: .sutta, typeId: 1, mlDoc: doc)
@@ -451,7 +451,7 @@ struct CardTests {
 
   @Test
   func cardMLDocRoundTripPreservesAllProperties() throws {
-    var doc = MLDocument(
+    let doc = MLDocument(
       author: "Bhikkhu Sujato",
       sutta_uid: "sn42.11",
       title: "Linked Discourses 42.11",

@@ -150,3 +150,13 @@ cd scv-core && swift test --filter CardTests
 04. [x] Add indexOfScid() method to MLDocument for segment index lookup
 05. [x] Add tests for indexOfScid and audio synchronization behavior
 06. [x] Verify all 207 tests pass
+
+### Show DE MLDocument when docLang is DE and EN MLDocument otherwise
+**Status**: Complete
+
+01. [x] Examine Settings for docLang property
+02. [x] Locate mock responses for DE and EN MLDocuments
+03. [x] Review how SuttaView currently loads/displays MLDocument
+04. [x] Implement language-based document selection logic
+05. [x] Test switching between DE and EN documents
+06. [x] Improve make test-all output to show test results
