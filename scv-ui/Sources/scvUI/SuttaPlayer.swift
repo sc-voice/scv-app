@@ -9,10 +9,10 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
 
     @Published public var isPlaying = false
     @Published public var currentSutta: MLDocument?
-    @Published public var currentSegmentIndex = 0
 
     private let synthesizer = AVSpeechSynthesizer()
     private var segments: [(key: String, value: Segment)] = []
+    private var currentSegmentIndex = 0
 
     override init() {
         super.init()
@@ -54,7 +54,24 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
         guard currentSutta != nil else { return }
         isPlaying = true
         UIApplication.shared.isIdleTimerDisabled = true
-        playSegment(at: currentSegmentIndex)
+
+        // Start playback at currentScid if set, otherwise use currentSegmentIndex
+        if let currentScid = currentSutta?.currentScid,
+           let index = segments.firstIndex(where: { $0.key == currentScid }) {
+            playSegment(at: index)
+        } else {
+            playSegment(at: currentSegmentIndex)
+        }
+    }
+
+    public func jumpToSegment(scid: String) {
+        guard let index = segments.firstIndex(where: { $0.key == scid }) else { return }
+        if isPlaying {
+            playSegment(at: index)
+        } else {
+            currentSegmentIndex = index
+            currentSutta?.currentScid = scid
+        }
     }
 
     public func pause() {

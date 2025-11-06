@@ -70,7 +70,7 @@ public struct SuttaView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 4)
-            .background(shouldHighlight(index) ? themeProvider.theme.accentColor.opacity(0.2) : .clear)
+            .background(shouldHighlight(scid) ? themeProvider.theme.accentColor.opacity(0.2) : .clear)
             .overlay(
               RoundedRectangle(cornerRadius: 4)
                 .stroke(
@@ -80,6 +80,9 @@ public struct SuttaView: View {
             )
             .onTapGesture {
               mlDoc.currentScid = scid
+              if isCurrentlyPlaying && player.isPlaying {
+                player.jumpToSegment(scid: scid)
+              }
             }
           }
         }
@@ -100,8 +103,8 @@ public struct SuttaView: View {
     player.currentSutta?.sutta_uid == mlDoc.sutta_uid
   }
 
-  private func shouldHighlight(_ index: Int) -> Bool {
-    isCurrentlyPlaying && player.isPlaying && index == player.currentSegmentIndex
+  private func shouldHighlight(_ scid: String) -> Bool {
+    isCurrentlyPlaying && player.isPlaying && scid == mlDoc.currentScid
   }
 
   private func isSegmentSelected(_ scid: String) -> Bool {

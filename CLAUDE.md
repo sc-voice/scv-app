@@ -131,3 +131,12 @@ cd scv-core && swift test --filter CardTests
 02. [x] Update currentScid when segment starts playing
 03. [x] Add test case to verify currentScid tracking during playback
 04. [x] Verify no regressions (all 203 tests pass)
+
+### Use currentScid to indicate current segment during playback
+**Status**: Complete
+
+01. [x] Refactor MLDocument from struct to @Model class for shared reference
+02. [x] Modify SuttaView.shouldHighlight() to use scid-based comparison
+03. [x] Update SuttaPlayer.play() to start at currentScid if set
+04. [x] Add jumpToSegment() for tapping during playback
+05. [x] Verify UI highlights stay in sync with playback

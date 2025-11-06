@@ -300,7 +300,7 @@ struct SearchResponseTests {
     #expect(response.segsMatched == 0)
     #expect(response.bilaraPaths == [])
     #expect(response.suttaRefs == [])
-    #expect(response.mlDocs == [])
+    #expect(response.mlDocs.isEmpty)
     #expect(response.searchError == nil)
     #expect(response.searchSuggestion == "")
     #expect(response.isSuccess == true)
