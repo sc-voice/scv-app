@@ -171,3 +171,11 @@ cd scv-core && swift test --filter CardTests
 05. [x] Add validate() call at app launch after Settings deserialization
 06. [x] Write tests for validate() scenarios (matching, non-matching, missing SpeechConfig)
 07. [x] Run make test to verify implementation
+
+### Change iOS home screen display name to SCV-Demo
+**Status**: Complete
+
+01. [x] Locate current display name configuration in scv-demo-ios (Info.plist or project.pbxproj)
+02. [x] Update CFBundleDisplayName to "SCV-Demo"
+03. [x] Build and verify display name appears as "SCV-Demo"
+04. [x] Run make test to verify no regressions
