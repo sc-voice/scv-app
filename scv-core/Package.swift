@@ -22,6 +22,7 @@ let package = Package(
       resources: [
         .copy("../Resources/en.lproj"),
         .copy("../Resources/pt-PT.lproj"),
+        .copy("../Resources/fr.lproj"),
         .copy("../Resources/de.lproj")
       ]
     ),
@@ -33,6 +34,7 @@ let package = Package(
         .copy("../Resources/en.lproj"),
         .copy("../Resources/pt-PT.lproj"),
         .copy("../Resources/de.lproj"),
+        .copy("../Resources/fr.lproj"),
         .copy("Data/root-of-suffering.json"),
         .copy("Data/root-of-suffering-raw.json")
       ]

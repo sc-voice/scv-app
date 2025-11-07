@@ -1,0 +1,2424 @@
+{
+  "author": "noeismet",
+  "lang": "fr",
+  "searchLang": "fr",
+  "minLang": 1,
+  "maxDoc": 5,
+  "maxResults": 500,
+  "pattern": "racine de la souffrance",
+  "method": "phrase",
+  "resultPattern": "\\bracine\\sde\\sla\\ssouffrance",
+  "segsMatched": 7,
+  "bilaraPaths": [
+    "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+    "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json",
+    "translation/fr/noeismet/sutta/sn/sn42/sn42.11_translation-fr-noeismet.json",
+    "root/pli/ms/sutta/mn/mn1_root-pli-ms.json",
+    "translation/en/sujato/sutta/mn/mn1_translation-en-sujato.json",
+    "translation/fr/noeismet/sutta/mn/mn1_translation-fr-noeismet.json"
+  ],
+  "suttaRefs": [
+    "sn42.11/fr/noeismet",
+    "mn1/fr/noeismet"
+  ],
+  "mlDocs": [
+    {
+      "author": "Noé Ismet",
+      "segMap": {
+        "sn42.11:0.1": {
+          "scid": "sn42.11:0.1",
+          "pli": "Saṁyutta Nikāya 42.11 ",
+          "fr": "Discours Groupés 42.11 ",
+          "ref": "Linked Discourses 42.11 "
+        },
+        "sn42.11:0.2": {
+          "scid": "sn42.11:0.2",
+          "pli": "1. Gāmaṇivagga ",
+          "fr": "1. Chefs ",
+          "ref": "1. Chiefs "
+        },
+        "sn42.11:0.3": {
+          "scid": "sn42.11:0.3",
+          "pli": "Bhadrakasutta ",
+          "fr": "Avec Bhadraka ",
+          "ref": "With Bhadraka "
+        },
+        "sn42.11:1.1": {
+          "scid": "sn42.11:1.1",
+          "pli": "Ekaṁ samayaṁ bhagavā mallesu viharati uruvelakappaṁ nāma mallānaṁ nigamo. ",
+          "fr": "A une époque, le Bouddha séjournait dans le pays des Mallas, près de la ville mallienne appelée Uruvelakappa. ",
+          "ref": "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. "
+        },
+        "sn42.11:1.2": {
+          "scid": "sn42.11:1.2",
+          "pli": "Atha kho bhadrako gāmaṇi yena bhagavā tenupasaṅkami; upasaṅkamitvā bhagavantaṁ abhivādetvā ekamantaṁ nisīdi. Ekamantaṁ nisinno kho bhadrako gāmaṇi bhagavantaṁ etadavoca: ",
+          "fr": "Bhadraka, le chef du village, s’approcha du Bouddha, s’inclina, s’assit sur le côté et lui dit : ",
+          "ref": "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: "
+        },
+        "sn42.11:1.3": {
+          "scid": "sn42.11:1.3",
+          "pli": "“sādhu me, bhante, bhagavā dukkhassa samudayañca atthaṅgamañca desetū”ti. ",
+          "fr": "« S’il vous plaît, monsieur, enseignez-moi l’origine et la cessation de la souffrance. » ",
+          "ref": "“Please, sir, let the Blessed One teach me the origin and cessation of suffering.” "
+        },
+        "sn42.11:1.4": {
+          "scid": "sn42.11:1.4",
+          "pli": "“Ahañce te, gāmaṇi, atītamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+          "fr": "« Chef, si je vous enseignais l’origine et la cessation de la souffrance dans le passé, en disant ",
+          "ref": "“Chief, if I were to teach you about the origin and disappearance of suffering in the past, saying "
+        },
+        "sn42.11:1.5": {
+          "scid": "sn42.11:1.5",
+          "pli": "‘evaṁ ahosi atītamaddhānan’ti, tatra te siyā kaṅkhā, siyā vimati. ",
+          "fr": "‹ c’est ainsi que cela était dans le passé ›, vous pourriez avoir des doutes ou des incertitudes à ce sujet. ",
+          "ref": "‘this is how it was in the past,’ you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.6": {
+          "scid": "sn42.11:1.6",
+          "pli": "Ahañce te, gāmaṇi, anāgatamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+          "fr": "Si je devais vous enseigner l’origine et la fin de la souffrance dans le futur, en disant ",
+          "ref": "If I were to teach you about the origin and disappearance of suffering in the future, saying "
+        },
+        "sn42.11:1.7": {
+          "scid": "sn42.11:1.7",
+          "pli": "‘evaṁ bhavissati anāgatamaddhānan’ti, tatrāpi te siyā kaṅkhā, siyā vimati. ",
+          "fr": "‹ c’est ainsi que ce sera dans le futur ›, vous pourriez avoir des doutes ou des incertitudes à ce sujet. ",
+          "ref": "‘this is how it will be in the future,’ you might have doubts or uncertainties about that. "
+        },
+        "sn42.11:1.8": {
+          "scid": "sn42.11:1.8",
+          "pli": "Api cāhaṁ, gāmaṇi, idheva nisinno ettheva te nisinnassa dukkhassa samudayañca atthaṅgamañca desessāmi. ",
+          "fr": "Au contraire, chef, je vais vous enseigner l’origine et la fin de la souffrance alors que je suis assis juste ici et que vous êtes assis juste là. ",
+          "ref": "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. "
+        },
+        "sn42.11:1.9": {
+          "scid": "sn42.11:1.9",
+          "pli": "Taṁ suṇāhi, sādhukaṁ manasi karohi; bhāsissāmī”ti. ",
+          "fr": "Écoutez et soyez très attentif, je vais parler. » ",
+          "ref": "Listen and apply your mind well, I will speak.” "
+        },
+        "sn42.11:1.10": {
+          "scid": "sn42.11:1.10",
+          "pli": "“Evaṁ, bhante”ti kho bhadrako gāmaṇi bhagavato paccassosi. ",
+          "fr": "« Oui, monsieur », répondit Bhadraka. ",
+          "ref": "“Yes, sir,” Bhadraka replied. "
+        },
+        "sn42.11:1.11": {
+          "scid": "sn42.11:1.11",
+          "pli": "Bhagavā etadavoca: ",
+          "fr": "Le Bouddha dit ceci : ",
+          "ref": "The Buddha said this: "
+        },
+        "sn42.11:2.1": {
+          "scid": "sn42.11:2.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "fr": "« Qu’en pensez-vous, chef ? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:2.2": {
+          "scid": "sn42.11:2.2",
+          "pli": "atthi te uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "fr": "Y a-t-il des gens ici à Uruvelakappa qui, s’ils étaient exécutés, emprisonnés, condamnés à une amende ou à une peine, cela vous causerait de la peine, des lamentations, de la douleur, de la tristesse et de la détresse ? » ",
+          "ref": "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:2.3": {
+          "scid": "sn42.11:2.3",
+          "pli": "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "fr": "« Il y en a, monsieur. » ",
+          "ref": "“There are, sir.” "
+        },
+        "sn42.11:2.4": {
+          "scid": "sn42.11:2.4",
+          "pli": "“Atthi pana te, gāmaṇi, uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "fr": "« Mais y a-t-il des gens ici à Uruvelakappa qui, s’ils étaient exécutés, emprisonnés, condamnés à une amende ou à une peine, cela ne vous causerait pas de peine, de lamentation, de douleur, de tristesse et de détresse ? » ",
+          "ref": "“But are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:2.5": {
+          "scid": "sn42.11:2.5",
+          "pli": "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "fr": "« Il y en a, monsieur. » ",
+          "ref": "“There are, sir.” "
+        },
+        "sn42.11:2.6": {
+          "scid": "sn42.11:2.6",
+          "pli": "“Ko nu kho, gāmaṇi, hetu, ko paccayo yena te ekaccānaṁ uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "fr": "« Quelle est la cause, chef, quelle est la raison pour laquelle, si cela devait arriver à certaines personnes, cela pourrait vous causer de la peine, alors que si cela arrive à d’autres, cela ne vous en causerait pas ? » ",
+          "ref": "“What’s the cause, chief, what’s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?” "
+        },
+        "sn42.11:2.7": {
+          "scid": "sn42.11:2.7",
+          "pli": "“Yesaṁ me, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, atthi me tesu chandarāgo. ",
+          "fr": "« Les personnes pour lesquelles cela causerait de la peine sont celles que je désire et que j’aime. ",
+          "ref": "“The people regarding whom this would give rise to sorrow are those I have desire and passion. "
+        },
+        "sn42.11:2.8": {
+          "scid": "sn42.11:2.8",
+          "pli": "Yesaṁ pana, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, natthi me tesu chandarāgo”ti. ",
+          "fr": "Les personnes pour lesquelles cela n’engendrerait pas de peine sont celles que je ne désire pas et que je n’aime pas. » ",
+          "ref": "The people regarding whom this would not give rise to sorrow are those I don’t have desire and passion.” "
+        },
+        "sn42.11:2.9": {
+          "scid": "sn42.11:2.9",
+          "pli": "“Iminā tvaṁ, gāmaṇi, dhammena diṭṭhena viditena akālikena pattena pariyogāḷhena atītānāgate nayaṁ nehi: ",
+          "fr": "« Avec ce phénomène présent qui est vu, connu, immédiat, atteint et appréhendé, vous pouvez inférer au passé et au futur : ",
+          "ref": "“With this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: "
+        },
+        "sn42.11:2.10": {
+          "scid": "sn42.11:2.10",
+          "pli": "‘yaṁ kho kiñci atītamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajji sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "fr": "‹ Toutes les souffrances qui ont surgi dans le passé avaient pour origine et source le désir. ",
+          "ref": "‘All the suffering that arose in the past was rooted and sourced in desire. "
+        },
+        "sn42.11:2.11": {
+          "scid": "sn42.11:2.11",
+          "pli": "Chando hi mūlaṁ dukkhassa. ",
+          "fr": "Car le désir est la <span class=\"scv-matched\">racine de la souffrance</span>. ",
+          "ref": "For desire is the root of suffering. ",
+          "matched": true
+        },
+        "sn42.11:2.12": {
+          "scid": "sn42.11:2.12",
+          "pli": "Yampi hi kiñci anāgatamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajjissati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "fr": "Toutes les souffrances qui surviendront dans le futur auront pour origine et source le désir. ",
+          "ref": "All the suffering that will arise in the future will be rooted and sourced in desire. "
+        },
+        "sn42.11:2.13": {
+          "scid": "sn42.11:2.13",
+          "pli": "Chando hi mūlaṁ dukkhassā’”ti. ",
+          "fr": "Car le désir est la <span class=\"scv-matched\">racine de la souffrance</span>. ›» ",
+          "ref": "For desire is the root of suffering.’” ",
+          "matched": true
+        },
+        "sn42.11:2.14": {
+          "scid": "sn42.11:2.14",
+          "pli": "“Acchariyaṁ, bhante, abbhutaṁ, bhante. ",
+          "fr": "« C’est incroyable, monsieur, c’est stupéfiant ! ",
+          "ref": "“It’s incredible, sir, it’s amazing! "
+        },
+        "sn42.11:2.15": {
+          "scid": "sn42.11:2.15",
+          "pli": "Yāva subhāsitañcidaṁ, bhante, bhagavatā: ",
+          "fr": "Comme cela a bien été dit par le Bouddha ! ",
+          "ref": "How well said this was by the Buddha! "
+        },
+        "sn42.11:2.16": {
+          "scid": "sn42.11:2.16",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "fr": "‹ Toute la souffrance qui survient a pour origine et source le désir. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:2.17": {
+          "scid": "sn42.11:2.17",
+          "pli": "Chando hi mūlaṁ dukkhassā’ti. ",
+          "fr": "Car le désir est la <span class=\"scv-matched\">racine de la souffrance</span>. › ",
+          "ref": "For desire is the root of suffering.’ ",
+          "matched": true
+        },
+        "sn42.11:2.18": {
+          "scid": "sn42.11:2.18",
+          "pli": "Atthi me, bhante, ciravāsī nāma kumāro bahi āvasathe paṭivasati. ",
+          "fr": "J’ai un garçon appelé Ciravāsi, qui réside dans une maison loin d’ici. ",
+          "ref": "I have a boy called Ciravāsi, who resides in a house away from here. "
+        },
+        "sn42.11:2.19": {
+          "scid": "sn42.11:2.19",
+          "pli": "So khvāhaṁ, bhante, kālasseva vuṭṭhāya purisaṁ uyyojemi: ",
+          "fr": "Je me lève tôt et envoie quelqu’un, en disant : ",
+          "ref": "I rise early and dispatch someone, saying: "
+        },
+        "sn42.11:2.20": {
+          "scid": "sn42.11:2.20",
+          "pli": "‘gaccha, bhaṇe, ciravāsiṁ kumāraṁ jānāhī’ti. ",
+          "fr": "‹ Va, mon ami, et va voir mon garçon Ciravāsi. › ",
+          "ref": "‘Go, my man, and check on my boy Ciravāsi.’ "
+        },
+        "sn42.11:2.21": {
+          "scid": "sn42.11:2.21",
+          "pli": "Yāvakīvañca, bhante, so puriso nāgacchati, tassa me hoteva aññathattaṁ: ",
+          "fr": "Jusqu’à son retour, je m’inquiète : ",
+          "ref": "Until they get back I worry: "
+        },
+        "sn42.11:2.22": {
+          "scid": "sn42.11:2.22",
+          "pli": "‘mā heva ciravāsissa kumārassa kiñci ābādhayitthā’”ti. ",
+          "fr": "‹ J’espère que rien de mal ne se passe avec Ciravāsi! ›» ",
+          "ref": "‘I hope nothing’s wrong with Ciravāsi!’” "
+        },
+        "sn42.11:3.1": {
+          "scid": "sn42.11:3.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "fr": "« Qu’en pensez-vous, chef ? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:3.2": {
+          "scid": "sn42.11:3.2",
+          "pli": "ciravāsissa kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "fr": "Si Ciravāsi était exécuté, emprisonné, condamnés à une amende ou à une peine, cela vous causerait-il de la peine, des lamentations, de la douleur, de la tristesse et de la détresse ? » ",
+          "ref": "If Ciravāsi was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:3.3": {
+          "scid": "sn42.11:3.3",
+          "pli": "“Ciravāsissa me, bhante, kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "fr": "« Comment ne le pourrait-il pas, monsieur ? » ",
+          "ref": "“How could it not, sir?” "
+        },
+        "sn42.11:3.4": {
+          "scid": "sn42.11:3.4",
+          "pli": "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+          "fr": "« Ceci aussi est une façon de comprendre : ",
+          "ref": "“This too is a way to understand: "
+        },
+        "sn42.11:3.5": {
+          "scid": "sn42.11:3.5",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "fr": "‹ Toute la souffrance qui survient a pour origine et source le désir. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:3.6": {
+          "scid": "sn42.11:3.6",
+          "pli": "Chando hi mūlaṁ dukkhassā’ti. ",
+          "fr": "Car le désir est la <span class=\"scv-matched\">racine de la souffrance</span>. › ",
+          "ref": "For desire is the root of suffering.’ ",
+          "matched": true
+        },
+        "sn42.11:4.1": {
+          "scid": "sn42.11:4.1",
+          "pli": "Taṁ kiṁ maññasi, gāmaṇi, ",
+          "fr": "Qu’en pensez-vous, chef ? ",
+          "ref": "What do you think, chief? "
+        },
+        "sn42.11:4.2": {
+          "scid": "sn42.11:4.2",
+          "pli": "yadā te ciravāsimātā adiṭṭhā ahosi, assutā ahosi, te ciravāsimātuyā chando vā rāgo vā pemaṁ vā”ti? ",
+          "fr": "Avant d’avoir vu ou entendu parler de la mère de Ciravāsi, aviez-vous un quelconque désir, un amour ou une affection pour elle ? » ",
+          "ref": "Before you’d seen or heard of Ciravāsi’s mother, did you have any desire or passion or fondness for her?” "
+        },
+        "sn42.11:4.3": {
+          "scid": "sn42.11:4.3",
+          "pli": "“No hetaṁ, bhante”. ",
+          "fr": "« Non, chef. » ",
+          "ref": "“No, sir.” "
+        },
+        "sn42.11:4.4": {
+          "scid": "sn42.11:4.4",
+          "pli": "“Dassanaṁ vā te, gāmaṇi, āgamma savanaṁ vā evaṁ te ahosi: ",
+          "fr": "« Alors est-ce parce que vous avez vu ou entendu parler d’elle que vous avez eu ",
+          "ref": "“Then was it because you saw or heard of her that you had "
+        },
+        "sn42.11:4.5": {
+          "scid": "sn42.11:4.5",
+          "pli": "‘ciravāsimātuyā chando vā rāgo vā pemaṁ vā’”ti? ",
+          "fr": "du désir, de l’amour ou de la tendresse pour elle ? » ",
+          "ref": "desire or passion or fondness for her?” "
+        },
+        "sn42.11:4.6": {
+          "scid": "sn42.11:4.6",
+          "pli": "“Evaṁ, bhante”. ",
+          "fr": "« Oui, monsieur. » ",
+          "ref": "“Yes, sir.” "
+        },
+        "sn42.11:5.1": {
+          "scid": "sn42.11:5.1",
+          "pli": "“Taṁ kiṁ maññasi, gāmaṇi, ",
+          "fr": "« Qu’en pensez-vous, chef ? ",
+          "ref": "“What do you think, chief? "
+        },
+        "sn42.11:5.2": {
+          "scid": "sn42.11:5.2",
+          "pli": "ciravāsimātuyā te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+          "fr": "Si la mère de Ciravāsi était exécutée, emprisonnée, condamnés à une amende ou à une peine, cela vous causerait-il de la peine, des lamentations, de la douleur, de la tristesse et de la détresse ? » ",
+          "ref": "If Ciravāsi’s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” "
+        },
+        "sn42.11:5.3": {
+          "scid": "sn42.11:5.3",
+          "pli": "“Ciravāsimātuyā me, bhante, vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+          "fr": "« Comment ne le pourrait-il pas, monsieur ? » ",
+          "ref": "“How could it not, sir?” "
+        },
+        "sn42.11:5.4": {
+          "scid": "sn42.11:5.4",
+          "pli": "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+          "fr": "« Ceci aussi est une façon de comprendre : ",
+          "ref": "“This too is a way to understand: "
+        },
+        "sn42.11:5.5": {
+          "scid": "sn42.11:5.5",
+          "pli": "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+          "fr": "‹ Toute la souffrance qui survient est enracinée et prend sa source dans le désir. ",
+          "ref": "‘All the suffering that arises is rooted and sourced in desire. "
+        },
+        "sn42.11:5.6": {
+          "scid": "sn42.11:5.6",
+          "pli": "Chando hi mūlaṁ dukkhassā’”ti. ",
+          "fr": "Car le désir est la <span class=\"scv-matched\">racine de la souffrance</span>. ›» ",
+          "ref": "For desire is the root of suffering.’” ",
+          "matched": true
+        },
+        "sn42.11:5.7": {
+          "scid": "sn42.11:5.7",
+          "pli": "Ekādasamaṁ. "
+        }
+      },
+      "author_uid": "noeismet",
+      "bilaraPaths": [
+        "root/pli/ms/sutta/sn/sn42/sn42.11_root-pli-ms.json",
+        "translation/en/sujato/sutta/sn/sn42/sn42.11_translation-en-sujato.json",
+        "translation/fr/noeismet/sutta/sn/sn42/sn42.11_translation-fr-noeismet.json"
+      ],
+      "category": "sutta",
+      "footer": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "hyphen": "­",
+      "lang": "fr",
+      "langSegs": {
+        "pli": 55,
+        "fr": 54,
+        "ref": 54
+      },
+      "maxWord": 30,
+      "minWord": 5,
+      "score": 5.091,
+      "segsMatched": 5,
+      "sutta_uid": "sn42.11",
+      "title": "Discours Groupés 42.11\n1. Chefs\nAvec Bhadraka",
+      "type": "translation",
+      "trilingual": true,
+      "docLang": "fr",
+      "docAuthor": "noeismet",
+      "docAuthorName": "Noé Ismet",
+      "docFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "refLang": "en",
+      "refAuthor": "sujato",
+      "refAuthorName": "Bhikkhu Sujato",
+      "refFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>"
+    },
+    {
+      "author": "Noé Ismet",
+      "segMap": {
+        "mn1:0.1": {
+          "scid": "mn1:0.1",
+          "pli": "Majjhima Nikāya 1 ",
+          "fr": "Discours de Longueur Moyenne 1 ",
+          "ref": "Middle Discourses 1 "
+        },
+        "mn1:0.2": {
+          "scid": "mn1:0.2",
+          "pli": "Mūlapariyāyasutta ",
+          "fr": "La racine de toutes choses ",
+          "ref": "The Root of All Things "
+        },
+        "mn1:1.1": {
+          "scid": "mn1:1.1",
+          "pli": "Evaṁ me sutaṁ—",
+          "fr": "Ainsi ai-je entendu. ",
+          "ref": "So I have heard. "
+        },
+        "mn1:1.2": {
+          "scid": "mn1:1.2",
+          "pli": "ekaṁ samayaṁ bhagavā ukkaṭṭhāyaṁ viharati subhagavane sālarājamūle. ",
+          "fr": "À une époque, le Bouddha séjournait près d’Ukkaṭṭhā, dans la Forêt Subhaga, au pied d’un magnifique arbre sal. ",
+          "ref": "At one time the Buddha was staying near Ukkaṭṭhā, in the Subhaga Forest at the root of a magnificent sal tree. "
+        },
+        "mn1:1.3": {
+          "scid": "mn1:1.3",
+          "pli": "Tatra kho bhagavā bhikkhū āmantesi: ",
+          "fr": "Là, le Bouddha s’adressa aux monastiques, ",
+          "ref": "There the Buddha addressed the mendicants, "
+        },
+        "mn1:1.4": {
+          "scid": "mn1:1.4",
+          "pli": "“bhikkhavo”ti. ",
+          "fr": "« Monastiques ! » ",
+          "ref": "“Mendicants!” "
+        },
+        "mn1:1.5": {
+          "scid": "mn1:1.5",
+          "pli": "“Bhadante”ti te bhikkhū bhagavato paccassosuṁ. ",
+          "fr": "« Vénérable », répondirent-ils. ",
+          "ref": "“Venerable sir,” they replied. "
+        },
+        "mn1:1.6": {
+          "scid": "mn1:1.6",
+          "pli": "Bhagavā etadavoca: ",
+          "fr": "Le Bouddha dit ceci : ",
+          "ref": "The Buddha said this: "
+        },
+        "mn1:2.1": {
+          "scid": "mn1:2.1",
+          "pli": "“sabbadhammamūlapariyāyaṁ vo, bhikkhave, desessāmi. ",
+          "fr": "« Monastiques, je vais vous enseigner au sujet de la racine de toutes choses. ",
+          "ref": "“Mendicants, I will teach you the explanation of the root of all things. "
+        },
+        "mn1:2.2": {
+          "scid": "mn1:2.2",
+          "pli": "Taṁ suṇātha, sādhukaṁ manasi karotha, bhāsissāmī”ti. ",
+          "fr": "Écoutez et soyez attentifs, je vais parler. » ",
+          "ref": "Listen and apply your minds well, I will speak.” "
+        },
+        "mn1:2.3": {
+          "scid": "mn1:2.3",
+          "pli": "“Evaṁ, bhante”ti kho te bhikkhū bhagavato paccassosuṁ. ",
+          "fr": "« Oui, Vénérable », répondirent-ils. ",
+          "ref": "“Yes, sir,” they replied. "
+        },
+        "mn1:2.4": {
+          "scid": "mn1:2.4",
+          "pli": "Bhagavā etadavoca: ",
+          "fr": "Le Bouddha dit ceci : ",
+          "ref": "The Buddha said this: "
+        },
+        "mn1:3.1": {
+          "scid": "mn1:3.1",
+          "pli": "“Idha, bhikkhave, assutavā puthujjano ariyānaṁ adassāvī ariyadhammassa akovido ariyadhamme avinīto, sappurisānaṁ adassāvī sappurisadhammassa akovido sappurisadhamme avinīto—",
+          "fr": "« Prenons une personne ordinaire non instruite qui n’a pas rencontré les nobles, et qui n’est ni compétente ni formée dans l’enseignement des nobles. Elle n’a pas rencontré de vraies personnes, et n’est ni compétente ni formée dans l’enseignement des vraies personnes. ",
+          "ref": "“Take an unlearned ordinary person who has not seen the noble ones, and is neither skilled nor trained in the teaching of the noble ones. They’ve not seen true persons, and are neither skilled nor trained in the teaching of the true persons. "
+        },
+        "mn1:3.2": {
+          "scid": "mn1:3.2",
+          "pli": "pathaviṁ pathavito sañjānāti; ",
+          "fr": "Elle perçoit la terre comme terre. ",
+          "ref": "They perceive earth as earth. "
+        },
+        "mn1:3.3": {
+          "scid": "mn1:3.3",
+          "pli": "pathaviṁ pathavito saññatvā pathaviṁ maññati, pathaviyā maññati, pathavito maññati, pathaviṁ meti maññati, pathaviṁ abhinandati. ",
+          "fr": "Ayant perçu la terre comme terre, elle la conçoit comme étant terre, elle la conçoit dans la terre, elle la conçoit comme terre, elle conçoit que ‹ la terre est à moi ›. Elle prend plaisir en la terre. ",
+          "ref": "Having perceived earth as earth, they conceive it to be earth, they conceive it in earth, they conceive it as earth, they conceive that ‘earth is mine’, they approve earth. "
+        },
+        "mn1:3.4": {
+          "scid": "mn1:3.4",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:3.5": {
+          "scid": "mn1:3.5",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:4.1": {
+          "scid": "mn1:4.1",
+          "pli": "Āpaṁ āpato sañjānāti; ",
+          "fr": "Elle perçoit l’eau comme eau. ",
+          "ref": "They perceive water as water. "
+        },
+        "mn1:4.2": {
+          "scid": "mn1:4.2",
+          "pli": "āpaṁ āpato saññatvā āpaṁ maññati, āpasmiṁ maññati, āpato maññati, āpaṁ meti maññati, āpaṁ abhinandati. ",
+          "fr": "Ayant perçu l’eau comme eau, elle la conçoit comme étant eau… ",
+          "ref": "Having perceived water as water, they conceive it to be water … "
+        },
+        "mn1:4.3": {
+          "scid": "mn1:4.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:4.4": {
+          "scid": "mn1:4.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:5.1": {
+          "scid": "mn1:5.1",
+          "pli": "Tejaṁ tejato sañjānāti; ",
+          "fr": "Elle perçoit le feu comme feu. ",
+          "ref": "They perceive fire as fire. "
+        },
+        "mn1:5.2": {
+          "scid": "mn1:5.2",
+          "pli": "tejaṁ tejato saññatvā tejaṁ maññati, tejasmiṁ maññati, tejato maññati, tejaṁ meti maññati, tejaṁ abhinandati. ",
+          "fr": "Ayant perçu le feu comme feu, elle le conçoit comme étant feu… ",
+          "ref": "Having perceived fire as fire, they conceive it to be fire … "
+        },
+        "mn1:5.3": {
+          "scid": "mn1:5.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:5.4": {
+          "scid": "mn1:5.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:6.1": {
+          "scid": "mn1:6.1",
+          "pli": "Vāyaṁ vāyato sañjānāti; ",
+          "fr": "Elle perçoit l’air comme air. ",
+          "ref": "They perceive air as air. "
+        },
+        "mn1:6.2": {
+          "scid": "mn1:6.2",
+          "pli": "vāyaṁ vāyato saññatvā vāyaṁ maññati, vāyasmiṁ maññati, vāyato maññati, vāyaṁ meti maññati, vāyaṁ abhinandati. ",
+          "fr": "Ayant perçu l’air comme air, elle le conçoit comme étant air… ",
+          "ref": "Having perceived air as air, they conceive it to be air … "
+        },
+        "mn1:6.3": {
+          "scid": "mn1:6.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:6.4": {
+          "scid": "mn1:6.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:7.1": {
+          "scid": "mn1:7.1",
+          "pli": "Bhūte bhūtato sañjānāti; ",
+          "fr": "Elle perçoit les créatures comme créatures. ",
+          "ref": "They perceive creatures as creatures. "
+        },
+        "mn1:7.2": {
+          "scid": "mn1:7.2",
+          "pli": "bhūte bhūtato saññatvā bhūte maññati, bhūtesu maññati, bhūtato maññati, bhūte meti maññati, bhūte abhinandati. ",
+          "fr": "Ayant perçu les créatures comme créatures, elle les conçoit comme étant créatures… ",
+          "ref": "Having perceived creatures as creatures, they conceive them to be creatures … "
+        },
+        "mn1:7.3": {
+          "scid": "mn1:7.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:7.4": {
+          "scid": "mn1:7.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:8.1": {
+          "scid": "mn1:8.1",
+          "pli": "Deve devato sañjānāti; ",
+          "fr": "Elle perçoit les dieux comme dieux. ",
+          "ref": "They perceive gods as gods. "
+        },
+        "mn1:8.2": {
+          "scid": "mn1:8.2",
+          "pli": "deve devato saññatvā deve maññati, devesu maññati, devato maññati, deve meti maññati, deve abhinandati. ",
+          "fr": "Ayant perçu les dieux comme dieux, elle les conçoit comme étant dieux… ",
+          "ref": "Having perceived gods as gods, they conceive them to be gods … "
+        },
+        "mn1:8.3": {
+          "scid": "mn1:8.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:8.4": {
+          "scid": "mn1:8.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:9.1": {
+          "scid": "mn1:9.1",
+          "pli": "Pajāpatiṁ pajāpatito sañjānāti; ",
+          "fr": "Elle perçoit le dieu de la création comme le dieu de la création. ",
+          "ref": "They perceive the Progenitor as the Progenitor. "
+        },
+        "mn1:9.2": {
+          "scid": "mn1:9.2",
+          "pli": "pajāpatiṁ pajāpatito saññatvā pajāpatiṁ maññati, pajāpatismiṁ maññati, pajāpatito maññati, pajāpatiṁ meti maññati, pajāpatiṁ abhinandati. ",
+          "fr": "Ayant perçu le dieu de la création comme le dieu de la création, elle le conçoit comme étant le dieu de la création… ",
+          "ref": "Having perceived the Progenitor as the Progenitor, they conceive him to be the Progenitor … "
+        },
+        "mn1:9.3": {
+          "scid": "mn1:9.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:9.4": {
+          "scid": "mn1:9.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:10.1": {
+          "scid": "mn1:10.1",
+          "pli": "Brahmaṁ brahmato sañjānāti; ",
+          "fr": "Elle perçoit Brahmā comme Brahmā. ",
+          "ref": "They perceive the Divinity as the Divinity. "
+        },
+        "mn1:10.2": {
+          "scid": "mn1:10.2",
+          "pli": "brahmaṁ brahmato saññatvā brahmaṁ maññati, brahmasmiṁ maññati, brahmato maññati, brahmaṁ meti maññati, brahmaṁ abhinandati. ",
+          "fr": "Ayant perçu Brahmā comme Brahmā, elle le conçoit comme étant Brahmā… ",
+          "ref": "Having perceived the Divinity as the Divinity, they conceive him to be the Divinity … "
+        },
+        "mn1:10.3": {
+          "scid": "mn1:10.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:10.4": {
+          "scid": "mn1:10.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:11.1": {
+          "scid": "mn1:11.1",
+          "pli": "Ābhassare ābhassarato sañjānāti; ",
+          "fr": "Elle perçoit les dieux de l’éclat rayonnant comme les dieux de l’éclat rayonnant. ",
+          "ref": "They perceive those of streaming radiance as those of streaming radiance. "
+        },
+        "mn1:11.2": {
+          "scid": "mn1:11.2",
+          "pli": "ābhassare ābhassarato saññatvā ābhassare maññati, ābhassaresu maññati, ābhassarato maññati, ābhassare meti maññati, ābhassare abhinandati. ",
+          "fr": "Ayant perçu les dieux de l’éclat rayonnant comme les dieux de l’éclat rayonnant, elle les conçoit comme étant les dieux de l’éclat rayonnant… ",
+          "ref": "Having perceived those of streaming radiance as those of streaming radiance, they conceive them to be those of streaming radiance … "
+        },
+        "mn1:11.3": {
+          "scid": "mn1:11.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:11.4": {
+          "scid": "mn1:11.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:12.1": {
+          "scid": "mn1:12.1",
+          "pli": "Subhakiṇhe subhakiṇhato sañjānāti; ",
+          "fr": "Elle perçoit les dieux comblés de gloire comme les dieux comblés de gloire. ",
+          "ref": "They perceive those of universal beauty as those of universal beauty. "
+        },
+        "mn1:12.2": {
+          "scid": "mn1:12.2",
+          "pli": "subhakiṇhe subhakiṇhato saññatvā subhakiṇhe maññati, subhakiṇhesu maññati, subhakiṇhato maññati, subhakiṇhe meti maññati, subhakiṇhe abhinandati. ",
+          "fr": "Ayant perçu les dieux comblés de gloire comme les dieux comblés de gloire, elle les conçoit comme étant les dieux comblés de gloire… ",
+          "ref": "But then they conceive them to be those of universal beauty … "
+        },
+        "mn1:12.3": {
+          "scid": "mn1:12.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:12.4": {
+          "scid": "mn1:12.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne les a pas complètement comprises, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:13.1": {
+          "scid": "mn1:13.1",
+          "pli": "Vehapphale vehapphalato sañjānāti; ",
+          "fr": "Elle perçoit les dieux au grand fruit comme les dieux du grand fruit. ",
+          "ref": "They perceive those of abundant fruit as those of abundant fruit. "
+        },
+        "mn1:13.2": {
+          "scid": "mn1:13.2",
+          "pli": "vehapphale vehapphalato saññatvā vehapphale maññati, vehapphalesu maññati, vehapphalato maññati, vehapphale meti maññati, vehapphale abhinandati. ",
+          "fr": "Ayant perçu les dieux au grand fruit comme les dieux au grand fruit, elle les conçoit comme étant les dieux au grand fruit… ",
+          "ref": "Having perceived those of abundant fruit as those of abundant fruit, they conceive them to be those of abundant fruit … "
+        },
+        "mn1:13.3": {
+          "scid": "mn1:13.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:13.4": {
+          "scid": "mn1:13.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne les a pas complètement comprises, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:14.1": {
+          "scid": "mn1:14.1",
+          "pli": "Abhibhuṁ abhibhuto sañjānāti; ",
+          "fr": "Elle perçoit le Souverain comme le Souverain. ",
+          "ref": "They perceive the Vanquisher as the Vanquisher. "
+        },
+        "mn1:14.2": {
+          "scid": "mn1:14.2",
+          "pli": "abhibhuṁ abhibhuto saññatvā abhibhuṁ maññati, abhibhusmiṁ maññati, abhibhuto maññati, abhibhuṁ meti maññati, abhibhuṁ abhinandati. ",
+          "fr": "Ayant perçu le Souverain comme le Souverain, elle le conçoit comme étant le Souverain… ",
+          "ref": "Having perceived the Vanquisher as the Vanquisher, they conceive him to be the Vanquisher … "
+        },
+        "mn1:14.3": {
+          "scid": "mn1:14.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:14.4": {
+          "scid": "mn1:14.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:15.1": {
+          "scid": "mn1:15.1",
+          "pli": "Ākāsānañcāyatanaṁ ākāsānañcāyatanato sañjānāti; ",
+          "fr": "Elle perçoit la dimension de l’espace infini comme la dimension de l’espace infini. ",
+          "ref": "They perceive the dimension of infinite space as the dimension of infinite space. "
+        },
+        "mn1:15.2": {
+          "scid": "mn1:15.2",
+          "pli": "ākāsānañcāyatanaṁ ākāsānañcāyatanato saññatvā ākāsānañcāyatanaṁ maññati, ākāsānañcāyatanasmiṁ maññati, ākāsānañcāyatanato maññati, ākāsānañcāyatanaṁ meti maññati, ākāsānañcāyatanaṁ abhinandati. ",
+          "fr": "Ayant perçu la dimension de l’espace infini comme la dimension de l’espace infini, elle la conçoit comme étant la dimension de l’espace infini… ",
+          "ref": "Having perceived the dimension of infinite space as the dimension of infinite space, they conceive it to be the dimension of infinite space … "
+        },
+        "mn1:15.3": {
+          "scid": "mn1:15.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:15.4": {
+          "scid": "mn1:15.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:16.1": {
+          "scid": "mn1:16.1",
+          "pli": "Viññāṇañcāyatanaṁ viññāṇañcāyatanato sañjānāti; ",
+          "fr": "Elle perçoit la dimension de la conscience infinie comme la dimension de la conscience infinie. ",
+          "ref": "They perceive the dimension of infinite consciousness as the dimension of infinite consciousness. "
+        },
+        "mn1:16.2": {
+          "scid": "mn1:16.2",
+          "pli": "viññāṇañcāyatanaṁ viññāṇañcāyatanato saññatvā viññāṇañcāyatanaṁ maññati, viññāṇañcāyatanasmiṁ maññati, viññāṇañcāyatanato maññati, viññāṇañcāyatanaṁ meti maññati, viññāṇañcāyatanaṁ abhinandati. ",
+          "fr": "Ayant perçu la dimension de la conscience infinie comme la dimension de la conscience infinie, elle la conçoit comme étant la dimension de la conscience infinie… ",
+          "ref": "Having perceived the dimension of infinite consciousness as the dimension of infinite consciousness, they conceive it to be the dimension of infinite consciousness … "
+        },
+        "mn1:16.3": {
+          "scid": "mn1:16.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:16.4": {
+          "scid": "mn1:16.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:17.1": {
+          "scid": "mn1:17.1",
+          "pli": "Ākiñcaññāyatanaṁ ākiñcaññāyatanato sañjānāti; ",
+          "fr": "Elle perçoit la dimension du néant comme la dimension du néant. ",
+          "ref": "They perceive the dimension of nothingness as the dimension of nothingness. "
+        },
+        "mn1:17.2": {
+          "scid": "mn1:17.2",
+          "pli": "ākiñcaññāyatanaṁ ākiñcaññāyatanato saññatvā ākiñcaññāyatanaṁ maññati, ākiñcaññāyatanasmiṁ maññati, ākiñcaññāyatanato maññati, ākiñcaññāyatanaṁ meti maññati, ākiñcaññāyatanaṁ abhinandati. ",
+          "fr": "Ayant perçu la dimension du néant comme la dimension du néant, elle la conçoit comme étant la dimension du néant… ",
+          "ref": "Having perceived the dimension of nothingness as the dimension of nothingness, they conceive it to be the dimension of nothingness … "
+        },
+        "mn1:17.3": {
+          "scid": "mn1:17.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:17.4": {
+          "scid": "mn1:17.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:18.1": {
+          "scid": "mn1:18.1",
+          "pli": "Nevasaññānāsaññāyatanaṁ nevasaññānāsaññāyatanato sañjānāti; ",
+          "fr": "Elle perçoit la dimension ni de perception ni de non-perception comme la dimension ni de perception ni de non-perception. ",
+          "ref": "They perceive the dimension of neither perception nor non-perception as the dimension of neither perception nor non-perception. "
+        },
+        "mn1:18.2": {
+          "scid": "mn1:18.2",
+          "pli": "nevasaññānāsaññāyatanaṁ nevasaññānāsaññāyatanato saññatvā nevasaññānāsaññāyatanaṁ maññati, nevasaññānāsaññāyatanasmiṁ maññati, nevasaññānāsaññāyatanato maññati, nevasaññānāsaññāyatanaṁ meti maññati, nevasaññānāsaññāyatanaṁ abhinandati. ",
+          "fr": "Ayant perçu la dimension ni de perception ni de non-perception comme la dimension ni de perception ni de non-perception, elle la conçoit comme étant la dimension ni de perception ni de non-perception… ",
+          "ref": "Having perceived the dimension of neither perception nor non-perception as the dimension of neither perception nor non-perception, they conceive it to be the dimension of neither perception nor non-perception … "
+        },
+        "mn1:18.3": {
+          "scid": "mn1:18.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:18.4": {
+          "scid": "mn1:18.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:19.1": {
+          "scid": "mn1:19.1",
+          "pli": "Diṭṭhaṁ diṭṭhato sañjānāti; ",
+          "fr": "Elle perçoit le vu comme le vu. ",
+          "ref": "They perceive the seen as the seen. "
+        },
+        "mn1:19.2": {
+          "scid": "mn1:19.2",
+          "pli": "diṭṭhaṁ diṭṭhato saññatvā diṭṭhaṁ maññati, diṭṭhasmiṁ maññati, diṭṭhato maññati, diṭṭhaṁ meti maññati, diṭṭhaṁ abhinandati. ",
+          "fr": "Ayant perçu le vu comme le vu, elle le conçoit comme étant le vu… ",
+          "ref": "Having perceived the seen as the seen, they conceive it to be the seen … "
+        },
+        "mn1:19.3": {
+          "scid": "mn1:19.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:19.4": {
+          "scid": "mn1:19.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:20.1": {
+          "scid": "mn1:20.1",
+          "pli": "Sutaṁ sutato sañjānāti; ",
+          "fr": "Elle perçoit l’entendu comme l’entendu. ",
+          "ref": "They perceive the heard as the heard. "
+        },
+        "mn1:20.2": {
+          "scid": "mn1:20.2",
+          "pli": "sutaṁ sutato saññatvā sutaṁ maññati, sutasmiṁ maññati, sutato maññati, sutaṁ meti maññati, sutaṁ abhinandati. ",
+          "fr": "Ayant perçu l’entendu comme l’entendu, elle le conçoit comme étant l’entendu… ",
+          "ref": "Having perceived the heard as the heard, they conceive it to be the heard … "
+        },
+        "mn1:20.3": {
+          "scid": "mn1:20.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:20.4": {
+          "scid": "mn1:20.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:21.1": {
+          "scid": "mn1:21.1",
+          "pli": "Mutaṁ mutato sañjānāti; ",
+          "fr": "Elle perçoit la pensée comme la pensée. ",
+          "ref": "They perceive the thought as the thought. "
+        },
+        "mn1:21.2": {
+          "scid": "mn1:21.2",
+          "pli": "mutaṁ mutato saññatvā mutaṁ maññati, mutasmiṁ maññati, mutato maññati, mutaṁ meti maññati, mutaṁ abhinandati. ",
+          "fr": "Ayant perçu la pensée comme la pensée, elle la conçoit comme étant la pensée… ",
+          "ref": "Having perceived the thought as the thought, they conceive it to be the thought … "
+        },
+        "mn1:21.3": {
+          "scid": "mn1:21.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:21.4": {
+          "scid": "mn1:21.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:22.1": {
+          "scid": "mn1:22.1",
+          "pli": "Viññātaṁ viññātato sañjānāti; ",
+          "fr": "Elle perçoit le connu comme le connu. ",
+          "ref": "They perceive the known as the known. "
+        },
+        "mn1:22.2": {
+          "scid": "mn1:22.2",
+          "pli": "viññātaṁ viññātato saññatvā viññātaṁ maññati, viññātasmiṁ maññati, viññātato maññati, viññātaṁ meti maññati, viññātaṁ abhinandati. ",
+          "fr": "Ayant perçu le connu comme le connu, elle le conçoit comme étant le connu… ",
+          "ref": "Having perceived the known as the known, they conceive it to be the known … "
+        },
+        "mn1:22.3": {
+          "scid": "mn1:22.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:22.4": {
+          "scid": "mn1:22.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:23.1": {
+          "scid": "mn1:23.1",
+          "pli": "Ekattaṁ ekattato sañjānāti; ",
+          "fr": "Elle perçoit l’unité comme l’unité. ",
+          "ref": "They perceive oneness as oneness. "
+        },
+        "mn1:23.2": {
+          "scid": "mn1:23.2",
+          "pli": "ekattaṁ ekattato saññatvā ekattaṁ maññati, ekattasmiṁ maññati, ekattato maññati, ekattaṁ meti maññati, ekattaṁ abhinandati. ",
+          "fr": "Ayant perçu l’unité comme l’unité, elle la conçoit comme étant l’unité… ",
+          "ref": "Having perceived oneness as oneness, they conceive it to be oneness … "
+        },
+        "mn1:23.3": {
+          "scid": "mn1:23.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:23.4": {
+          "scid": "mn1:23.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:24.1": {
+          "scid": "mn1:24.1",
+          "pli": "Nānattaṁ nānattato sañjānāti; ",
+          "fr": "Elle perçoit la diversité comme la diversité. ",
+          "ref": "They perceive diversity as diversity. "
+        },
+        "mn1:24.2": {
+          "scid": "mn1:24.2",
+          "pli": "nānattaṁ nānattato saññatvā nānattaṁ maññati, nānattasmiṁ maññati, nānattato maññati, nānattaṁ meti maññati, nānattaṁ abhinandati. ",
+          "fr": "Ayant perçu la diversité comme la diversité, elle la conçoit comme étant la diversité… ",
+          "ref": "Having perceived diversity as diversity, they conceive it to be diversity … "
+        },
+        "mn1:24.3": {
+          "scid": "mn1:24.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:24.4": {
+          "scid": "mn1:24.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:25.1": {
+          "scid": "mn1:25.1",
+          "pli": "Sabbaṁ sabbato sañjānāti; ",
+          "fr": "Elle perçoit le tout comme le tout. ",
+          "ref": "They perceive all as all. "
+        },
+        "mn1:25.2": {
+          "scid": "mn1:25.2",
+          "pli": "sabbaṁ sabbato saññatvā sabbaṁ maññati, sabbasmiṁ maññati, sabbato maññati, sabbaṁ meti maññati, sabbaṁ abhinandati. ",
+          "fr": "Ayant perçu le tout comme le tout, elle le conçoit comme étant le tout… ",
+          "ref": "Having perceived all as all, they conceive it to be all … "
+        },
+        "mn1:25.3": {
+          "scid": "mn1:25.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:25.4": {
+          "scid": "mn1:25.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:26.1": {
+          "scid": "mn1:26.1",
+          "pli": "Nibbānaṁ nibbānato sañjānāti; ",
+          "fr": "Elle perçoit l’extinction comme l’extinction. ",
+          "ref": "They perceive extinguishment as extinguishment. "
+        },
+        "mn1:26.2": {
+          "scid": "mn1:26.2",
+          "pli": "nibbānaṁ nibbānato saññatvā nibbānaṁ maññati, nibbānasmiṁ maññati, nibbānato maññati, nibbānaṁ meti maññati, nibbānaṁ abhinandati. ",
+          "fr": "Ayant perçu l’extinction comme l’extinction, elle la conçoit comme étant l’extinction, elle la conçoit dans l’extinction, elle la conçoit comme l’extinction, elle conçoit que ‹ l’extinction est à moi ›. Elle prend plaisir en l’extinction. ",
+          "ref": "Having perceived extinguishment as extinguishment, they conceive it to be extinguishment, they conceive it in extinguishment, they conceive it as extinguishment, they conceive that ‘extinguishment is mine’, they approve extinguishment. "
+        },
+        "mn1:26.3": {
+          "scid": "mn1:26.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:26.4": {
+          "scid": "mn1:26.4",
+          "pli": "‘Apariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’elle ne l’a pas complètement comprise, dis-je. ",
+          "ref": "Because they haven’t completely understood it, I say. "
+        },
+        "mn1:26.5": {
+          "scid": "mn1:26.5",
+          "pli": "Puthujjanavasena paṭhamanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:27.1": {
+          "scid": "mn1:27.1",
+          "pli": "Yopi so, bhikkhave, bhikkhu sekkho appattamānaso anuttaraṁ yogakkhemaṁ patthayamāno viharati, sopi pathaviṁ pathavito abhijānāti; ",
+          "fr": "Un monastique novice, qui n’a pas réalisé le désir de son cœur, mais vit en aspirant au suprême sanctuaire du joug, reconnaît directement la terre comme terre. ",
+          "ref": "A mendicant who is a trainee, who hasn’t achieved their heart’s desire, but lives aspiring to the supreme sanctuary from the yoke, directly knows earth as earth. "
+        },
+        "mn1:27.2": {
+          "scid": "mn1:27.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ mā maññi, pathaviyā mā maññi, pathavito mā maññi, pathaviṁ meti mā maññi, pathaviṁ mābhinandi. ",
+          "fr": "Ayant directement reconnu la terre comme terre, qu’il ne la conçoive pas comme étant terre, qu’il ne la conçoive pas dans la terre, qu’il ne la conçoive pas comme terre, qu’il ne conçoive pas que ‹ la terre est à moi ›, qu’il ne prenne pas plaisir en la terre. ",
+          "ref": "Having directly known earth as earth, let them not conceive it to be earth, let them not conceive it in earth, let them not conceive it as earth, let them not conceive that ‘earth is mine’, let them not approve earth. "
+        },
+        "mn1:27.3": {
+          "scid": "mn1:27.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:27.4": {
+          "scid": "mn1:27.4",
+          "pli": "‘Pariññeyyaṁ tassā’ti vadāmi. ",
+          "fr": "Afin qu’il puisse complètement la comprendre, dis-je. ",
+          "ref": "So that they may completely understand it, I say. "
+        },
+        "mn1:28.1": {
+          "scid": "mn1:28.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "They directly know water … "
+        },
+        "mn1:29.1": {
+          "scid": "mn1:29.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:30.1": {
+          "scid": "mn1:30.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:31.1": {
+          "scid": "mn1:31.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:32.1": {
+          "scid": "mn1:32.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:33.1": {
+          "scid": "mn1:33.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:34.1": {
+          "scid": "mn1:34.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:35.1": {
+          "scid": "mn1:35.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:36.1": {
+          "scid": "mn1:36.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:37.1": {
+          "scid": "mn1:37.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:38.1": {
+          "scid": "mn1:38.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:39.1": {
+          "scid": "mn1:39.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:40.1": {
+          "scid": "mn1:40.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:41.1": {
+          "scid": "mn1:41.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:42.1": {
+          "scid": "mn1:42.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:43.1": {
+          "scid": "mn1:43.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:44.1": {
+          "scid": "mn1:44.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:45.1": {
+          "scid": "mn1:45.1",
+          "pli": "mutaṁ … ",
+          "fr": "la pensée… ",
+          "ref": "the thought … "
+        },
+        "mn1:46.1": {
+          "scid": "mn1:46.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:47.1": {
+          "scid": "mn1:47.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:48.1": {
+          "scid": "mn1:48.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:49.1": {
+          "scid": "mn1:49.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:50.1": {
+          "scid": "mn1:50.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction comme l’extinction. ",
+          "ref": "They directly know extinguishment as extinguishment. "
+        },
+        "mn1:50.2": {
+          "scid": "mn1:50.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ mā maññi, nibbānasmiṁ mā maññi, nibbānato mā maññi, nibbānaṁ meti mā maññi, nibbānaṁ mābhinandi. ",
+          "fr": "Ayant directement reconnu l’extinction comme l’extinction, qu’il ne la conçoive pas comme étant l’extinction, qu’il ne la conçoive pas dans l’extinction, qu’il ne la conçoive pas comme l’extinction, qu’il ne conçoive pas que ‹ l’extinction est à lui ›, qu’il ne prenne pas plaisir en l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, let them not conceive it to be extinguishment, let them not conceive it in extinguishment, let them not conceive it as extinguishment, let them not conceive that ‘extinguishment is mine’, let them not approve extinguishment. "
+        },
+        "mn1:50.3": {
+          "scid": "mn1:50.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:50.4": {
+          "scid": "mn1:50.4",
+          "pli": "‘Pariññeyyaṁ tassā’ti vadāmi. ",
+          "fr": "Afin qu’il puisse complètement la comprendre, dis-je. ",
+          "ref": "So that they may completely understand it, I say. "
+        },
+        "mn1:50.5": {
+          "scid": "mn1:50.5",
+          "pli": "Sekkhavasena dutiyanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:51.1": {
+          "scid": "mn1:51.1",
+          "pli": "Yopi so, bhikkhave, bhikkhu arahaṁ khīṇāsavo vusitavā katakaraṇīyo ohitabhāro anuppattasadattho parikkhīṇabhavasaṁyojano sammadaññāvimutto, sopi pathaviṁ pathavito abhijānāti; ",
+          "fr": "Un monastique accompli — avec les souillures terminées, qui a achevé le voyage spirituel, fait ce qu’il devait faire, déposé le fardeau, atteint son véritable but, complètement mis fin aux entraves de la renaissance, et est justement libéré par l’illumination — reconnaît directement la terre comme terre. ",
+          "ref": "A mendicant who is perfected—with defilements ended, who has completed the spiritual journey, done what had to be done, laid down the burden, achieved their heart’s goal, utterly ended the fetter of continued existence, and is rightly freed through enlightenment—directly knows earth as earth. "
+        },
+        "mn1:51.2": {
+          "scid": "mn1:51.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme étant terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que ‹ la terre est à moi ›. Il ne prend pas plaisir en la terre. ",
+          "ref": "Having directly known earth as earth, they do not conceive it to be earth, they do not conceive it in earth, they do not conceive it as earth, they do not conceive that ‘earth is mine’, they do not approve earth. "
+        },
+        "mn1:51.3": {
+          "scid": "mn1:51.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:51.4": {
+          "scid": "mn1:51.4",
+          "pli": "‘Pariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’il l’a complètement comprise, dis-je. ",
+          "ref": "Because they have completely understood it, I say. "
+        },
+        "mn1:52.1": {
+          "scid": "mn1:52.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "They directly know water … "
+        },
+        "mn1:53.1": {
+          "scid": "mn1:53.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:54.1": {
+          "scid": "mn1:54.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:55.1": {
+          "scid": "mn1:55.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:56.1": {
+          "scid": "mn1:56.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:57.1": {
+          "scid": "mn1:57.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:58.1": {
+          "scid": "mn1:58.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:59.1": {
+          "scid": "mn1:59.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:60.1": {
+          "scid": "mn1:60.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:61.1": {
+          "scid": "mn1:61.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:62.1": {
+          "scid": "mn1:62.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:63.1": {
+          "scid": "mn1:63.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:64.1": {
+          "scid": "mn1:64.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:65.1": {
+          "scid": "mn1:65.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:66.1": {
+          "scid": "mn1:66.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:67.1": {
+          "scid": "mn1:67.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:68.1": {
+          "scid": "mn1:68.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:69.1": {
+          "scid": "mn1:69.1",
+          "pli": "mutaṁ … ",
+          "fr": "la pensée… ",
+          "ref": "the thought … "
+        },
+        "mn1:70.1": {
+          "scid": "mn1:70.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:71.1": {
+          "scid": "mn1:71.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:72.1": {
+          "scid": "mn1:72.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:73.1": {
+          "scid": "mn1:73.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:74.1": {
+          "scid": "mn1:74.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction comme l’extinction. ",
+          "ref": "They directly know extinguishment as extinguishment. "
+        },
+        "mn1:74.2": {
+          "scid": "mn1:74.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme l’extinction, il ne la conçoit pas comme étant l’extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme l’extinction, il ne conçoit pas que ‹ l’extinction est à moi ›. Il ne prend pas plaisir en l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, they do not conceive it to be extinguishment, they do not conceive it in extinguishment, they do not conceive it as extinguishment, they do not conceive that ‘extinguishment is mine’, they do not approve extinguishment. "
+        },
+        "mn1:74.3": {
+          "scid": "mn1:74.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:74.4": {
+          "scid": "mn1:74.4",
+          "pli": "‘Pariññātaṁ tassā’ti vadāmi. ",
+          "fr": "Parce qu’il l’a complètement comprise, dis-je. ",
+          "ref": "Because they have completely understood it, I say. "
+        },
+        "mn1:74.5": {
+          "scid": "mn1:74.5",
+          "pli": "Khīṇāsavavasena tatiyanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:75.1": {
+          "scid": "mn1:75.1",
+          "pli": "Yopi so, bhikkhave, bhikkhu arahaṁ khīṇāsavo vusitavā katakaraṇīyo ohitabhāro anuppattasadattho parikkhīṇabhavasaṁyojano sammadaññā vimutto, sopi pathaviṁ pathavito abhijānāti; ",
+          "fr": "Un monastique accompli — avec les souillures terminées, qui a achevé le voyage spirituel, fait ce qu’il devait faire, déposé le fardeau, atteint son véritable but, complètement mis fin aux entraves de la renaissance, et est justement libéré par l’illumination — reconnaît directement la terre comme terre. ",
+          "ref": "A mendicant who is perfected—with defilements ended, who has completed the spiritual journey, done what had to be done, laid down the burden, achieved their heart’s goal, utterly ended the fetter of continued existence, and is rightly freed through enlightenment—directly knows earth as earth. "
+        },
+        "mn1:75.2": {
+          "scid": "mn1:75.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme étant terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que ‹ la terre est à moi ›. Il ne prend pas plaisir en la terre. ",
+          "ref": "Having directly known earth as earth, they do not conceive it to be earth, they do not conceive it in earth, they do not conceive it as earth, they do not conceive that ‘earth is mine’, they do not approve earth. "
+        },
+        "mn1:75.3": {
+          "scid": "mn1:75.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:75.4": {
+          "scid": "mn1:75.4",
+          "pli": "Khayā rāgassa, vītarāgattā. ",
+          "fr": "Parce qu’il est libre de la cupidité due à la fin de la cupidité. ",
+          "ref": "Because they’re free of greed due to the ending of greed. "
+        },
+        "mn1:76.1": {
+          "scid": "mn1:76.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "They directly know water … "
+        },
+        "mn1:77.1": {
+          "scid": "mn1:77.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:78.1": {
+          "scid": "mn1:78.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:79.1": {
+          "scid": "mn1:79.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:80.1": {
+          "scid": "mn1:80.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:81.1": {
+          "scid": "mn1:81.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:82.1": {
+          "scid": "mn1:82.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:83.1": {
+          "scid": "mn1:83.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:84.1": {
+          "scid": "mn1:84.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:85.1": {
+          "scid": "mn1:85.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:86.1": {
+          "scid": "mn1:86.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:87.1": {
+          "scid": "mn1:87.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:88.1": {
+          "scid": "mn1:88.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:89.1": {
+          "scid": "mn1:89.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:90.1": {
+          "scid": "mn1:90.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:91.1": {
+          "scid": "mn1:91.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:92.1": {
+          "scid": "mn1:92.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:93.1": {
+          "scid": "mn1:93.1",
+          "pli": "mutaṁ … ",
+          "fr": "la pensée… ",
+          "ref": "the thought … "
+        },
+        "mn1:94.1": {
+          "scid": "mn1:94.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:95.1": {
+          "scid": "mn1:95.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:96.1": {
+          "scid": "mn1:96.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:97.1": {
+          "scid": "mn1:97.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:98.1": {
+          "scid": "mn1:98.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction comme l’extinction. ",
+          "ref": "They directly know extinguishment as extinguishment. "
+        },
+        "mn1:98.2": {
+          "scid": "mn1:98.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme l’extinction, il ne la conçoit pas comme étant l’extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme l’extinction, il ne conçoit pas que ‹ l’extinction est à moi ›. Il ne prend pas plaisir en l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, they do not conceive it to be extinguishment, they do not conceive it in extinguishment, they do not conceive it as extinguishment, they do not conceive that ‘extinguishment is mine’, they do not approve extinguishment. "
+        },
+        "mn1:98.3": {
+          "scid": "mn1:98.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:98.4": {
+          "scid": "mn1:98.4",
+          "pli": "Khayā rāgassa, vītarāgattā. ",
+          "fr": "Parce qu’il est libre de la cupidité due à la fin de la cupidité. ",
+          "ref": "Because they’re free of greed due to the ending of greed. "
+        },
+        "mn1:98.5": {
+          "scid": "mn1:98.5",
+          "pli": "Khīṇāsavavasena catutthanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:99.1": {
+          "scid": "mn1:99.1",
+          "pli": "Yopi so, bhikkhave, bhikkhu arahaṁ khīṇāsavo vusitavā katakaraṇīyo ohitabhāro anuppattasadattho parikkhīṇabhavasaṁyojano sammadaññāvimutto, sopi pathaviṁ pathavito abhijānāti; ",
+          "fr": "Un monastique accompli — avec les souillures terminées, qui a achevé le voyage spirituel, fait ce qu’il devait faire, déposé le fardeau, atteint son véritable but, complètement mis fin aux entraves de la renaissance, et est justement libéré par l’illumination — reconnaît directement la terre comme terre. ",
+          "ref": "A mendicant who is perfected—with defilements ended, who has completed the spiritual journey, done what had to be done, laid down the burden, achieved their heart’s goal, utterly ended the fetter of continued existence, and is rightly freed through enlightenment—directly knows earth as earth. "
+        },
+        "mn1:99.2": {
+          "scid": "mn1:99.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme étant terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que ‹ la terre est à moi ›. Il ne prend pas plaisir en la terre. ",
+          "ref": "Having directly known earth as earth, they do not conceive it to be earth, they do not conceive it in earth, they do not conceive it as earth, they do not conceive that ‘earth is mine’, they do not approve earth. "
+        },
+        "mn1:99.3": {
+          "scid": "mn1:99.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:99.4": {
+          "scid": "mn1:99.4",
+          "pli": "Khayā dosassa, vītadosattā. ",
+          "fr": "Parce qu’il est libre de la haine due à la fin de la haine. ",
+          "ref": "Because they’re free of hate due to the ending of hate. "
+        },
+        "mn1:100.1": {
+          "scid": "mn1:100.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "They directly know water … "
+        },
+        "mn1:101.1": {
+          "scid": "mn1:101.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:102.1": {
+          "scid": "mn1:102.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:103.1": {
+          "scid": "mn1:103.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:104.1": {
+          "scid": "mn1:104.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:105.1": {
+          "scid": "mn1:105.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:106.1": {
+          "scid": "mn1:106.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:107.1": {
+          "scid": "mn1:107.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:108.1": {
+          "scid": "mn1:108.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:109.1": {
+          "scid": "mn1:109.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:110.1": {
+          "scid": "mn1:110.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:111.1": {
+          "scid": "mn1:111.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:112.1": {
+          "scid": "mn1:112.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:113.1": {
+          "scid": "mn1:113.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:114.1": {
+          "scid": "mn1:114.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:115.1": {
+          "scid": "mn1:115.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:116.1": {
+          "scid": "mn1:116.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:117.1": {
+          "scid": "mn1:117.1",
+          "pli": "mutaṁ … ",
+          "fr": "la pensée… ",
+          "ref": "the thought … "
+        },
+        "mn1:118.1": {
+          "scid": "mn1:118.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:119.1": {
+          "scid": "mn1:119.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:120.1": {
+          "scid": "mn1:120.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:121.1": {
+          "scid": "mn1:121.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:122.1": {
+          "scid": "mn1:122.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction en tant qu’extinction. ",
+          "ref": "They directly know extinguishment as extinguishment. "
+        },
+        "mn1:122.2": {
+          "scid": "mn1:122.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme extinction, il ne la conçoit pas comme extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme extinction, il ne conçoit pas que « l’extinction est mienne », il ne prend pas plaisir dans l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, they do not conceive it to be extinguishment, they do not conceive it in extinguishment, they do not conceive it as extinguishment, they do not conceive that ‘extinguishment is mine’, they do not approve extinguishment. "
+        },
+        "mn1:122.3": {
+          "scid": "mn1:122.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:122.4": {
+          "scid": "mn1:122.4",
+          "pli": "Khayā dosassa, vītadosattā. ",
+          "fr": "Parce qu’il est libre de haine en raison de la fin de la haine. ",
+          "ref": "Because they’re free of hate due to the ending of hate. "
+        },
+        "mn1:122.5": {
+          "scid": "mn1:122.5",
+          "pli": "Khīṇāsavavasena pañcamanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:123.1": {
+          "scid": "mn1:123.1",
+          "pli": "Yopi so, bhikkhave, bhikkhu arahaṁ khīṇāsavo vusitavā katakaraṇīyo ohitabhāro anuppattasadattho parikkhīṇabhavasaṁyojano sammadaññāvimutto, sopi pathaviṁ pathavito abhijānāti; ",
+          "fr": "Un monastique accompli, dont les souillures sont terminées, qui a achevé le voyage spirituel, fait ce qu’il devait faire, déposé le fardeau, atteint son propre but véritable, complètement terminé les liens de la renaissance, et est justement libéré par l’éveil, reconnaît directement la terre comme terre. ",
+          "ref": "A mendicant who is perfected—with defilements ended, who has completed the spiritual journey, done what had to be done, laid down the burden, achieved their heart’s goal, utterly ended the fetter of continued existence, and is rightly freed through enlightenment—directly knows earth as earth. "
+        },
+        "mn1:123.2": {
+          "scid": "mn1:123.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que ‹ la terre est mienne ›. Il ne prend pas plaisir dans la terre. ",
+          "ref": "Having directly known earth as earth, they do not conceive it to be earth, they do not conceive it in earth, they do not conceive it as earth, they do not conceive that ‘earth is mine’, they do not approve earth. "
+        },
+        "mn1:123.3": {
+          "scid": "mn1:123.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:123.4": {
+          "scid": "mn1:123.4",
+          "pli": "Khayā mohassa, vītamohattā. ",
+          "fr": "Parce qu’il est libre d’illusion en raison de la fin de l’illusion. ",
+          "ref": "Because they’re free of delusion due to the ending of delusion. "
+        },
+        "mn1:124.1": {
+          "scid": "mn1:124.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "They directly know water … "
+        },
+        "mn1:125.1": {
+          "scid": "mn1:125.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:126.1": {
+          "scid": "mn1:126.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:127.1": {
+          "scid": "mn1:127.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:128.1": {
+          "scid": "mn1:128.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:129.1": {
+          "scid": "mn1:129.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:130.1": {
+          "scid": "mn1:130.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:131.1": {
+          "scid": "mn1:131.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:132.1": {
+          "scid": "mn1:132.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:133.1": {
+          "scid": "mn1:133.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:134.1": {
+          "scid": "mn1:134.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:135.1": {
+          "scid": "mn1:135.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:136.1": {
+          "scid": "mn1:136.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:137.1": {
+          "scid": "mn1:137.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:138.1": {
+          "scid": "mn1:138.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:139.1": {
+          "scid": "mn1:139.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:140.1": {
+          "scid": "mn1:140.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:141.1": {
+          "scid": "mn1:141.1",
+          "pli": "mutaṁ … ",
+          "fr": "la pensée… ",
+          "ref": "the thought … "
+        },
+        "mn1:142.1": {
+          "scid": "mn1:142.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:143.1": {
+          "scid": "mn1:143.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:144.1": {
+          "scid": "mn1:144.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:145.1": {
+          "scid": "mn1:145.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:146.1": {
+          "scid": "mn1:146.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction en tant qu’extinction. ",
+          "ref": "They directly know extinguishment as extinguishment. "
+        },
+        "mn1:146.2": {
+          "scid": "mn1:146.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme extinction, il ne la conçoit pas comme extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme extinction, il ne conçoit pas que « l’extinction est mienne », il ne prend pas plaisir dans l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, they do not conceive it to be extinguishment, they do not conceive it in extinguishment, they do not conceive it as extinguishment, they do not conceive that ‘extinguishment is mine’, they do not approve extinguishment. "
+        },
+        "mn1:146.3": {
+          "scid": "mn1:146.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:146.4": {
+          "scid": "mn1:146.4",
+          "pli": "Khayā mohassa, vītamohattā. ",
+          "fr": "Parce qu’il est libre d’illusion en raison de la fin de l’illusion. ",
+          "ref": "Because they’re free of delusion due to the ending of delusion. "
+        },
+        "mn1:146.5": {
+          "scid": "mn1:146.5",
+          "pli": "Khīṇāsavavasena chaṭṭhanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:147.1": {
+          "scid": "mn1:147.1",
+          "pli": "Tathāgatopi, bhikkhave, arahaṁ sammāsambuddho pathaviṁ pathavito abhijānāti; ",
+          "fr": "L’Éveillé, l’accompli, le Bouddha pleinement éveillé reconnaît directement la terre comme terre. ",
+          "ref": "The Realized One, the perfected one, the fully awakened Buddha directly knows earth as earth. "
+        },
+        "mn1:147.2": {
+          "scid": "mn1:147.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que « la terre est mienne », il ne prend pas plaisir dans la terre. ",
+          "ref": "Having directly known earth as earth, he does not conceive it to be earth, he does not conceive it in earth, he does not conceive it as earth, he does not conceive that ‘earth is mine’, he does not approve earth. "
+        },
+        "mn1:147.3": {
+          "scid": "mn1:147.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:147.4": {
+          "scid": "mn1:147.4",
+          "pli": "‘Pariññātantaṁ tathāgatassā’ti vadāmi. ",
+          "fr": "Parce que l’Éveillé l’a complètement compris jusqu’à la fin, je dis. ",
+          "ref": "Because the Realized One has completely understood it to the end, I say. "
+        },
+        "mn1:148.1": {
+          "scid": "mn1:148.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "He directly knows water … "
+        },
+        "mn1:149.1": {
+          "scid": "mn1:149.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:150.1": {
+          "scid": "mn1:150.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:151.1": {
+          "scid": "mn1:151.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:152.1": {
+          "scid": "mn1:152.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:153.1": {
+          "scid": "mn1:153.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:154.1": {
+          "scid": "mn1:154.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:155.1": {
+          "scid": "mn1:155.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:156.1": {
+          "scid": "mn1:156.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:157.1": {
+          "scid": "mn1:157.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:158.1": {
+          "scid": "mn1:158.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:159.1": {
+          "scid": "mn1:159.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:160.1": {
+          "scid": "mn1:160.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:161.1": {
+          "scid": "mn1:161.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:162.1": {
+          "scid": "mn1:162.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:163.1": {
+          "scid": "mn1:163.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:164.1": {
+          "scid": "mn1:164.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:165.1": {
+          "scid": "mn1:165.1",
+          "pli": "mutaṁ … ",
+          "fr": "le pensé… ",
+          "ref": "the thought … "
+        },
+        "mn1:166.1": {
+          "scid": "mn1:166.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:167.1": {
+          "scid": "mn1:167.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:168.1": {
+          "scid": "mn1:168.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:169.1": {
+          "scid": "mn1:169.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:170.1": {
+          "scid": "mn1:170.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction en tant qu’extinction. ",
+          "ref": "He directly knows extinguishment as extinguishment. "
+        },
+        "mn1:170.2": {
+          "scid": "mn1:170.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme extinction, il ne la conçoit pas comme extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme extinction, il ne conçoit pas que ‹ l’extinction est à moi ›. Il ne prend pas plaisir dans l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, he does not conceive it to be extinguishment, he does not conceive it in extinguishment, he does not conceive it as extinguishment, he does not conceive that ‘extinguishment is mine’, he does not approve extinguishment. "
+        },
+        "mn1:170.3": {
+          "scid": "mn1:170.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:170.4": {
+          "scid": "mn1:170.4",
+          "pli": "‘Pariññātantaṁ tathāgatassā’ti vadāmi. ",
+          "fr": "Parce que le Réalisé l’a complètement compris jusqu’à la fin, dis-je. ",
+          "ref": "Because the Realized One has completely understood it to the end, I say. "
+        },
+        "mn1:170.5": {
+          "scid": "mn1:170.5",
+          "pli": "Tathāgatavasena sattamanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:171.1": {
+          "scid": "mn1:171.1",
+          "pli": "Tathāgatopi, bhikkhave, arahaṁ sammāsambuddho pathaviṁ pathavito abhijānāti; ",
+          "fr": "Le Réalisé, l’accompli, le Bouddha pleinement éveillé reconnaît directement la terre comme terre. ",
+          "ref": "The Realized One, the perfected one, the fully awakened Buddha directly knows earth as earth. "
+        },
+        "mn1:171.2": {
+          "scid": "mn1:171.2",
+          "pli": "pathaviṁ pathavito abhiññāya pathaviṁ na maññati, pathaviyā na maññati, pathavito na maññati, pathaviṁ meti na maññati, pathaviṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu la terre comme terre, il ne la conçoit pas comme terre, il ne la conçoit pas dans la terre, il ne la conçoit pas comme terre, il ne conçoit pas que ‹ la terre est à moi ›. Il ne prend pas plaisir dans la terre. ",
+          "ref": "Having directly known earth as earth, he does not conceive it to be earth, he does not conceive it in earth, he does not conceive it as earth, he does not conceive that ‘earth is mine’, he does not approve earth. "
+        },
+        "mn1:171.3": {
+          "scid": "mn1:171.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:171.4": {
+          "scid": "mn1:171.4",
+          "pli": "‘Nandī dukkhassa mūlan’ti—",
+          "fr": "Parce qu’il a compris que prendre plaisir est la <span class=\"scv-matched\">racine de la souffrance</span>, ",
+          "ref": "Because he has understood that approval is the root of suffering, ",
+          "matched": true
+        },
+        "mn1:171.5": {
+          "scid": "mn1:171.5",
+          "pli": "iti viditvā ‘bhavā jāti bhūtassa jarāmaraṇan’ti. ",
+          "fr": "et que la renaissance vient de l’existence continue ; quiconque est venu à l’existence vieillit et meurt. ",
+          "ref": "and that rebirth comes from continued existence; whoever has come to be gets old and dies. "
+        },
+        "mn1:171.6": {
+          "scid": "mn1:171.6",
+          "pli": "Tasmātiha, bhikkhave, ‘tathāgato sabbaso taṇhānaṁ khayā virāgā nirodhā cāgā paṭinissaggā anuttaraṁ sammāsambodhiṁ abhisambuddho’ti vadāmi. ",
+          "fr": "C’est pourquoi le Réalisé — avec la fin, le déclin, la cessation, l’abandon et le lâcher-prise de toutes les envies — s’est éveillé à l’éveil parfait suprême, dis-je. ",
+          "ref": "That’s why the Realized One—with the ending, fading away, cessation, giving up, and letting go of all cravings—has awakened to the supreme perfect awakening, I say. "
+        },
+        "mn1:172.1": {
+          "scid": "mn1:172.1",
+          "pli": "Āpaṁ …pe… ",
+          "fr": "Il reconnaît directement l’eau… ",
+          "ref": "He directly knows water … "
+        },
+        "mn1:173.1": {
+          "scid": "mn1:173.1",
+          "pli": "tejaṁ … ",
+          "fr": "le feu… ",
+          "ref": "fire … "
+        },
+        "mn1:174.1": {
+          "scid": "mn1:174.1",
+          "pli": "vāyaṁ … ",
+          "fr": "l’air… ",
+          "ref": "air … "
+        },
+        "mn1:175.1": {
+          "scid": "mn1:175.1",
+          "pli": "bhūte … ",
+          "fr": "les créatures… ",
+          "ref": "creatures … "
+        },
+        "mn1:176.1": {
+          "scid": "mn1:176.1",
+          "pli": "deve … ",
+          "fr": "les dieux… ",
+          "ref": "gods … "
+        },
+        "mn1:177.1": {
+          "scid": "mn1:177.1",
+          "pli": "pajāpatiṁ … ",
+          "fr": "le dieu de la création… ",
+          "ref": "the Progenitor … "
+        },
+        "mn1:178.1": {
+          "scid": "mn1:178.1",
+          "pli": "brahmaṁ … ",
+          "fr": "Brahmā… ",
+          "ref": "the Divinity … "
+        },
+        "mn1:179.1": {
+          "scid": "mn1:179.1",
+          "pli": "ābhassare … ",
+          "fr": "les dieux de l’éclat rayonnant… ",
+          "ref": "those of streaming radiance … "
+        },
+        "mn1:180.1": {
+          "scid": "mn1:180.1",
+          "pli": "subhakiṇhe … ",
+          "fr": "les dieux comblés de gloire… ",
+          "ref": "those replete with glory … "
+        },
+        "mn1:181.1": {
+          "scid": "mn1:181.1",
+          "pli": "vehapphale … ",
+          "fr": "les dieux du grand fruit… ",
+          "ref": "those of abundant fruit … "
+        },
+        "mn1:182.1": {
+          "scid": "mn1:182.1",
+          "pli": "abhibhuṁ … ",
+          "fr": "le Souverain… ",
+          "ref": "the Vanquisher … "
+        },
+        "mn1:183.1": {
+          "scid": "mn1:183.1",
+          "pli": "ākāsānañcāyatanaṁ … ",
+          "fr": "la dimension de l’espace infini… ",
+          "ref": "the dimension of infinite space … "
+        },
+        "mn1:184.1": {
+          "scid": "mn1:184.1",
+          "pli": "viññāṇañcāyatanaṁ … ",
+          "fr": "la dimension de la conscience infinie… ",
+          "ref": "the dimension of infinite consciousness … "
+        },
+        "mn1:185.1": {
+          "scid": "mn1:185.1",
+          "pli": "ākiñcaññāyatanaṁ … ",
+          "fr": "la dimension du néant… ",
+          "ref": "the dimension of nothingness … "
+        },
+        "mn1:186.1": {
+          "scid": "mn1:186.1",
+          "pli": "nevasaññānāsaññāyatanaṁ … ",
+          "fr": "la dimension ni de perception ni de non-perception… ",
+          "ref": "the dimension of neither perception nor non-perception … "
+        },
+        "mn1:187.1": {
+          "scid": "mn1:187.1",
+          "pli": "diṭṭhaṁ … ",
+          "fr": "le vu… ",
+          "ref": "the seen … "
+        },
+        "mn1:188.1": {
+          "scid": "mn1:188.1",
+          "pli": "sutaṁ … ",
+          "fr": "l’entendu… ",
+          "ref": "the heard … "
+        },
+        "mn1:189.1": {
+          "scid": "mn1:189.1",
+          "pli": "mutaṁ … ",
+          "fr": "le pensé… ",
+          "ref": "the thought … "
+        },
+        "mn1:190.1": {
+          "scid": "mn1:190.1",
+          "pli": "viññātaṁ … ",
+          "fr": "le connu… ",
+          "ref": "the known … "
+        },
+        "mn1:191.1": {
+          "scid": "mn1:191.1",
+          "pli": "ekattaṁ … ",
+          "fr": "l’unité… ",
+          "ref": "oneness … "
+        },
+        "mn1:192.1": {
+          "scid": "mn1:192.1",
+          "pli": "nānattaṁ … ",
+          "fr": "la diversité… ",
+          "ref": "diversity … "
+        },
+        "mn1:193.1": {
+          "scid": "mn1:193.1",
+          "pli": "sabbaṁ … ",
+          "fr": "le tout… ",
+          "ref": "all … "
+        },
+        "mn1:194.1": {
+          "scid": "mn1:194.1",
+          "pli": "nibbānaṁ nibbānato abhijānāti; ",
+          "fr": "Il reconnaît directement l’extinction en tant qu’extinction. ",
+          "ref": "He directly knows extinguishment as extinguishment. "
+        },
+        "mn1:194.2": {
+          "scid": "mn1:194.2",
+          "pli": "nibbānaṁ nibbānato abhiññāya nibbānaṁ na maññati, nibbānasmiṁ na maññati, nibbānato na maññati, nibbānaṁ meti na maññati, nibbānaṁ nābhinandati. ",
+          "fr": "Ayant directement reconnu l’extinction comme extinction, il ne la conçoit pas comme extinction, il ne la conçoit pas dans l’extinction, il ne la conçoit pas comme extinction, il ne conçoit pas que ‹ l’extinction est à moi ›. Il ne prend pas plaisir dans l’extinction. ",
+          "ref": "Having directly known extinguishment as extinguishment, he does not conceive it to be extinguishment, he does not conceive it in extinguishment, he does not conceive it as extinguishment, he does not conceive that ‘extinguishment is mine’, he does not approve extinguishment. "
+        },
+        "mn1:194.3": {
+          "scid": "mn1:194.3",
+          "pli": "Taṁ kissa hetu? ",
+          "fr": "Pourquoi cela ? ",
+          "ref": "Why is that? "
+        },
+        "mn1:194.4": {
+          "scid": "mn1:194.4",
+          "pli": "‘Nandī dukkhassa mūlan’ti—",
+          "fr": "Parce qu’il a compris que prendre plaisir est la <span class=\"scv-matched\">racine de la souffrance</span>, ",
+          "ref": "Because he has understood that approval is the root of suffering, ",
+          "matched": true
+        },
+        "mn1:194.5": {
+          "scid": "mn1:194.5",
+          "pli": "iti viditvā ‘bhavā jāti bhūtassa jarāmaraṇan’ti. ",
+          "fr": "et que la renaissance vient de l’existence continue ; quiconque est venu à l’existence vieillit et meurt. ",
+          "ref": "and that rebirth comes from continued existence; whoever has come to be gets old and dies. "
+        },
+        "mn1:194.6": {
+          "scid": "mn1:194.6",
+          "pli": "Tasmātiha, bhikkhave, ‘tathāgato sabbaso taṇhānaṁ khayā virāgā nirodhā cāgā paṭinissaggā anuttaraṁ sammāsambodhiṁ abhisambuddho’ti vadāmī”ti. ",
+          "fr": "C’est pourquoi le Réalisé — avec la fin, le déclin, la cessation, l’abandon et le lâcher-prise de toutes les envies — s’est éveillé à l’éveil parfait suprême, dis-je. » ",
+          "ref": "That’s why the Realized One—with the ending, fading away, cessation, giving up, and letting go of all cravings—has awakened to the supreme perfect Awakening, I say.” "
+        },
+        "mn1:194.7": {
+          "scid": "mn1:194.7",
+          "pli": "Tathāgatavasena aṭṭhamanayabhūmiparicchedo niṭṭhito. "
+        },
+        "mn1:194.8": {
+          "scid": "mn1:194.8",
+          "pli": "Idamavoca bhagavā. ",
+          "fr": "C’est ce que le Bouddha a dit. ",
+          "ref": "That is what the Buddha said. "
+        },
+        "mn1:194.9": {
+          "scid": "mn1:194.9",
+          "pli": "Na te bhikkhū bhagavato bhāsitaṁ abhinandunti. ",
+          "fr": "Mais les monastiques ne prirent aucun plaisir dans ce que le Bouddha a déclaré. ",
+          "ref": "But the mendicants did not approve what the Buddha said. "
+        },
+        "mn1:194.10": {
+          "scid": "mn1:194.10",
+          "pli": "Mūlapariyāyasuttaṁ niṭṭhitaṁ paṭhamaṁ. "
+        }
+      },
+      "author_uid": "noeismet",
+      "bilaraPaths": [
+        "root/pli/ms/sutta/mn/mn1_root-pli-ms.json",
+        "translation/en/sujato/sutta/mn/mn1_translation-en-sujato.json",
+        "translation/fr/noeismet/sutta/mn/mn1_translation-fr-noeismet.json"
+      ],
+      "category": "sutta",
+      "footer": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "hyphen": "­",
+      "lang": "fr",
+      "langSegs": {
+        "pli": 334,
+        "fr": 325,
+        "ref": 325
+      },
+      "maxWord": 30,
+      "minWord": 5,
+      "score": 2.006,
+      "segsMatched": 2,
+      "sutta_uid": "mn1",
+      "title": "Discours de Longueur Moyenne 1\nLa racine de toutes choses",
+      "type": "translation",
+      "trilingual": true,
+      "docLang": "fr",
+      "docAuthor": "noeismet",
+      "docAuthorName": "Noé Ismet",
+      "docFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>",
+      "refLang": "en",
+      "refAuthor": "sujato",
+      "refAuthorName": "Bhikkhu Sujato",
+      "refFooter": "<a href=\"https://suttacentral.net/licensing\" target=\"_blank\">SuttaCentral</a>"
+    }
+  ],
+  "refLang": "en",
+  "refAuthor": "sujato",
+  "docLang": "fr",
+  "docAuthor": "noeismet",
+  "trilingual": true
+}

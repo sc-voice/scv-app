@@ -179,3 +179,12 @@ cd scv-core && swift test --filter CardTests
 02. [x] Update CFBundleDisplayName to "SCV-Demo"
 03. [x] Build and verify display name appears as "SCV-Demo"
 04. [x] Run make test to verify no regressions
+
+### Fix French sutta not showing in scv-demo-ios
+**Status**: Complete
+
+01. [x] Verify fr.lproj is registered in scv-core Package.swift resources
+02. [x] Examine SearchResponse.createMockResponse(language:) implementation
+03. [x] Check ContentView.loadMockResponse() uses Settings.shared.docLang
+04. [x] Test with Settings.docLang set to French
+05. [x] Run make test to verify no regressions

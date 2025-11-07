@@ -628,9 +628,42 @@ struct SearchResponseTests {
             "German segment should contain 'Buddha im Land der Maller' in doc field")
   }
 
+  @Test func testCreateMockResponseFrench() async throws {
+    // Load French mock response
+    let mockResponse = SearchResponse.createMockResponse(language: "fr")
+
+    // Verify it loaded successfully
+    #expect(mockResponse != nil, "createMockResponse(language: \"fr\") should load mock-response-fr.json")
+
+    guard let response = mockResponse else {
+      return
+    }
+
+    // Verify it's a valid SearchResponse with French content
+    #expect(response.mlDocs.count > 0, "French mock response should have documents")
+    #expect(response.segsMatched > 0, "French mock response should have matched segments")
+
+    // Verify segments actually contain French text from the FR mock file
+    guard let firstDoc = response.mlDocs.first else {
+      #expect(Bool(false), "Should have at least one document")
+      return
+    }
+
+    // Check for specific French text that exists in mock-response-fr.json
+    let segment0_1 = firstDoc.segMap["sn42.11:0.1"]
+    #expect(segment0_1 != nil, "Should have segment sn42.11:0.1")
+    #expect(segment0_1?.doc?.contains("Discours Groupés") == true,
+            "French segment should contain 'Discours Groupés' in doc field")
+
+    let segment1_1 = firstDoc.segMap["sn42.11:1.1"]
+    #expect(segment1_1 != nil, "Should have segment sn42.11:1.1")
+    #expect(segment1_1?.doc?.contains("le Bouddha séjournait dans le pays des Mallas") == true,
+            "French segment should contain 'le Bouddha séjournait dans le pays des Mallas' in doc field")
+  }
+
   @Test func testCreateMockResponseLanguageFallback() async throws {
     // Request non-existent language should fall back to English
-    let mockResponse = SearchResponse.createMockResponse(language: "fr")
+    let mockResponse = SearchResponse.createMockResponse(language: "xx")
 
     // Should fall back to English
     #expect(mockResponse != nil, "createMockResponse() should fall back to English for unsupported language")
