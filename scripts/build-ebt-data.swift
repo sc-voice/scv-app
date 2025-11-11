@@ -30,20 +30,28 @@ guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
 
 defer { sqlite3_close(db) }
 
-// Create schema
+// Create schema - segment-level indexing
 let schema = """
-CREATE TABLE translations (
-  key TEXT PRIMARY KEY,
-  json TEXT NOT NULL
+CREATE TABLE suttas (
+  sutta_key TEXT PRIMARY KEY,
+  total_segments INTEGER
 );
 
-CREATE VIRTUAL TABLE translations_fts USING fts5(
-  key UNINDEXED,
-  json
+CREATE TABLE segments (
+  sutta_key TEXT,
+  segment_id TEXT,
+  segment_text TEXT
 );
 
-CREATE TRIGGER translations_ai AFTER INSERT ON translations BEGIN
-  INSERT INTO translations_fts(key, json) VALUES (new.key, new.json);
+CREATE VIRTUAL TABLE segments_fts USING fts5(
+  sutta_key UNINDEXED,
+  segment_id UNINDEXED,
+  segment_text
+);
+
+CREATE TRIGGER segments_ai AFTER INSERT ON segments BEGIN
+  INSERT INTO segments_fts(sutta_key, segment_id, segment_text)
+  VALUES (new.sutta_key, new.segment_id, new.segment_text);
 END;
 """
 
@@ -55,18 +63,23 @@ if sqlite3_exec(db, schema, nil, nil, &errorMessage) != SQLITE_OK {
   exit(1)
 }
 
-// Collections
-let collections = ["an", "dn", "kn", "mn", "sn"]
-var insertedCount = 0
-let insertStatement = "INSERT INTO translations (key, json) VALUES (?, ?)"
-var stmt: OpaquePointer?
+// Prepare insert statements
+let insertSuttaStatement = "INSERT OR IGNORE INTO suttas (sutta_key, total_segments) VALUES (?, ?)"
+let insertSegmentStatement = "INSERT INTO segments (sutta_key, segment_id, segment_text) VALUES (?, ?, ?)"
 
-guard sqlite3_prepare_v2(db, insertStatement, -1, &stmt, nil) == SQLITE_OK else {
-  print("ERROR: Cannot prepare insert statement")
+var suttaStmt: OpaquePointer?
+var segmentStmt: OpaquePointer?
+
+guard sqlite3_prepare_v2(db, insertSuttaStatement, -1, &suttaStmt, nil) == SQLITE_OK,
+      sqlite3_prepare_v2(db, insertSegmentStatement, -1, &segmentStmt, nil) == SQLITE_OK else {
+  print("ERROR: Cannot prepare insert statements")
   exit(1)
 }
 
-defer { sqlite3_finalize(stmt) }
+defer {
+  sqlite3_finalize(suttaStmt)
+  sqlite3_finalize(segmentStmt)
+}
 
 // Recursive function to find all JSON files
 func findJSONFiles(inDirectory dir: String) -> [String] {
@@ -89,6 +102,11 @@ func findJSONFiles(inDirectory dir: String) -> [String] {
   return files
 }
 
+// Collections
+let collections = ["an", "dn", "kn", "mn", "sn"]
+var insertedSegments = 0
+var processedSuttas = 0
+
 // Process each collection
 for collection in collections {
   let collectionPath = "\(sourceDir)/\(collection)"
@@ -105,7 +123,7 @@ for collection in collections {
       continue
     }
 
-    let key = "en/sujato/\(scid)"
+    let suttaKey = "en/sujato/\(scid)"
 
     // Read JSON file
     guard let jsonData = try? Data(contentsOf: URL(fileURLWithPath: filePath)),
@@ -114,20 +132,50 @@ for collection in collections {
       continue
     }
 
-    // Insert into database
-    sqlite3_bind_text(stmt, 1, (key as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (jsonString as NSString).utf8String, -1, nil)
-
-    if sqlite3_step(stmt) != SQLITE_DONE {
-      print("ERROR: Insert failed for key \(key)")
-      exit(1)
+    // Parse JSON to extract segments
+    guard let jsonObject = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+      print("WARNING: Cannot parse JSON in \(fileName)")
+      continue
     }
 
-    sqlite3_reset(stmt)
-    insertedCount += 1
+    let segmentCount = jsonObject.count
 
-    if insertedCount % 500 == 0 {
-      print("  Inserted \(insertedCount) translations...")
+    // Insert sutta
+    sqlite3_bind_text(suttaStmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+    sqlite3_bind_int(suttaStmt, 2, Int32(segmentCount))
+
+    if sqlite3_step(suttaStmt) != SQLITE_DONE {
+      print("ERROR: Insert failed for sutta \(suttaKey)")
+      exit(1)
+    }
+    sqlite3_reset(suttaStmt)
+
+    // Insert segments
+    for (segmentId, value) in jsonObject.sorted(by: { $0.key < $1.key }) {
+      let segmentText: String
+      if let stringValue = value as? String {
+        segmentText = stringValue
+      } else if let numberValue = value as? NSNumber {
+        segmentText = numberValue.stringValue
+      } else {
+        continue
+      }
+
+      sqlite3_bind_text(segmentStmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(segmentStmt, 2, (segmentId as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(segmentStmt, 3, (segmentText as NSString).utf8String, -1, nil)
+
+      if sqlite3_step(segmentStmt) != SQLITE_DONE {
+        print("ERROR: Insert segment failed for \(suttaKey):\(segmentId)")
+        exit(1)
+      }
+      sqlite3_reset(segmentStmt)
+      insertedSegments += 1
+    }
+
+    processedSuttas += 1
+    if processedSuttas % 100 == 0 {
+      print("  Processed \(processedSuttas) suttas, \(insertedSegments) segments...")
     }
   }
 }
@@ -136,6 +184,6 @@ let elapsed = Date().timeIntervalSince(startTime)
 let dbSize = try? fileManager.attributesOfItem(atPath: dbPath)[.size] as? Int ?? 0
 let dbSizeMB = Double(dbSize ?? 0) / 1_000_000
 
-print("SUCCESS: Inserted \(insertedCount) translations into \(dbPath)")
+print("SUCCESS: Processed \(processedSuttas) suttas, indexed \(insertedSegments) segments")
 print("  Database size: \(String(format: "%.1f", dbSizeMB)) MB")
 print("  Time elapsed: \(String(format: "%.2f", elapsed))s")

@@ -244,6 +244,7 @@ public class Settings: Codable {
     docSpeech = SpeechConfig(language: .default)
     isDarkModeEnabled = false
     lastApplicationVersion = ""
+    maxDoc = MAX_DOC_DEFAULT
     UserDefaults.standard.removeObject(forKey: "com.scv.settings")
   }
 }

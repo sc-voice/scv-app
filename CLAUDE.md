@@ -188,3 +188,15 @@ cd scv-core && swift test --filter CardTests
 03. [x] Check ContentView.loadMockResponse() uses Settings.shared.docLang
 04. [x] Test with Settings.docLang set to French
 05. [x] Run make test to verify no regressions
+
+### Add phrase-based search filtering to EbtData
+**Status**: Complete
+
+01. [x] Identify false positives in keyword search (an4.257, mn9 for "root of suffering")
+02. [x] Verify an4.257 doesn't contain exact phrase "root of suffering"
+03. [x] Implement searchPhrase() two-step filtering (keyword + phrase match)
+04. [x] Add searchKeywordsWithScores() helper for debugging/display
+05. [x] Fix Settings.reset() to include maxDoc reset
+06. [x] Write tests for phrase search functionality
+07. [x] Display search results with scores and timing (0.033 seconds total)
+08. [x] Verify all 228 tests pass

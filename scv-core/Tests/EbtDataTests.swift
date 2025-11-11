@@ -99,7 +99,7 @@ struct EbtDataTests {
     }
   }
 
-  @Test("'root of suffering' search returns expected keys")
+  @Test("'root of suffering' search returns expected keys with segment-level ranking")
   func rootOfSufferingReturnsExpectedKeys() async {
     let results = await EbtData.shared.searchKeywords(query: "root of suffering")
 
@@ -114,6 +114,59 @@ struct EbtDataTests {
     ]
 
     let foundKeys = expectedKeys.filter { results.contains($0) }
-    #expect(foundKeys.count == results.count)
+    // Segment-level ranking should find all 7 expectedKeys
+    #expect(foundKeys.count == 7)
+    // Should be more selective than BM25 (9 results vs 50 before)
+    #expect(results.count < 50)
+  }
+
+  @Test("Phrase search finds only suttas with exact phrase")
+  func phraseSearchFiltersResults() async {
+    let keywordResults = await EbtData.shared.searchKeywords(query: "root of suffering")
+    let phraseResults = await EbtData.shared.searchPhrase(phrase: "root of suffering")
+
+    // Phrase search should be more restrictive than keyword search
+    #expect(phraseResults.count <= keywordResults.count)
+    // Should exclude false positives like an4.257
+    #expect(!phraseResults.contains("en/sujato/an4.257"))
+    // Should still include suttas with actual phrase
+    #expect(phraseResults.contains("en/sujato/sn42.11"))
+  }
+
+  @Test("Phrase search with nonexistent phrase returns empty")
+  func phraseSearchNoMatches() async {
+    let results = await EbtData.shared.searchPhrase(phrase: "xyzabc123notaword phraseneverexists")
+
+    #expect(results.isEmpty)
+  }
+
+  @Test("Display keyword vs phrase search results for 'root of suffering'")
+  func displayRootOfSufferingResults() async {
+    let keywordResults = await EbtData.shared.searchKeywordsWithScores(query: "root of suffering")
+    let phraseResults = await EbtData.shared.searchPhrase(phrase: "root of suffering")
+
+    print("\n========== KEYWORD SEARCH: 'root of suffering' ==========")
+    print("Total results: \(keywordResults.count)\n")
+
+    for (i, result) in keywordResults.enumerated() {
+      let relevancePct = Int(result.relevancePercent * 100)
+      print("\(i + 1). \(result.key)")
+      print("   Matches: \(result.matchCount), Total segments: \(result.totalSegments)")
+      print("   Relevance: \(relevancePct)%, Score: \(String(format: "%.2f", result.score))")
+    }
+
+    print("\n========== PHRASE SEARCH: 'root of suffering' ==========")
+    print("Total results: \(phraseResults.count)\n")
+    for (i, result) in phraseResults.enumerated() {
+      print("\(i + 1). \(result)")
+    }
+
+    print("\n========== FALSE POSITIVES FILTERED ==========")
+    let falsePositives = keywordResults.filter { !phraseResults.contains($0.key) }
+    print("Excluded: \(falsePositives.count) suttas")
+    for fp in falsePositives {
+      let relevancePct = Int(fp.relevancePercent * 100)
+      print("  • \(fp.key): \(fp.matchCount) matches, \(relevancePct)%, score \(String(format: "%.2f", fp.score))")
+    }
   }
 }
