@@ -9,5 +9,6 @@ DerivedData/
 **/*.xcodeproj/xcuserdata/
 .commit-msg
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3

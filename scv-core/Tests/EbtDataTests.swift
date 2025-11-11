@@ -6,7 +6,7 @@ struct EbtDataTests {
   @Test("Get translation by key returns JSON string")
   func getTranslationByKey() async {
     let key = "en/sujato/mn1"
-    let json = await EbtData.shared.getTranslation(key: key)
+    let json = await EbtData.shared.getTranslation(suttaKey: key)
 
     #expect(json != nil)
     #expect(json?.contains("mn1") ?? false)
@@ -14,14 +14,14 @@ struct EbtDataTests {
 
   @Test("Get translation with invalid key returns nil")
   func getTranslationInvalidKey() async {
-    let json = await EbtData.shared.getTranslation(key: "en/sujato/invalid999999")
+    let json = await EbtData.shared.getTranslation(suttaKey: "en/sujato/invalid999999")
 
     #expect(json == nil)
   }
 
   @Test("Keyword search finds matching translations")
   func keywordSearchMatches() async {
-    let results = await EbtData.shared.searchKeywords(query: "suffering")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "suffering")
 
     #expect(!results.isEmpty)
     #expect(results.count > 0)
@@ -29,7 +29,7 @@ struct EbtDataTests {
 
   @Test("Keyword search returns keys in correct format")
   func keywordSearchKeyFormat() async {
-    let results = await EbtData.shared.searchKeywords(query: "root")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "root")
 
     for key in results {
       #expect(key.hasPrefix("en/sujato/"))
@@ -38,21 +38,21 @@ struct EbtDataTests {
 
   @Test("Keyword search with nonexistent term returns empty")
   func keywordSearchNoMatches() async {
-    let results = await EbtData.shared.searchKeywords(query: "xyzabc123notaword")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "xyzabc123notaword")
 
     #expect(results.isEmpty)
   }
 
   @Test("Regexp search finds matching translations")
   func regexpSearchMatches() async {
-    let results = await EbtData.shared.searchRegexp(pattern: "suffering.*root")
+    let results = await EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern: "suffering.*root")
 
     #expect(!results.isEmpty)
   }
 
   @Test("Regexp search returns keys in correct format")
   func regexpSearchKeyFormat() async {
-    let results = await EbtData.shared.searchRegexp(pattern: "buddha|mendicant")
+    let results = await EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern: "buddha|mendicant")
 
     for key in results {
       #expect(key.hasPrefix("en/sujato/"))
@@ -61,7 +61,7 @@ struct EbtDataTests {
 
   @Test("Regexp search with invalid pattern returns empty")
   func regexpSearchInvalidPattern() async {
-    let results = await EbtData.shared.searchRegexp(pattern: "[invalid(pattern")
+    let results = await EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern: "[invalid(pattern")
 
     #expect(results.isEmpty)
   }
@@ -72,7 +72,7 @@ struct EbtDataTests {
     defer { Settings.shared.maxDoc = originalMaxDoc }
 
     Settings.shared.maxDoc = 5
-    let results = await EbtData.shared.searchKeywords(query: "the")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "the")
 
     #expect(results.count <= 5)
   }
@@ -80,7 +80,7 @@ struct EbtDataTests {
   @Test("Key lookup for known translation succeeds")
   func knownTranslationRetrieval() async {
     let key = "en/sujato/mn1"
-    let json = await EbtData.shared.getTranslation(key: key)
+    let json = await EbtData.shared.getTranslation(suttaKey: key)
 
     #expect(json != nil)
     // Verify it contains expected JSON structure
@@ -89,7 +89,7 @@ struct EbtDataTests {
 
   @Test("Search for 'root of suffering' finds translations")
   func rootOfSufferingSearch() async {
-    let results = await EbtData.shared.searchKeywords(query: "root of suffering")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "root of suffering")
 
     #expect(!results.isEmpty)
     #expect(results.count > 0)
@@ -101,7 +101,7 @@ struct EbtDataTests {
 
   @Test("'root of suffering' search returns expected keys with segment-level ranking")
   func rootOfSufferingReturnsExpectedKeys() async {
-    let results = await EbtData.shared.searchKeywords(query: "root of suffering")
+    let results = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "root of suffering")
 
     let expectedKeys = [
       "en/sujato/sn42.11",
@@ -122,8 +122,8 @@ struct EbtDataTests {
 
   @Test("Phrase search finds only suttas with exact phrase")
   func phraseSearchFiltersResults() async {
-    let keywordResults = await EbtData.shared.searchKeywords(query: "root of suffering")
-    let phraseResults = await EbtData.shared.searchPhrase(phrase: "root of suffering")
+    let keywordResults = await EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "root of suffering")
+    let phraseResults = await EbtData.shared.searchPhrase(lang: "en", author: "sujato", phrase: "root of suffering")
 
     // Phrase search should be more restrictive than keyword search
     #expect(phraseResults.count <= keywordResults.count)
@@ -135,15 +135,15 @@ struct EbtDataTests {
 
   @Test("Phrase search with nonexistent phrase returns empty")
   func phraseSearchNoMatches() async {
-    let results = await EbtData.shared.searchPhrase(phrase: "xyzabc123notaword phraseneverexists")
+    let results = await EbtData.shared.searchPhrase(lang: "en", author: "sujato", phrase: "xyzabc123notaword phraseneverexists")
 
     #expect(results.isEmpty)
   }
 
   @Test("Display keyword vs phrase search results for 'root of suffering'")
   func displayRootOfSufferingResults() async {
-    let keywordResults = await EbtData.shared.searchKeywordsWithScores(query: "root of suffering")
-    let phraseResults = await EbtData.shared.searchPhrase(phrase: "root of suffering")
+    let keywordResults = await EbtData.shared.searchKeywordsWithScores(lang: "en", author: "sujato", query: "root of suffering")
+    let phraseResults = await EbtData.shared.searchPhrase(lang: "en", author: "sujato", phrase: "root of suffering")
 
     print("\n========== KEYWORD SEARCH: 'root of suffering' ==========")
     print("Total results: \(keywordResults.count)\n")

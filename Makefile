@@ -6,19 +6,19 @@ SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|✓)'
 
-# Build ebt-data.db if it doesn't exist
-scv-core/Resources/ebt-data.db:
-	@echo "Building ebt-data.db..."
-	@swift Scripts/build-ebt-data.swift
+# Build per-author databases if they don't exist
+scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db:
+	@echo "Building per-author databases..."
+	@scripts/build-ebt-data en:sujato de:sabbamitta
 
-# Force rebuild ebt-data.db
+# Force rebuild per-author databases
 build-ebt-data-db:
-	@rm -f scv-core/Resources/ebt-data.db
-	@$(MAKE) scv-core/Resources/ebt-data.db
+	@rm -f scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db
+	@$(MAKE) scv-core/Resources/ebt-en-sujato.db
 
 test: test-all
 
-test-all: scv-core/Resources/ebt-data.db
+test-all: scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db
 	@mkdir -p local
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" > local/test-all.log
 	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \
@@ -38,7 +38,7 @@ test-demo-ios:
 	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
 build: build-core build-demo-ios
-	@swift scripts/version.swift patch
+	@scripts/version patch
 
 build-core:
 	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
@@ -72,13 +72,13 @@ scv-demo-ios: clean build
 	@open scv-demo-iOS/scv-demo-ios.xcodeproj
 
 version-major:
-	@swift scripts/version.swift major
+	@scripts/version major
 
 version-minor:
-	@swift scripts/version.swift minor
+	@scripts/version minor
 
 version-patch:
-	@swift scripts/version.swift patch
+	@scripts/version patch
 
 commit:
 	@if [ ! -f .commit-msg ]; then \
@@ -113,7 +113,7 @@ help:
 	@echo "  make build             Build all (core and iOS)"
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-demo-ios    Build iOS app (increments patch version)"
-	@echo "  make build-ebt-data-db Force rebuild ebt-data.db from source"
+	@echo "  make build-ebt-data-db Force rebuild per-author databases from source"
 	@echo "  make clean             Clean all build artifacts"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-ui          Clean scv-ui package"

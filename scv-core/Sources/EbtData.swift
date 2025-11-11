@@ -1,25 +1,28 @@
 import Foundation
 import SQLite3
 
-/// Actor providing access to ebt-data.db SQLite database with en/sujato translations
+/// Actor providing access to per-author SQLite databases (ebt-{lang}-{author}.db)
+/// Each author has separate database containing segments and metadata
 /// Actor ensures thread-safe single-threaded access to SQLite
 public actor EbtData {
   public static let shared = EbtData()
 
-  // Safe: OpaquePointer is only accessed within actor-isolated methods and deinit.
-  // Actor serialization ensures only one task accesses db at a time.
-  private nonisolated(unsafe) var db: OpaquePointer?
+  // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
+  // Actor serialization ensures only one task accesses databases at a time.
+  // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
+  private nonisolated(unsafe) var databases: [String: OpaquePointer?] = [:]
 
   private init() {}
 
   // MARK: - Database Connection
 
-  /// Lazily opens database connection on first access
-  private func ensureDatabase() throws {
-    guard db == nil else { return }
+  /// Lazily opens database connection for specific author on first access
+  private func ensureDatabase(lang: String, author: String) throws {
+    let key = "\(lang)/\(author)"
+    guard databases[key] == nil else { return }
 
-    guard let resourceURL = Bundle.module.url(forResource: "ebt-data", withExtension: "db") else {
-      throw EbtDataError.databaseNotFound
+    guard let resourceURL = Bundle.module.url(forResource: "ebt-\(lang)-\(author)", withExtension: "db") else {
+      throw EbtDataError.databaseNotFound(lang: lang, author: author)
     }
 
     var database: OpaquePointer?
@@ -31,28 +34,44 @@ public actor EbtData {
     )
 
     guard result == SQLITE_OK else {
-      throw EbtDataError.cannotOpenDatabase
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
 
-    db = database
+    databases[key] = database
   }
 
   deinit {
     // Safe: Actor has no remaining references when deinit runs.
-    // db property is nonisolated(unsafe) but only accessed here and in actor methods.
+    // databases dictionary is nonisolated(unsafe) but only accessed here and in actor methods.
     // sqlite3_close must be called on same thread that opened connection.
-    if let database = db {
-      sqlite3_close(database)
+    for (_, database) in databases {
+      if let db = database {
+        sqlite3_close(db)
+      }
     }
   }
 
   // MARK: - Key-based Retrieval
 
   /// Returns concatenated segments as JSON-like string for given key (e.g., "en/sujato/mn1")
-  public func getTranslation(key: String) -> String? {
+  /// Backwards compatible: parses lang and author from key
+  public func getTranslation(suttaKey: String) -> String? {
+    let components = suttaKey.split(separator: "/").map(String.init)
+    guard components.count >= 3 else { return nil }
+
+    let lang = components[0]
+    let author = components[1]
+    let suttaId = components.dropFirst(2).joined(separator: "/")
+
+    return getTranslation(lang: lang, author: author, suttaId: suttaId)
+  }
+
+  /// Returns concatenated segments as JSON-like string for explicit language/author/suttaId
+  public func getTranslation(lang: String, author: String, suttaId: String) -> String? {
     do {
-      try ensureDatabase()
-      guard let db = db else { return nil }
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return nil }
 
       let query = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
       var stmt: OpaquePointer?
@@ -63,7 +82,9 @@ public actor EbtData {
 
       defer { sqlite3_finalize(stmt) }
 
-      sqlite3_bind_text(stmt, 1, (key as NSString).utf8String, -1, nil)
+      // Construct full sutta_key for query: lang/author/suttaId
+      let fullSuttaKey = "\(lang)/\(author)/\(suttaId)"
+      sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
 
       var segments: [(String, String)] = []
       while sqlite3_step(stmt) == SQLITE_ROW {
@@ -98,16 +119,17 @@ public actor EbtData {
 
   /// Returns sutta keys ranked by relevance percentage (matching_segments / total_segments)
   /// Respects Settings.maxDoc limit
-  public func searchKeywords(query: String) -> [String] {
-    return searchKeywordsWithScores(query: query).map { $0.key }
+  public func searchKeywords(lang: String, author: String, query: String) -> [String] {
+    return searchKeywordsWithScores(lang: lang, author: author, query: query).map { $0.key }
   }
 
   /// Returns sutta keys with match counts and scores for debugging/display
   /// Internal helper that includes scoring details
-  func searchKeywordsWithScores(query: String) -> [(key: String, matchCount: Int, totalSegments: Int, relevancePercent: Double, score: Double)] {
+  func searchKeywordsWithScores(lang: String, author: String, query: String) -> [(key: String, matchCount: Int, totalSegments: Int, relevancePercent: Double, score: Double)] {
     do {
-      try ensureDatabase()
-      guard let db = db else { return [] }
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return [] }
 
       let limit = Settings.shared.maxDoc
 
@@ -159,18 +181,18 @@ public actor EbtData {
   /// Returns sutta keys ranked by relevance percentage (matching_segments / total_segments)
   /// Filters keyword search results to only those containing exact phrase
   /// Respects Settings.maxDoc limit
-  public func searchPhrase(phrase: String) -> [String] {
+  public func searchPhrase(lang: String, author: String, phrase: String) -> [String] {
     do {
-      try ensureDatabase()
+      try ensureDatabase(lang: lang, author: author)
 
       // Step 1: Get keyword search results (all words present)
-      let keywordResults = searchKeywords(query: phrase)
+      let keywordResults = searchKeywords(lang: lang, author: author, query: phrase)
 
       // Step 2: Filter to only those containing exact phrase
       var phraseMatches: [String] = []
 
       for suttaKey in keywordResults {
-        if containsPhrase(suttaKey: suttaKey, phrase: phrase) {
+        if containsPhrase(lang: lang, author: author, suttaKey: suttaKey, phrase: phrase) {
           phraseMatches.append(suttaKey)
         }
       }
@@ -182,10 +204,11 @@ public actor EbtData {
   }
 
   /// Helper: Check if sutta contains exact phrase in any segment
-  private func containsPhrase(suttaKey: String, phrase: String) -> Bool {
+  private func containsPhrase(lang: String, author: String, suttaKey: String, phrase: String) -> Bool {
     do {
-      try ensureDatabase()
-      guard let db = db else { return false }
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return false }
 
       // Query all segments for this sutta
       let query = "SELECT segment_text FROM segments WHERE sutta_key = ?"
@@ -220,10 +243,11 @@ public actor EbtData {
   /// Returns sutta keys ranked by relevance percentage (matching_segments / total_segments)
   /// using regexp pattern matching on segment text
   /// Respects Settings.maxDoc limit
-  public func searchRegexp(pattern: String) -> [String] {
+  public func searchRegexp(lang: String, author: String, pattern: String) -> [String] {
     do {
-      try ensureDatabase()
-      guard let db = db else { return [] }
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return [] }
 
       // Compile regex
       let regex = try NSRegularExpression(pattern: pattern, options: [])
@@ -293,11 +317,79 @@ public actor EbtData {
       return []
     }
   }
+
+  // MARK: - Discovery Methods
+
+  /// Returns list of available (language, author) pairs
+  public func availableAuthors() -> [(lang: String, author: String)] {
+    // Discover from bundle resources by scanning for ebt-*.db files
+    var authors: [(lang: String, author: String)] = []
+
+    guard let resourceURLs = try? FileManager.default.contentsOfDirectory(
+      at: Bundle.module.resourceURL ?? URL(fileURLWithPath: "."),
+      includingPropertiesForKeys: nil
+    ) else {
+      return []
+    }
+
+    for url in resourceURLs {
+      let filename = url.lastPathComponent
+      if filename.hasPrefix("ebt-") && filename.hasSuffix(".db") {
+        // Format: ebt-{lang}-{author}.db
+        let parts = filename.dropFirst(4).dropLast(3).split(separator: "-")
+        if parts.count >= 2 {
+          let lang = String(parts[0])
+          let author = parts.dropFirst().joined(separator: "-")
+          authors.append((lang: lang, author: author))
+        }
+      }
+    }
+
+    return authors.sorted { ($0.lang, $0.author) < ($1.lang, $1.author) }
+  }
+
+  /// Returns metadata for specific author if available
+  public func metadata(lang: String, author: String) -> AuthorMetadata? {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return nil }
+
+      let query = "SELECT language, author FROM metadata LIMIT 1"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        return nil
+      }
+
+      defer { sqlite3_finalize(stmt) }
+
+      if sqlite3_step(stmt) == SQLITE_ROW {
+        if let langC = sqlite3_column_text(stmt, 0),
+           let authorC = sqlite3_column_text(stmt, 1) {
+          let metaLang = String(cString: langC)
+          let metaAuthor = String(cString: authorC)
+          return AuthorMetadata(language: metaLang, author: metaAuthor)
+        }
+      }
+
+      return nil
+    } catch {
+      return nil
+    }
+  }
+}
+
+// MARK: - Metadata Type
+
+public struct AuthorMetadata {
+  public let language: String
+  public let author: String
 }
 
 // MARK: - Error Type
 
 enum EbtDataError: Error {
-  case databaseNotFound
-  case cannotOpenDatabase
+  case databaseNotFound(lang: String, author: String)
+  case cannotOpenDatabase(lang: String, author: String)
 }

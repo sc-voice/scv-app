@@ -1,0 +1,339 @@
+#!/usr/bin/env swift
+
+import Foundation
+import SQLite3
+
+let fileManager = FileManager.default
+let startTime = Date()
+
+// Paths
+let projectRoot = ProcessInfo.processInfo.environment["PROJECT_ROOT"] ??
+  URL(fileURLWithPath: #file).deletingLastPathComponent().deletingLastPathComponent().path
+let translationDir = "\(projectRoot)/local/ebt-data/translation"
+let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
+let resourcesDir = "\(projectRoot)/scv-core/Resources"
+
+// Ensure Resources directory exists
+try? fileManager.createDirectory(atPath: resourcesDir, withIntermediateDirectories: true)
+
+// Load author information from _author.json
+var authorMap: [String: String] = [:]
+if let authorData = try? Data(contentsOf: URL(fileURLWithPath: authorFilePath)) {
+  if let authorDict = try? JSONSerialization.jsonObject(with: authorData) as? [String: [String: Any]] {
+    for (key, value) in authorDict {
+      if let name = value["name"] as? String {
+        authorMap[key] = name
+      }
+    }
+  }
+}
+
+// Get git hash from ebt-data repo if available
+func getEbtDataGitHash() -> String? {
+  let task = Process()
+  task.launchPath = "/bin/bash"
+  task.arguments = ["-c", "cd \(projectRoot)/local/ebt-data && git rev-parse HEAD 2>/dev/null"]
+  let pipe = Pipe()
+  task.standardOutput = pipe
+  do {
+    try task.run()
+    task.waitUntilExit()
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    if let hash = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+      return hash.isEmpty ? nil : hash
+    }
+  } catch {
+    return nil
+  }
+  return nil
+}
+
+let gitHash = getEbtDataGitHash()
+
+// Show help if no args provided
+if CommandLine.arguments.count <= 1 {
+  print("""
+  Build per-author SQLite databases for SC-Voice
+
+  USAGE:
+    swift build-ebt-data.swift <lang:author> [<lang:author> ...]
+
+  EXAMPLES:
+    swift build-ebt-data.swift en:sujato
+    swift build-ebt-data.swift en:sujato de:sabbamitta
+    swift build-ebt-data.swift fr:sekha it:giovannizappa
+
+  AVAILABLE AUTHORS:
+    English (en): brahmali, kelly, kovilo, soma, suddhaso, sujato
+    German (de): sabbamitta
+    French (fr): christelle, noeismet, sekha, wijayaratna
+    Italian (it): giovannizappa
+    + many others...
+
+  OUTPUT:
+    Databases are built to: scv-core/Resources/ebt-<lang>-<author>.db
+  """)
+  exit(0)
+}
+
+// Parse command-line arguments
+var selectedAuthors: [(lang: String, author: String)] = []
+for arg in CommandLine.arguments.dropFirst() {
+  let parts = arg.split(separator: ":").map(String.init)
+  if parts.count == 2 {
+    selectedAuthors.append((lang: parts[0], author: parts[1]))
+  } else {
+    print("ERROR: Invalid format '\(arg)'. Expected 'lang:author'")
+    print("Example: swift build-ebt-data.swift en:sujato de:sabbamitta")
+    exit(1)
+  }
+}
+
+print("Building selected databases: \(selectedAuthors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))")
+
+// Schema - segment-level indexing with metadata table
+let schema = """
+CREATE TABLE metadata (
+  language TEXT,
+  author TEXT,
+  git_hash TEXT,
+  build_timestamp TEXT,
+  PRIMARY KEY (language, author)
+);
+
+CREATE TABLE suttas (
+  sutta_key TEXT PRIMARY KEY,
+  total_segments INTEGER
+);
+
+CREATE TABLE segments (
+  sutta_key TEXT,
+  segment_id TEXT,
+  segment_text TEXT
+);
+
+CREATE VIRTUAL TABLE segments_fts USING fts5(
+  sutta_key UNINDEXED,
+  segment_id UNINDEXED,
+  segment_text
+);
+
+CREATE TRIGGER segments_ai AFTER INSERT ON segments BEGIN
+  INSERT INTO segments_fts(sutta_key, segment_id, segment_text)
+  VALUES (new.sutta_key, new.segment_id, new.segment_text);
+END;
+"""
+
+// Recursive function to find all JSON files
+func findJSONFiles(inDirectory dir: String) -> [String] {
+  var files: [String] = []
+  guard let contents = try? fileManager.contentsOfDirectory(atPath: dir) else {
+    return files
+  }
+
+  for item in contents {
+    let itemPath = "\(dir)/\(item)"
+    var isDir: ObjCBool = false
+    if fileManager.fileExists(atPath: itemPath, isDirectory: &isDir) {
+      if isDir.boolValue {
+        files.append(contentsOf: findJSONFiles(inDirectory: itemPath))
+      } else if item.hasSuffix(".json") {
+        files.append(itemPath)
+      }
+    }
+  }
+  return files
+}
+
+// Build timestamp
+let dateFormatter = ISO8601DateFormatter()
+let buildTimestamp = dateFormatter.string(from: Date())
+
+// Collections
+let collections = ["an", "dn", "kn", "mn", "sn"]
+
+// Discover language/author combinations
+var totalSuttas = 0
+var totalSegments = 0
+var builtCount = 0
+
+guard let languages = try? fileManager.contentsOfDirectory(atPath: translationDir) else {
+  print("ERROR: Cannot read translation directory")
+  exit(1)
+}
+
+for language in languages.sorted() {
+  let langPath = "\(translationDir)/\(language)"
+  var isDir: ObjCBool = false
+  guard fileManager.fileExists(atPath: langPath, isDirectory: &isDir), isDir.boolValue else {
+    continue
+  }
+
+  guard let authors = try? fileManager.contentsOfDirectory(atPath: langPath) else {
+    continue
+  }
+
+  for author in authors.sorted() {
+    // Skip if this author not selected
+    let isSelected = selectedAuthors.contains { $0.lang == language && $0.author == author }
+    if !isSelected {
+      continue
+    }
+
+    let authorPath = "\(langPath)/\(author)"
+    guard fileManager.fileExists(atPath: authorPath, isDirectory: &isDir), isDir.boolValue else {
+      continue
+    }
+
+    let suttaDir = "\(authorPath)/sutta"
+    guard fileManager.fileExists(atPath: suttaDir) else {
+      continue
+    }
+
+    let dbPath = "\(resourcesDir)/ebt-\(language)-\(author).db"
+    try? fileManager.removeItem(atPath: dbPath)
+
+    print("  Building ebt-\(language)-\(author).db...")
+
+    // SQLite3 setup for this author
+    var db: OpaquePointer?
+    guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
+      print("  ERROR: Cannot open database at \(dbPath)")
+      continue
+    }
+
+    defer { sqlite3_close(db) }
+
+    // Create schema
+    var errorMessage: UnsafeMutablePointer<CChar>?
+    if sqlite3_exec(db, schema, nil, nil, &errorMessage) != SQLITE_OK {
+      let message = String(cString: errorMessage!)
+      print("  ERROR: Schema creation failed: \(message)")
+      sqlite3_free(errorMessage)
+      continue
+    }
+
+    // Insert metadata
+    let metadataStatement = "INSERT INTO metadata (language, author, git_hash, build_timestamp) VALUES (?, ?, ?, ?)"
+    var metadataStmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, metadataStatement, -1, &metadataStmt, nil) == SQLITE_OK else {
+      print("  ERROR: Cannot prepare metadata statement")
+      continue
+    }
+
+    sqlite3_bind_text(metadataStmt, 1, (language as NSString).utf8String, -1, nil)
+    sqlite3_bind_text(metadataStmt, 2, (author as NSString).utf8String, -1, nil)
+    if let hash = gitHash {
+      sqlite3_bind_text(metadataStmt, 3, (hash as NSString).utf8String, -1, nil)
+    } else {
+      sqlite3_bind_null(metadataStmt, 3)
+    }
+    sqlite3_bind_text(metadataStmt, 4, (buildTimestamp as NSString).utf8String, -1, nil)
+
+    if sqlite3_step(metadataStmt) != SQLITE_DONE {
+      print("  ERROR: Metadata insert failed")
+      sqlite3_finalize(metadataStmt)
+      continue
+    }
+    sqlite3_finalize(metadataStmt)
+
+    // Prepare insert statements
+    let insertSuttaStatement = "INSERT OR IGNORE INTO suttas (sutta_key, total_segments) VALUES (?, ?)"
+    let insertSegmentStatement = "INSERT INTO segments (sutta_key, segment_id, segment_text) VALUES (?, ?, ?)"
+
+    var suttaStmt: OpaquePointer?
+    var segmentStmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(db, insertSuttaStatement, -1, &suttaStmt, nil) == SQLITE_OK,
+          sqlite3_prepare_v2(db, insertSegmentStatement, -1, &segmentStmt, nil) == SQLITE_OK else {
+      print("  ERROR: Cannot prepare insert statements")
+      continue
+    }
+
+    defer {
+      sqlite3_finalize(suttaStmt)
+      sqlite3_finalize(segmentStmt)
+    }
+
+    var authorSuttas = 0
+    var authorSegments = 0
+
+    // Process each collection
+    for collection in collections {
+      let collectionPath = "\(suttaDir)/\(collection)"
+      let jsonFiles = findJSONFiles(inDirectory: collectionPath)
+
+      for filePath in jsonFiles.sorted() {
+        let fileName = URL(fileURLWithPath: filePath).lastPathComponent
+
+        // Extract SCID from filename: "mn1_translation-en-sujato.json" → "mn1"
+        let baseName = (fileName as NSString).deletingPathExtension
+        let components = baseName.split(separator: "_").map(String.init)
+        guard let scid = components.first else {
+          continue
+        }
+
+        let suttaKey = "\(language)/\(author)/\(scid)"
+
+        // Read JSON file
+        guard let jsonData = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
+          continue
+        }
+
+        // Parse JSON to extract segments
+        guard let jsonObject = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+          continue
+        }
+
+        let segmentCount = jsonObject.count
+
+        // Insert sutta
+        sqlite3_bind_text(suttaStmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+        sqlite3_bind_int(suttaStmt, 2, Int32(segmentCount))
+
+        if sqlite3_step(suttaStmt) != SQLITE_DONE {
+          print("  ERROR: Insert failed for sutta \(suttaKey)")
+          continue
+        }
+        sqlite3_reset(suttaStmt)
+        authorSuttas += 1
+
+        // Insert segments
+        for (segmentId, value) in jsonObject.sorted(by: { $0.key < $1.key }) {
+          let segmentText: String
+          if let stringValue = value as? String {
+            segmentText = stringValue
+          } else if let numberValue = value as? NSNumber {
+            segmentText = numberValue.stringValue
+          } else {
+            continue
+          }
+
+          sqlite3_bind_text(segmentStmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+          sqlite3_bind_text(segmentStmt, 2, (segmentId as NSString).utf8String, -1, nil)
+          sqlite3_bind_text(segmentStmt, 3, (segmentText as NSString).utf8String, -1, nil)
+
+          if sqlite3_step(segmentStmt) != SQLITE_DONE {
+            continue
+          }
+          sqlite3_reset(segmentStmt)
+          authorSegments += 1
+        }
+      }
+    }
+
+    let dbSize = try? fileManager.attributesOfItem(atPath: dbPath)[.size] as? Int ?? 0
+    let dbSizeMB = Double(dbSize ?? 0) / 1_000_000
+
+    print("    ✓ \(authorSuttas) suttas, \(authorSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)")
+    totalSuttas += authorSuttas
+    totalSegments += authorSegments
+    builtCount += 1
+  }
+}
+
+let elapsed = Date().timeIntervalSince(startTime)
+
+print("\nSUCCESS: Built \(builtCount) author databases")
+print("  Total: \(totalSuttas) suttas, \(totalSegments) segments")
+print("  Time elapsed: \(String(format: "%.2f", elapsed))s")
