@@ -162,7 +162,6 @@ public actor EbtData {
   public func searchPhrase(phrase: String) -> [String] {
     do {
       try ensureDatabase()
-      guard let db = db else { return [] }
 
       // Step 1: Get keyword search results (all words present)
       let keywordResults = searchKeywords(query: phrase)
