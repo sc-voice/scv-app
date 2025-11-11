@@ -8,3 +8,6 @@ DerivedData/
 **/*.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
 .commit-msg
+*.db
+*.sqlite
+*.sqlite3
