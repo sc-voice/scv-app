@@ -1,14 +1,24 @@
 .PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios \
         clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios \
-        version-major version-minor version-patch commit
+        version-major version-minor version-patch commit build-ebt-data-db
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|✓)'
 
+# Build ebt-data.db if it doesn't exist
+scv-core/Resources/ebt-data.db:
+	@echo "Building ebt-data.db..."
+	@swift Scripts/build-ebt-data.swift
+
+# Force rebuild ebt-data.db
+build-ebt-data-db:
+	@rm -f scv-core/Resources/ebt-data.db
+	@$(MAKE) scv-core/Resources/ebt-data.db
+
 test: test-all
 
-test-all:
+test-all: scv-core/Resources/ebt-data.db
 	@mkdir -p local
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" > local/test-all.log
 	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \
@@ -103,6 +113,7 @@ help:
 	@echo "  make build             Build all (core and iOS)"
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-demo-ios    Build iOS app (increments patch version)"
+	@echo "  make build-ebt-data-db Force rebuild ebt-data.db from source"
 	@echo "  make clean             Clean all build artifacts"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-ui          Clean scv-ui package"

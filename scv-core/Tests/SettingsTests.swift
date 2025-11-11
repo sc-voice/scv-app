@@ -29,6 +29,7 @@ import Testing
     Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
+    Settings.shared.maxDoc = 10
 
     Settings.shared.reset()
 
@@ -37,6 +38,7 @@ import Testing
     #expect(Settings.shared.uiLang == .english)
     #expect(Settings.shared.isDarkModeEnabled == false)
     #expect(Settings.shared.lastApplicationVersion == "")
+    #expect(Settings.shared.maxDoc == MAX_DOC_DEFAULT)
   }
 
   // MARK: - Property Modification Tests
@@ -84,6 +86,22 @@ import Testing
     #expect(Settings.shared.lastApplicationVersion == "2.0.0")
   }
 
+  @Test func maxDocDefaultValue() {
+    Settings.shared.reset()
+
+    #expect(Settings.shared.maxDoc == MAX_DOC_DEFAULT)
+  }
+
+  @Test func modifyMaxDoc() {
+    Settings.shared.reset()
+    Settings.shared.maxDoc = 100
+
+    #expect(Settings.shared.maxDoc == 100)
+
+    Settings.shared.maxDoc = 10
+
+    #expect(Settings.shared.maxDoc == 10)
+  }
 
   // MARK: - Codable Tests
 
@@ -94,6 +112,7 @@ import Testing
     Settings.shared.uiLang = .italian
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "2.0.0"
+    Settings.shared.maxDoc = 75
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(Settings.shared)
@@ -104,6 +123,7 @@ import Testing
     #expect(json?["uiLang"] as? String == "it")
     #expect(json?["isDarkModeEnabled"] as? Bool == true)
     #expect(json?["lastApplicationVersion"] as? String == "2.0.0")
+    #expect(json?["maxDoc"] as? Int == 75)
   }
 
   @Test func decode() throws {
@@ -113,7 +133,8 @@ import Testing
       "refLang": "es",
       "uiLang": "fr",
       "isDarkModeEnabled": false,
-      "lastApplicationVersion": "1.5.0"
+      "lastApplicationVersion": "1.5.0",
+      "maxDoc": 25
     }
     """.data(using: .utf8)!
 
@@ -125,6 +146,7 @@ import Testing
     #expect(settings.uiLang == .french)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "1.5.0")
+    #expect(settings.maxDoc == 25)
   }
 
   @Test func decodeWithMissingFields() throws {
@@ -142,6 +164,7 @@ import Testing
     #expect(settings.uiLang == .english)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "")
+    #expect(settings.maxDoc == MAX_DOC_DEFAULT)
   }
 
   @Test func decodeWithInvalidLanguageCode() throws {
@@ -170,6 +193,7 @@ import Testing
     Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
+    Settings.shared.maxDoc = 35
 
     Settings.shared.save()
 
@@ -184,6 +208,7 @@ import Testing
     #expect(loadedSettings.uiLang == .spanish)
     #expect(loadedSettings.isDarkModeEnabled == true)
     #expect(loadedSettings.lastApplicationVersion == "1.0.0")
+    #expect(loadedSettings.maxDoc == 35)
   }
 
   @Test func allLanguagesIndependent() {

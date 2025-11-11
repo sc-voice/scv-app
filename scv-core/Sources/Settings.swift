@@ -8,6 +8,10 @@
 import Foundation
 import AVFoundation
 
+// MARK: - Constants
+
+let MAX_DOC_DEFAULT = 50
+
 // MARK: - SpeechConfig
 
 /// Configuration for speech synthesis (narration and accessibility voices)
@@ -81,6 +85,9 @@ public class Settings: Codable {
   /// Application version when last run
   public var lastApplicationVersion: String = ""
 
+  /// Maximum number of documents to return in search results
+  public var maxDoc: Int = MAX_DOC_DEFAULT
+
   // MARK: - Private Initialization
 
   private init() {
@@ -100,6 +107,7 @@ public class Settings: Codable {
     case docSpeech
     case isDarkModeEnabled
     case lastApplicationVersion
+    case maxDoc
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -112,6 +120,7 @@ public class Settings: Codable {
     try container.encode(docSpeech, forKey: .docSpeech)
     try container.encode(isDarkModeEnabled, forKey: .isDarkModeEnabled)
     try container.encode(lastApplicationVersion, forKey: .lastApplicationVersion)
+    try container.encode(maxDoc, forKey: .maxDoc)
   }
 
   public required init(from decoder: Decoder) throws {
@@ -135,6 +144,7 @@ public class Settings: Codable {
       self.docSpeech = try container.decodeIfPresent(SpeechConfig.self, forKey: .docSpeech) ?? SpeechConfig(language: .default)
       self.isDarkModeEnabled = try container.decodeIfPresent(Bool.self, forKey: .isDarkModeEnabled) ?? false
       self.lastApplicationVersion = try container.decodeIfPresent(String.self, forKey: .lastApplicationVersion) ?? ""
+      self.maxDoc = try container.decodeIfPresent(Int.self, forKey: .maxDoc) ?? MAX_DOC_DEFAULT
     default:
       // Unknown version: reset to defaults
       self.docLang = .default
@@ -144,6 +154,7 @@ public class Settings: Codable {
       self.docSpeech = SpeechConfig(language: .default)
       self.isDarkModeEnabled = false
       self.lastApplicationVersion = ""
+      self.maxDoc = MAX_DOC_DEFAULT
     }
 
     isInitializing = false

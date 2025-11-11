@@ -23,7 +23,8 @@ let package = Package(
         .copy("../Resources/en.lproj"),
         .copy("../Resources/pt-PT.lproj"),
         .copy("../Resources/fr.lproj"),
-        .copy("../Resources/de.lproj")
+        .copy("../Resources/de.lproj"),
+        .copy("../Resources/ebt-data.db")
       ]
     ),
     .testTarget(
