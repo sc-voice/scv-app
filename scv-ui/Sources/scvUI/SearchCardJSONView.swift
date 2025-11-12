@@ -50,7 +50,8 @@ public struct SearchCardJSONView: View {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
 
         if let data = try? encoder.encode(searchResponse),
-           let json = String(data: data, encoding: .utf8) {
+           let json = String(data: data, encoding: .utf8)
+        {
             return json
         }
 

@@ -5,9 +5,9 @@
 //  Created by Visakha on 03/11/2025.
 //
 
-import SwiftUI
-import scvUI
 import scvCore
+import scvUI
+import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var player: SuttaPlayer
@@ -75,7 +75,8 @@ struct ContentView: View {
             .padding()
 
             if let searchResponse = searchResponse,
-               let mlDoc = searchResponse.mlDocs.first {
+               let mlDoc = searchResponse.mlDocs.first
+            {
                 SuttaView(mlDoc: mlDoc, player: player)
                     .environmentObject(themeProvider)
             } else {

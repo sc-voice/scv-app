@@ -1,7 +1,7 @@
-import Foundation
 import AVFoundation
-import UIKit
+import Foundation
 import scvCore
+import UIKit
 
 @MainActor
 public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
@@ -23,13 +23,13 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
 
     private func configureAudioSession() {
         #if os(iOS)
-        do {
-            try AVAudioSession.sharedInstance()
-                .setCategory(.playback, mode: .default, options: [.duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("Failed to configure audio session: \(error.localizedDescription)")
-        }
+            do {
+                try AVAudioSession.sharedInstance()
+                    .setCategory(.playback, mode: .default, options: [.duckOthers])
+                try AVAudioSession.sharedInstance().setActive(true)
+            } catch {
+                print("Failed to configure audio session: \(error.localizedDescription)")
+            }
         #endif
     }
 
@@ -58,7 +58,8 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
 
         // Start playback at currentScid if set, otherwise use currentSegmentIndex
         if let currentScid = currentSutta?.currentScid,
-            let index = segments.firstIndex(where: { $0.key == currentScid }) {
+           let index = segments.firstIndex(where: { $0.key == currentScid })
+        {
             playSegmentAt(at: index)
         } else {
             playSegmentAt(at: currentSegmentIndex)
@@ -145,9 +146,9 @@ public final class SuttaPlayer: NSObject, ObservableObject, AVSpeechSynthesizerD
 
     // MARK: - AVSpeechSynthesizerDelegate
 
-    nonisolated public func speechSynthesizer(
-        _ synthesizer: AVSpeechSynthesizer,
-        didFinish utterance: AVSpeechUtterance
+    public nonisolated func speechSynthesizer(
+        _: AVSpeechSynthesizer,
+        didFinish _: AVSpeechUtterance
     ) {
         Task { @MainActor in
             // Play the next segment as determined by nextIndexToPlay

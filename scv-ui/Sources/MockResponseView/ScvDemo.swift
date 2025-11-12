@@ -1,5 +1,5 @@
-import SwiftUI
 import scvUI
+import SwiftUI
 
 @main
 struct ScvDemoApp: App {
@@ -12,7 +12,8 @@ struct ScvDemoApp: App {
                     .padding()
 
                 if let mockResponse = SearchResponse.createMockResponse(),
-                   let mlDoc = mockResponse.mlDocs.first {
+                   let mlDoc = mockResponse.mlDocs.first
+                {
                     SuttaView(mlDoc: mlDoc)
                 } else {
                     Text("Failed to load mock response")
