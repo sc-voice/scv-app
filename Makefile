@@ -1,5 +1,5 @@
 .PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios \
-        clean clean-core clean-ui clean-demo-ios mock-response-view scv-demo-ios \
+        clean clean-core clean-ui clean-demo-ios format mock-response-view scv-demo-ios \
         version-major version-minor version-patch commit build-ebt-data-db
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
@@ -51,7 +51,10 @@ build-demo-ios:
 	    -destination 'platform=iOS Simulator,name=iPhone 15' \
 	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
-clean: clean-core clean-ui clean-demo-ios
+clean: clean-core clean-ui clean-demo-ios format
+
+format:
+	@swiftformat . --exclude Pods
 
 clean-core:
 	@cd scv-core && swift package clean 2>/dev/null || true
@@ -114,10 +117,11 @@ help:
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-demo-ios    Build iOS app (increments patch version)"
 	@echo "  make build-ebt-data-db Force rebuild per-author databases from source"
-	@echo "  make clean             Clean all build artifacts"
+	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-ui          Clean scv-ui package"
 	@echo "  make clean-demo-ios    Clean iOS app build artifacts"
+	@echo "  make format            Apply SwiftFormat to project"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
 	@echo "  make scv-demo-ios      Clean, build, and open scv-demo-iOS in Xcode"
 	@echo "  make version-major     Increment major version (X.0.0)"

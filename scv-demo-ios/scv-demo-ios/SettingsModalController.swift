@@ -117,7 +117,7 @@ class SettingsModalController: NSObject, ObservableObject {
     saveTimer?.invalidate()
     saveTimer = Timer
       .scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-        guard let self = self, self.pendingSave else {
+        guard let self, pendingSave else {
           self?.saveTimer?.invalidate()
           self?.saveTimer = nil
           return
@@ -125,9 +125,9 @@ class SettingsModalController: NSObject, ObservableObject {
 
         if !SuttaPlayer.shared.isPlaying {
           Settings.shared.save()
-          self.pendingSave = false
-          self.saveTimer?.invalidate()
-          self.saveTimer = nil
+          pendingSave = false
+          saveTimer?.invalidate()
+          saveTimer = nil
         }
       }
   }

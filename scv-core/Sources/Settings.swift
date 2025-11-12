@@ -122,7 +122,7 @@ public class Settings: Codable {
     try container.encode(isDarkModeEnabled, forKey: .isDarkModeEnabled)
     try container.encode(
       lastApplicationVersion,
-      forKey: .lastApplicationVersion
+      forKey: .lastApplicationVersion,
     )
     try container.encode(maxDoc, forKey: .maxDoc)
   }
@@ -134,7 +134,7 @@ public class Settings: Codable {
     // serialized data)
     let decodedVersion = try container.decodeIfPresent(
       Int.self,
-      forKey: .version
+      forKey: .version,
     ) ?? 1
     version = decodedVersion
 
@@ -144,34 +144,34 @@ public class Settings: Codable {
       // Current version: standard decoding
       let docLangCode = try container.decodeIfPresent(
         String.self,
-        forKey: .docLang
+        forKey: .docLang,
       ) ?? "en"
       docLang = ScvLanguage(code: docLangCode) ?? .default
       let refLangCode = try container.decodeIfPresent(
         String.self,
-        forKey: .refLang
+        forKey: .refLang,
       ) ?? "en"
       refLang = ScvLanguage(code: refLangCode) ?? .default
       let uiLangCode = try container.decodeIfPresent(
         String.self,
-        forKey: .uiLang
+        forKey: .uiLang,
       ) ?? "en"
       uiLang = ScvLanguage(code: uiLangCode) ?? .default
       paliSpeech = try container.decodeIfPresent(
         SpeechConfig.self,
-        forKey: .paliSpeech
+        forKey: .paliSpeech,
       ) ?? SpeechConfig(language: .default)
       docSpeech = try container.decodeIfPresent(
         SpeechConfig.self,
-        forKey: .docSpeech
+        forKey: .docSpeech,
       ) ?? SpeechConfig(language: .default)
       isDarkModeEnabled = try container.decodeIfPresent(
         Bool.self,
-        forKey: .isDarkModeEnabled
+        forKey: .isDarkModeEnabled,
       ) ?? false
       lastApplicationVersion = try container.decodeIfPresent(
         String.self,
-        forKey: .lastApplicationVersion
+        forKey: .lastApplicationVersion,
       ) ?? ""
       maxDoc = try container
         .decodeIfPresent(Int.self, forKey: .maxDoc) ?? MAX_DOC_DEFAULT

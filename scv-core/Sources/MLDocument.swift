@@ -74,7 +74,7 @@ public final class MLDocument: Codable {
     refAuthor: String = "",
     refAuthorName: String = "",
     refFooter: String = "",
-    currentScid: String? = nil
+    currentScid: String? = nil,
   ) {
     self.author = author
     self.segMap = segMap
@@ -112,17 +112,17 @@ public final class MLDocument: Codable {
     author = try container.decodeIfPresent(String.self, forKey: .author) ?? ""
     segMap = try container.decodeIfPresent(
       [String: Segment].self,
-      forKey: .segMap
+      forKey: .segMap,
     ) ?? [:]
     blurb = try container.decodeIfPresent(String.self, forKey: .blurb) ?? ""
     stats = try container.decodeIfPresent(DocumentStats.self, forKey: .stats)
     author_uid = try container.decodeIfPresent(
       String.self,
-      forKey: .author_uid
+      forKey: .author_uid,
     ) ?? ""
     bilaraPaths = try container.decodeIfPresent(
       [String].self,
-      forKey: .bilaraPaths
+      forKey: .bilaraPaths,
     ) ?? []
     category = try container
       .decodeIfPresent(String.self, forKey: .category) ?? ""
@@ -131,7 +131,7 @@ public final class MLDocument: Codable {
     lang = try container.decodeIfPresent(String.self, forKey: .lang) ?? ""
     langSegs = try container.decodeIfPresent(
       [String: Int].self,
-      forKey: .langSegs
+      forKey: .langSegs,
     ) ?? [:]
     maxWord = try container.decodeIfPresent(Int.self, forKey: .maxWord) ?? 0
     minWord = try container.decodeIfPresent(Int.self, forKey: .minWord) ?? 0
@@ -149,7 +149,7 @@ public final class MLDocument: Codable {
       .decodeIfPresent(String.self, forKey: .docAuthor) ?? ""
     docAuthorName = try container.decodeIfPresent(
       String.self,
-      forKey: .docAuthorName
+      forKey: .docAuthorName,
     ) ?? ""
     docFooter = try container
       .decodeIfPresent(String.self, forKey: .docFooter) ?? ""
@@ -158,13 +158,13 @@ public final class MLDocument: Codable {
       .decodeIfPresent(String.self, forKey: .refAuthor) ?? ""
     refAuthorName = try container.decodeIfPresent(
       String.self,
-      forKey: .refAuthorName
+      forKey: .refAuthorName,
     ) ?? ""
     refFooter = try container
       .decodeIfPresent(String.self, forKey: .refFooter) ?? ""
     currentScid = try container.decodeIfPresent(
       String.self,
-      forKey: .currentScid
+      forKey: .currentScid,
     )
   }
 
@@ -244,12 +244,12 @@ public final class MLDocument: Codable {
 extension MLDocument {
   /// Returns all segments for this document
   var allSegments: [Segment] {
-    return Array(segMap.values)
+    Array(segMap.values)
   }
 
   /// Returns only matched segments for this document
   var matchedSegments: [Segment] {
-    return segMap.values.filter { $0.matched == true }
+    segMap.values.filter { $0.matched == true }
   }
 
   /// Returns the document computed title from the blurb (if title field is

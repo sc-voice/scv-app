@@ -16,7 +16,7 @@ public struct SearchResultsView: View {
     results: [String],
     query: String,
     language: String = "en",
-    author: String = "sujato"
+    author: String = "sujato",
   ) {
     self.results = results
     self.query = query
@@ -53,7 +53,7 @@ public struct SearchResultsView: View {
             .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-      } else if let error = error {
+      } else if let error {
         VStack(spacing: 8) {
           Image(systemName: "exclamationmark.circle")
             .font(.title2)
@@ -106,7 +106,7 @@ public struct SearchResultsView: View {
     let scoresWithDetails = await EbtData.shared.searchKeywordsWithScores(
       lang: language,
       author: author,
-      query: query
+      query: query,
     )
 
     resultScores = scoresWithDetails.map { (suttaId: $0.key, score: $0.score) }
@@ -121,7 +121,7 @@ public struct SearchResultsView: View {
         results: ["mn1", "mn2", "dn1"],
         query: "root of suffering",
         language: "en",
-        author: "sujato"
+        author: "sujato",
       )
     }
   }

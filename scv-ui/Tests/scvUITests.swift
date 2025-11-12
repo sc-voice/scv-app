@@ -21,7 +21,7 @@ struct scvUITests {
     let request = SearchIntentRequest(
       query: "dukkha",
       language: "en",
-      author: "sujato"
+      author: "sujato",
     )
 
     #expect(request.query == "dukkha")
@@ -34,7 +34,7 @@ struct scvUITests {
     let original = SearchIntentRequest(
       query: "anatta",
       language: "en",
-      author: "sujato"
+      author: "sujato",
     )
 
     let encoder = JSONEncoder()
@@ -48,7 +48,7 @@ struct scvUITests {
     let original = SearchIntentRequest(
       query: "anatta",
       language: "en",
-      author: "sujato"
+      author: "sujato",
     )
 
     let encoder = JSONEncoder()

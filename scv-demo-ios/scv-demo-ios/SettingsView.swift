@@ -118,7 +118,7 @@ struct SettingsView: View {
               set: { newValue in
                 controller.isDarkModeEnabled = newValue
                 themeProvider.setTheme(newValue ? .dark : .light)
-              }
+              },
             ))
           }
         }
@@ -130,7 +130,7 @@ struct SettingsView: View {
             selectedVoiceId: $controller.paliVoiceId,
             pitch: $controller.paliPitch,
             rate: $controller.paliRate,
-            language: .pli
+            language: .pli,
           )
         }
 
@@ -141,7 +141,7 @@ struct SettingsView: View {
             selectedVoiceId: $controller.docVoiceId,
             pitch: $controller.docPitch,
             rate: $controller.docRate,
-            language: controller.docLang
+            language: controller.docLang,
           )
         }
 

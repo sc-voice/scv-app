@@ -16,7 +16,7 @@ public class SuttaCentralId: CustomStringConvertible {
   // MARK: - Initialization
 
   public init(_ scid: String?) throws {
-    guard let scid = scid else {
+    guard let scid else {
       throw SuttaCentralIdError
         .invalidId("required scid:\(String(describing: scid))")
     }
@@ -27,7 +27,7 @@ public class SuttaCentralId: CustomStringConvertible {
 
   /// Extracts the last path component (filename)
   static func basename(_ filePath: String) -> String {
-    return filePath.components(separatedBy: "/").last ?? filePath
+    filePath.components(separatedBy: "/").last ?? filePath
   }
 
   /// Matches a SCID against a pattern (supports ranges and comma-separated
@@ -79,7 +79,7 @@ public class SuttaCentralId: CustomStringConvertible {
 
     var result = extRanges.last ?? scidMain
 
-    if c1Parts.count > 0 && c0Parts.count > 1 && c1Parts.count < 2 {
+    if c1Parts.count > 0, c0Parts.count > 1, c1Parts.count < 2 {
       result = "\(c0Parts[0]):\(result)"
     }
 
@@ -87,14 +87,14 @@ public class SuttaCentralId: CustomStringConvertible {
       result = result.replacingOccurrences(
         of: "[0-9]+-",
         with: "",
-        options: .regularExpression
+        options: .regularExpression,
       )
       result = "\(result).9999"
     } else {
       result = result.replacingOccurrences(
         of: "[0-9]+-",
         with: "",
-        options: .regularExpression
+        options: .regularExpression,
       )
     }
 
@@ -112,7 +112,7 @@ public class SuttaCentralId: CustomStringConvertible {
     result = result.replacingOccurrences(
       of: "-[0-9]+",
       with: "",
-      options: .regularExpression
+      options: .regularExpression,
     )
 
     return suffix.isEmpty ? result : "\(result)/\(suffix)"
@@ -129,12 +129,12 @@ public class SuttaCentralId: CustomStringConvertible {
       let normalized = part.replacingOccurrences(
         of: #"\. *"#,
         with: ".",
-        options: .regularExpression
+        options: .regularExpression,
       )
       let pattern = #"^[-a-z]+ ?[0-9]+[-0-9a-z.:/]*$"#
       let regex = try? NSRegularExpression(
         pattern: pattern,
-        options: .caseInsensitive
+        options: .caseInsensitive,
       )
       let range = NSRange(normalized.startIndex..., in: normalized)
       let isValid = regex?.firstMatch(in: normalized, range: range) != nil
@@ -160,7 +160,7 @@ public class SuttaCentralId: CustomStringConvertible {
 
   /// Converts a glob pattern to a regex pattern
   static func scidRegExp(_ pattern: String?) -> NSRegularExpression? {
-    guard let pattern = pattern, !pattern.isEmpty else {
+    guard let pattern, !pattern.isEmpty else {
       return try? NSRegularExpression(pattern: ".*")
     }
 
@@ -186,8 +186,8 @@ public class SuttaCentralId: CustomStringConvertible {
 
     if caretParts.count == 1 {
       // No caret, parse letter format (e.g., "1a")
-      let c0dig = String(c0.filter { $0.isNumber })
-      let c0let = String(c0.filter { $0.isLetter }).lowercased()
+      let c0dig = String(c0.filter(\.isNumber))
+      let c0let = String(c0.filter(\.isLetter)).lowercased()
 
       guard let n0 = Int(c0dig) else {
         throw SuttaCentralIdError
@@ -223,7 +223,7 @@ public class SuttaCentralId: CustomStringConvertible {
     let colonParts = scid.replacingOccurrences(
       of: "^[-a-z]*",
       with: "",
-      options: .regularExpression
+      options: .regularExpression,
     ).components(separatedBy: ":")
 
     let dotParts = colonParts.reduce([String]()) { acc, c in
@@ -244,7 +244,7 @@ public class SuttaCentralId: CustomStringConvertible {
     let colonParts = scid.replacingOccurrences(
       of: "^[-a-z]*",
       with: "",
-      options: .regularExpression
+      options: .regularExpression,
     ).components(separatedBy: ":")
 
     let dotParts = colonParts.reduce([String]()) { acc, c in
@@ -360,11 +360,11 @@ public class SuttaCentralId: CustomStringConvertible {
 
   /// Returns the nikaya (collection) abbreviation
   public var nikaya: String {
-    guard let sutta = sutta else { return "" }
+    guard let sutta else { return "" }
     return sutta.replacingOccurrences(
       of: "[-0-9.]*$",
       with: "",
-      options: .regularExpression
+      options: .regularExpression,
     )
   }
 
@@ -376,7 +376,7 @@ public class SuttaCentralId: CustomStringConvertible {
 
   /// Returns the parent SCID in the hierarchy
   public var parent: SuttaCentralId? {
-    guard var groups = groups else { return nil }
+    guard var groups else { return nil }
 
     // Remove trailing empty part: !groups.pop() && groups.pop()
     let lastPopped = groups.popLast()
@@ -415,7 +415,7 @@ public class SuttaCentralId: CustomStringConvertible {
 
   /// Splits the main sutta part by dots
   public func sectionParts() -> [String] {
-    return scid.components(separatedBy: ":")[0].components(separatedBy: ".")
+    scid.components(separatedBy: ":")[0].components(separatedBy: ".")
   }
 
   /// Splits the segment part (after colon) by dots
@@ -461,7 +461,7 @@ public class SuttaCentralId: CustomStringConvertible {
   }
 
   public var description: String {
-    return scid
+    scid
   }
 
   // MARK: - Private Helpers
@@ -500,9 +500,9 @@ enum SuttaCentralIdError: LocalizedError {
   var errorDescription: String? {
     switch self {
     case let .invalidId(msg):
-      return msg
+      msg
     case let .parseError(msg):
-      return msg
+      msg
     }
   }
 }
@@ -511,6 +511,6 @@ enum SuttaCentralIdError: LocalizedError {
 
 extension Array {
   subscript(safe index: Int) -> Element? {
-    return indices.contains(index) ? self[index] : nil
+    indices.contains(index) ? self[index] : nil
   }
 }

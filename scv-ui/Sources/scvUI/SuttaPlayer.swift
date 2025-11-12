@@ -31,7 +31,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         try AVAudioSession.sharedInstance().setActive(true)
       } catch {
         print(
-          "Failed to configure audio session: \(error.localizedDescription)"
+          "Failed to configure audio session: \(error.localizedDescription)",
         )
       }
     #endif
@@ -154,7 +154,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public nonisolated func speechSynthesizer(
     _: AVSpeechSynthesizer,
-    didFinish _: AVSpeechUtterance
+    didFinish _: AVSpeechUtterance,
   ) {
     Task { @MainActor in
       // Play the next segment as determined by nextIndexToPlay

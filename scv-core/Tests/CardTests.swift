@@ -76,7 +76,7 @@ struct CardTests {
     // Load the pt-PT localization bundle
     guard let bundle = Bundle.module.url(
       forResource: "pt-PT",
-      withExtension: "lproj"
+      withExtension: "lproj",
     ),
       let portugueseBundle = Bundle(url: bundle)
     else {
@@ -128,7 +128,7 @@ struct CardTests {
   func cardLocalizationKeysExistInPortuguese() {
     guard let bundle = Bundle.module.url(
       forResource: "pt-PT",
-      withExtension: "lproj"
+      withExtension: "lproj",
     ),
       let portugueseBundle = Bundle(url: bundle)
     else {
@@ -169,7 +169,7 @@ struct CardTests {
     let card = Card(
       cardType: .search,
       typeId: 1,
-      searchQuery: "mindfulness"
+      searchQuery: "mindfulness",
     )
 
     let encoder = JSONEncoder()
@@ -215,7 +215,7 @@ struct CardTests {
       cardType: .sutta,
       typeId: 5,
       searchQuery: "",
-      suttaReference: "MN 10"
+      suttaReference: "MN 10",
     )
     let originalUUID = originalCard.uuid
 
@@ -242,13 +242,13 @@ struct CardTests {
       author: "test",
       lang: "en",
       pattern: "anicca",
-      segsMatched: 10
+      segsMatched: 10,
     )
     let originalCard = Card(
       cardType: .search,
       typeId: 3,
       searchQuery: "anicca",
-      searchResults: searchResponse
+      searchResults: searchResponse,
     )
 
     // Encode and decode
@@ -297,7 +297,7 @@ struct CardTests {
       cardType: .search,
       typeId: 1,
       searchQuery: "root of suffering",
-      searchResults: mockResponse
+      searchResults: mockResponse,
     )
 
     #expect(card.searchResults != nil)
@@ -316,7 +316,7 @@ struct CardTests {
     let card = Card(
       cardType: .search,
       typeId: 1,
-      searchResults: mockResponse
+      searchResults: mockResponse,
     )
 
     guard let response = card.searchResults else {
@@ -354,7 +354,7 @@ struct CardTests {
       cardType: .search,
       typeId: 2,
       searchQuery: "root of suffering",
-      searchResults: mockResponse
+      searchResults: mockResponse,
     )
 
     // Encode and decode
@@ -382,7 +382,7 @@ struct CardTests {
       cardType: .search,
       typeId: 3,
       searchQuery: "test",
-      searchResults: nil
+      searchResults: nil,
     )
 
     #expect(card.searchResults == nil)
@@ -403,7 +403,7 @@ struct CardTests {
     let card = Card(
       cardType: .search,
       typeId: 4,
-      searchResults: emptyResponse
+      searchResults: emptyResponse,
     )
 
     #expect(card.searchResults != nil)
@@ -463,7 +463,7 @@ struct CardTests {
       author: "Bhikkhu Sujato",
       sutta_uid: "sn42.11",
       title: "Linked Discourses 42.11",
-      currentScid: "sn42.11:1.5"
+      currentScid: "sn42.11:1.5",
     )
 
     let card = Card(cardType: .sutta, typeId: 2, mlDoc: doc)
@@ -520,7 +520,7 @@ struct CardTests {
     let originalCard = Card(
       cardType: .sutta,
       typeId: 5,
-      suttaReference: "MN 10"
+      suttaReference: "MN 10",
     )
     let originalUUID = originalCard.uuid
     let originalCreatedAt = originalCard.createdAt
@@ -607,7 +607,7 @@ struct CardTests {
     let duplicates = cards.filter { $0.cardType == .search && $0.typeId == 1 }
     #expect(
       duplicates.count == 2,
-      "Multiple cards with same (cardType, typeId) found - constraint may not be enforced"
+      "Multiple cards with same (cardType, typeId) found - constraint may not be enforced",
     )
   }
 
@@ -668,11 +668,11 @@ struct CardTests {
     let allCards = try context.fetch(fetchDescriptor)
     let searchCards = allCards.filter { $0.cardType == .search }
 
-    let searchTypeIds = searchCards.map { $0.typeId }
+    let searchTypeIds = searchCards.map(\.typeId)
     let uniqueTypeIds = Set(searchTypeIds)
     #expect(
       uniqueTypeIds.count == searchTypeIds.count,
-      "All search cards should have unique typeIds"
+      "All search cards should have unique typeIds",
     )
   }
 
@@ -731,7 +731,7 @@ struct CardTests {
 
     try FileManager.default.createDirectory(
       at: bundleDir,
-      withIntermediateDirectories: true
+      withIntermediateDirectories: true,
     )
 
     guard let emptyBundle = Bundle(url: bundleDir.deletingLastPathComponent())
@@ -766,7 +766,7 @@ struct CardTests {
     // Load Portuguese bundle
     guard let bundle = Bundle.module.url(
       forResource: "pt-PT",
-      withExtension: "lproj"
+      withExtension: "lproj",
     ),
       let portugueseBundle = Bundle(url: bundle)
     else {
@@ -793,7 +793,7 @@ struct CardTests {
     // Load Portuguese bundle
     guard let bundle = Bundle.module.url(
       forResource: "pt-PT",
-      withExtension: "lproj"
+      withExtension: "lproj",
     ),
       let portugueseBundle = Bundle(url: bundle)
     else {
@@ -813,7 +813,7 @@ struct CardTests {
       do {
         try FileManager.default.createDirectory(
           at: bundleDir,
-          withIntermediateDirectories: true
+          withIntermediateDirectories: true,
         )
 
         guard let emptyBundle = Bundle(url: bundleDir
@@ -874,7 +874,7 @@ struct CardTests {
 
     try FileManager.default.createDirectory(
       at: bundleDir,
-      withIntermediateDirectories: true
+      withIntermediateDirectories: true,
     )
 
     // Create Localizable.strings with only one key
@@ -884,7 +884,7 @@ struct CardTests {
     try stringsContent.write(
       toFile: stringsPath.path,
       atomically: true,
-      encoding: .utf8
+      encoding: .utf8,
     )
 
     guard let partialBundle = Bundle(url: bundleDir
@@ -922,7 +922,7 @@ struct CardTests {
 
     guard let bundle = Bundle.module.url(
       forResource: "pt-PT",
-      withExtension: "lproj"
+      withExtension: "lproj",
     ),
       let portugueseBundle = Bundle(url: bundle)
     else {
@@ -951,7 +951,7 @@ struct CardTests {
 
     try FileManager.default.createDirectory(
       at: bundleDir,
-      withIntermediateDirectories: true
+      withIntermediateDirectories: true,
     )
 
     guard let emptyBundle = Bundle(url: bundleDir.deletingLastPathComponent())
@@ -1003,7 +1003,7 @@ struct CardTests {
 
     try FileManager.default.createDirectory(
       at: bundleDir,
-      withIntermediateDirectories: true
+      withIntermediateDirectories: true,
     )
 
     // Create Localizable.strings with a format string
@@ -1013,7 +1013,7 @@ struct CardTests {
     try stringsContent.write(
       toFile: stringsPath.path,
       atomically: true,
-      encoding: .utf8
+      encoding: .utf8,
     )
 
     guard let formatBundle = Bundle(url: bundleDir.deletingLastPathComponent())

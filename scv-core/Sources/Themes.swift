@@ -32,6 +32,9 @@ public struct Theme {
   /// Value color for user-mutable values (voices, settings, etc.)
   public let valueColor: Color
 
+  /// Toolbar color
+  public let toolbarColor: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -39,7 +42,8 @@ public struct Theme {
     accentColor: Color,
     cardBackground: Color,
     borderColor: Color,
-    valueColor: Color
+    valueColor: Color,
+    toolbarColor: Color,
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -48,6 +52,7 @@ public struct Theme {
     self.cardBackground = cardBackground
     self.borderColor = borderColor
     self.valueColor = valueColor
+    self.toolbarColor = toolbarColor
   }
 }
 
@@ -58,6 +63,13 @@ private let COLOR_SAFFRON = Color(red: 1.0, green: 0.6, blue: 0.2) // #ff9933
 
 /// Cyan color for user-mutable values
 private let COLOR_CYAN = Color(red: 0.0, green: 1.0, blue: 1.0) // #00ffff
+
+/// Brown color for toolbar (dark theme)
+private let COLOR_BROWN = Color(red: 0.474, green: 0.333,
+                                blue: 0.282) // #795548
+
+/// Grey color for toolbar (light theme)
+private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD
 
 /// Application themes
 public enum AppTheme {
@@ -73,7 +85,7 @@ public enum AppTheme {
     case .light:
       // Light theme: light backgrounds with dark text
       // Based on vuetify-opts.mjs lightTheme
-      return Theme(
+      Theme(
         backgroundColor: Color(red: 0.933, green: 0.933,
                                blue: 0.933), // #eeeeee (grey.lighten1)
         textColor: Color(red: 0.1, green: 0.1, blue: 0.1), // dark text
@@ -82,12 +94,13 @@ public enum AppTheme {
         accentColor: COLOR_SAFFRON, // #ff9933
         cardBackground: Color(red: 0.941, green: 0.941, blue: 0.941), // #f0f0f0
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
-        valueColor: COLOR_CYAN // #00ffff
+        valueColor: COLOR_CYAN, // #00ffff
+        toolbarColor: COLOR_GREY, // #BDBDBD
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
       // Based on vuetify-opts.mjs darkTheme
-      return Theme(
+      Theme(
         backgroundColor: Color(red: 0.071, green: 0.071,
                                blue: 0.071), // #121212
         textColor: Color(red: 0.95, green: 0.95, blue: 0.95), // light text
@@ -96,7 +109,8 @@ public enum AppTheme {
         accentColor: COLOR_SAFFRON, // #ff9933
         cardBackground: Color(red: 0.133, green: 0.133, blue: 0.133), // #222222
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
-        valueColor: COLOR_CYAN // #00ffff
+        valueColor: COLOR_CYAN, // #00ffff
+        toolbarColor: COLOR_BROWN, // #795548
       )
     }
   }

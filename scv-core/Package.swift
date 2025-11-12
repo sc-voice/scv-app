@@ -10,7 +10,7 @@ let package = Package(
   products: [
     .library(
       name: "scvCore",
-      targets: ["scvCore"]
+      targets: ["scvCore"],
     ),
   ],
   dependencies: [],
@@ -26,7 +26,7 @@ let package = Package(
         .copy("../Resources/de.lproj"),
         .copy("../Resources/ebt-en-sujato.db"),
         .copy("../Resources/ebt-de-sabbamitta.db"),
-      ]
+      ],
     ),
     .testTarget(
       name: "scvCoreTests",
@@ -39,7 +39,7 @@ let package = Package(
         .copy("../Resources/fr.lproj"),
         .copy("Data/root-of-suffering.json"),
         .copy("Data/root-of-suffering-raw.json"),
-      ]
+      ],
     ),
-  ]
+  ],
 )

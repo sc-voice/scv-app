@@ -15,15 +15,15 @@ extension String {
   /// Localized version of the string
   @MainActor
   var localized: String {
-    return NSLocalizedString(self, bundle: localizationBundle, comment: "")
+    NSLocalizedString(self, bundle: localizationBundle, comment: "")
   }
 
   /// Localized version with format arguments
   @MainActor
   func localized(_ arguments: CVarArg...) -> String {
-    return String(
+    String(
       format: NSLocalizedString(self, bundle: localizationBundle, comment: ""),
-      arguments: arguments
+      arguments: arguments,
     )
   }
 }

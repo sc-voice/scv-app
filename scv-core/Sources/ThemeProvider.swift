@@ -15,7 +15,7 @@ public class ThemeProvider: ObservableObject {
   @Published public var currentTheme: AppTheme = .dark
 
   public init(theme: AppTheme? = nil) {
-    if let theme = theme {
+    if let theme {
       currentTheme = theme
     } else {
       // Initialize from Settings

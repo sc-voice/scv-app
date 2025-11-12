@@ -10,11 +10,11 @@ let package = Package(
   products: [
     .library(
       name: "scvUI",
-      targets: ["scvUI"]
+      targets: ["scvUI"],
     ),
     .executable(
       name: "mock-response-view",
-      targets: ["MockResponseView"]
+      targets: ["MockResponseView"],
     ),
   ],
   dependencies: [
@@ -25,15 +25,15 @@ let package = Package(
       name: "scvUI",
       dependencies: [
         .product(name: "scvCore", package: "scv-core"),
-      ]
+      ],
     ),
     .testTarget(
       name: "scvUITests",
-      dependencies: ["scvUI"]
+      dependencies: ["scvUI"],
     ),
     .executableTarget(
       name: "MockResponseView",
-      dependencies: ["scvUI"]
+      dependencies: ["scvUI"],
     ),
-  ]
+  ],
 )

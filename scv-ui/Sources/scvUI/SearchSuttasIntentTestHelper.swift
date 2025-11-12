@@ -98,7 +98,7 @@ import SwiftUI
         let results = await EbtData.shared.searchKeywords(
           lang: language,
           author: author,
-          query: testQuery
+          query: testQuery,
         )
 
         await MainActor.run {

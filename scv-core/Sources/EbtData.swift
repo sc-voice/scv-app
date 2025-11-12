@@ -24,7 +24,7 @@ public actor EbtData {
 
     guard let resourceURL = Bundle.module.url(
       forResource: "ebt-\(lang)-\(author)",
-      withExtension: "db"
+      withExtension: "db",
     ) else {
       throw EbtDataError.databaseNotFound(lang: lang, author: author)
     }
@@ -34,7 +34,7 @@ public actor EbtData {
       resourceURL.path,
       &database,
       SQLITE_OPEN_READONLY,
-      nil
+      nil,
     )
 
     guard result == SQLITE_OK else {
@@ -134,8 +134,8 @@ public actor EbtData {
   public func searchKeywords(lang: String, author: String,
                              query: String) -> [String]
   {
-    return searchKeywordsWithScores(lang: lang, author: author, query: query)
-      .map { $0.key }
+    searchKeywordsWithScores(lang: lang, author: author, query: query)
+      .map(\.key)
   }
 
   /// Returns sutta keys with match counts and scores for debugging/display
@@ -143,13 +143,13 @@ public actor EbtData {
   public func searchKeywordsWithScores(
     lang: String,
     author: String,
-    query: String
+    query: String,
   ) -> [(
     key: String,
     matchCount: Int,
     totalSegments: Int,
     relevancePercent: Double,
-    score: Double
+    score: Double,
   )] {
     do {
       try ensureDatabase(lang: lang, author: author)
@@ -188,7 +188,7 @@ public actor EbtData {
         matchCount: Int,
         totalSegments: Int,
         relevancePercent: Double,
-        score: Double
+        score: Double,
       )] = []
       while sqlite3_step(stmt) == SQLITE_ROW {
         if let cString = sqlite3_column_text(stmt, 0) {
@@ -202,7 +202,7 @@ public actor EbtData {
             matchCount: matchCount,
             totalSegments: totalSegments,
             relevancePercent: relevancePercent,
-            score: score
+            score: score,
           ))
         }
       }
@@ -229,7 +229,7 @@ public actor EbtData {
       let keywordResults = searchKeywords(
         lang: lang,
         author: author,
-        query: phrase
+        query: phrase,
       )
 
       // Step 2: Filter to only those containing exact phrase
@@ -240,7 +240,7 @@ public actor EbtData {
           lang: lang,
           author: author,
           suttaKey: suttaKey,
-          phrase: phrase
+          phrase: phrase,
         ) {
           phraseMatches.append(suttaKey)
         }
@@ -257,7 +257,7 @@ public actor EbtData {
     lang: String,
     author: String,
     suttaKey: String,
-    phrase: String
+    phrase: String,
   ) -> Bool {
     do {
       try ensureDatabase(lang: lang, author: author)
@@ -375,7 +375,7 @@ public actor EbtData {
       return resultsWithScore
         .sorted { $0.score > $1.score }
         .prefix(limit)
-        .map { $0.key }
+        .map(\.key)
     } catch {
       return []
     }
@@ -390,7 +390,7 @@ public actor EbtData {
 
     guard let resourceURLs = try? FileManager.default.contentsOfDirectory(
       at: Bundle.module.resourceURL ?? URL(fileURLWithPath: "."),
-      includingPropertiesForKeys: nil
+      includingPropertiesForKeys: nil,
     ) else {
       return []
     }

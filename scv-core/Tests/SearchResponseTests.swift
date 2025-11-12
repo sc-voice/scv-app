@@ -19,7 +19,7 @@ struct SearchResponseTests {
       doc: "English text",
       ref: "mn1.1",
       pli: "pali text",
-      matched: true
+      matched: true,
     )
 
     #expect(segment.scid == "test-scid")
@@ -35,7 +35,7 @@ struct SearchResponseTests {
       doc: "English text",
       ref: "mn1.1",
       pli: "pali text",
-      matched: true
+      matched: true,
     )
 
     #expect(segment.displayText == "English text")
@@ -47,7 +47,7 @@ struct SearchResponseTests {
       doc: "",
       ref: "mn1.1",
       pli: "pali text",
-      matched: true
+      matched: true,
     )
 
     #expect(segment.displayText == "pali text")
@@ -57,16 +57,16 @@ struct SearchResponseTests {
     let matchedSegment = Segment(
       scid: "test-scid",
       doc: "test",
-      matched: true
+      matched: true,
     )
     let unmatchedSegment = Segment(
       scid: "test-scid",
       doc: "test",
-      matched: false
+      matched: false,
     )
     let nilMatchedSegment = Segment(
       scid: "test-scid",
-      doc: "test"
+      doc: "test",
     )
 
     #expect(matchedSegment.isMatched == true)
@@ -83,7 +83,7 @@ struct SearchResponseTests {
       nSegments: 20,
       nEmptySegments: 5,
       nSections: 4,
-      seconds: 2.5
+      seconds: 2.5,
     )
 
     #expect(stats.text == 2000)
@@ -101,7 +101,7 @@ struct SearchResponseTests {
       "seg1": Segment(
         scid: "seg1",
         doc: "Test segment",
-        matched: true
+        matched: true,
       ),
     ]
     let stats = DocumentStats(
@@ -110,14 +110,14 @@ struct SearchResponseTests {
       nSegments: 10,
       nEmptySegments: 2,
       nSections: 3,
-      seconds: 1.5
+      seconds: 1.5,
     )
     let doc = MLDocument(
       author: "Buddha",
       segMap: segMap,
       blurb: "The First Discourse.",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
 
     #expect(doc.author == "Buddha")
@@ -132,12 +132,12 @@ struct SearchResponseTests {
       "seg1": Segment(
         scid: "seg1",
         doc: "First segment",
-        matched: true
+        matched: true,
       ),
       "seg2": Segment(
         scid: "seg2",
         doc: "Second segment",
-        matched: false
+        matched: false,
       ),
     ]
     let stats = DocumentStats(
@@ -146,14 +146,14 @@ struct SearchResponseTests {
       nSegments: 2,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc = MLDocument(
       author: "Test",
       segMap: segMap,
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
 
     let allSegments = doc.allSegments
@@ -167,12 +167,12 @@ struct SearchResponseTests {
       "seg1": Segment(
         scid: "seg1",
         doc: "Matched segment",
-        matched: true
+        matched: true,
       ),
       "seg2": Segment(
         scid: "seg2",
         doc: "Unmatched segment",
-        matched: false
+        matched: false,
       ),
     ]
     let stats = DocumentStats(
@@ -181,14 +181,14 @@ struct SearchResponseTests {
       nSegments: 2,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc = MLDocument(
       author: "Test",
       segMap: segMap,
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
 
     let matchedSegments = doc.matchedSegments
@@ -203,14 +203,14 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc = MLDocument(
       author: "Test",
       segMap: [:],
       blurb: "This is the first discourse. It contains important teachings.",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
 
     #expect(doc.computedTitle == "This is the first discourse")
@@ -223,14 +223,14 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc = MLDocument(
       author: "Test",
       segMap: [:],
       blurb: "",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
 
     #expect(doc.computedTitle == "mn1") // Empty blurb falls back to sutta_uid
@@ -243,7 +243,7 @@ struct SearchResponseTests {
       "seg1": Segment(
         scid: "seg1",
         doc: "Test segment",
-        matched: true
+        matched: true,
       ),
     ]
     let stats = DocumentStats(
@@ -252,13 +252,13 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let mlDoc = MLDocument(
       author: "Test",
       segMap: segMap,
       blurb: "Test",
-      stats: stats
+      stats: stats,
     )
     let response = SearchResponse(
       author: "SC-Voice",
@@ -273,7 +273,7 @@ struct SearchResponseTests {
       segsMatched: 1,
       bilaraPaths: ["path1"],
       suttaRefs: ["mn1"],
-      mlDocs: [mlDoc]
+      mlDocs: [mlDoc],
     )
 
     #expect(response.author == "SC-Voice")
@@ -310,14 +310,14 @@ struct SearchResponseTests {
       "seg1": Segment(
         scid: "seg1",
         doc: "Matched segment 1",
-        matched: true
+        matched: true,
       ),
     ]
     let segMap2 = [
       "seg2": Segment(
         scid: "seg2",
         doc: "Unmatched segment 2",
-        matched: false
+        matched: false,
       ),
     ]
     let stats = DocumentStats(
@@ -326,21 +326,21 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc1 = MLDocument(
       author: "Test",
       segMap: segMap1,
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
     let doc2 = MLDocument(
       author: "Test",
       segMap: segMap2,
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn2"
+      sutta_uid: "mn2",
     )
     let response = SearchResponse(
       author: "Test",
@@ -355,7 +355,7 @@ struct SearchResponseTests {
       segsMatched: 1,
       bilaraPaths: [],
       suttaRefs: [],
-      mlDocs: [doc1, doc2]
+      mlDocs: [doc1, doc2],
     )
 
     let matchedSegments = response.matchedSegments
@@ -370,21 +370,21 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let doc1 = MLDocument(
       author: "Test",
       segMap: [:],
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn1"
+      sutta_uid: "mn1",
     )
     let doc2 = MLDocument(
       author: "Test",
       segMap: [:],
       blurb: "Test",
       stats: stats,
-      sutta_uid: "mn2"
+      sutta_uid: "mn2",
     )
     let response = SearchResponse(
       author: "Test",
@@ -399,7 +399,7 @@ struct SearchResponseTests {
       segsMatched: 0,
       bilaraPaths: [],
       suttaRefs: [],
-      mlDocs: [doc1, doc2]
+      mlDocs: [doc1, doc2],
     )
 
     #expect(response.totalDocuments == 2)
@@ -419,7 +419,7 @@ struct SearchResponseTests {
       segsMatched: 0,
       bilaraPaths: [],
       suttaRefs: ["mn1", "mn2", "mn1", "sn1.1", "mn2"],
-      mlDocs: []
+      mlDocs: [],
     )
 
     let uniqueRefs = response.uniqueSuttaRefs
@@ -437,7 +437,7 @@ struct SearchResponseTests {
       doc: "English text",
       ref: "mn1.1",
       pli: "pali text",
-      matched: true
+      matched: true,
     )
 
     let data = try JSONEncoder().encode(originalSegment)
@@ -457,13 +457,13 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let mlDoc = MLDocument(
       author: "Test",
       segMap: [:],
       blurb: "Test",
-      stats: stats
+      stats: stats,
     )
     let originalResponse = SearchResponse(
       author: "SC-Voice",
@@ -478,13 +478,13 @@ struct SearchResponseTests {
       segsMatched: 0,
       bilaraPaths: ["path1"],
       suttaRefs: ["mn1"],
-      mlDocs: [mlDoc]
+      mlDocs: [mlDoc],
     )
 
     let data = try JSONEncoder().encode(originalResponse)
     let decodedResponse = try JSONDecoder().decode(
       SearchResponse.self,
-      from: data
+      from: data,
     )
 
     #expect(decodedResponse.author == originalResponse.author)
@@ -503,13 +503,13 @@ struct SearchResponseTests {
       nSegments: 1,
       nEmptySegments: 0,
       nSections: 1,
-      seconds: 1.0
+      seconds: 1.0,
     )
     let mlDoc = MLDocument(
       author: "Test Author",
       segMap: [:],
       blurb: "Test blurb",
-      stats: stats
+      stats: stats,
     )
     let originalResponse = SearchResponse(
       author: "SC-Voice",
@@ -524,17 +524,17 @@ struct SearchResponseTests {
       segsMatched: 5,
       bilaraPaths: ["path1", "path2"],
       suttaRefs: ["mn1"],
-      mlDocs: [mlDoc]
+      mlDocs: [mlDoc],
     )
 
     // Test toJSON()
     let jsonString = originalResponse.toJSON()
     #expect(
       jsonString != nil,
-      "toJSON() should successfully encode SearchResponse"
+      "toJSON() should successfully encode SearchResponse",
     )
 
-    guard let jsonString = jsonString else {
+    guard let jsonString else {
       return
     }
 
@@ -546,7 +546,7 @@ struct SearchResponseTests {
     let decodedResponse = SearchResponse.fromJSON(jsonString)
     #expect(
       decodedResponse != nil,
-      "fromJSON() should successfully decode JSON"
+      "fromJSON() should successfully decode JSON",
     )
 
     guard let decoded = decodedResponse else {
@@ -573,7 +573,7 @@ struct SearchResponseTests {
     // Verify it loaded successfully
     #expect(
       mockResponse != nil,
-      "createMockResponse() should load mock-response-en.json"
+      "createMockResponse() should load mock-response-en.json",
     )
 
     guard let response = mockResponse else {
@@ -610,7 +610,7 @@ struct SearchResponseTests {
     // Verify it loaded successfully
     #expect(
       mockResponse != nil,
-      "createMockResponse(language: \"de\") should load mock-response-de.json"
+      "createMockResponse(language: \"de\") should load mock-response-de.json",
     )
 
     guard let response = mockResponse else {
@@ -620,11 +620,11 @@ struct SearchResponseTests {
     // Verify it's a valid SearchResponse with German content
     #expect(
       response.mlDocs.count > 0,
-      "German mock response should have documents"
+      "German mock response should have documents",
     )
     #expect(
       response.segsMatched > 0,
-      "German mock response should have matched segments"
+      "German mock response should have matched segments",
     )
 
     // Verify segments actually contain German text from the DE mock file
@@ -652,7 +652,7 @@ struct SearchResponseTests {
     // Verify it loaded successfully
     #expect(
       mockResponse != nil,
-      "createMockResponse(language: \"fr\") should load mock-response-fr.json"
+      "createMockResponse(language: \"fr\") should load mock-response-fr.json",
     )
 
     guard let response = mockResponse else {
@@ -662,11 +662,11 @@ struct SearchResponseTests {
     // Verify it's a valid SearchResponse with French content
     #expect(
       response.mlDocs.count > 0,
-      "French mock response should have documents"
+      "French mock response should have documents",
     )
     #expect(
       response.segsMatched > 0,
-      "French mock response should have matched segments"
+      "French mock response should have matched segments",
     )
 
     // Verify segments actually contain French text from the FR mock file
@@ -686,7 +686,7 @@ struct SearchResponseTests {
     #expect(
       segment1_1?.doc?
         .contains("le Bouddha séjournait dans le pays des Mallas") == true,
-      "French segment should contain 'le Bouddha séjournait dans le pays des Mallas' in doc field"
+      "French segment should contain 'le Bouddha séjournait dans le pays des Mallas' in doc field",
     )
   }
 
@@ -697,7 +697,7 @@ struct SearchResponseTests {
     // Should fall back to English
     #expect(
       mockResponse != nil,
-      "createMockResponse() should fall back to English for unsupported language"
+      "createMockResponse() should fall back to English for unsupported language",
     )
 
     guard let response = mockResponse else {
@@ -708,7 +708,7 @@ struct SearchResponseTests {
     #expect(response.lang == "en", "Fallback response should be English")
     #expect(
       response.author == "sujato",
-      "Fallback response should be from mock-response-en.json"
+      "Fallback response should be from mock-response-en.json",
     )
   }
 
@@ -731,7 +731,7 @@ struct SearchResponseTests {
     // Verify document contains segments
     #expect(
       doc.segMap.count > 0,
-      "Document should have segments from MockResponse.json"
+      "Document should have segments from MockResponse.json",
     )
 
     // Verify matched segments exist
@@ -762,7 +762,7 @@ struct SearchResponseTests {
       let cmp = SuttaCentralId.compareLow(current, next)
       #expect(
         cmp < 0,
-        "Segments should be sorted in order: \(current) should come before \(next)"
+        "Segments should be sorted in order: \(current) should come before \(next)",
       )
     }
   }
@@ -799,7 +799,7 @@ struct SearchResponseTests {
     #expect(firstSeg?.value.scid == "sn42.11:0.1")
     #expect(
       firstSeg?.value.displayText.contains("Linked Discourses") ?? false,
-      "Segment content should be preserved"
+      "Segment content should be preserved",
     )
   }
 
@@ -826,7 +826,7 @@ struct SearchResponseTests {
   @Test func mLDocumentCurrentScidInitializer() async throws {
     let doc = MLDocument(
       sutta_uid: "sn42.11",
-      currentScid: "sn42.11:2.11"
+      currentScid: "sn42.11:2.11",
     )
     #expect(doc.currentScid == "sn42.11:2.11")
   }
@@ -835,7 +835,7 @@ struct SearchResponseTests {
     let originalDoc = MLDocument(
       sutta_uid: "sn42.11",
       title: "Test Sutta",
-      currentScid: "sn42.11:2.11"
+      currentScid: "sn42.11:2.11",
     )
 
     let encoder = JSONEncoder()
@@ -851,7 +851,7 @@ struct SearchResponseTests {
   @Test func mLDocumentCurrentScidNotInEncodedJSON() async throws {
     let doc = MLDocument(
       sutta_uid: "sn42.11",
-      currentScid: nil
+      currentScid: nil,
     )
 
     let encoder = JSONEncoder()
@@ -897,7 +897,7 @@ struct SearchResponseTests {
       segMap: [:],
       sutta_uid: "sn42.11",
       title: "Test Sutta",
-      currentScid: "sn42.11:2.11"
+      currentScid: "sn42.11:2.11",
     )
 
     let response = SearchResponse(mlDocs: [mockDoc])
@@ -908,7 +908,7 @@ struct SearchResponseTests {
     let decoder = JSONDecoder()
     let decodedResponse = try decoder.decode(
       SearchResponse.self,
-      from: jsonData
+      from: jsonData,
     )
 
     #expect(decodedResponse.mlDocs.count == 1)
@@ -953,7 +953,7 @@ struct SearchResponseTests {
       segMap: [
         "sn42.11:0.1": Segment(scid: "sn42.11:0.1", doc: "Test segment"),
       ],
-      sutta_uid: "sn42.11"
+      sutta_uid: "sn42.11",
     )
 
     let index = doc.indexOfScid("nonexistent:0.1")
@@ -964,7 +964,7 @@ struct SearchResponseTests {
     let doc = MLDocument(
       author: "Test",
       segMap: [:],
-      sutta_uid: "test"
+      sutta_uid: "test",
     )
 
     let index = doc.indexOfScid("any:scid")

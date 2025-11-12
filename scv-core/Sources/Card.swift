@@ -28,7 +28,7 @@ final class Card: Codable {
   private(set) var cardType: CardType
   @MainActor
   var name: String {
-    return "\(localizedCardTypeName()) \(typeId)"
+    "\(localizedCardTypeName()) \(typeId)"
   }
 
   private(set) var typeId: Int
@@ -51,7 +51,7 @@ final class Card: Codable {
     searchQuery: String = "",
     searchResults: SearchResponse? = nil,
     suttaReference: String = "",
-    mlDoc: MLDocument? = nil
+    mlDoc: MLDocument? = nil,
   ) {
     createdAt = Date()
     self.cardType = cardType
@@ -96,7 +96,7 @@ final class Card: Codable {
     searchQuery = try container.decode(String.self, forKey: .searchQuery)
     searchResults = try container.decodeIfPresent(
       SearchResponse.self,
-      forKey: .searchResults
+      forKey: .searchResults,
     )
     suttaReference = try container.decode(String.self, forKey: .suttaReference)
     mlDoc = try container.decodeIfPresent(MLDocument.self, forKey: .mlDoc)
@@ -108,9 +108,9 @@ final class Card: Codable {
   func iconName() -> String {
     switch cardType {
     case .search:
-      return "magnifyingglass"
+      "magnifyingglass"
     case .sutta:
-      return "book"
+      "book"
     }
   }
 
@@ -119,9 +119,9 @@ final class Card: Codable {
   func localizedCardTypeName() -> String {
     switch cardType {
     case .search:
-      return "card.type.search".localized
+      "card.type.search".localized
     case .sutta:
-      return "card.type.sutta".localized
+      "card.type.sutta".localized
     }
   }
 
@@ -129,6 +129,6 @@ final class Card: Codable {
   @MainActor
   func title() -> String {
     // Always return localized CardType + ID (don't store in name)
-    return "\(localizedCardTypeName()) \(typeId)"
+    "\(localizedCardTypeName()) \(typeId)"
   }
 }

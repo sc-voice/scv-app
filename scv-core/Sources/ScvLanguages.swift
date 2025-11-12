@@ -27,21 +27,21 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   public var displayName: String {
     switch self {
     case .english:
-      return "English"
+      "English"
     case .portuguese:
-      return "Português"
+      "Português"
     case .spanish:
-      return "Español"
+      "Español"
     case .french:
-      return "Français"
+      "Français"
     case .german:
-      return "Deutsch"
+      "Deutsch"
     case .pli:
-      return "Pali"
+      "Pali"
     case .russian:
-      return "Русский"
+      "Русский"
     case .italian:
-      return "Italiano"
+      "Italiano"
     }
   }
 
@@ -49,27 +49,27 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   public var nativeName: String {
     switch self {
     case .english:
-      return "English"
+      "English"
     case .portuguese:
-      return "Português"
+      "Português"
     case .spanish:
-      return "Español"
+      "Español"
     case .french:
-      return "Français"
+      "Français"
     case .german:
-      return "Deutsch"
+      "Deutsch"
     case .pli:
-      return "Pali"
+      "Pali"
     case .russian:
-      return "Русский"
+      "Русский"
     case .italian:
-      return "Italiano"
+      "Italiano"
     }
   }
 
   /// ISO 639-1 language code
   public var code: String {
-    return rawValue
+    rawValue
   }
 
   // MARK: - Initialization

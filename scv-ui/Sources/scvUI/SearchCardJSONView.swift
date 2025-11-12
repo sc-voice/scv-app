@@ -19,14 +19,14 @@ public struct SearchCardJSONView: View {
         HStack(spacing: 12) {
           Label(
             "\(searchResponse.mlDocs.count) documents",
-            systemImage: "doc.text"
+            systemImage: "doc.text",
           )
           .font(.caption)
           .foregroundStyle(Color(red: 0.8, green: 0.65, blue: 0.0))
 
           Label(
             "\(searchResponse.segsMatched) matches",
-            systemImage: "checkmark.circle"
+            systemImage: "checkmark.circle",
           )
           .font(.caption)
           .foregroundStyle(Color(red: 0.8, green: 0.65, blue: 0.0))

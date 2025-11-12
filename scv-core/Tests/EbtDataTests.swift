@@ -25,7 +25,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "suffering"
+      query: "suffering",
     )
 
     #expect(!results.isEmpty)
@@ -37,7 +37,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "root"
+      query: "root",
     )
 
     for key in results {
@@ -50,7 +50,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "xyzabc123notaword"
+      query: "xyzabc123notaword",
     )
 
     #expect(results.isEmpty)
@@ -61,7 +61,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchRegexp(
       lang: "en",
       author: "sujato",
-      pattern: "suffering.*root"
+      pattern: "suffering.*root",
     )
 
     #expect(!results.isEmpty)
@@ -72,7 +72,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchRegexp(
       lang: "en",
       author: "sujato",
-      pattern: "buddha|mendicant"
+      pattern: "buddha|mendicant",
     )
 
     for key in results {
@@ -85,7 +85,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchRegexp(
       lang: "en",
       author: "sujato",
-      pattern: "[invalid(pattern"
+      pattern: "[invalid(pattern",
     )
 
     #expect(results.isEmpty)
@@ -100,7 +100,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "the"
+      query: "the",
     )
 
     #expect(results.count <= 5)
@@ -121,7 +121,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "root of suffering"
+      query: "root of suffering",
     )
 
     #expect(!results.isEmpty)
@@ -133,13 +133,13 @@ struct EbtDataTests {
   }
 
   @Test(
-    "'root of suffering' search returns expected keys with segment-level ranking"
+    "'root of suffering' search returns expected keys with segment-level ranking",
   )
   func rootOfSufferingReturnsExpectedKeys() async {
     let results = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "root of suffering"
+      query: "root of suffering",
     )
 
     let expectedKeys = [
@@ -164,12 +164,12 @@ struct EbtDataTests {
     let keywordResults = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
-      query: "root of suffering"
+      query: "root of suffering",
     )
     let phraseResults = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
-      phrase: "root of suffering"
+      phrase: "root of suffering",
     )
 
     // Phrase search should be more restrictive than keyword search
@@ -185,7 +185,7 @@ struct EbtDataTests {
     let results = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
-      phrase: "xyzabc123notaword phraseneverexists"
+      phrase: "xyzabc123notaword phraseneverexists",
     )
 
     #expect(results.isEmpty)
@@ -196,12 +196,12 @@ struct EbtDataTests {
     let keywordResults = await EbtData.shared.searchKeywordsWithScores(
       lang: "en",
       author: "sujato",
-      query: "root of suffering"
+      query: "root of suffering",
     )
     let phraseResults = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
-      phrase: "root of suffering"
+      phrase: "root of suffering",
     )
 
     print("\n========== KEYWORD SEARCH: 'root of suffering' ==========")
@@ -211,10 +211,10 @@ struct EbtDataTests {
       let relevancePct = Int(result.relevancePercent * 100)
       print("\(i + 1). \(result.key)")
       print(
-        "   Matches: \(result.matchCount), Total segments: \(result.totalSegments)"
+        "   Matches: \(result.matchCount), Total segments: \(result.totalSegments)",
       )
       print(
-        "   Relevance: \(relevancePct)%, Score: \(String(format: "%.2f", result.score))"
+        "   Relevance: \(relevancePct)%, Score: \(String(format: "%.2f", result.score))",
       )
     }
 
@@ -231,7 +231,7 @@ struct EbtDataTests {
     for fp in falsePositives {
       let relevancePct = Int(fp.relevancePercent * 100)
       print(
-        "  • \(fp.key): \(fp.matchCount) matches, \(relevancePct)%, score \(String(format: "%.2f", fp.score))"
+        "  • \(fp.key): \(fp.matchCount) matches, \(relevancePct)%, score \(String(format: "%.2f", fp.score))",
       )
     }
   }

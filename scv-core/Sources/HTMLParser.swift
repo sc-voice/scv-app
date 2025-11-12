@@ -29,7 +29,7 @@ public struct HTMLParseResult {
   public init(
     plainText: String,
     hasMatches: Bool = false,
-    spans: [HTMLSpan] = []
+    spans: [HTMLSpan] = [],
   ) {
     self.plainText = plainText
     self.hasMatches = hasMatches
@@ -53,7 +53,7 @@ public class HTMLParser {
     return HTMLParseResult(
       plainText: plainText,
       hasMatches: hasMatches,
-      spans: spans
+      spans: spans,
     )
   }
 
@@ -68,9 +68,9 @@ public class HTMLParser {
     let nsString = html as NSString
     regex.enumerateMatches(
       in: html,
-      range: NSRange(location: 0, length: nsString.length)
+      range: NSRange(location: 0, length: nsString.length),
     ) { match, _, _ in
-      guard let match = match else { return }
+      guard let match else { return }
       if let range = Range(match.range(at: 1), in: html) {
         spans.append(HTMLSpan(text: String(html[range]), isMatched: true))
       } else if let range = Range(match.range(at: 2), in: html) {
@@ -90,13 +90,13 @@ public class HTMLParser {
 
     let range = NSRange(
       htmlString.startIndex ..< htmlString.endIndex,
-      in: htmlString
+      in: htmlString,
     )
     let plainText = regex.stringByReplacingMatches(
       in: htmlString,
       options: [],
       range: range,
-      withTemplate: ""
+      withTemplate: "",
     )
     return plainText
   }

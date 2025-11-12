@@ -32,7 +32,7 @@ public struct SearchSuttasIntent: AppIntent {
     let language = settings.docLang.code
     if query == nil {
       query = try await $query.requestValue(
-        .init(stringLiteral: "What are you searching for?")
+        .init(stringLiteral: "What are you searching for?"),
       )
     }
 
@@ -40,17 +40,23 @@ public struct SearchSuttasIntent: AppIntent {
     let results = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
-      phrase: query ?? ""
+      phrase: query ?? "",
     )
 
     let strippedResults = results.map { result in
       result.replacingOccurrences(of: "en/sujato/", with: "")
     }
     let resultsList = strippedResults.joined(separator: ", ")
+
+    // Store sutta keys in UserDefaults for UIApp to retrieve
+    if let encoded = try? JSONEncoder().encode(results) {
+      UserDefaults.standard.set(encoded, forKey: "SearchSuttasIntentResults")
+    }
+
     return .result(
       dialog: .init(
-        "\(query ?? "") found in \(results.count) suttas: \(resultsList)"
-      )
+        "\(query ?? "") found in \(results.count) suttas: \(resultsList)",
+      ),
     )
   }
 }

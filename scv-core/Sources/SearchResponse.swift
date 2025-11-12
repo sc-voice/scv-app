@@ -54,7 +54,7 @@ public struct SearchResponse: Codable, Equatable {
     suttaRefs: [String] = [],
     mlDocs: [MLDocument] = [],
     searchError: SearchErrorInfo? = nil,
-    searchSuggestion: String = NIL_STRING_DEFAULT
+    searchSuggestion: String = NIL_STRING_DEFAULT,
   ) {
     self.author = author
     self.lang = lang
@@ -91,7 +91,7 @@ public struct SearchResponse: Codable, Equatable {
       .decodeIfPresent(String.self, forKey: .lang) ?? NIL_STRING_DEFAULT
     let searchLang = try container.decodeIfPresent(
       String.self,
-      forKey: .searchLang
+      forKey: .searchLang,
     ) ?? NIL_STRING_DEFAULT
     let minLang = try container
       .decodeIfPresent(Int.self, forKey: .minLang) ?? NIL_INT_DEFAULT
@@ -99,7 +99,7 @@ public struct SearchResponse: Codable, Equatable {
       .decodeIfPresent(Int.self, forKey: .maxDoc) ?? NIL_INT_DEFAULT
     let maxResults = try container.decodeIfPresent(
       Int.self,
-      forKey: .maxResults
+      forKey: .maxResults,
     ) ?? NIL_INT_DEFAULT
     let pattern = try container
       .decodeIfPresent(String.self, forKey: .pattern) ?? NIL_STRING_DEFAULT
@@ -107,31 +107,31 @@ public struct SearchResponse: Codable, Equatable {
       .decodeIfPresent(String.self, forKey: .method) ?? NIL_STRING_DEFAULT
     let resultPattern = try container.decodeIfPresent(
       String.self,
-      forKey: .resultPattern
+      forKey: .resultPattern,
     ) ?? NIL_STRING_DEFAULT
     let segsMatched = try container.decodeIfPresent(
       Int.self,
-      forKey: .segsMatched
+      forKey: .segsMatched,
     ) ?? NIL_INT_DEFAULT
     let bilaraPaths = try container.decodeIfPresent(
       [String].self,
-      forKey: .bilaraPaths
+      forKey: .bilaraPaths,
     ) ?? []
     let suttaRefs = try container.decodeIfPresent(
       [String].self,
-      forKey: .suttaRefs
+      forKey: .suttaRefs,
     ) ?? []
     let mlDocs = try container.decodeIfPresent(
       [MLDocument].self,
-      forKey: .mlDocs
+      forKey: .mlDocs,
     ) ?? []
     let searchError = try container.decodeIfPresent(
       SearchErrorInfo.self,
-      forKey: .searchError
+      forKey: .searchError,
     )
     let searchSuggestion = try container.decodeIfPresent(
       String.self,
-      forKey: .searchSuggestion
+      forKey: .searchSuggestion,
     ) ?? NIL_STRING_DEFAULT
 
     self.init(
@@ -149,7 +149,7 @@ public struct SearchResponse: Codable, Equatable {
       suttaRefs: suttaRefs,
       mlDocs: mlDocs,
       searchError: searchError,
-      searchSuggestion: searchSuggestion
+      searchSuggestion: searchSuggestion,
     )
   }
 
@@ -219,7 +219,7 @@ public struct Segment: Codable, Equatable {
     doc: String? = nil,
     ref: String? = nil,
     pli: String? = nil,
-    matched: Bool = NIL_BOOL_DEFAULT
+    matched: Bool = NIL_BOOL_DEFAULT,
   ) {
     self.scid = scid
     self.doc = doc
@@ -284,7 +284,7 @@ public struct DocumentStats: Codable, Equatable {
     nSegments: Int = NIL_INT_DEFAULT,
     nEmptySegments: Int = NIL_INT_DEFAULT,
     nSections: Int = NIL_INT_DEFAULT,
-    seconds: Double = NIL_DOUBLE_DEFAULT
+    seconds: Double = NIL_DOUBLE_DEFAULT,
   ) {
     self.text = text
     self.lang = lang
@@ -305,7 +305,7 @@ public struct DocumentStats: Codable, Equatable {
       .decodeIfPresent(Int.self, forKey: .nSegments) ?? NIL_INT_DEFAULT
     let nEmptySegments = try container.decodeIfPresent(
       Int.self,
-      forKey: .nEmptySegments
+      forKey: .nEmptySegments,
     ) ?? NIL_INT_DEFAULT
     let nSections = try container
       .decodeIfPresent(Int.self, forKey: .nSections) ?? NIL_INT_DEFAULT
@@ -318,7 +318,7 @@ public struct DocumentStats: Codable, Equatable {
       nSegments: nSegments,
       nEmptySegments: nEmptySegments,
       nSections: nSections,
-      seconds: seconds
+      seconds: seconds,
     )
   }
 
@@ -337,19 +337,19 @@ public struct DocumentStats: Codable, Equatable {
 extension SearchResponse {
   /// Returns all segments that matched the search pattern
   var matchedSegments: [Segment] {
-    return mlDocs.flatMap { doc in
+    mlDocs.flatMap { doc in
       doc.segMap.values.filter { $0.matched == true }
     }
   }
 
   /// Returns the total number of documents
   var totalDocuments: Int {
-    return mlDocs.count
+    mlDocs.count
   }
 
   /// Returns all unique sutta references
   var uniqueSuttaRefs: [String] {
-    return Array(Set(suttaRefs))
+    Array(Set(suttaRefs))
   }
 
   /// Creates a failure SearchResponse with error information
@@ -363,9 +363,9 @@ extension SearchResponse {
     code: String,
     message: String,
     suggestion: String? = nil,
-    pattern: String
+    pattern: String,
   ) -> SearchResponse {
-    return SearchResponse(
+    SearchResponse(
       author: "",
       lang: "",
       searchLang: "",
@@ -380,7 +380,7 @@ extension SearchResponse {
       suttaRefs: [],
       mlDocs: [],
       searchError: SearchErrorInfo(code: code, message: message),
-      searchSuggestion: suggestion ?? NIL_STRING_DEFAULT
+      searchSuggestion: suggestion ?? NIL_STRING_DEFAULT,
     )
   }
 
@@ -401,7 +401,7 @@ extension SearchResponse {
     guard let resourceURL = Bundle.module.url(
       forResource: resourceName,
       withExtension: "json",
-      subdirectory: languageFolder
+      subdirectory: languageFolder,
     ),
       let data = try? Data(contentsOf: resourceURL)
     else {
@@ -427,11 +427,11 @@ extension SearchResponse {
 extension Segment {
   /// Returns the best available text (prefers doc, falls back to Pali)
   var displayText: String {
-    if let doc = doc, !doc.isEmpty {
+    if let doc, !doc.isEmpty {
       return doc
-    } else if let pli = pli, !pli.isEmpty {
+    } else if let pli, !pli.isEmpty {
       return pli
-    } else if let ref = ref, !ref.isEmpty {
+    } else if let ref, !ref.isEmpty {
       return ref
     }
     return scid
@@ -439,6 +439,6 @@ extension Segment {
 
   /// Returns true if this segment contains the search match
   var isMatched: Bool {
-    return matched
+    matched
   }
 }

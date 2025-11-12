@@ -82,13 +82,13 @@ public struct SuttaView: View {
                     lineWidth: 2,
                     lineCap: .butt,
                     lineJoin: .bevel,
-                    dash: [4, 3]
-                  )
-                )
+                    dash: [4, 3],
+                  ),
+                ),
             )
             .onTapGesture {
               mlDoc.currentScid = scid
-              if isCurrentlyPlaying && player.isPlaying {
+              if isCurrentlyPlaying, player.isPlaying {
                 player.jumpToSegment(scid: scid)
               }
             }
@@ -123,16 +123,15 @@ public struct SuttaView: View {
                               field: String = "doc") -> String
   {
     let EMPTY_SET = "∅"
-    let value: String?
-    switch field.lowercased() {
+    let value: String? = switch field.lowercased() {
     case "doc":
-      value = segment.doc
+      segment.doc
     case "pli":
-      value = segment.pli
+      segment.pli
     case "ref":
-      value = segment.ref
+      segment.ref
     default:
-      value = nil
+      nil
     }
     return value?.isEmpty ?? true ? EMPTY_SET : value!
   }
@@ -164,8 +163,8 @@ public struct SuttaView: View {
       .contextMenu {
         Button("Copy Matched") {
           let matched = parseResult.spans
-            .filter { $0.isMatched }
-            .map { $0.text }
+            .filter(\.isMatched)
+            .map(\.text)
             .joined()
           UIPasteboard.general.string = matched
         }

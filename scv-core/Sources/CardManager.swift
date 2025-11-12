@@ -51,12 +51,12 @@ class CardManager {
 
   /// Returns total count of all cards
   var totalCount: Int {
-    return allCards.count
+    allCards.count
   }
 
   /// Returns the currently selected card
   var selectedCard: Card? {
-    guard let selectedCardId = selectedCardId else { return nil }
+    guard let selectedCardId else { return nil }
     return allCards.first { $0.id == selectedCardId }
   }
 
@@ -64,13 +64,13 @@ class CardManager {
 
   /// Returns count for a specific card type
   func count(for cardType: CardType) -> Int {
-    return allCards.filter { $0.cardType == cardType }.count
+    allCards.count(where: { $0.cardType == cardType })
   }
 
   /// Returns the largest ID for a specific card type, or 0 if no cards exist
   func largestId(for cardType: CardType) -> Int {
     let cardsOfType = allCards.filter { $0.cardType == cardType }
-    return cardsOfType.map { $0.typeId }.max() ?? 0
+    return cardsOfType.map(\.typeId).max() ?? 0
   }
 
   /// Adds a new card and returns the card with the assigned ID
@@ -79,7 +79,7 @@ class CardManager {
     // Create a new card with the correct ID
     let newCard = Card(
       cardType: cardType,
-      typeId: largestId(for: cardType) + 1
+      typeId: largestId(for: cardType) + 1,
     )
 
     modelContext.insert(newCard)

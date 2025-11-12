@@ -24,9 +24,9 @@ struct ContentView: View {
     let language = Settings.shared.docLang.code
     let response = SearchResponse.createMockResponse(language: language)
     print(
-      "DEBUG: createMockResponse(language: \(language)) returned: \(response != nil ? "not nil" : "nil")"
+      "DEBUG: createMockResponse(language: \(language)) returned: \(response != nil ? "not nil" : "nil")",
     )
-    if let response = response {
+    if let response {
       print("DEBUG: mlDocs count: \(response.mlDocs.count)")
     }
     searchResponse = response
@@ -38,7 +38,7 @@ struct ContentView: View {
     {
       if let request = try? JSONDecoder().decode(
         SearchIntentRequest.self,
-        from: data
+        from: data,
       ) {
         searchIntentRequest = request
         showIntentConfirmation = true
@@ -52,7 +52,7 @@ struct ContentView: View {
       let results = await EbtData.shared.searchKeywords(
         lang: request.language,
         author: request.author,
-        query: request.query
+        query: request.query,
       )
       searchResults = results
     }
@@ -68,12 +68,12 @@ struct ContentView: View {
   var body: some View {
     VStack {
       HStack {
-        Text("SuttaView - sn42.11")
+        Text("SN24.11")
           .font(.title)
           .foregroundStyle(themeProvider.theme.textColor)
         Spacer()
         Button(action: { showSettings = true }) {
-          Image(systemName: "gear")
+          Image(systemName: "gearshape")
             .font(.title2)
             .foregroundColor(themeProvider.theme.textColor)
         }
@@ -81,8 +81,9 @@ struct ContentView: View {
         .padding(.trailing)
       }
       .padding()
+      .background(themeProvider.theme.toolbarColor)
 
-      if let searchResponse = searchResponse,
+      if let searchResponse,
          let mlDoc = searchResponse.mlDocs.first
       {
         SuttaView(mlDoc: mlDoc, player: player)
@@ -114,13 +115,13 @@ struct ContentView: View {
     } message: {
       if let request = searchIntentRequest {
         Text(
-          "Search \(request.language) (\(request.author)) for:\n\(request.query)"
+          "Search \(request.language) (\(request.author)) for:\n\(request.query)",
         )
       }
     }
     .popover(
       isPresented: $showSettings,
-      attachmentAnchor: .point(.topTrailing)
+      attachmentAnchor: .point(.topTrailing),
     ) {
       SettingsView(controller: settingsController)
         .environmentObject(themeProvider)
