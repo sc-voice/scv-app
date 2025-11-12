@@ -27,7 +27,7 @@ public struct SearchSuttasIntent: AppIntent {
     }
   }
 
-  public func perform() async throws -> some IntentResult & ProvidesDialog {
+  public func perform() async throws -> some IntentResult {
     let settings = Settings.shared
     let language = settings.docLang.code
     if query == nil {
@@ -48,15 +48,36 @@ public struct SearchSuttasIntent: AppIntent {
     }
     let resultsList = strippedResults.joined(separator: ", ")
 
-    // Store sutta keys in UserDefaults for UIApp to retrieve
-    if let encoded = try? JSONEncoder().encode(results) {
-      UserDefaults.standard.set(encoded, forKey: "SearchSuttasIntentResults")
+    // Store search results and metadata for app to display
+    let intentResults = SearchIntentResults(
+      query: query ?? "",
+      language: "en",
+      author: "sujato",
+      results: strippedResults,
+    )
+    if let encoded = try? JSONEncoder().encode(intentResults) {
+      // Use app groups for inter-process communication between app and App
+      // Intent
+      if let defaults = UserDefaults(suiteName: "group.sc-voice.scv-app") {
+        defaults.set(encoded, forKey: "SearchSuttasIntentResults")
+        print(
+          "DEBUG SearchSuttasIntent: Stored \(strippedResults.count) results for query '\(query ?? "")'",
+        )
+      } else {
+        // Fallback to standard UserDefaults if app groups not available
+        UserDefaults.standard.set(encoded, forKey: "SearchSuttasIntentResults")
+        print(
+          "DEBUG SearchSuttasIntent: App groups unavailable, using standard UserDefaults",
+        )
+      }
+    } else {
+      print("DEBUG SearchSuttasIntent: Failed to encode results")
     }
 
-    return .result(
-      dialog: .init(
-        "\(query ?? "") found in \(results.count) suttas: \(resultsList)",
-      ),
-    )
+    DispatchQueue.main.async {
+      print("DEBUG \(query ?? "") found in \(results.count) suttas")
+    }
+
+    return .result()
   }
 }

@@ -200,3 +200,15 @@ cd scv-core && swift test --filter CardTests
 06. [x] Write tests for phrase search functionality
 07. [x] Display search results with scores and timing (0.033 seconds total)
 08. [x] Verify all 228 tests pass
+
+### Show search results from SearchSuttasIntent in app dialog
+**Status**: Complete
+
+01. [x] Create SearchIntentResults struct for inter-process communication
+02. [x] Implement app group UserDefaults to share results between intent and app
+03. [x] Add app group entitlements (Debug and Release builds)
+04. [x] Update ContentView to detect and display results in sheet dialog
+05. [x] Implement Timer polling for app group UserDefaults changes
+06. [x] Refactor SearchResultsView to display intent results correctly
+07. [x] Update SearchSuttasIntent to store results via app groups
+08. [x] Test on device and verify results display in sheet

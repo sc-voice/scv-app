@@ -13,3 +13,23 @@ public struct SearchIntentRequest: Codable {
     self.author = author ?? "WHATAUTHOR"
   }
 }
+
+/// Results from SearchSuttasIntent to be displayed in the app
+public struct SearchIntentResults: Codable {
+  public let query: String
+  public let language: String
+  public let author: String
+  public let results: [String]
+
+  public init(
+    query: String,
+    language: String,
+    author: String,
+    results: [String],
+  ) {
+    self.query = query
+    self.language = language
+    self.author = author
+    self.results = results
+  }
+}

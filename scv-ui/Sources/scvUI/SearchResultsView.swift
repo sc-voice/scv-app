@@ -26,27 +26,28 @@ public struct SearchResultsView: View {
 
   public var body: some View {
     VStack(spacing: 0) {
-      // Header
-      VStack(alignment: .leading, spacing: 4) {
-        HStack {
-          VStack(alignment: .leading, spacing: 4) {
-            Text("Search Results")
-              .font(.headline)
-            Text("Query: \(query)")
-              .font(.caption)
-              .foregroundColor(.secondary)
-          }
-          Spacer()
-          Text("\(results.count) results")
+      // Results List
+      if results.isEmpty {
+        VStack(spacing: 12) {
+          Image(systemName: "magnifyingglass")
+            .font(.title2)
+            .foregroundColor(.secondary)
+          Text("No results found")
+            .font(.headline)
+          Text("Query: \(query)")
             .font(.caption)
             .foregroundColor(.secondary)
+          Text("(results array count: \(results.count))")
+            .font(.caption2)
+            .foregroundColor(.red)
         }
-        .padding()
-      }
-      .background(Color(.systemGray6))
-
-      // Results List
-      if isLoading {
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+          print(
+            "DEBUG SearchResultsView: results is empty. query='\(query)', results=\(results)",
+          )
+        }
+      } else if isLoading {
         VStack(spacing: 12) {
           ProgressView()
           Text("Loading scores...")
@@ -65,18 +66,6 @@ public struct SearchResultsView: View {
             .foregroundColor(.secondary)
         }
         .padding()
-      } else if resultScores.isEmpty {
-        VStack(spacing: 8) {
-          Image(systemName: "magnifyingglass")
-            .font(.title2)
-            .foregroundColor(.secondary)
-          Text("No results found")
-            .font(.headline)
-          Text("Try adjusting your search query")
-            .font(.caption)
-            .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
       } else {
         List {
           ForEach(resultScores, id: \.suttaId) { result in
