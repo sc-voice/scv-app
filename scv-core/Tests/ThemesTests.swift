@@ -9,9 +9,9 @@
 import Testing
 
 struct ThemesTests {
-    @Test
-    func test_inverseTheme() {
-        #expect(AppTheme.inverseTheme(.light) == .dark)
-        #expect(AppTheme.inverseTheme(.dark) == .light)
-    }
+  @Test
+  func test_inverseTheme() {
+    #expect(AppTheme.inverseTheme(.light) == .dark)
+    #expect(AppTheme.inverseTheme(.dark) == .light)
+  }
 }
