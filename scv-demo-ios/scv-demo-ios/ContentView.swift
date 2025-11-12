@@ -15,6 +15,9 @@ struct ContentView: View {
     @State private var searchResponse: SearchResponse?
     @State private var showSettings = false
     @StateObject private var settingsController = SettingsModalController(from: Settings.shared)
+    @State private var searchIntentRequest: SearchIntentRequest?
+    @State private var showIntentConfirmation = false
+    @State private var searchResults: [String] = []
 
     private func loadMockResponse() {
         let language = Settings.shared.docLang.code
@@ -24,6 +27,34 @@ struct ContentView: View {
             print("DEBUG: mlDocs count: \(response.mlDocs.count)")
         }
         searchResponse = response
+    }
+
+    private func loadSearchIntentRequest() {
+        if let data = UserDefaults.standard.data(forKey: "com.scv.searchIntentRequest") {
+            if let request = try? JSONDecoder().decode(SearchIntentRequest.self, from: data) {
+                searchIntentRequest = request
+                showIntentConfirmation = true
+            }
+        }
+    }
+
+    private func performIntentSearch() {
+        guard let request = searchIntentRequest else { return }
+        Task {
+            let results = await EbtData.shared.searchKeywords(
+                lang: request.language,
+                author: request.author,
+                query: request.query
+            )
+            searchResults = results
+        }
+    }
+
+    private func clearIntentRequest() {
+        UserDefaults.standard.removeObject(forKey: "com.scv.searchIntentRequest")
+        searchIntentRequest = nil
+        showIntentConfirmation = false
+        searchResults = []
     }
 
     var body: some View {
@@ -38,6 +69,7 @@ struct ContentView: View {
                         .font(.title2)
                         .foregroundColor(themeProvider.theme.textColor)
                 }
+                .disabled(player.isPlaying)
                 .padding(.trailing)
             }
             .padding()
@@ -60,9 +92,20 @@ struct ContentView: View {
         .onAppear {
             print("DEBUG: ContentView.onAppear called")
             loadMockResponse()
+            loadSearchIntentRequest()
         }
         .onChange(of: settingsController.docLang) {
             loadMockResponse()
+        }
+        .alert("Confirm Search", isPresented: $showIntentConfirmation) {
+            Button("Cancel") {
+                clearIntentRequest()
+            }
+            Button("Search", action: performIntentSearch)
+        } message: {
+            if let request = searchIntentRequest {
+                Text("Search \(request.language) (\(request.author)) for:\n\(request.query)")
+            }
         }
         .popover(isPresented: $showSettings, attachmentAnchor: .point(.topTrailing)) {
             SettingsView(controller: settingsController)

@@ -124,8 +124,8 @@ public actor EbtData {
   }
 
   /// Returns sutta keys with match counts and scores for debugging/display
-  /// Internal helper that includes scoring details
-  func searchKeywordsWithScores(lang: String, author: String, query: String) -> [(key: String, matchCount: Int, totalSegments: Int, relevancePercent: Double, score: Double)] {
+  /// Includes scoring details for display purposes
+  public func searchKeywordsWithScores(lang: String, author: String, query: String) -> [(key: String, matchCount: Int, totalSegments: Int, relevancePercent: Double, score: Double)] {
     do {
       try ensureDatabase(lang: lang, author: author)
       let key = "\(lang)/\(author)"

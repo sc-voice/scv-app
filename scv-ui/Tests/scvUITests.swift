@@ -5,8 +5,61 @@ import Testing
 @Suite
 struct scvUITests {
   @Test
-  func placeholder() {
-    #expect(true)
+  func searchSuttasIntentInitializesWithQuery() {
+    let intent = SearchSuttasIntent(query: "root of suffering")
+    #expect(intent.query == "root of suffering")
+  }
+
+  @Test
+  func searchSuttasIntentInitializesWithEmptyQuery() {
+    let intent = SearchSuttasIntent()
+    #expect(intent.query == "")
+  }
+
+  @Test
+  func searchIntentRequestContainsData() {
+    let request = SearchIntentRequest(
+      query: "dukkha",
+      language: "en",
+      author: "sujato"
+    )
+
+    #expect(request.query == "dukkha")
+    #expect(request.language == "en")
+    #expect(request.author == "sujato")
+  }
+
+  @Test
+  func searchIntentRequestIsEncodable() throws {
+    let original = SearchIntentRequest(
+      query: "anatta",
+      language: "en",
+      author: "sujato"
+    )
+
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(original)
+
+    #expect(data.count > 0)
+  }
+
+  @Test
+  func searchIntentRequestIsDecodable() throws {
+    let original = SearchIntentRequest(
+      query: "anatta",
+      language: "en",
+      author: "sujato"
+    )
+
+    let encoder = JSONEncoder()
+    let encoded = try encoder.encode(original)
+
+    let decoder = JSONDecoder()
+    let decoded = try decoder.decode(SearchIntentRequest.self, from: encoded)
+
+    #expect(decoded.query == original.query)
+    #expect(decoded.language == original.language)
+    #expect(decoded.author == original.author)
   }
 
   @Test
