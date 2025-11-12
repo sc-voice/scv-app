@@ -14,9 +14,11 @@ and provides a card-based interface where users can create multiple search and s
 
 - you can read any file in project except those in secret/
 
-## Invariant Violations
+## Invariant Violation Counter
 
-**Total Count: 1**
+**TOTAL VIOLATIONS: 1**
+
+## Invariant Violations
 
 ### Violation #1 (2025-11-12)
 - Invariant: wend workflow (must create .commit-msg before stopping)
