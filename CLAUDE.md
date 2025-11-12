@@ -14,6 +14,16 @@ and provides a card-based interface where users can create multiple search and s
 
 - you can read any file in project except those in secret/
 
+## Invariant Violations
+
+**Total Count: 1**
+
+### Violation #1 (2025-11-12)
+- Invariant: wend workflow (must create .commit-msg before stopping)
+- Issue: Did not create .commit-msg at wend. Developer had to point out the omission.
+- Root Cause: Completed wend tasks but forgot to create .commit-msg file with commit message and details
+- Impact: Developer could not run `make commit` without first requesting the missing file
+
 ## Testing
 
 ### scv-core Package Tests
