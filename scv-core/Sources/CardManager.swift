@@ -13,6 +13,8 @@ import SwiftData
 /// Instance-based manager for Card instances with ModelContext integration
 @Observable
 class CardManager {
+  let cc = ColorConsole(#file, #function)
+
   // MARK: - Properties
 
   private let modelContext: ModelContext
@@ -87,7 +89,7 @@ class CardManager {
     do {
       try modelContext.save()
     } catch {
-      print("Failed to save card: \(error)")
+      cc.bad1(#line, "Failed to save card: \(error)")
     }
 
     return newCard
@@ -115,7 +117,7 @@ class CardManager {
     do {
       try modelContext.save()
     } catch {
-      print("Failed to delete card: \(error)")
+      cc.bad1(#line, "Failed to delete card: \(error)")
     }
   }
 

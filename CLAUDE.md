@@ -49,6 +49,14 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
+### Add @discardableResult to ColorConsole methods
+**Status**: Complete
+
+01. [x] Locate ColorConsole.swift and examine the four methods
+02. [x] Add @discardableResult attribute to each method (ok1, ok2, bad1, bad2)
+03. [x] Run make test to verify no regressions (build 1.1.354 succeeded)
+04. [x] Document changes in .commit-msg
+
 ### Set up themes
 **Status**: Complete
 

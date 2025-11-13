@@ -18,12 +18,12 @@ struct scv_demo_iosApp: App {
   }
 
   var body: some Scene {
-    let cc = ColorConsole(#file, #function)
+    let cc = ColorConsole(#file, #function, 2)
     WindowGroup {
       ContentView()
         .environmentObject(player)
         .onAppear {
-          _ = cc.ok1(#line, "WindowGroup appeared!")
+          _ = cc.ok2(#line, "WindowGroup appeared!")
         }
     }
   }

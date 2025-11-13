@@ -38,22 +38,62 @@ public final class ColorConsole: Sendable {
   /// Print bright green text and return colored string or nil based on
   /// verbosity
   /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
+  @discardableResult
   public func ok1(_ messages: Any...) -> String? {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString("✅", sourceFile, sourceMethod, messages)
+    let result = colorString(
+      "✅" + sourceFile + ":" + sourceMethod + ":",
+      messages,
+    )
     print(result)
     return result
   }
 
   /// Print bright red text and return colored string or nil based on verbosity
   /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
+  @discardableResult
   public func bad1(_ messages: Any...) -> String? {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString("❌", sourceFile, sourceMethod, messages)
+    let result = colorString(
+      "❌" + sourceFile + ":" + sourceMethod + ":",
+      messages,
+    )
+    print(result)
+    return result
+  }
+
+  /// Print checkmark text indented and return colored string or nil based on
+  /// verbosity
+  /// - Returns: Colored result string if verbosity >= 2, nil if verbosity < 2
+  @discardableResult
+  public func ok2(_ messages: Any...) -> String? {
+    if verbosity < 2 {
+      return nil
+    }
+    let result = colorString(
+      "  🌱" + sourceFile + ":" + sourceMethod + ":"
+        + messages.map { String(describing: $0) }.joined(separator: " "),
+    )
+    print(result)
+    return result
+  }
+
+  /// Print X mark text indented and return colored string or nil based on
+  /// verbosity
+  /// - Returns: Colored result string if verbosity >= 2, nil if verbosity < 2
+  @discardableResult
+  public func bad2(_ messages: Any...) -> String? {
+    if verbosity < 2 {
+      return nil
+    }
+    let result = colorString(
+      "  🌶️" + sourceFile + ":" + sourceMethod + ":"
+        + messages.map { String(describing: $0) }.joined(separator: " "),
+    )
     print(result)
     return result
   }

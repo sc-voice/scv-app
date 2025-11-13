@@ -27,11 +27,12 @@ struct ContentView: View {
   private func loadMockResponse() {
     let language = Settings.shared.docLang.code
     let response = SearchResponse.createMockResponse(language: language)
-    print(
-      "DEBUG: createMockResponse(language: \(language)) returned: \(response != nil ? "not nil" : "nil")",
+    cc.ok2(
+      #line,
+      "createMockResponse(\(language)) => \(response != nil ? "not nil" : "nil")",
     )
     if let response {
-      print("DEBUG: mlDocs count: \(response.mlDocs.count)")
+      cc.ok1(#line, "mlDocs: \(response.mlDocs.count)")
     }
     searchResponse = response
   }
@@ -75,19 +76,12 @@ struct ContentView: View {
       UserDefaults.standard
 
     if let data = defaults.data(forKey: "SearchSuttasIntentResults") {
-      // print(
-      // "DEBUG: Found SearchSuttasIntentResults in UserDefaults (size: \(data.count) bytes)",
-      // )
       if let results = try? JSONDecoder().decode(
         SearchIntentResults.self,
         from: data,
       ) {
-        // print(
-        // "DEBUG: Decoded results: \(results.query), \(results.results.count) suttas",
-        // )
-        // If results changed, dismiss old sheet and show new results
         if searchIntentResults?.query != results.query {
-          print("DEBUG: New search detected, dismissing old sheet")
+          cc.ok2(#line, "New search detected, dismissing old sheet")
           showResultsDialog = false
           // Update results immediately, then show sheet after animation
           searchIntentResults = results
@@ -100,7 +94,7 @@ struct ContentView: View {
           showResultsDialog = true
         }
       } else {
-        print("DEBUG: Failed to decode SearchIntentResults")
+        cc.bad1(#line, "Failed to decode SearchIntentResults")
       }
     }
   }
@@ -114,6 +108,7 @@ struct ContentView: View {
   }
 
   var body: some View {
+    let cc = ColorConsole(#file, #function)
     VStack {
       HStack {
         Text("SN24.11")
@@ -148,7 +143,7 @@ struct ContentView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(themeProvider.theme.cardBackground)
     .onAppear {
-      print("DEBUG: ContentView.onAppear called")
+      cc.ok2(#line, "onAppear called")
       loadMockResponse()
       loadSearchIntentRequest()
       loadSearchIntentResults()
@@ -194,8 +189,9 @@ struct ContentView: View {
           )
           .environmentObject(themeProvider)
           .onAppear {
-            print(
-              "DEBUG ContentView sheet: Showing results. query='\(results.query)', results count=\(results.results.count)",
+            cc.ok2(
+              #line,
+              "sheet: Showing results. query='\(results.query)', results count=\(results.results.count)",
             )
           }
           .navigationTitle("Search Results")

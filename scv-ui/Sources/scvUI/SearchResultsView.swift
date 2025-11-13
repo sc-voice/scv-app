@@ -25,6 +25,7 @@ public struct SearchResultsView: View {
   }
 
   public var body: some View {
+    let cc = ColorConsole(#file, #function)
     VStack(spacing: 0) {
       // Results List
       if results.isEmpty {
@@ -43,8 +44,9 @@ public struct SearchResultsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-          print(
-            "DEBUG SearchResultsView: results is empty. query='\(query)', results=\(results)",
+          cc.ok2(
+            #line,
+            "results is empty. query='\(query)', results=\(results)",
           )
         }
       } else if isLoading {

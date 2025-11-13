@@ -86,4 +86,54 @@ struct ColorConsoleTests {
     #expect(result.contains("Hello World"))
     #expect(result.contains("\u{001B}[0m"))
   }
+
+  @Test
+  func ok2NotDisplayedAtVerbosity1() {
+    let cc = ColorConsole(#file, #function, 1)
+    let result = cc.ok2("Verbose message")
+    #expect(result == nil)
+  }
+
+  @Test
+  func ok2DisplayedAtVerbosity2() {
+    let cc = ColorConsole(#file, #function, 2)
+    let result = cc.ok2("Verbose message")
+    #expect(result?.contains("✔️") == true)
+    #expect(result?.contains("  Verbose message") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
+  }
+
+  @Test
+  func ok2MultipleMessagesAtVerbosity2() {
+    let cc = ColorConsole(#file, #function, 2)
+    let result = cc.ok2("All", "tests", "passed")
+    #expect(result?.contains("✔️") == true)
+    #expect(result?.contains("  All tests passed") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
+  }
+
+  @Test
+  func bad2NotDisplayedAtVerbosity1() {
+    let cc = ColorConsole(#file, #function, 1)
+    let result = cc.bad2("Verbose error")
+    #expect(result == nil)
+  }
+
+  @Test
+  func bad2DisplayedAtVerbosity2() {
+    let cc = ColorConsole(#file, #function, 2)
+    let result = cc.bad2("Verbose error")
+    #expect(result?.contains("✖️") == true)
+    #expect(result?.contains("  Verbose error") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
+  }
+
+  @Test
+  func bad2MultipleMessagesAtVerbosity2() {
+    let cc = ColorConsole(#file, #function, 2)
+    let result = cc.bad2("Test", "failed", "badly")
+    #expect(result?.contains("✖️") == true)
+    #expect(result?.contains("  Test failed badly") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
+  }
 }
