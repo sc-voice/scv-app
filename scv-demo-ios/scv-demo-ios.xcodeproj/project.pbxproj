@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3142EB97DA2007C60C9 /* scvUI */; };
+	F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3172EB97DA2007C60C9 /* scvMacros */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */,
+			F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +128,7 @@
 			name = "scv-demo-ios";
 			packageProductDependencies = (
 				F26DF3142EB97DA2007C60C9 /* scvUI */,
+				F26DF3172EB97DA2007C60C9 /* scvMacros */,
 			);
 			productName = "scv-demo-ios";
 			productReference = F26DF2E62EB97B06007C60C9 /* scv-demo-ios.app */;
@@ -414,7 +417,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.318;
+				CURRENT_PROJECT_VERSION = 1.1.342;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -452,7 +455,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosRelease.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.318;
+				CURRENT_PROJECT_VERSION = 1.1.342;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -609,6 +612,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../scv-ui";
 		};
+		F26DF3162EB97BA9007C60C9 /* XCLocalSwiftPackageReference "../scv-macros" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../scv-macros";
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -616,6 +623,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F26DF3122EB97BA9007C60C9 /* XCLocalSwiftPackageReference "../scv-ui" */;
 			productName = scvUI;
+		};
+		F26DF3172EB97DA2007C60C9 /* scvMacros */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F26DF3162EB97BA9007C60C9 /* XCLocalSwiftPackageReference "../scv-macros" */;
+			productName = scvMacros;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

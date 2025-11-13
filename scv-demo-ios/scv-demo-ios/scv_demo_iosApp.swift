@@ -13,10 +13,18 @@ import SwiftUI
 struct scv_demo_iosApp: App {
   @StateObject private var player = SuttaPlayer.shared
 
+  init() {
+    AppLaunch.initialize()
+  }
+
   var body: some Scene {
+    let cc = ColorConsole(path: #file, method: #function)
     WindowGroup {
       ContentView()
         .environmentObject(player)
+        .onAppear {
+          _ = cc.ok1(#line, "WindowGroup appeared!")
+        }
     }
   }
 }

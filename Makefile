@@ -40,6 +40,12 @@ test-demo-ios:
 build: build-core build-demo-ios
 	@scripts/version patch
 
+# build-macros:
+# 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+# Note: scv-macros is a compiler plugin that rarely changes.
+# Uncomment above to rebuild when macro code changes.
+# Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
+
 build-core:
 	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
@@ -55,6 +61,9 @@ clean: clean-core clean-ui clean-demo-ios format
 
 format:
 	@swiftformat . --exclude Pods
+
+# clean-macros:
+# 	@cd scv-macros && swift package clean 2>/dev/null || true
 
 clean-core:
 	@cd scv-core && swift package clean 2>/dev/null || true

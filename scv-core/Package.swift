@@ -13,11 +13,15 @@ let package = Package(
       targets: ["scvCore"],
     ),
   ],
-  dependencies: [],
+  dependencies: [
+    .package(path: "../scv-macros"),
+  ],
   targets: [
     .target(
       name: "scvCore",
-      dependencies: [],
+      dependencies: [
+        .product(name: "scvMacros", package: "scv-macros"),
+      ],
       path: "Sources",
       resources: [
         .copy("../Resources/en.lproj"),
