@@ -6,56 +6,63 @@ import Testing
 struct ColorConsoleTests {
   @Test
   func ok1SingleMessage() {
+    let cc = ColorConsole(#file, #function, 1)
     let result = cc.ok1("Success!")
-    #expect(result.contains("\u{001B}[92m"))
-    #expect(result.contains("Success!"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[92m") == true)
+    #expect(result?.contains("Success!") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func ok1MultipleMessages() {
+    let cc = ColorConsole(#file, #function)
     let result = cc.ok1("All", "tests", "passed")
-    #expect(result.contains("\u{001B}[92m"))
-    #expect(result.contains("All tests passed"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[92m") == true)
+    #expect(result?.contains("All tests passed") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func bad1SingleMessage() {
+    let cc = ColorConsole(#file, #function, 1)
     let result = cc.bad1("Error!")
-    #expect(result.contains("\u{001B}[91m"))
-    #expect(result.contains("Error!"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[91m") == true)
+    #expect(result?.contains("Error!") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func bad1MultipleMessages() {
+    let cc = ColorConsole(#file, #function)
     let result = cc.bad1("Test", "failed", "badly")
-    #expect(result.contains("\u{001B}[91m"))
-    #expect(result.contains("Test failed badly"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[91m") == true)
+    #expect(result?.contains("Test failed badly") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func ok1WithInterpolation() {
+    let cc = ColorConsole(#file, #function, 1)
     let count = 5
     let result = cc.ok1("Processed", count, "items")
-    #expect(result.contains("\u{001B}[92m"))
-    #expect(result.contains("Processed 5 items"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[92m") == true)
+    #expect(result?.contains("Processed 5 items") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func bad1WithInterpolation() {
+    let cc = ColorConsole(#file, #function)
     let error = "File not found"
     let result = cc.bad1("Failed:", error)
-    #expect(result.contains("\u{001B}[91m"))
-    #expect(result.contains("Failed: File not found"))
-    #expect(result.contains("\u{001B}[0m"))
+    #expect(result?.contains("\u{001B}[91m") == true)
+    #expect(result?.contains("Failed: File not found") == true)
+    #expect(result?.contains("\u{001B}[0m") == true)
   }
 
   @Test
   func colorStringWithBrightGreen() {
+    let cc = ColorConsole(#file, #function)
     let result = cc.colorString("\u{001B}[92m", "Success")
     #expect(result.contains("\u{001B}[92m"))
     #expect(result.contains("Success"))
@@ -64,6 +71,7 @@ struct ColorConsoleTests {
 
   @Test
   func colorStringWithBrightRed() {
+    let cc = ColorConsole(#file, #function)
     let result = cc.colorString("\u{001B}[91m", "Error")
     #expect(result.contains("\u{001B}[91m"))
     #expect(result.contains("Error"))
@@ -72,6 +80,7 @@ struct ColorConsoleTests {
 
   @Test
   func colorStringMultipleMessages() {
+    let cc = ColorConsole(#file, #function, 1)
     let result = cc.colorString("\u{001B}[92m", "Hello", "World")
     #expect(result.contains("\u{001B}[92m"))
     #expect(result.contains("Hello World"))

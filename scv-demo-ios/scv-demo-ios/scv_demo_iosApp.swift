@@ -18,7 +18,7 @@ struct scv_demo_iosApp: App {
   }
 
   var body: some Scene {
-    let cc = ColorConsole(path: #file, method: #function)
+    let cc = ColorConsole(#file, #function)
     WindowGroup {
       ContentView()
         .environmentObject(player)

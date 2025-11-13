@@ -25,7 +25,7 @@ public enum AppLaunch {
     // When fixed, uncomment:
     // _ = #CCOK1(level: 1, "App launch initialized")
 
-    let cc = ColorConsole(path: #file, method: #function)
+    let cc = ColorConsole(#file, #function, 1)
     _ = cc.ok1(#line, "App launch initialized")
   }
 }

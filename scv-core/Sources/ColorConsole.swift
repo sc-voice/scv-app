@@ -10,11 +10,23 @@ public final class ColorConsole: Sendable {
 
   private let sourceFile: String
   private let sourceMethod: String
+  private let verbosity: Int
 
-  public init(path: String = #file, method: String = #function) {
+  /// Initialize ColorConsole
+  /// - Parameters:
+  ///   - path: Source file path (default: #file)
+  ///   - method: Source method name (default: #function)
+  ///   - verbosity: Verbosity level (0=silent, 1=minimal, 2=verbose, default:
+  /// 1)
+  public init(
+    _ path: String = #file,
+    _ method: String = #function,
+    _ verbosity: Int = 1,
+  ) {
     sourceFile = URL(fileURLWithPath: path).deletingPathExtension()
       .lastPathComponent
     sourceMethod = method
+    self.verbosity = verbosity
   }
 
   /// Return string with ANSI color codes applied (variadic)
@@ -23,15 +35,24 @@ public final class ColorConsole: Sendable {
     return "\(color)\(output)\(Self.reset)"
   }
 
-  /// Print bright green text (variadic) and return colored string
-  public func ok1(_ messages: Any...) -> String {
+  /// Print bright green text and return colored string or nil based on
+  /// verbosity
+  /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
+  public func ok1(_ messages: Any...) -> String? {
+    if verbosity < 1 {
+      return nil
+    }
     let result = colorString("✅", sourceFile, sourceMethod, messages)
     print(result)
     return result
   }
 
-  /// Print bright red text (variadic) and return colored string
-  public func bad1(_ messages: Any...) -> String {
+  /// Print bright red text and return colored string or nil based on verbosity
+  /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
+  public func bad1(_ messages: Any...) -> String? {
+    if verbosity < 1 {
+      return nil
+    }
     let result = colorString("❌", sourceFile, sourceMethod, messages)
     print(result)
     return result
