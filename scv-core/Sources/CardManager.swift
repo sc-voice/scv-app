@@ -46,7 +46,7 @@ class CardManager {
     do {
       return try modelContext.fetch(fetchDescriptor)
     } catch {
-      print("Failed to fetch cards: \(error)")
+      cc.bad1(#line, "Failed to fetch cards: \(error)")
       return []
     }
   }

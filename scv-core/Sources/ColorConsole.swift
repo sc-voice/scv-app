@@ -4,7 +4,6 @@ import Foundation
 /// codes
 public final class ColorConsole: Sendable {
   // ANSI escape codes
-  private static let reset = "\u{001B}[0m"
   private static let brightGreen = "\u{001B}[92m"
   private static let brightRed = "\u{001B}[91m"
 
@@ -32,7 +31,7 @@ public final class ColorConsole: Sendable {
   /// Return string with ANSI color codes applied (variadic)
   public func colorString(_ color: String, _ messages: Any...) -> String {
     let output = messages.map { String(describing: $0) }.joined(separator: " ")
-    return "\(color)\(output)\(Self.reset)"
+    return "\(color)\(output)"
   }
 
   /// Print bright green text and return colored string or nil based on

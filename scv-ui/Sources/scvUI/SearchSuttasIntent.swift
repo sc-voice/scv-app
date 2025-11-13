@@ -14,6 +14,8 @@ public struct SearchSuttasIntent: AppIntent {
   @Parameter(title: "Search for", description: "What to search for")
   public var query: String?
 
+  let cc = ColorConsole(#file, #function)
+
   public init() {}
 
   public init(query: String) {
@@ -60,22 +62,23 @@ public struct SearchSuttasIntent: AppIntent {
       // Intent
       if let defaults = UserDefaults(suiteName: "group.sc-voice.scv-app") {
         defaults.set(encoded, forKey: "SearchSuttasIntentResults")
-        print(
-          "DEBUG SearchSuttasIntent: Stored \(strippedResults.count) results for query '\(query ?? "")'",
+        cc.ok1(
+          #line,
+          "Stored \(strippedResults.count) results for query '\(query ?? "")'",
         )
       } else {
         // Fallback to standard UserDefaults if app groups not available
         UserDefaults.standard.set(encoded, forKey: "SearchSuttasIntentResults")
-        print(
-          "DEBUG SearchSuttasIntent: App groups unavailable, using standard UserDefaults",
+        cc.bad2(
+          #line, "App groups unavailable, using standard UserDefaults",
         )
       }
     } else {
-      print("DEBUG SearchSuttasIntent: Failed to encode results")
+      cc.bad1(#line, "Failed to encode results")
     }
 
     DispatchQueue.main.async {
-      print("DEBUG \(query ?? "") found in \(results.count) suttas")
+      cc.ok2(#line, "\(query ?? "") found in \(results.count) suttas")
     }
 
     return .result()

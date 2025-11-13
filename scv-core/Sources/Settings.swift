@@ -59,6 +59,8 @@ public class Settings: Codable {
 
   // MARK: - Instance Properties
 
+  let cc = ColorConsole(#file, #function)
+
   /// Flag to prevent validation during initialization and deserialization
   private var isInitializing: Bool = true
 
@@ -232,7 +234,7 @@ public class Settings: Codable {
     }
 
     let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-    print("validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
+    cc.ok2(#line, "validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
   }
 
   // MARK: - Persistence
