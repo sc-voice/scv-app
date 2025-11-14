@@ -47,15 +47,25 @@ To run a specific test:
 cd scv-core && swift test --filter CardTests
 ```
 
-## Backlog
+## Completed Work
+
+### Investigate and fix ColorConsole errors
+**Status**: Complete (Build 1.1.363)
+
+01. [x] Identified 27 failing ColorConsoleTests
+02. [x] Determined root cause: tests checking for ANSI codes but implementation uses emojis
+03. [x] Updated all 27 test assertions to validate emoji output instead of ANSI codes
+04. [x] All tests now passing (243/243) with no regressions
 
 ### Replace print statements with ColorConsole methods
-**Status**: Complete
+**Status**: Complete (Build 1.1.357)
 
 01. [x] Add instance variable `let cc = ColorConsole(#file, #function)` to SearchSuttasIntent and Settings
 02. [x] Replace 6 print statements with ColorConsole methods (ok1, ok2, bad1, bad2)
 03. [x] Add #line parameter to all ColorConsole calls
-04. [x] Run make test to verify no regressions (build 1.1.357 succeeded)
+04. [x] Run make test to verify no regressions
+
+## Backlog
 
 ### Fix main actor-isolated property access in SettingsModalController
 **Status**: Backlog
