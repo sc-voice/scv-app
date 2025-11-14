@@ -10,6 +10,7 @@ public final class ColorConsole: Sendable {
   private let sourceFile: String
   private let sourceMethod: String
   private let verbosity: Int
+  private let context: String
 
   /// Initialize ColorConsole
   /// - Parameters:
@@ -26,6 +27,9 @@ public final class ColorConsole: Sendable {
       .lastPathComponent
     sourceMethod = method
     self.verbosity = verbosity
+    context = sourceFile == sourceMethod
+      ? sourceFile + "::"
+      : sourceFile + ":" + sourceMethod + ":"
   }
 
   /// Return string with ANSI color codes applied (variadic)
@@ -42,10 +46,7 @@ public final class ColorConsole: Sendable {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString(
-      "✅" + sourceFile + ":" + sourceMethod + ":",
-      messages,
-    )
+    let result = colorString("✅" + context, messages)
     print(result)
     return result
   }
@@ -57,10 +58,7 @@ public final class ColorConsole: Sendable {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString(
-      "❌" + sourceFile + ":" + sourceMethod + ":",
-      messages,
-    )
+    let result = colorString("❌" + context, messages)
     print(result)
     return result
   }
@@ -73,10 +71,7 @@ public final class ColorConsole: Sendable {
     if verbosity < 2 {
       return nil
     }
-    let result = colorString(
-      "  🌱" + sourceFile + ":" + sourceMethod + ":"
-        + messages.map { String(describing: $0) }.joined(separator: " "),
-    )
+    let result = colorString("  🌱" + context, messages)
     print(result)
     return result
   }
@@ -89,10 +84,7 @@ public final class ColorConsole: Sendable {
     if verbosity < 2 {
       return nil
     }
-    let result = colorString(
-      "  🌶️" + sourceFile + ":" + sourceMethod + ":"
-        + messages.map { String(describing: $0) }.joined(separator: " "),
-    )
+    let result = colorString("  🌶️" + context, messages)
     print(result)
     return result
   }

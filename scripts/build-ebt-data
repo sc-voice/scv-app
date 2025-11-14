@@ -56,12 +56,12 @@ if CommandLine.arguments.count <= 1 {
   Build per-author SQLite databases for SC-Voice
 
   USAGE:
-    swift build-ebt-data.swift <lang:author> [<lang:author> ...]
+    build-ebt-data <lang:author> [<lang:author> ...]
 
   EXAMPLES:
-    swift build-ebt-data.swift en:sujato
-    swift build-ebt-data.swift en:sujato de:sabbamitta
-    swift build-ebt-data.swift fr:sekha it:giovannizappa
+    build-ebt-data en:sujato
+    build-ebt-data en:sujato de:sabbamitta
+    build-ebt-data fr:sekha it:giovannizappa
 
   AVAILABLE AUTHORS:
     English (en): brahmali, kelly, kovilo, soma, suddhaso, sujato
@@ -84,7 +84,7 @@ for arg in CommandLine.arguments.dropFirst() {
     selectedAuthors.append((lang: parts[0], author: parts[1]))
   } else {
     print("ERROR: Invalid format '\(arg)'. Expected 'lang:author'")
-    print("Example: swift build-ebt-data.swift en:sujato de:sabbamitta")
+    print("Example: build-ebt-data en:sujato de:sabbamitta")
     exit(1)
   }
 }

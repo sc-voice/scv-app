@@ -128,3 +128,13 @@ cd scv-core && swift test --filter CardTests
 
 08. [ ] macOS locked screen playback
 
+### Compress SQLite content databases with zstd
+**Status**: Backlog
+
+01. [ ] Add facebook/zstd SPM dependency
+02. [ ] Integrate zstd decompression into app launch
+03. [ ] Compress existing databases (de:sabbamitta, en:sujato, etc.) with zstd
+04. [ ] Test decompression and database functionality offline
+05. [ ] Measure app bundle size and decompression time impact
+06. [ ] Document database distribution strategy for multi-language support
+
