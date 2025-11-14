@@ -65,6 +65,16 @@ cd scv-core && swift test --filter CardTests
 03. [x] Add #line parameter to all ColorConsole calls
 04. [x] Run make test to verify no regressions
 
+### Research zstd for database compression in app
+**Status**: Complete (Build 1.1.372)
+
+01. [x] Review ZstdDecompression.swift implementation
+02. [x] Review changes to Package.swift (dependency added)
+03. [x] Run zstd integration tests to validate decompression works
+04. [x] Review compressed database files (size, decompression time)
+05. [x] Document findings: performance, integration approach, bundle size impact, viability assessment
+06. [x] Run make test-all and verified no regressions
+
 ## Backlog
 
 ### Fix main actor-isolated property access in SettingsModalController
@@ -128,13 +138,13 @@ cd scv-core && swift test --filter CardTests
 
 08. [ ] macOS locked screen playback
 
-### Compress SQLite content databases with zstd
+### Implement zstd database decompression on app launch
 **Status**: Backlog
 
-01. [ ] Add facebook/zstd SPM dependency
-02. [ ] Integrate zstd decompression into app launch
-03. [ ] Compress existing databases (de:sabbamitta, en:sujato, etc.) with zstd
+01. [ ] Integrate zstd decompression into app launch sequence
+02. [ ] Decompress databases (de:sabbamitta, en:sujato, fr:noeismet) on first app run
+03. [ ] Cache decompressed databases to avoid re-decompression
 04. [ ] Test decompression and database functionality offline
-05. [ ] Measure app bundle size and decompression time impact
+05. [ ] Measure app launch time impact
 06. [ ] Document database distribution strategy for multi-language support
 

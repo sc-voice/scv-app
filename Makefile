@@ -1,4 +1,4 @@
-.PHONY: test test-all test-core test-core-verbose build build-core build-demo-ios \
+.PHONY: test test-all test-core test-core-verbose test-zstd-integration build build-core build-demo-ios \
         clean clean-core clean-ui clean-demo-ios format mock-response-view scv-demo-ios \
         version-major version-minor version-patch commit build-ebt-data-db
 
@@ -26,10 +26,13 @@ test-all: scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamit
 	  grep -E $(TEST_ALL_FILTER) || true
 
 test-core:
-	@cd scv-core && swift test --no-parallel 2>&1 | grep -v "started\."
+	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
+
+test-zstd-integration:
+	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-demo-ios:
 	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION \
@@ -119,8 +122,9 @@ help:
 	@echo ""
 	@echo "  make test              Run all package tests (shortcut for test-all)"
 	@echo "  make test-all          Run all package tests and build validation"
-	@echo "  make test-core         Run scv-core tests serially"
+	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-demo-ios     Validate scv-demo-ios build"
 	@echo "  make build             Build all (core and iOS)"
 	@echo "  make build-core        Build scv-core package"
