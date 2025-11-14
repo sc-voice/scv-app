@@ -4,7 +4,7 @@
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
-TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|✓)'
+TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓)'
 
 # Build per-author databases if they don't exist
 scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db:
