@@ -70,7 +70,7 @@ struct ColorConsoleTests {
   func ok2DisplayedAtVerbosity2() {
     let cc = ColorConsole(#file, #function, 2)
     let result = cc.ok2("Verbose message")
-    #expect(result?.contains("🌱") == true)
+    #expect(result?.contains("🍀") == true)
     #expect(result?.contains("Verbose message") == true)
   }
 
@@ -78,7 +78,7 @@ struct ColorConsoleTests {
   func ok2MultipleMessagesAtVerbosity2() {
     let cc = ColorConsole(#file, #function, 2)
     let result = cc.ok2("All", #function)
-    #expect(result?.contains("🌱") == true)
+    #expect(result?.contains("🍀") == true)
     #expect(result?.contains("All " + #function) == true)
   }
 

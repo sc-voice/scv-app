@@ -165,6 +165,16 @@ cd scv-core && swift test --filter CardTests
 
 08. [ ] macOS locked screen playback
 
+### Add self-identifying metadata to databases with SHA256 Dictionary ID
+**Status**: Backlog
+
+01. [ ] Add metadata header to databases during build-ebt-data (language, locale, COMMIT#)
+02. [ ] Compute SHA256 hash of metadata string (e.g., "en/sujato-COMMIT#")
+03. [ ] Store hash as zstd Dictionary ID during compression
+04. [ ] Update ZstdDecompression to validate Dictionary ID on decompression
+05. [ ] Log or report database source/version on successful decompression
+06. [ ] Test decompression with multiple database versions
+
 ### Implement zstd database decompression on app launch
 **Status**: Backlog
 

@@ -25,7 +25,10 @@ public actor EbtData {
       in: .userDomainMask,
     )[0]
     let dbURL = cacheURL.appendingPathComponent(fileName)
-    return !FileManager.default.fileExists(atPath: dbURL.path)
+    let exists = FileManager.default.fileExists(atPath: dbURL.path)
+    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
+    cc.ok1(#line, fileName, "exists:", exists)
+    return !exists
   }
 
   /// Public method to pre-decompress database (UI should call when docLang
@@ -37,6 +40,7 @@ public actor EbtData {
 
   /// Returns path to decompressed database in Caches, decompressing if needed
   private func ensureDecompressed(lang: String, author: String) throws -> URL {
+    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
     let fileName = "ebt-\(lang)-\(author).db"
     let cacheURL = FileManager.default.urls(
       for: .cachesDirectory,
@@ -46,6 +50,7 @@ public actor EbtData {
 
     // Check if already decompressed in Caches
     if FileManager.default.fileExists(atPath: dbURL.path) {
+      cc.ok1(#line, "cached:", fileName)
       return dbURL
     }
 
@@ -54,6 +59,7 @@ public actor EbtData {
       forResource: "ebt-\(lang)-\(author)",
       withExtension: "db.zst",
     ) else {
+      cc.bad1(#line, fileName + ".zst not found:")
       throw EbtDataError.databaseNotFound(lang: lang, author: author)
     }
 
@@ -65,6 +71,7 @@ public actor EbtData {
 
     // Write decompressed database to Caches
     try decompressedData.write(to: dbURL)
+    cc.ok1(#line, fileName, "OK")
 
     return dbURL
   }

@@ -3,10 +3,6 @@ import Foundation
 /// ColorConsole produces colored messages to Xcode console using ANSI escape
 /// codes
 public final class ColorConsole: Sendable {
-  // ANSI escape codes
-  private static let brightGreen = "\u{001B}[92m"
-  private static let brightRed = "\u{001B}[91m"
-
   private let sourceFile: String
   private let sourceMethod: String
   private let verbosity: Int
@@ -25,7 +21,7 @@ public final class ColorConsole: Sendable {
   ) {
     sourceFile = URL(fileURLWithPath: path).deletingPathExtension()
       .lastPathComponent
-    sourceMethod = method
+    sourceMethod = method.components(separatedBy: "(").first ?? method
     self.verbosity = verbosity
     context = sourceFile == sourceMethod
       ? sourceFile + "::"
@@ -73,7 +69,7 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "  🌱" + context + messageStr
+    let result = "↓🍀" + context + messageStr
     print(result)
     return result
   }
@@ -87,7 +83,7 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "  🌶️" + context + messageStr
+    let result = "↓🌶️" + context + messageStr
     print(result)
     return result
   }

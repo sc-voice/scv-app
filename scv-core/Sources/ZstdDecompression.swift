@@ -14,6 +14,8 @@ public enum ZstdDecompression {
   /// - Returns: The decompressed data
   /// - Throws: ZstdDecompression.Error if decompression fails
   public static func decompress(_ compressedData: Data) throws -> Data {
+    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
+
     var decompressed = Data()
 
     try compressedData.withUnsafeBytes { compressedBuffer in
@@ -26,18 +28,22 @@ public enum ZstdDecompression {
         compressedPtr,
         compressedData.count,
       )
+      cc.ok2(#line, "frameContentSize:", frameContentSize)
 
       guard frameContentSize != ZSTD_CONTENTSIZE_UNKNOWN,
             frameContentSize != ZSTD_CONTENTSIZE_ERROR,
             frameContentSize > 0
       else {
-        throw Error.decompressionFailed("Unable to determine decompressed size")
+        let msg = "Unable to determine decompressed size"
+        cc.bad1(#line, msg)
+        throw Error.decompressionFailed(msg)
       }
 
       // Allocate decompression context
       guard let dctx = ZSTD_createDCtx() else {
-        throw Error
-          .decompressionFailed("Failed to create decompression context")
+        let msg = "Failed to create decompression context"
+        cc.bad1(#line, msg)
+        throw Error.decompressionFailed(msg)
       }
       defer { ZSTD_freeDCtx(dctx) }
 
@@ -47,6 +53,7 @@ public enum ZstdDecompression {
       let decompressedSize = try decompressed
         .withUnsafeMutableBytes { decompressedBuffer in
           guard let decompressedPtr = decompressedBuffer.baseAddress else {
+            cc.bad1(#line, "invalidData")
             throw Error.invalidData
           }
 
@@ -60,9 +67,11 @@ public enum ZstdDecompression {
 
           guard ZSTD_isError(result) == 0 else {
             let errorString = String(cString: ZSTD_getErrorName(result))
+            cc.bad1(#line, errorString)
             throw Error.decompressionFailed(errorString)
           }
 
+          cc.ok2(#line, "decompressed:", result)
           return result
         }
 

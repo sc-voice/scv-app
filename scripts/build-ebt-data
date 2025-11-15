@@ -188,11 +188,6 @@ for language in languages.sorted() {
       continue
     }
 
-    let suttaDir = "\(authorPath)/sutta"
-    guard fileManager.fileExists(atPath: suttaDir) else {
-      continue
-    }
-
     let dbPath = "\(buildDir)/ebt-\(language)-\(author).db"
     try? fileManager.removeItem(atPath: dbPath)
 
@@ -226,11 +221,7 @@ for language in languages.sorted() {
 
     sqlite3_bind_text(metadataStmt, 1, (language as NSString).utf8String, -1, nil)
     sqlite3_bind_text(metadataStmt, 2, (author as NSString).utf8String, -1, nil)
-    if let hash = gitHash {
-      sqlite3_bind_text(metadataStmt, 3, (hash as NSString).utf8String, -1, nil)
-    } else {
-      sqlite3_bind_null(metadataStmt, 3)
-    }
+    sqlite3_bind_text(metadataStmt, 3, (gitHash as NSString).utf8String, -1, nil)
     sqlite3_bind_text(metadataStmt, 4, (buildTimestamp as NSString).utf8String, -1, nil)
 
     if sqlite3_step(metadataStmt) != SQLITE_DONE {
@@ -261,10 +252,16 @@ for language in languages.sorted() {
     var authorSuttas = 0
     var authorSegments = 0
 
-    // Process each collection
-    for collection in collections {
-      let collectionPath = "\(suttaDir)/\(collection)"
-      let jsonFiles = findJSONFiles(inDirectory: collectionPath)
+    // Process both sutta and vinaya directories
+    let docDirs = ["sutta", "vinaya"]
+    for docDir in docDirs {
+      let docPath = "\(authorPath)/\(docDir)"
+      guard fileManager.fileExists(atPath: docPath) else {
+        continue
+      }
+
+      // Process all JSON files in docDir (includes subdirectories)
+      let jsonFiles = findJSONFiles(inDirectory: docPath)
 
       for filePath in jsonFiles.sorted() {
         let fileName = URL(fileURLWithPath: filePath).lastPathComponent
