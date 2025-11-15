@@ -4,26 +4,30 @@
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
-TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓)'
+TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled)'
 
 # Build per-author databases if they don't exist
-scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst:
+scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst:
 	@echo "Building per-author databases..."
 	@scripts/build-ebt-data en:sujato de:sabbamitta
 
 # Force rebuild per-author databases
 build-ebt-data-db:
-	@rm -f scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst
-	@$(MAKE) scv-core/Resources/ebt-en-sujato.db.zst
+	@echo "build-ebt-data-db ..."
+	@rm -f scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst
+	@$(MAKE) scv-core/Sources/Resources/ebt-en-sujato.db.zst
 
 test: test-all
 
-test-all: scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst
+test-all: scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst
 	@mkdir -p local
-	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" > local/test-all.log
-	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \
-	  tee -a local/test-all.log | \
-	  grep -E $(TEST_ALL_FILTER) || true
+	@echo "Building..."
+	@$(MAKE) clean build 2>&1 | tee local/test-all.log
+	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/test-all.log
+	@$(MAKE) test-core test-demo-ios 2>&1 | tee -a local/test-all.log 
+	@echo "=========TEST SUMMARY======="
+	@echo "EXPECTED: 1 unhandled resource warning" 
+	cat local/test-all.log | grep -E $(TEST_ALL_FILTER) || true
 
 test-core:
 	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | grep -v "started\."

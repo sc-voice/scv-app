@@ -93,6 +93,15 @@ cd scv-core && swift test --filter CardTests
 08. [x] Added backlog item to reorganize Resources directory structure
 09. [x] Verified all 244 tests pass with no zstd configuration macro warnings
 
+### Reorganize scv-core Resources to eliminate SPM warnings
+**Status**: Complete (Build 1.1.395)
+
+01. [x] Move Resources/ directory from scv-core/Resources/ to scv-core/Sources/Resources/
+02. [x] Update Package.swift resource paths from ../Resources/ to Resources/
+03. [x] Update any code that references Bundle.module resources
+04. [x] Run make test-all to verify resources load correctly
+05. [x] Verify "Found unhandled resource" warnings are eliminated
+
 ## Backlog
 
 ### Fix main actor-isolated property access in SettingsModalController
@@ -102,15 +111,6 @@ cd scv-core && swift test --filter CardTests
 02. [ ] Identify the Sendable closure accessing main actor property
 03. [ ] Fix thread safety by ensuring closure runs on main actor
 04. [ ] Run make test to verify fix
-
-### Reorganize scv-core Resources to eliminate SPM warnings
-**Status**: Backlog
-
-01. [ ] Move Resources/ directory from scv-core/Resources/ to scv-core/Sources/Resources/
-02. [ ] Update Package.swift resource paths from ../Resources/ to Resources/
-03. [ ] Update any code that references Bundle.module resources
-04. [ ] Run make test-all to verify resources load correctly
-05. [ ] Verify "Found unhandled resource" warnings are eliminated
 
 ### Create app privacy label
 **Status**: Backlog

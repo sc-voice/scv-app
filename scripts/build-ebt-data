@@ -12,7 +12,7 @@ let projectRoot = ProcessInfo.processInfo.environment["PROJECT_ROOT"] ??
 let translationDir = "\(projectRoot)/local/ebt-data/translation"
 let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
 let buildDir = "\(projectRoot)/local/build"
-let resourcesDir = "\(projectRoot)/scv-core/Resources"
+let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
 
 // Ensure build and Resources directories exist
 try? fileManager.createDirectory(atPath: buildDir, withIntermediateDirectories: true)
@@ -74,7 +74,7 @@ if CommandLine.arguments.count <= 1 {
 
   OUTPUT:
     Intermediate databases (.db) are built to: local/build/ebt-<lang>-<author>.db
-    Compressed databases (.zst) are output to: scv-core/Resources/ebt-<lang>-<author>.db.zst
+    Compressed databases (.zst) are output to: scv-core/Sources/Resources/ebt-<lang>-<author>.db.zst
   """)
   exit(0)
 }
