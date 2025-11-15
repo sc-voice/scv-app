@@ -1,0 +1,67 @@
+{
+  "databases" : [
+    {
+      "authorName" : "Sabbamitta",
+      "json" : "{\"type\":\"translator\",\"name\":\"Sabbamitta\"}",
+      "author" : "sabbamitta",
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "files" : 4054,
+      "language" : "de",
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959"
+    },
+    {
+      "author" : "brahmali",
+      "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Brahmali\"}",
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "language" : "en",
+      "authorName" : "Bhikkhu Brahmali",
+      "files" : 427
+    },
+    {
+      "language" : "en",
+      "authorName" : "John Kelly",
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "files" : 94,
+      "author" : "kelly",
+      "json" : "{\"type\":\"translator\",\"name\":\"John Kelly\"}"
+    },
+    {
+      "authorName" : "Ayya Soma",
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "language" : "en",
+      "files" : 73,
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "json" : "{\"name\":\"Ayya Soma\",\"type\":\"translator\"}",
+      "author" : "soma"
+    },
+    {
+      "files" : 4167,
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "language" : "en",
+      "authorName" : "Bhikkhu Sujato",
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "author" : "sujato",
+      "json" : "{\"name\":\"Bhikkhu Sujato\",\"type\":\"translator\"}"
+    },
+    {
+      "language" : "fr",
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "authorName" : "Noé Ismet",
+      "json" : "{\"name\":\"Noé Ismet\",\"type\":\"translator\"}",
+      "files" : 53,
+      "author" : "noeismet",
+      "buildTimestamp" : "2025-11-15T15:51:01Z"
+    },
+    {
+      "json" : "{\"type\":\"translator\",\"name\":\"SV theravada.ru\"}",
+      "files" : 899,
+      "gitHash" : "9d801a10bae085080bd4ccb95be6905adac11959",
+      "author" : "sv",
+      "authorName" : "SV theravada.ru",
+      "buildTimestamp" : "2025-11-15T15:51:01Z",
+      "language" : "ru"
+    }
+  ]
+}

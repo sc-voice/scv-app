@@ -102,6 +102,22 @@ cd scv-core && swift test --filter CardTests
 04. [x] Run make test-all to verify resources load correctly
 05. [x] Verify "Found unhandled resource" warnings are eliminated
 
+### Add self-identifying metadata to databases with file counts
+**Status**: Complete (Build 1.1.410)
+
+01. [x] Add files INTEGER column to metadata table schema in build-ebt-data
+02. [x] Implement recursive file counting for sutta/ and vinaya/ directories
+03. [x] Store file counts in database metadata during build
+04. [x] Create Manifest.swift with DatabaseManifest and DatabaseInfo structs
+05. [x] Add authorsForLanguageSortedByFiles() for UI author selection
+06. [x] Add defaultAuthorForLanguage() to select most comprehensive author per language
+07. [x] Implement build-manifest command to generate db-manifest.json from databases
+08. [x] Generate db-manifest.json with 7 databases including file counts
+09. [x] Integrate DatabaseManifest into EbtData for fast metadata lookup without decompression
+10. [x] Add timestamp comparison check in build-manifest (warns if > 1 hour difference)
+11. [x] Build 7 bundled databases with metadata: en:sujato (4167), en:brahmali (427), en:soma (73), en:kelly (94), de:sabbamitta (4054), fr:noeismet (53), ru:sv (899)
+12. [x] All 244 tests passing with no regressions
+
 ## Backlog
 
 ### Fix main actor-isolated property access in SettingsModalController
@@ -165,23 +181,14 @@ cd scv-core && swift test --filter CardTests
 
 08. [ ] macOS locked screen playback
 
-### Add self-identifying metadata to databases with SHA256 Dictionary ID
-**Status**: Backlog
-
-01. [ ] Add metadata header to databases during build-ebt-data (language, locale, COMMIT#)
-02. [ ] Compute SHA256 hash of metadata string (e.g., "en/sujato-COMMIT#")
-03. [ ] Store hash as zstd Dictionary ID during compression
-04. [ ] Update ZstdDecompression to validate Dictionary ID on decompression
-05. [ ] Log or report database source/version on successful decompression
-06. [ ] Test decompression with multiple database versions
-
 ### Implement zstd database decompression on app launch
 **Status**: Backlog
 
 01. [ ] Integrate zstd decompression into app launch sequence
-02. [ ] Decompress databases (de:sabbamitta, en:sujato, fr:noeismet) on first app run
+02. [ ] Decompress selected databases (docLang default author) on first app run
 03. [ ] Cache decompressed databases to avoid re-decompression
-04. [ ] Test decompression and database functionality offline
-05. [ ] Measure app launch time impact
-06. [ ] Document database distribution strategy for multi-language support
+04. [ ] Use manifest to determine which database to decompress based on Settings.docLang
+05. [ ] Test decompression and database functionality offline
+06. [ ] Measure app launch time impact
+07. [ ] Document database distribution strategy for multi-language support
 

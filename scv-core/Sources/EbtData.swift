@@ -13,7 +13,35 @@ public actor EbtData {
   // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
   private nonisolated(unsafe) var databases: [String: OpaquePointer?] = [:]
 
+  // Manifest loaded once at app startup
+  private nonisolated(unsafe) static let manifestCache: DatabaseManifest? =
+    DatabaseManifest.load()
+
   private init() {}
+
+  // MARK: - Manifest Access
+
+  /// Returns loaded database manifest
+  /// Fast lookup without decompressing databases
+  public nonisolated static func manifest() -> DatabaseManifest? {
+    manifestCache
+  }
+
+  /// Returns all available database info from manifest
+  public nonisolated static func availableDatabasesFromManifest()
+    -> [DatabaseInfo]
+  {
+    manifestCache?.databases ?? []
+  }
+
+  /// Returns authors available for specific language from manifest
+  public nonisolated static func authorsForLanguageFromManifest(
+    _ language: String,
+  )
+    -> [DatabaseInfo]
+  {
+    manifestCache?.authorsForLanguage(language) ?? []
+  }
 
   // MARK: - Decompression
 
@@ -100,6 +128,9 @@ public actor EbtData {
     }
 
     databases[key] = database
+
+    // Log database metadata
+    logDatabaseMetadata(lang: lang, author: author)
   }
 
   deinit {
@@ -476,7 +507,7 @@ public actor EbtData {
       let key = "\(lang)/\(author)"
       guard let db = databases[key] else { return nil }
 
-      let query = "SELECT language, author FROM metadata LIMIT 1"
+      let query = "SELECT language, author, author_name, git_hash, build_timestamp, json FROM metadata LIMIT 1"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
@@ -487,17 +518,63 @@ public actor EbtData {
 
       if sqlite3_step(stmt) == SQLITE_ROW {
         if let langC = sqlite3_column_text(stmt, 0),
-           let authorC = sqlite3_column_text(stmt, 1)
+           let authorC = sqlite3_column_text(stmt, 1),
+           let authorNameC = sqlite3_column_text(stmt, 2),
+           let buildTimestampC = sqlite3_column_text(stmt, 4)
         {
           let metaLang = String(cString: langC)
           let metaAuthor = String(cString: authorC)
-          return AuthorMetadata(language: metaLang, author: metaAuthor)
+          let metaAuthorName = String(cString: authorNameC)
+          let metaBuildTimestamp = String(cString: buildTimestampC)
+
+          // git_hash can be NULL
+          var metaGitHash: String? = nil
+          if sqlite3_column_type(stmt, 3) != SQLITE_NULL,
+             let gitHashC = sqlite3_column_text(stmt, 3)
+          {
+            metaGitHash = String(cString: gitHashC)
+          }
+
+          // json can be NULL
+          var metaJson: String? = nil
+          if sqlite3_column_type(stmt, 5) != SQLITE_NULL,
+             let jsonC = sqlite3_column_text(stmt, 5)
+          {
+            metaJson = String(cString: jsonC)
+          }
+
+          return AuthorMetadata(
+            language: metaLang,
+            author: metaAuthor,
+            authorName: metaAuthorName,
+            gitHash: metaGitHash,
+            buildTimestamp: metaBuildTimestamp,
+            json: metaJson,
+          )
         }
       }
 
       return nil
     } catch {
       return nil
+    }
+  }
+
+  /// Logs database metadata with ColorConsole
+  private func logDatabaseMetadata(lang: String, author: String) {
+    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
+
+    guard let meta = metadata(lang: lang, author: author) else {
+      cc.ok1(#line, "Database loaded: \(lang):\(author)")
+      return
+    }
+
+    cc.ok1(
+      #line,
+      "Database loaded: \(meta.language):\(meta.author) (\(meta.authorName))",
+    )
+    if let gitHash = meta.gitHash {
+      cc.ok2(#line, "  Git: \(gitHash), Built: \(meta.buildTimestamp)")
     }
   }
 }
@@ -507,6 +584,10 @@ public actor EbtData {
 public struct AuthorMetadata {
   public let language: String
   public let author: String
+  public let authorName: String
+  public let gitHash: String?
+  public let buildTimestamp: String
+  public let json: String?
 }
 
 // MARK: - Error Type
