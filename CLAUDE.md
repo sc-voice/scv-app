@@ -12,7 +12,12 @@ and provides a card-based interface where users can create multiple search and s
 
 ## Permissions
 
-- you can read any file in project except those in secret/
+1. Claude can read any file in project except those in local/
+  - EXCEPTION: Claude can read any file in project local/ebt-data
+  - EXCEPTION: Claude can read any file in project local/bilara-data
+  - EXCEPTION: Claude can read any file in project local/build
+  - EXCEPTION: Claude can read/write local/test-all.log
+2. Claude can read any file in project except those in secret/
 
 ## Invariant Violation Counter
 
@@ -75,6 +80,19 @@ cd scv-core && swift test --filter CardTests
 05. [x] Document findings: performance, integration approach, bundle size impact, viability assessment
 06. [x] Run make test-all and verified no regressions
 
+### Investigate zstd warnings in test-all.log
+**Status**: Complete (Build 1.1.381)
+
+01. [x] Investigated zstd configuration macro warnings (lines 30-36 in test-all.log)
+02. [x] Researched Facebook zstd recommendations and Swift Package Manager integration
+03. [x] Removed ineffective cSettings macro definitions from Package.swift
+04. [x] Removed unused test-db.db.zst file from scv-core/Tests/Data
+05. [x] Added defaultLocalization: "en" to Package.swift for localized resources
+06. [x] Changed resource declarations from .copy() to .process() in both targets
+07. [x] Identified root cause of "Found unhandled resource" warnings (Resources/ outside target paths)
+08. [x] Added backlog item to reorganize Resources directory structure
+09. [x] Verified all 244 tests pass with no zstd configuration macro warnings
+
 ## Backlog
 
 ### Fix main actor-isolated property access in SettingsModalController
@@ -84,6 +102,15 @@ cd scv-core && swift test --filter CardTests
 02. [ ] Identify the Sendable closure accessing main actor property
 03. [ ] Fix thread safety by ensuring closure runs on main actor
 04. [ ] Run make test to verify fix
+
+### Reorganize scv-core Resources to eliminate SPM warnings
+**Status**: Backlog
+
+01. [ ] Move Resources/ directory from scv-core/Resources/ to scv-core/Sources/Resources/
+02. [ ] Update Package.swift resource paths from ../Resources/ to Resources/
+03. [ ] Update any code that references Bundle.module resources
+04. [ ] Run make test-all to verify resources load correctly
+05. [ ] Verify "Found unhandled resource" warnings are eliminated
 
 ### Create app privacy label
 **Status**: Backlog

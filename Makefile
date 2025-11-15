@@ -7,18 +7,18 @@ XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓)'
 
 # Build per-author databases if they don't exist
-scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db:
+scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst:
 	@echo "Building per-author databases..."
 	@scripts/build-ebt-data en:sujato de:sabbamitta
 
 # Force rebuild per-author databases
 build-ebt-data-db:
-	@rm -f scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db
-	@$(MAKE) scv-core/Resources/ebt-en-sujato.db
+	@rm -f scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst
+	@$(MAKE) scv-core/Resources/ebt-en-sujato.db.zst
 
 test: test-all
 
-test-all: scv-core/Resources/ebt-en-sujato.db scv-core/Resources/ebt-de-sabbamitta.db
+test-all: scv-core/Resources/ebt-en-sujato.db.zst scv-core/Resources/ebt-de-sabbamitta.db.zst
 	@mkdir -p local
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" > local/test-all.log
 	@$(MAKE) clean build test-core test-demo-ios 2>&1 | \

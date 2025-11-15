@@ -15,23 +15,74 @@ public actor EbtData {
 
   private init() {}
 
-  // MARK: - Database Connection
+  // MARK: - Decompression
 
-  /// Lazily opens database connection for specific author on first access
-  private func ensureDatabase(lang: String, author: String) throws {
-    let key = "\(lang)/\(author)"
-    guard databases[key] == nil else { return }
+  /// Checks if database needs decompression from bundle
+  public func needsDecompression(lang: String, author: String) -> Bool {
+    let fileName = "ebt-\(lang)-\(author).db"
+    let cacheURL = FileManager.default.urls(
+      for: .cachesDirectory,
+      in: .userDomainMask,
+    )[0]
+    let dbURL = cacheURL.appendingPathComponent(fileName)
+    return !FileManager.default.fileExists(atPath: dbURL.path)
+  }
 
-    guard let resourceURL = Bundle.module.url(
+  /// Public method to pre-decompress database (UI should call when docLang
+  /// changes if needed)
+  /// Allows UI to show progress indicator while decompression occurs
+  public func decompressDatabase(lang: String, author: String) throws {
+    _ = try ensureDecompressed(lang: lang, author: author)
+  }
+
+  /// Returns path to decompressed database in Caches, decompressing if needed
+  private func ensureDecompressed(lang: String, author: String) throws -> URL {
+    let fileName = "ebt-\(lang)-\(author).db"
+    let cacheURL = FileManager.default.urls(
+      for: .cachesDirectory,
+      in: .userDomainMask,
+    )[0]
+    let dbURL = cacheURL.appendingPathComponent(fileName)
+
+    // Check if already decompressed in Caches
+    if FileManager.default.fileExists(atPath: dbURL.path) {
+      return dbURL
+    }
+
+    // Find and decompress .zst from bundle
+    guard let zstURL = Bundle.module.url(
       forResource: "ebt-\(lang)-\(author)",
-      withExtension: "db",
+      withExtension: "db.zst",
     ) else {
       throw EbtDataError.databaseNotFound(lang: lang, author: author)
     }
 
+    // Read compressed data from bundle
+    let compressedData = try Data(contentsOf: zstURL)
+
+    // Decompress using libzstd
+    let decompressedData = try ZstdDecompression.decompress(compressedData)
+
+    // Write decompressed database to Caches
+    try decompressedData.write(to: dbURL)
+
+    return dbURL
+  }
+
+  // MARK: - Database Connection
+
+  /// Lazily opens database connection for specific author on first access
+  /// Decompresses from bundle .zst to Caches if needed
+  private func ensureDatabase(lang: String, author: String) throws {
+    let key = "\(lang)/\(author)"
+    guard databases[key] == nil else { return }
+
+    // Ensure decompressed database exists in Caches
+    let dbURL = try ensureDecompressed(lang: lang, author: author)
+
     var database: OpaquePointer?
     let result = sqlite3_open_v2(
-      resourceURL.path,
+      dbURL.path,
       &database,
       SQLITE_OPEN_READONLY,
       nil,
@@ -385,7 +436,7 @@ public actor EbtData {
 
   /// Returns list of available (language, author) pairs
   public func availableAuthors() -> [(lang: String, author: String)] {
-    // Discover from bundle resources by scanning for ebt-*.db files
+    // Discover from bundle resources by scanning for ebt-*.db.zst files
     var authors: [(lang: String, author: String)] = []
 
     guard let resourceURLs = try? FileManager.default.contentsOfDirectory(
@@ -397,9 +448,9 @@ public actor EbtData {
 
     for url in resourceURLs {
       let filename = url.lastPathComponent
-      if filename.hasPrefix("ebt-"), filename.hasSuffix(".db") {
-        // Format: ebt-{lang}-{author}.db
-        let parts = filename.dropFirst(4).dropLast(3).split(separator: "-")
+      if filename.hasPrefix("ebt-"), filename.hasSuffix(".db.zst") {
+        // Format: ebt-{lang}-{author}.db.zst
+        let parts = filename.dropFirst(4).dropLast(7).split(separator: "-")
         if parts.count >= 2 {
           let lang = String(parts[0])
           let author = parts.dropFirst().joined(separator: "-")
@@ -456,4 +507,5 @@ public struct AuthorMetadata {
 enum EbtDataError: Error {
   case databaseNotFound(lang: String, author: String)
   case cannotOpenDatabase(lang: String, author: String)
+  case decompressionFailed(lang: String, author: String)
 }

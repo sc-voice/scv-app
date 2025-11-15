@@ -11,9 +11,11 @@ let projectRoot = ProcessInfo.processInfo.environment["PROJECT_ROOT"] ??
   URL(fileURLWithPath: #file).deletingLastPathComponent().deletingLastPathComponent().path
 let translationDir = "\(projectRoot)/local/ebt-data/translation"
 let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
+let buildDir = "\(projectRoot)/local/build"
 let resourcesDir = "\(projectRoot)/scv-core/Resources"
 
-// Ensure Resources directory exists
+// Ensure build and Resources directories exist
+try? fileManager.createDirectory(atPath: buildDir, withIntermediateDirectories: true)
 try? fileManager.createDirectory(atPath: resourcesDir, withIntermediateDirectories: true)
 
 // Load author information from _author.json
@@ -71,7 +73,8 @@ if CommandLine.arguments.count <= 1 {
     + many others...
 
   OUTPUT:
-    Databases are built to: scv-core/Resources/ebt-<lang>-<author>.db
+    Intermediate databases (.db) are built to: local/build/ebt-<lang>-<author>.db
+    Compressed databases (.zst) are output to: scv-core/Resources/ebt-<lang>-<author>.db.zst
   """)
   exit(0)
 }
@@ -190,7 +193,7 @@ for language in languages.sorted() {
       continue
     }
 
-    let dbPath = "\(resourcesDir)/ebt-\(language)-\(author).db"
+    let dbPath = "\(buildDir)/ebt-\(language)-\(author).db"
     try? fileManager.removeItem(atPath: dbPath)
 
     print("  Building ebt-\(language)-\(author).db...")
@@ -326,6 +329,31 @@ for language in languages.sorted() {
     let dbSizeMB = Double(dbSize ?? 0) / 1_000_000
 
     print("    ✓ \(authorSuttas) suttas, \(authorSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)")
+
+    // Compress database to .zst
+    let zstPath = "\(resourcesDir)/ebt-\(language)-\(author).db.zst"
+    try? fileManager.removeItem(atPath: zstPath)
+
+    let process = Process()
+    process.launchPath = "/bin/bash"
+    process.arguments = ["-c", "/opt/homebrew/bin/zstd -f -o \(zstPath) \(dbPath)"]
+    do {
+      try process.run()
+      process.waitUntilExit()
+
+      if process.terminationStatus == 0 {
+        if let zstSize = try? fileManager.attributesOfItem(atPath: zstPath)[.size] as? Int {
+          let zstSizeMB = Double(zstSize) / 1_000_000
+          let ratio = (Double(dbSize ?? 1) - Double(zstSize)) / Double(dbSize ?? 1) * 100
+          print("    ✓ Compressed to \(String(format: "%.1f", zstSizeMB)) MB (\(String(format: "%.0f", ratio))% reduction)")
+        }
+      } else {
+        print("    ERROR: zstd compression failed")
+      }
+    } catch {
+      print("    ERROR: Failed to run zstd compression: \(error)")
+    }
+
     totalSuttas += authorSuttas
     totalSegments += authorSegments
     builtCount += 1

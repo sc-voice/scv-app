@@ -32,10 +32,9 @@ public final class ColorConsole: Sendable {
       : sourceFile + ":" + sourceMethod + ":"
   }
 
-  /// Return string with ANSI color codes applied (variadic)
-  public func colorString(_ color: String, _ messages: Any...) -> String {
-    let output = messages.map { String(describing: $0) }.joined(separator: " ")
-    return "\(color)\(output)"
+  /// Return formatted string from array of messages
+  public func formatString(_ messages: [Any]) -> String {
+    messages.map { String(describing: $0) }.joined(separator: " ")
   }
 
   /// Print bright green text and return colored string or nil based on
@@ -46,7 +45,8 @@ public final class ColorConsole: Sendable {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString("✅" + context, messages)
+    let messageStr = formatString(messages)
+    let result = "✅" + context + messageStr
     print(result)
     return result
   }
@@ -58,7 +58,8 @@ public final class ColorConsole: Sendable {
     if verbosity < 1 {
       return nil
     }
-    let result = colorString("❌" + context, messages)
+    let messageStr = formatString(messages)
+    let result = "❌" + context + messageStr
     print(result)
     return result
   }
@@ -71,7 +72,8 @@ public final class ColorConsole: Sendable {
     if verbosity < 2 {
       return nil
     }
-    let result = colorString("  🌱" + context, messages)
+    let messageStr = formatString(messages)
+    let result = "  🌱" + context + messageStr
     print(result)
     return result
   }
@@ -84,7 +86,8 @@ public final class ColorConsole: Sendable {
     if verbosity < 2 {
       return nil
     }
-    let result = colorString("  🌶️" + context, messages)
+    let messageStr = formatString(messages)
+    let result = "  🌶️" + context + messageStr
     print(result)
     return result
   }

@@ -94,6 +94,17 @@ public class Settings: Codable {
   // MARK: - Private Initialization
 
   private init() {
+    // Detect system language and set as default if available
+    if let preferredLanguage = Locale.preferredLanguages.first,
+       let systemLanguage = ScvLanguage.toVoiceLanguage(preferredLanguage)
+    {
+      // System language matches an available bundled database
+      docLang = systemLanguage
+    } else {
+      // System language not available, use default (.english)
+      docLang = .default
+    }
+
     load()
     isInitializing = false
     validate()
