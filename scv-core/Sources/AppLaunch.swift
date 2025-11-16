@@ -26,6 +26,8 @@ public enum AppLaunch {
     // _ = #CCOK1(level: 1, "App launch initialized")
 
     let cc = ColorConsole(#file, #function, 1)
-    _ = cc.ok1(#line, "App launch initialized")
+    let buildNumber = Bundle.main
+      .infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+    _ = cc.ok1(#line, "App launch initialized (Build \(buildNumber))")
   }
 }

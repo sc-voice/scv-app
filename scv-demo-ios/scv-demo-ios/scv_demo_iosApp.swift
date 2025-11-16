@@ -25,6 +25,17 @@ struct scv_demo_iosApp: App {
         .onAppear {
           _ = cc.ok2(#line, "WindowGroup appeared!")
         }
+        .onOpenURL { url in
+          handleURL(url, cc: cc)
+        }
+    }
+  }
+
+  private func handleURL(_ url: URL, cc: ColorConsole) {
+    if let query = URLHandler.extractSearchQuery(from: url) {
+      _ = cc.ok1(#line, "Search query: \(query)")
+    } else {
+      _ = cc.bad1(#line, "Invalid URL or missing q parameter: \(url)")
     }
   }
 }
@@ -50,4 +61,20 @@ struct scv_demo_iosAppShortcuts: AppShortcutsProvider {
   }
 
   static var shortcutTileColor: ShortcutTileColor = .blue
+}
+
+// MARK: - URL Handler
+
+enum URLHandler {
+  static func extractSearchQuery(from url: URL) -> String? {
+    guard let components = URLComponents(
+      url: url,
+      resolvingAgainstBaseURL: true,
+    ),
+      let queryItems = components.queryItems
+    else {
+      return nil
+    }
+    return queryItems.first(where: { $0.name == "q" })?.value
+  }
 }

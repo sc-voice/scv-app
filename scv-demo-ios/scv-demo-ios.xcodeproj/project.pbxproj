@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3142EB97DA2007C60C9 /* scvUI */; };
-	F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3172EB97DA2007C60C9 /* scvMacros */; };
+		F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3172EB97DA2007C60C9 /* scvMacros */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +34,22 @@
 		F26DF2FF2EB97B07007C60C9 /* scv-demo-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scv-demo-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F26A32212EC98007007E7775 /* Exceptions for "scv-demo-ios" folder in "scv-demo-ios" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F26DF2E52EB97B06007C60C9 /* scv-demo-ios */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F26DF2E82EB97B06007C60C9 /* scv-demo-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F26A32212EC98007007E7775 /* Exceptions for "scv-demo-ios" folder in "scv-demo-ios" target */,
+			);
 			path = "scv-demo-ios";
 			sourceTree = "<group>";
 		};
@@ -58,7 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */,
-			F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */,
+				F26DF3182EB97DA2007C60C9 /* scvMacros in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,10 +430,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.410;
+				CURRENT_PROJECT_VERSION = 1.1.417;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "scv-demo-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = scVoice;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -455,10 +469,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosRelease.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.1.410;
+				CURRENT_PROJECT_VERSION = 1.1.417;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "scv-demo-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = scVoice;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -6,6 +6,10 @@ public struct dbg: Sendable {
     public static let search: Int = 0
   }
 
+  public struct OpenURL: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct SQLite: Sendable {
     public static let zstd: Int = 2
   }
