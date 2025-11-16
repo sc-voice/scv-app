@@ -10,7 +10,7 @@ public final class ColorConsole: Sendable {
 
   // Thread-safe timestamp tracking
   private static let timestampLock = NSLock()
-  private nonisolated(unsafe) static var lastOutputTime: Date = Date()
+  private nonisolated(unsafe) static var lastOutputTime: Date = .init()
 
   /// Initialize ColorConsole
   /// - Parameters:

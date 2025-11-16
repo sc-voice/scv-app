@@ -7,6 +7,7 @@ import UIKit
 public final class SuttaPlayer: NSObject, ObservableObject,
   AVSpeechSynthesizerDelegate
 {
+  let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
   public static let shared = SuttaPlayer()
 
   @Published public var isPlaying = false
@@ -19,8 +20,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   override init() {
     super.init()
+    cc.ok2(#line, "init() starting")
     configureAudioSession()
     synthesizer.delegate = self
+    cc.ok2(#line, "init() complete")
   }
 
   private func configureAudioSession() {

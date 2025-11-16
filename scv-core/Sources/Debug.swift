@@ -24,4 +24,8 @@ public struct dbg: Sendable {
   public struct SQLite: Sendable {
     public static let zstd: Int = 2
   }
+
+  public struct SuttaPlayer: Sendable {
+    public static let other: Int = 2
+  }
 }

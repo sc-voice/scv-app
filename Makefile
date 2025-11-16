@@ -27,7 +27,7 @@ test-all: scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resou
 	@$(MAKE) test-core test-demo-ios 2>&1 | tee -a local/test-all.log 
 	@echo "=========TEST SUMMARY======="
 	@echo "EXPECTED: 1 unhandled resource warning" 
-	cat local/test-all.log | grep -E $(TEST_ALL_FILTER) || true
+	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true
 
 test-core:
 	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | grep -v "started\."

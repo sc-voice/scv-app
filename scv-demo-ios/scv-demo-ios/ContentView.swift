@@ -11,6 +11,7 @@ import scvUI
 import SwiftUI
 
 struct ContentView: View {
+  let cc = ColorConsole(#file, "ContentView", dbg.DemoIOSApp.other)
   @EnvironmentObject var player: SuttaPlayer
   @StateObject private var themeProvider = ThemeProvider()
   @State private var searchResponse: SearchResponse?
@@ -157,6 +158,11 @@ struct ContentView: View {
       // Poll for app group UserDefaults changes since didChangeNotification
       // doesn't work for app groups
       loadSearchIntentResults()
+    }
+    .onChange(of: showIntentConfirmation) {
+      if showIntentConfirmation {
+        cc.ok2(#line, "alert(Confirm Search) presenting")
+      }
     }
     .alert("Confirm Search", isPresented: $showIntentConfirmation) {
       Button("Cancel") {

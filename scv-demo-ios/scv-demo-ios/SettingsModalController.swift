@@ -11,6 +11,7 @@ import scvUI
 import SwiftUI
 
 class SettingsModalController: NSObject, ObservableObject {
+  let cc = ColorConsole(#file, "SettingsModalController", dbg.DemoIOSApp.other)
   @Published var docLang: ScvLanguage {
     didSet { autosave() }
   }
@@ -117,17 +118,22 @@ class SettingsModalController: NSObject, ObservableObject {
     saveTimer?.invalidate()
     saveTimer = Timer
       .scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-        guard let self, pendingSave else {
-          self?.saveTimer?.invalidate()
-          self?.saveTimer = nil
-          return
-        }
+        Task { @MainActor in
+          guard let self else {
+            return
+          }
+          guard self.pendingSave else {
+            self.saveTimer?.invalidate()
+            self.saveTimer = nil
+            return
+          }
 
-        if !SuttaPlayer.shared.isPlaying {
-          Settings.shared.save()
-          pendingSave = false
-          saveTimer?.invalidate()
-          saveTimer = nil
+          if !SuttaPlayer.shared.isPlaying {
+            Settings.shared.save()
+            self.pendingSave = false
+            self.saveTimer?.invalidate()
+            self.saveTimer = nil
+          }
         }
       }
   }

@@ -14,6 +14,7 @@ import SwiftUI
 // MARK: - SettingsView
 
 struct SettingsView: View {
+  let cc = ColorConsole(#file, "SettingsView", dbg.DemoIOSApp.other)
   @ObservedObject var controller: SettingsModalController
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
@@ -168,6 +169,11 @@ struct SettingsView: View {
       .background(themeProvider.theme.backgroundColor)
     }
     .background(themeProvider.theme.backgroundColor)
+    .onChange(of: showResetConfirmation) {
+      if showResetConfirmation {
+        cc.ok2(#line, "alert(Reset All Settings) presenting")
+      }
+    }
     .alert("Reset All Settings?", isPresented: $showResetConfirmation) {
       Button("Reset", role: .destructive) {
         controller.resetToDefaults()

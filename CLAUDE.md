@@ -60,6 +60,15 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Eliminate visual style warnings
+**Status**: Complete (Build 1.1.445)
+
+01. [x] Add ColorConsole logging to ContentView, SettingsView, SettingsModalController, SuttaPlayer
+02. [x] Use .onChange() on state bindings to log alert presentations (not in ViewBuilder)
+03. [x] Wrap SettingsModalController timer in Task @MainActor for thread-safe main actor access
+04. [x] Verify visual style warnings eliminated on iPhone simulator
+05. [x] All 244 tests passing, no regressions
+
 ### Add ColorConsole elapsed time tracking to millisecond precision
 **Status**: Complete (Build 1.1.435)
 
@@ -135,14 +144,6 @@ cd scv-core && swift test --filter CardTests
 12. [x] All 244 tests passing with no regressions
 
 ## Backlog
-
-### Fix main actor-isolated property access in SettingsModalController
-**Status**: Backlog
-
-01. [ ] Locate SettingsModalController.swift:126 with isPlaying warning
-02. [ ] Identify the Sendable closure accessing main actor property
-03. [ ] Fix thread safety by ensuring closure runs on main actor
-04. [ ] Run make test to verify fix
 
 ### Create app privacy label
 **Status**: Backlog
