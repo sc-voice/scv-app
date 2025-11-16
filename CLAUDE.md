@@ -60,6 +60,16 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Add ColorConsole elapsed time tracking to millisecond precision
+**Status**: Complete (Build 1.1.435)
+
+01. [x] Add thread-safe timestamp tracking with NSLock
+02. [x] Implement getElapsedTimeAndUpdate() helper for +X.XXXs format
+03. [x] Update all 4 ColorConsole methods (ok1, bad1, ok2, bad2) to emit elapsed time
+04. [x] Use nonisolated(unsafe) to permit Sendable class with protected mutable state
+05. [x] Run make test-core: all 244 tests passing, no regressions
+06. [x] Verify working on iPhone simulator
+
 ### Investigate and fix ColorConsole errors
 **Status**: Complete (Build 1.1.363)
 

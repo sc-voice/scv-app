@@ -8,6 +8,10 @@ public final class ColorConsole: Sendable {
   private let verbosity: Int
   private let context: String
 
+  // Thread-safe timestamp tracking
+  private static let timestampLock = NSLock()
+  private nonisolated(unsafe) static var lastOutputTime: Date = Date()
+
   /// Initialize ColorConsole
   /// - Parameters:
   ///   - path: Source file path (default: #file)
@@ -33,6 +37,20 @@ public final class ColorConsole: Sendable {
     messages.map { String(describing: $0) }.joined(separator: " ")
   }
 
+  /// Get elapsed time since last output and update timestamp
+  private func getElapsedTimeAndUpdate() -> String {
+    ColorConsole.timestampLock.lock()
+    defer { ColorConsole.timestampLock.unlock() }
+
+    let now = Date()
+    let elapsed = now.timeIntervalSince(ColorConsole.lastOutputTime)
+    ColorConsole.lastOutputTime = now
+
+    let elapsedMs = Int(elapsed * 1000)
+    let elapsedSecs = Double(elapsedMs) / 1000.0
+    return String(format: "+%.3fs", elapsedSecs)
+  }
+
   /// Print bright green text and return colored string or nil based on
   /// verbosity
   /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
@@ -42,7 +60,8 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "✅" + context + messageStr
+    let elapsed = getElapsedTimeAndUpdate()
+    let result = "✅" + context + elapsed + " " + messageStr
     print(result)
     return result
   }
@@ -55,7 +74,8 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "❌" + context + messageStr
+    let elapsed = getElapsedTimeAndUpdate()
+    let result = "❌" + context + elapsed + " " + messageStr
     print(result)
     return result
   }
@@ -69,7 +89,8 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "↓🍀" + context + messageStr
+    let elapsed = getElapsedTimeAndUpdate()
+    let result = "↓🍀" + context + elapsed + " " + messageStr
     print(result)
     return result
   }
@@ -83,7 +104,8 @@ public final class ColorConsole: Sendable {
       return nil
     }
     let messageStr = formatString(messages)
-    let result = "↓🌶️" + context + messageStr
+    let elapsed = getElapsedTimeAndUpdate()
+    let result = "↓🌶️" + context + elapsed + " " + messageStr
     print(result)
     return result
   }
