@@ -1,5 +1,5 @@
 //
-//  scv_demo_iosApp.swift
+//  DemoIOSApp.swift
 //  scv-demo-ios
 //
 //  Created by Visakha on 03/11/2025.
@@ -10,32 +10,24 @@ import scvUI
 import SwiftUI
 
 @main
-struct scv_demo_iosApp: App {
+struct DemoIOSApp: App {
   @StateObject private var player = SuttaPlayer.shared
 
   init() {
-    AppLaunch.initialize()
+    AppController.shared.initialize()
   }
 
   var body: some Scene {
-    let cc = ColorConsole(#file, #function, 2)
     WindowGroup {
+      let cc = ColorConsole(#file, "ContentView", dbg.DemoIOSApp.other)
       ContentView()
         .environmentObject(player)
         .onAppear {
-          _ = cc.ok2(#line, "WindowGroup appeared!")
+          cc.ok1(#line, ".onAppear")
         }
         .onOpenURL { url in
-          handleURL(url, cc: cc)
+          AppController.shared.handleSearchUrl(url: url)
         }
-    }
-  }
-
-  private func handleURL(_ url: URL, cc: ColorConsole) {
-    if let query = URLHandler.extractSearchQuery(from: url) {
-      _ = cc.ok1(#line, "Search query: \(query)")
-    } else {
-      _ = cc.bad1(#line, "Invalid URL or missing q parameter: \(url)")
     }
   }
 }
@@ -43,7 +35,7 @@ struct scv_demo_iosApp: App {
 // MARK: - App Shortcuts
 
 @available(iOS 16.0, macOS 13.0, *)
-struct scv_demo_iosAppShortcuts: AppShortcutsProvider {
+struct DemoIOSAppShortcuts: AppShortcutsProvider {
   static var appShortcuts: [AppShortcut] {
     AppShortcut(
       intent: SearchSuttasIntent(),
@@ -61,20 +53,4 @@ struct scv_demo_iosAppShortcuts: AppShortcutsProvider {
   }
 
   static var shortcutTileColor: ShortcutTileColor = .blue
-}
-
-// MARK: - URL Handler
-
-enum URLHandler {
-  static func extractSearchQuery(from url: URL) -> String? {
-    guard let components = URLComponents(
-      url: url,
-      resolvingAgainstBaseURL: true,
-    ),
-      let queryItems = components.queryItems
-    else {
-      return nil
-    }
-    return queryItems.first(where: { $0.name == "q" })?.value
-  }
 }

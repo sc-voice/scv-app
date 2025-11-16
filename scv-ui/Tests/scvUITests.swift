@@ -128,4 +128,129 @@ struct scvUITests {
       #expect(player.currentSutta?.currentScid == segments[3].key)
     }
   }
+
+  // MARK: - AppController Tests
+
+  @Test
+  func appControllerSearchByUrlConstructsValidURL() {
+    let mockOpener = MockURLOpener()
+    let controller = AppController(urlOpener: mockOpener)
+
+    controller.searchByUrl(query: "dhamma")
+
+    #expect(mockOpener.lastURL != nil)
+    #expect(mockOpener.lastURL?.scheme == "sc-voice")
+    #expect(mockOpener.lastURL?.host == "search")
+  }
+
+  @Test
+  func appControllerSearchByUrlIncludesQueryParameter() {
+    let mockOpener = MockURLOpener()
+    let controller = AppController(urlOpener: mockOpener)
+
+    controller.searchByUrl(query: "dukkha")
+
+    guard let components = URLComponents(
+      url: mockOpener.lastURL ?? URL(fileURLWithPath: ""),
+      resolvingAgainstBaseURL: true,
+    ) else {
+      #expect(Bool(false), "Failed to parse URL components")
+      return
+    }
+
+    let queryValue = components.queryItems?.first(where: { $0.name == "q" })?
+      .value
+    #expect(queryValue == "dukkha")
+  }
+
+  @Test
+  func appControllerSearchByUrlEncodesSpecialCharacters() {
+    let mockOpener = MockURLOpener()
+    let controller = AppController(urlOpener: mockOpener)
+
+    controller.searchByUrl(query: "hello world")
+
+    guard let components = URLComponents(
+      url: mockOpener.lastURL ?? URL(fileURLWithPath: ""),
+      resolvingAgainstBaseURL: true,
+    ) else {
+      #expect(Bool(false), "Failed to parse URL components")
+      return
+    }
+
+    let queryValue = components.queryItems?.first(where: { $0.name == "q" })?
+      .value
+    #expect(queryValue == "hello world")
+  }
+
+  @Test
+  func appControllerSearchByUrlCallsURLOpener() {
+    let mockOpener = MockURLOpener()
+    let controller = AppController(urlOpener: mockOpener)
+
+    #expect(mockOpener.openWasCalled == false)
+    controller.searchByUrl(query: "test")
+    #expect(mockOpener.openWasCalled == true)
+  }
+
+  @Test
+  func appControllerExtractSearchQueryFromValidURL() {
+    let controller = AppController()
+    let url = URL(string: "sc-voice://search?q=dhamma")!
+
+    let query = controller.extractSearchQuery(from: url)
+
+    #expect(query == "dhamma")
+  }
+
+  @Test
+  func appControllerExtractSearchQueryFromURLWithoutParam() {
+    let controller = AppController()
+    let url = URL(string: "sc-voice://search")!
+
+    let query = controller.extractSearchQuery(from: url)
+
+    #expect(query == nil)
+  }
+
+  @Test
+  func appControllerExtractSearchQueryWithEncodedCharacters() {
+    let controller = AppController()
+    let url = URL(string: "sc-voice://search?q=hello%20world")!
+
+    let query = controller.extractSearchQuery(from: url)
+
+    #expect(query == "hello world")
+  }
+
+  @Test
+  func appControllerHandleSearchUrlWithValidURL() {
+    let controller = AppController()
+    let url = URL(string: "sc-voice://search?q=dukkha")!
+
+    // Should not crash or throw
+    controller.handleSearchUrl(url: url)
+  }
+
+  @Test
+  func appControllerHandleSearchUrlWithMissingParam() {
+    let controller = AppController()
+    let url = URL(string: "sc-voice://search")!
+
+    // Should not crash, shows error (can't verify alert in test)
+    controller.handleSearchUrl(url: url)
+  }
+}
+
+// MARK: - Mock URLOpener for Testing
+
+class MockURLOpener: URLOpener {
+  var lastURL: URL?
+  var openWasCalled = false
+
+  func open(_ url: URL, completion: @escaping @MainActor (Bool) -> Void) {
+    lastURL = url
+    openWasCalled = true
+    completion(true)
+  }
 }
