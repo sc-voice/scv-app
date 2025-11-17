@@ -130,7 +130,7 @@ struct ContentView: View {
       if let searchResponse,
          let mlDoc = searchResponse.mlDocs.first
       {
-        SuttaView(mlDoc: mlDoc, player: player)
+        DemoSuttaView(mlDoc: mlDoc, player: player)
           .environmentObject(themeProvider)
       } else {
         VStack(spacing: 16) {

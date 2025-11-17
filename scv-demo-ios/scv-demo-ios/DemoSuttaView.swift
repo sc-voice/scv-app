@@ -1,7 +1,8 @@
 import scvCore
+import scvUI
 import SwiftUI
 
-public struct SuttaView: View {
+public struct DemoSuttaView: View {
   let initialDoc: MLDocument
   @State private var mlDoc: MLDocument
   @ObservedObject var player: SuttaPlayer
@@ -179,6 +180,6 @@ public struct SuttaView: View {
   if let mockResponse = SearchResponse.createMockResponse(),
      let mlDoc = mockResponse.mlDocs.first
   {
-    SuttaView(mlDoc: mlDoc, player: .shared)
+    DemoSuttaView(mlDoc: mlDoc, player: .shared)
   }
 }
