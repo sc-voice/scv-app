@@ -143,6 +143,19 @@ cd scv-core && swift test --filter CardTests
 11. [x] Build 7 bundled databases with metadata: en:sujato (4167), en:brahmali (427), en:soma (73), en:kelly (94), de:sabbamitta (4054), fr:noeismet (53), ru:sv (899)
 12. [x] All 244 tests passing with no regressions
 
+### Move SuttaView to scv-demo-ios as DemoSuttaView
+**Status**: Complete (Build 1.1.447)
+
+01. [x] Read SuttaView.swift to identify all dependencies
+02. [x] Move SuttaView.swift from scv-ui to scv-demo-ios
+03. [x] Rename struct SuttaView → DemoSuttaView
+04. [x] Update ContentView.swift to use DemoSuttaView
+05. [x] Remove MockResponseView from scv-ui/Package.swift
+06. [x] Copy MockResponseView to scv-demo-ios and update to use DemoSuttaView
+07. [x] Delete redundant MockResponseView directory and ScvDemo.swift
+08. [x] Add missing import scvUI to DemoSuttaView.swift
+09. [x] Verify all 244 tests pass with no regressions
+
 ## Backlog
 
 ### Create app privacy label
