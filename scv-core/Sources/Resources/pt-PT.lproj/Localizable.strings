@@ -3,3 +3,6 @@
 
 /* Card type label for sutta viewer card */
 "card.type.sutta" = "Sutta";
+
+/* Placeholder text for empty search query */
+"card.search.placeholder" = "raiz do sofrimento";

@@ -10,42 +10,72 @@ import SwiftData
 
 // MARK: - CardType Enum
 
-enum CardType: String, CaseIterable, Codable {
+public enum CardType: String, CaseIterable, Codable {
   case search
   case sutta
 }
 
-// MARK: - Card Model
+// MARK: - ICard Protocol
 
-@Model
-final class Card: Codable {
-  typealias ID = PersistentIdentifier
+/// Card interface - defines contract for card types
+public protocol ICard: Identifiable {
+  var cardType: CardType { get }
+  var typeId: Int { get }
+  var searchQuery: String { get }
+}
 
-  // MARK: - Properties
-
-  private(set) var uuid: UUID = UUID()
-  private(set) var createdAt: Date
-  private(set) var cardType: CardType
+public extension ICard {
   @MainActor
   var name: String {
     "\(localizedCardTypeName()) \(typeId)"
   }
 
-  private(set) var typeId: Int
+  func iconName() -> String {
+    switch cardType {
+    case .search:
+      "magnifyingglass"
+    case .sutta:
+      "book"
+    }
+  }
+
+  @MainActor
+  func localizedCardTypeName() -> String {
+    switch cardType {
+    case .search:
+      "card.type.search".localized
+    case .sutta:
+      "card.type.sutta".localized
+    }
+  }
+}
+
+// MARK: - Card Model
+
+@Model
+public final class Card: Codable, ICard {
+  public typealias ID = PersistentIdentifier
+
+  // MARK: - Properties
+
+  private(set) var uuid: UUID = UUID()
+  private(set) var createdAt: Date
+  public private(set) var cardType: CardType
+  public private(set) var typeId: Int
 
   // Search card properties
-  var searchQuery: String = ""
-  var searchResults: SearchResponse?
+  public var searchQuery: String = ""
+  public var searchResults: SearchResponse?
 
   // Sutta card properties
-  var suttaReference: String = ""
+  public var suttaReference: String = ""
 
   // Document display (for viewing segments with selection tracking)
-  var mlDoc: MLDocument?
+  public var mlDoc: MLDocument?
 
   // MARK: - Initialization
 
-  init(
+  public init(
     cardType: CardType = .search,
     typeId: Int = 0,
     searchQuery: String = "",
@@ -75,7 +105,7 @@ final class Card: Codable {
     case mlDoc
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(uuid, forKey: .uuid)
     try container.encode(createdAt, forKey: .createdAt)
@@ -87,7 +117,7 @@ final class Card: Codable {
     try container.encodeIfPresent(mlDoc, forKey: .mlDoc)
   }
 
-  required init(from decoder: Decoder) throws {
+  public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     uuid = try container.decode(UUID.self, forKey: .uuid)
     createdAt = try container.decode(Date.self, forKey: .createdAt)
@@ -104,30 +134,9 @@ final class Card: Codable {
 
   // MARK: - Public Methods
 
-  /// Returns the appropriate SF Symbol icon name for the card type
-  func iconName() -> String {
-    switch cardType {
-    case .search:
-      "magnifyingglass"
-    case .sutta:
-      "book"
-    }
-  }
-
-  /// Returns the localized name for the card type
-  @MainActor
-  func localizedCardTypeName() -> String {
-    switch cardType {
-    case .search:
-      "card.type.search".localized
-    case .sutta:
-      "card.type.sutta".localized
-    }
-  }
-
   /// Returns the display title for the card
   @MainActor
-  func title() -> String {
+  public func title() -> String {
     // Always return localized CardType + ID (don't store in name)
     "\(localizedCardTypeName()) \(typeId)"
   }

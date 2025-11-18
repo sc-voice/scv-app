@@ -35,6 +35,9 @@ public struct Theme {
   /// Toolbar color
   public let toolbarColor: Color
 
+  /// Debug text color (only visible in debug builds)
+  public let debugTextColor: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -44,6 +47,7 @@ public struct Theme {
     borderColor: Color,
     valueColor: Color,
     toolbarColor: Color,
+    debugTextColor: Color,
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -53,6 +57,7 @@ public struct Theme {
     self.borderColor = borderColor
     self.valueColor = valueColor
     self.toolbarColor = toolbarColor
+    self.debugTextColor = debugTextColor
   }
 }
 
@@ -70,6 +75,9 @@ private let COLOR_BROWN = Color(red: 0.474, green: 0.333,
 
 /// Grey color for toolbar (light theme)
 private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD
+
+/// Fuchsia color for debug text (light theme)
+private let COLOR_FUCHSIA = Color(red: 1.0, green: 0.0, blue: 1.0) // #FF00FF
 
 /// Application themes
 public enum AppTheme {
@@ -96,6 +104,7 @@ public enum AppTheme {
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: COLOR_GREY, // #BDBDBD
+        debugTextColor: COLOR_FUCHSIA, // #FF00FF
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
@@ -111,6 +120,7 @@ public enum AppTheme {
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: COLOR_BROWN, // #795548
+        debugTextColor: COLOR_CYAN, // #00ffff
       )
     }
   }

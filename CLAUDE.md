@@ -171,6 +171,36 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
+### CardSidebarView Implementation
+**Status**: Backlog
+
+01. [ ] Clarify CardSidebarView visual behavior
+    - How should selected card be indicated? (highlight, checkmark, background color)
+    - How does delete work? (swipe, button, confirmation dialog)
+    - Auto-select newly created card?
+
+02. [ ] Implement CardSidebarView in scv-ui (See: scv-ui/Sources/scvUI/CardSidebarView.swift)
+    - Already drafted: List with card names, icons, search query preview
+    - Take CardManager as @Bindable dependency
+    - Show selected state with proper visual indicator
+    - Add button to create new SearchCard
+    - Delete button/swipe for removal
+
+03. [ ] Add CardSidebarView tests in scv-ui test target
+    - Test card selection updates CardManager.selectedCardId
+    - Test add card creates new SearchCard
+    - Test delete card removes from list
+
+04. [ ] Create ContentView with NavigationSplitView
+    - Sidebar: CardSidebarView
+    - Detail: Conditional view based on selected card type
+
+05. [ ] Create scv-ios app (Xcode project)
+    - Initialize SwiftData ModelContainer
+    - Create CardManager with modelContext
+    - Set up AppController for URL scheme handling
+    - Root view: ContentView with NavigationSplitView
+
 ### Add WebView wrapper for selected segment
 **Status**: Backlog
 
@@ -210,15 +240,3 @@ cd scv-core && swift test --filter CardTests
 07. [ ] Test SuttaView audio playback feature
 
 08. [ ] macOS locked screen playback
-
-### Implement zstd database decompression on app launch
-**Status**: Backlog
-
-01. [ ] Integrate zstd decompression into app launch sequence
-02. [ ] Decompress selected databases (docLang default author) on first app run
-03. [ ] Cache decompressed databases to avoid re-decompression
-04. [ ] Use manifest to determine which database to decompress based on Settings.docLang
-05. [ ] Test decompression and database functionality offline
-06. [ ] Measure app launch time impact
-07. [ ] Document database distribution strategy for multi-language support
-

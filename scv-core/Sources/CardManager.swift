@@ -8,26 +8,42 @@
 import Foundation
 import SwiftData
 
+// MARK: - ICardManager Protocol
+
+/// Card manager interface - defines contract for managing cards
+public protocol ICardManager: Observable {
+  associatedtype ManagedCard: ICard
+
+  var allCards: [ManagedCard] { get }
+  var selectedCardId: ManagedCard.ID? { get set }
+
+  func selectCard(_ card: ManagedCard)
+  func removeCards(at indices: IndexSet)
+  @discardableResult
+  func addCard(type: scvCore.CardType) -> ManagedCard
+}
+
 // MARK: - CardManager
 
 /// Instance-based manager for Card instances with ModelContext integration
 @Observable
-class CardManager {
+public class CardManager: ICardManager {
+  public typealias ManagedCard = Card
   let cc = ColorConsole(#file, #function)
 
   // MARK: - Properties
 
   private let modelContext: ModelContext
-  var selectedCardId: Card.ID?
+  public var selectedCardId: Card.ID?
 
   // MARK: - Initialization
 
-  init(modelContext: ModelContext) {
+  public init(modelContext: ModelContext) {
     self.modelContext = modelContext
 
     // Ensure at least one card exists
     if allCards.isEmpty {
-      addCard(cardType: .search)
+      addCard(type: .search)
     }
 
     // Ensure a card is always selected
@@ -39,7 +55,7 @@ class CardManager {
   // MARK: - Public Properties
 
   /// Returns all cards sorted by createdAt in ascending order
-  var allCards: [Card] {
+  public var allCards: [Card] {
     let fetchDescriptor = FetchDescriptor<Card>(sortBy: [
       SortDescriptor(\.createdAt, order: .forward),
     ])
@@ -77,7 +93,7 @@ class CardManager {
 
   /// Adds a new card and returns the card with the assigned ID
   @discardableResult
-  func addCard(cardType: CardType = .search) -> Card {
+  public func addCard(type cardType: CardType = .search) -> Card {
     // Create a new card with the correct ID
     let newCard = Card(
       cardType: cardType,
@@ -96,7 +112,7 @@ class CardManager {
   }
 
   /// Selects a card (ensures a card is always selected)
-  func selectCard(_ card: Card) {
+  public func selectCard(_ card: Card) {
     selectedCardId = card.id
   }
 
@@ -142,7 +158,7 @@ class CardManager {
   }
 
   /// Removes cards at specified indices
-  func removeCards(at indices: IndexSet) {
+  public func removeCards(at indices: IndexSet) {
     let cards = allCards
     for index in indices {
       if index < cards.count {

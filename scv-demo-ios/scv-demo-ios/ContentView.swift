@@ -8,6 +8,7 @@
 import Combine
 import scvCore
 import scvUI
+import SwiftData
 import SwiftUI
 
 struct ContentView: View {

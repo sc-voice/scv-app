@@ -11,7 +11,7 @@ import Foundation
 @MainActor
 var localizationBundle = Bundle.module
 
-extension String {
+public extension String {
   /// Localized version of the string
   @MainActor
   var localized: String {

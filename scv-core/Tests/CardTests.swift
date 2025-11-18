@@ -651,9 +651,9 @@ struct CardTests {
     // Create CardManager and add multiple cards rapidly
     let manager = CardManager(modelContext: context)
 
-    let card1 = manager.addCard(cardType: .search)
-    let card2 = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .search)
+    let card1 = manager.addCard(type: .search)
+    let card2 = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .search)
 
     // Verify each card got unique typeId
     let typeIds = Set([card1.typeId, card2.typeId, card3.typeId])

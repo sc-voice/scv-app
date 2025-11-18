@@ -48,7 +48,7 @@ struct CardManagerTests {
 
     // Add a second card
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
+    let card2 = manager.addCard(type: .search)
 
     // Select first card and delete it
     manager.selectCard(card1)
@@ -72,8 +72,8 @@ struct CardManagerTests {
 
     // Create three cards
     #expect(manager.allCards.count == 1)
-    let card2 = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .sutta)
+    let card2 = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .sutta)
 
     // Select middle card and delete it
     manager.selectCard(card2)
@@ -97,8 +97,8 @@ struct CardManagerTests {
 
     // Create three cards
     #expect(manager.allCards.count == 1)
-    let card2 = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .sutta)
+    let card2 = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .sutta)
 
     // Select last card and delete it
     manager.selectCard(card3)
@@ -141,7 +141,7 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
+    let card2 = manager.addCard(type: .search)
     #expect(manager.allCards.count == 2)
 
     // Select card2
@@ -167,7 +167,7 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
     let initialCard = manager.allCards.first!
-    let newCard = manager.addCard(cardType: .search)
+    let newCard = manager.addCard(type: .search)
 
     #expect(manager.totalCount == 2)
 
@@ -187,8 +187,8 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     let searchCard1 = manager.allCards.first!
-    manager.addCard(cardType: .search)
-    manager.addCard(cardType: .sutta)
+    manager.addCard(type: .search)
+    manager.addCard(type: .sutta)
 
     #expect(manager.count(for: .search) == 2)
     #expect(manager.count(for: .sutta) == 1)
@@ -211,8 +211,8 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     #expect(manager.allCards.count == 1)
-    manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .sutta)
+    manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .sutta)
 
     manager.selectCard(card3)
     let initialCount = manager.totalCount
@@ -234,8 +234,8 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
-    manager.addCard(cardType: .sutta)
+    let card2 = manager.addCard(type: .search)
+    manager.addCard(type: .sutta)
 
     manager.selectCard(card1)
 
@@ -260,10 +260,10 @@ struct CardManagerTests {
 
     // Create 5 cards
     let card1 = manager.allCards.first!
-    _ = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .search)
-    _ = manager.addCard(cardType: .sutta)
-    let card5 = manager.addCard(cardType: .sutta)
+    _ = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .search)
+    _ = manager.addCard(type: .sutta)
+    let card5 = manager.addCard(type: .sutta)
 
     manager.selectCard(card1)
 
@@ -291,10 +291,10 @@ struct CardManagerTests {
 
     // Create 5 cards
     let card1 = manager.allCards.first!
-    _ = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .search)
-    _ = manager.addCard(cardType: .sutta)
-    let card5 = manager.addCard(cardType: .sutta)
+    _ = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .search)
+    _ = manager.addCard(type: .sutta)
+    let card5 = manager.addCard(type: .sutta)
 
     manager.selectCard(card3)
 
@@ -320,9 +320,9 @@ struct CardManagerTests {
 
     // Create 4 cards
     let card1 = manager.allCards.first!
-    let card2 = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .search)
-    let card4 = manager.addCard(cardType: .sutta)
+    let card2 = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .search)
+    let card4 = manager.addCard(type: .sutta)
 
     manager.selectCard(card2)
 
@@ -353,11 +353,11 @@ struct CardManagerTests {
 
     // Create 6 cards
     _ = manager.allCards.first!
-    _ = manager.addCard(cardType: .search)
-    let card3 = manager.addCard(cardType: .search)
-    let card4 = manager.addCard(cardType: .sutta)
-    _ = manager.addCard(cardType: .sutta)
-    _ = manager.addCard(cardType: .sutta)
+    _ = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .search)
+    let card4 = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
 
     manager.selectCard(card3)
 
@@ -383,11 +383,11 @@ struct CardManagerTests {
 
     // Create 3 search and 3 sutta cards
     let searchCard1 = manager.allCards.first!
-    _ = manager.addCard(cardType: .search)
-    let searchCard3 = manager.addCard(cardType: .search)
-    let suttaCard1 = manager.addCard(cardType: .sutta)
-    _ = manager.addCard(cardType: .sutta)
-    _ = manager.addCard(cardType: .sutta)
+    _ = manager.addCard(type: .search)
+    let searchCard3 = manager.addCard(type: .search)
+    let suttaCard1 = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
 
     #expect(manager.count(for: .search) == 3)
     #expect(manager.count(for: .sutta) == 3)
@@ -418,7 +418,7 @@ struct CardManagerTests {
 
     // Start with one card, then rapidly add up to 10 cards
     for _ in 0 ..< 9 {
-      manager.addCard(cardType: .search)
+      manager.addCard(type: .search)
 
       // After each add, validate invariant
       #expect(manager.selectedCard != nil)
@@ -441,7 +441,7 @@ struct CardManagerTests {
 
     // Create 10 cards
     for _ in 0 ..< 9 {
-      manager.addCard(cardType: .search)
+      manager.addCard(type: .search)
     }
     #expect(manager.totalCount == 10)
 
@@ -473,7 +473,7 @@ struct CardManagerTests {
     // Mix of rapid adds and removes
     // Add 5 cards
     for _ in 0 ..< 5 {
-      manager.addCard(cardType: .search)
+      manager.addCard(type: .search)
       #expect(manager.selectedCard != nil)
       #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
     }
@@ -492,7 +492,7 @@ struct CardManagerTests {
 
     // Add 3 more cards
     for _ in 0 ..< 3 {
-      manager.addCard(cardType: .sutta)
+      manager.addCard(type: .sutta)
       #expect(manager.selectedCard != nil)
       #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
     }
