@@ -1,4 +1,4 @@
-.PHONY: test test-all test-core test-core-verbose test-zstd-integration build build-core build-demo-ios \
+.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration build build-core build-demo-ios \
         clean clean-core clean-ui clean-demo-ios format mock-response-view scv-demo-ios \
         version-major version-minor version-patch commit build-ebt-data-db
 
@@ -24,21 +24,27 @@ test-all: scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resou
 	@echo "Building..."
 	@$(MAKE) clean build 2>&1 | tee local/test-all.log
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/test-all.log
-	@$(MAKE) test-core test-demo-ios 2>&1 | tee -a local/test-all.log 
+	@$(MAKE) test-core test-ui test-demo-ios 2>&1 | tee -a local/test-all.log 
 	@echo "=========TEST SUMMARY======="
 	@echo "EXPECTED: 1 unhandled resource warning" 
 	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true
 
 test-core:
+	@echo "=======> test-core..."
 	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
 
+test-ui:
+	@echo "=======> test-ui..."
+	@cd scv-ui && swift test --no-parallel 2>&1 | grep -v "started\."
+
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-demo-ios:
+	@echo "=======> test-core-demo-ios..."
 	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION \
 	  scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj | \
 	  head -1 | sed 's/.*= //;s/;$$//'); \
@@ -73,12 +79,15 @@ format:
 # 	@cd scv-macros && swift package clean 2>/dev/null || true
 
 clean-core:
+	@echo "=====> clean-core..."
 	@cd scv-core && swift package clean 2>/dev/null || true
 
 clean-ui:
+	@echo "=====> clean-ui..."
 	@cd scv-ui && swift package clean 2>/dev/null || true
 
 clean-demo-ios:
+	@echo "=====> clean-demo-ios..."
 	rm -rf scv-demo-iOS/build
 	rm -rf scv-demo-iOS/.swiftpm
 	cd scv-demo-ios && \
@@ -128,6 +137,7 @@ help:
 	@echo "  make test-all          Run all package tests and build validation"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-demo-ios     Validate scv-demo-ios build"
 	@echo "  make build             Build all (core and iOS)"

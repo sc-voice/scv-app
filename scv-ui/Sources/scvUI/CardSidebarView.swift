@@ -41,7 +41,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 if selectedCardId == card.id {
                   Text(card.name)
                     .font(.caption)
-                    .foregroundStyle(themeProvider.theme.debugTextColor)
+                    .foregroundStyle(themeProvider.theme.debugForeground)
                 }
               #endif
               if !card.searchQuery.isEmpty {
@@ -77,32 +77,62 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .opacity(titleOpacity)
             .scaleEffect(titleScale)
         }
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button(action: addNewCard) {
-            Image(systemName: "magnifyingglass")
-              .font(.title2)
-          }
-          .help("Add new search card")
-        }
-        if let onSettingsTap {
-          ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: {
-              withAnimation(.easeInOut(duration: 2.0)) {
-                titleColor = themeProvider.theme.accentColor
-              }
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.secondaryTextColor
-                }
-              }
-              onSettingsTap()
-            }) {
-              Image(systemName: "gearshape")
+        #if os(iOS)
+          ToolbarItem(placement: .navigationBarLeading) {
+            Button(action: addNewCard) {
+              Image(systemName: "magnifyingglass")
                 .font(.title2)
             }
-            .help("Settings")
+            .help("Add new search card")
           }
-        }
+          if let onSettingsTap {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(action: {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.accentColor
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                  withAnimation(.easeInOut(duration: 2.0)) {
+                    titleColor = themeProvider.theme.secondaryTextColor
+                  }
+                }
+                onSettingsTap()
+              }) {
+                Image(systemName: "gearshape")
+                  .font(.title2)
+              }
+              .help("Settings")
+            }
+          }
+        #else
+          // macOS uses different toolbar placement strategy
+          ToolbarItem(placement: .automatic) {
+            Button(action: addNewCard) {
+              Image(systemName: "magnifyingglass")
+                .font(.title2)
+            }
+            .help("Add new search card")
+          }
+          if let onSettingsTap {
+            ToolbarItem(placement: .automatic) {
+              Button(action: {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.accentColor
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                  withAnimation(.easeInOut(duration: 2.0)) {
+                    titleColor = themeProvider.theme.secondaryTextColor
+                  }
+                }
+                onSettingsTap()
+              }) {
+                Image(systemName: "gearshape")
+                  .font(.title2)
+              }
+              .help("Settings")
+            }
+          }
+        #endif
       }
       .onAppear {
         withAnimation(.easeInOut(duration: 5.0)) {

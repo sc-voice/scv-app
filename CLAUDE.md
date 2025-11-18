@@ -37,6 +37,10 @@ and provides a card-based interface where users can create multiple search and s
 - Root Cause: After wdone, should have only created .commit-msg and asked developer to run `make commit`. Instead automatically staged and committed changes.
 - Impact: Commit 91b9532 created without explicit developer approval via `make commit` workflow
 
+## Code Best Practice
+
+- ColorConsole logging: See scv-core/Sources/ColorConsole.swift for ok1/ok2/bad1/bad2 usage patterns
+
 ## Testing
 
 ### scv-core Package Tests
@@ -158,6 +162,58 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
+### Review CardSidebarView toolbar iOS/macOS design
+**Status**: Backlog
+
+01. [ ] Evaluate CardSidebarView toolbar button placement (See: scv-ui/Sources/scvUI/CardSidebarView.swift:80-135)
+    - iOS uses .navigationBarLeading and .navigationBarTrailing
+    - macOS uses .automatic placement (temporary solution)
+    - Test actual macOS appearance and UX
+    - Determine if .automatic is appropriate or needs refinement
+    - Consider alternative placements if needed
+
+### Test SuttaPlayer AVSpeechSynthesizer integration
+**Status**: Backlog
+
+01. [ ] Fix SuttaPlayer tests that hang due to real speech synthesis (See: scv-ui/Tests/scvUITests.swift:67-138)
+    - Tests currently commented out and using real AVSpeechSynthesizer which hangs
+    - Need protocol-based abstraction or working mock for AVSpeechSynthesizer
+    - Test suttaPlayerUpdatesCurrentScidWhenPlayingSegment
+    - Test suttaPlayerJumpToSegmentWhilePlaying
+    - Consider if tests should verify speech synthesis or just state changes
+
+### Review SearchSuttasIntentTestHelper for relevance
+**Status**: Backlog
+
+01. [ ] Evaluate SearchSuttasIntentTestHelper (See: scv-ui/Sources/scvUI/SearchSuttasIntentTestHelper.swift)
+    - Determine if still relevant after SearchCardView implementation
+    - Check if it duplicates SearchCardView functionality
+    - Decide: keep as debug tool, refactor, or remove
+    - Update/remove if no longer needed
+
+### Consolidate iOS/macOS platform abstraction in scv-ui
+**Status**: Backlog
+
+01. [ ] Identify all platform-specific code patterns
+    - URLOpener abstraction (already exists)
+    - IdleTimerManager abstraction (created)
+    - Alert handling (UIAlertController vs NSAlert)
+    - Other iOS/macOS conditionals
+
+02. [ ] Create unified Platform or Compatibility module
+    - Combine IdleTimerManager, AlertManager, etc.
+    - Single entry point for platform differences
+    - Clear documentation for each abstraction
+
+03. [ ] Refactor existing code to use unified module
+    - Update SuttaPlayer to use unified module
+    - Update AppController alert handling
+    - Remove scattered #if os() conditionals
+
+04. [ ] Add tests for platform abstractions
+    - Verify no-ops work on macOS
+    - Verify functionality works on iOS
+
 ### Create app privacy label
 **Status**: Backlog
 
@@ -209,6 +265,30 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Handle navigation between segments in WebView
 04. [ ] Style WebView content according to theme
 05. [ ] Test WebView interaction and rendering
+
+### AppRootView Implementation in scv-ui
+**Status**: Backlog
+
+01. [ ] Design AppRootView structure
+    - NavigationSplitView with CardSidebarView on sidebar
+    - Conditional detail view based on selected card type
+    - Handle empty state (no cards selected)
+
+02. [ ] Implement AppRootView in scv-ui
+    - Take CardManager as generic dependency
+    - Dispatch to appropriate detail view based on card.cardType
+    - Route SearchCard to SearchCardView (when implemented)
+    - Route SuttaCard to SuttaCardView (if applicable)
+    - Pass card data and theme provider to detail views
+
+03. [ ] Add AppRootView tests
+    - Test NavigationSplitView layout on iOS (responsive)
+    - Test NavigationSplitView layout on macOS (split view)
+    - Test detail view changes when selectedCardId changes
+
+04. [ ] Integrate AppRootView into scv-ios and scv-mac apps
+    - scv-ios/App.swift uses AppRootView
+    - scv-mac/App.swift uses AppRootView
 
 ### SearchCardView Implementation (new scv-ui package)
 **Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.

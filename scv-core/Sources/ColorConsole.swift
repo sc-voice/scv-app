@@ -2,6 +2,30 @@ import Foundation
 
 /// ColorConsole produces colored messages to Xcode console using ANSI escape
 /// codes
+///
+/// ## Logging Best Practice
+///
+/// - `ok1(#line, message)`: Exactly once per valid code path. Provides 1-line
+///   summary of successful outcome. Example: `cc.ok1(#line, "Selected card:",
+///   card.name)`
+///
+/// - `ok2(#line, message)`: Document entry into code blocks and intermediate
+///   steps. Added as needed for diagnostic debugging. Example:
+///   `cc.ok2(#line, "conditional branch taken:", condition)`
+///
+/// - `bad1(#line, message)`: Used prior to exiting any method with unexpected
+///   result (throw error or invalid argument). Shares error message that will
+///   be thrown/returned. Example:
+///   ```
+///   let errorMsg = "Failed to decode results"
+///   cc.bad1(#line, errorMsg)
+///   throw MyError.decodeFailed(errorMsg)
+///   ```
+///
+/// - `bad2(#line, message)`: Reserved for additional diagnostic information
+///   during error diagnosis/handling or non-fatal errors. Example:
+///   `cc.bad2(#line, "Fallback attempted:", fallbackValue)`
+///
 public final class ColorConsole: Sendable {
   private let sourceFile: String
   private let sourceMethod: String

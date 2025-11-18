@@ -1,7 +1,12 @@
 import AVFoundation
 import Foundation
 import scvCore
-import UIKit
+
+#if os(iOS)
+  import UIKit
+#else
+  // macOS: UIKit not available
+#endif
 
 @MainActor
 public final class SuttaPlayer: NSObject, ObservableObject,
@@ -62,7 +67,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func play() {
     guard currentSutta != nil else { return }
     isPlaying = true
-    UIApplication.shared.isIdleTimerDisabled = true
+    #if os(iOS)
+      UIApplication.shared.isIdleTimerDisabled = true
+    #else
+      // macOS: no idle timer to disable
+    #endif
 
     // Start playback at currentScid if set, otherwise use currentSegmentIndex
     if let currentScid = currentSutta?.currentScid,
@@ -89,14 +98,22 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func pause() {
     synthesizer.stopSpeaking(at: .immediate)
     isPlaying = false
-    UIApplication.shared.isIdleTimerDisabled = false
+    #if os(iOS)
+      UIApplication.shared.isIdleTimerDisabled = false
+    #else
+      // macOS: no idle timer to restore
+    #endif
   }
 
   private func playSegmentAt(at index: Int) {
     guard index < segments.count else {
       isPlaying = false
       currentSegmentIndex = 0
-      UIApplication.shared.isIdleTimerDisabled = false
+      #if os(iOS)
+        UIApplication.shared.isIdleTimerDisabled = false
+      #else
+        // macOS: no idle timer to restore
+      #endif
       return
     }
 

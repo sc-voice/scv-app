@@ -77,7 +77,11 @@ import SwiftUI
               }
             }
             .frame(maxHeight: 200)
-            .listStyle(.insetGrouped)
+            #if os(iOS)
+              .listStyle(.insetGrouped)
+            #else
+              .listStyle(.automatic)
+            #endif
           }
         }
 

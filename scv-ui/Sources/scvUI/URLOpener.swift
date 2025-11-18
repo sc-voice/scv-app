@@ -37,7 +37,9 @@ public protocol URLOpener {
       completion: @escaping @MainActor (Bool) -> Void,
     ) {
       let success = NSWorkspace.shared.open(url)
-      completion(success)
+      Task { @MainActor in
+        completion(success)
+      }
     }
   }
 #endif

@@ -82,7 +82,11 @@ public struct SearchResultsView: View {
             .padding(.vertical, 4)
           }
         }
+        #if os(iOS)
         .listStyle(.insetGrouped)
+        #else
+        .listStyle(.automatic)
+        #endif
       }
     }
     .task {
