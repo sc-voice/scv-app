@@ -162,6 +162,91 @@ cd scv-core && swift test --filter CardTests
 
 ## Backlog
 
+### CardSidebarView Implementation
+**Status**: Backlog
+
+01. [ ] Clarify CardSidebarView visual behavior
+    - How should selected card be indicated? (highlight, checkmark, background color)
+    - How does delete work? (swipe, button, confirmation dialog)
+    - Auto-select newly created card?
+
+02. [ ] Implement CardSidebarView in scv-ui (See: scv-ui/Sources/scvUI/CardSidebarView.swift)
+    - Already drafted: List with card names, icons, search query preview
+    - Take CardManager as @Bindable dependency
+    - Show selected state with proper visual indicator
+    - Add button to create new SearchCard
+    - Delete button/swipe for removal
+
+03. [ ] Add CardSidebarView tests in scv-ui test target
+    - Test card selection updates CardManager.selectedCardId
+    - Test add card creates new SearchCard
+    - Test delete card removes from list
+
+04. [ ] Create ContentView with NavigationSplitView
+    - Sidebar: CardSidebarView
+    - Detail: Conditional view based on selected card type
+
+05. [ ] Create scv-ios app (Xcode project)
+    - Initialize SwiftData ModelContainer
+    - Create CardManager with modelContext
+    - Set up AppController for URL scheme handling
+    - Root view: ContentView with NavigationSplitView
+
+### AppRootView Implementation in scv-ui
+**Status**: Backlog
+
+01. [ ] Design AppRootView structure
+    - NavigationSplitView with CardSidebarView on sidebar
+    - Conditional detail view based on selected card type
+    - Handle empty state (no cards selected)
+
+02. [ ] Implement AppRootView in scv-ui
+    - Take CardManager as generic dependency
+    - Dispatch to appropriate detail view based on card.cardType
+    - Route SearchCard to SearchCardView (when implemented)
+    - Route SuttaCard to SuttaCardView (if applicable)
+    - Pass card data and theme provider to detail views
+
+03. [ ] Add AppRootView tests
+    - Test NavigationSplitView layout on iOS (responsive)
+    - Test NavigationSplitView layout on macOS (split view)
+    - Test detail view changes when selectedCardId changes
+
+04. [ ] Integrate AppRootView into scv-ios and scv-mac apps
+    - scv-ios/App.swift uses AppRootView
+    - scv-mac/App.swift uses AppRootView
+
+### SearchCardView Implementation (new scv-ui package)
+**Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
+
+01. [ ] Decide SearchCardView display scope
+    - Just matched passages?
+    - Full document metadata (title, author, score) + matched passages?
+    - All documents in expandable/collapsible sections?
+
+02. [ ] Decide SearchCardView UI focus
+    - Scrollable list view of results?
+    - Highlighting which text matched the query?
+    - Navigation capability to view full documents?
+
+03. [ ] Decide SearchCardView interactivity
+    - Tapping to expand/collapse documents?
+    - Filtering by relevance score or other criteria?
+    - Pagination or lazy loading for large result sets?
+
+04. [ ] Decide SearchCardView styling
+    - Light/dark mode support?
+    - Specific design system or minimal SwiftUI defaults?
+    - Compact vs detailed display density?
+
+05. [ ] Implement SearchCardView with MockResponse example
+
+06. [ ] Add SearchCardView tests
+
+07. [ ] Test SuttaView audio playback feature
+
+08. [ ] macOS locked screen playback
+
 ### Review CardSidebarView toolbar iOS/macOS design
 **Status**: Backlog
 
@@ -227,36 +312,6 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
-### CardSidebarView Implementation
-**Status**: Backlog
-
-01. [ ] Clarify CardSidebarView visual behavior
-    - How should selected card be indicated? (highlight, checkmark, background color)
-    - How does delete work? (swipe, button, confirmation dialog)
-    - Auto-select newly created card?
-
-02. [ ] Implement CardSidebarView in scv-ui (See: scv-ui/Sources/scvUI/CardSidebarView.swift)
-    - Already drafted: List with card names, icons, search query preview
-    - Take CardManager as @Bindable dependency
-    - Show selected state with proper visual indicator
-    - Add button to create new SearchCard
-    - Delete button/swipe for removal
-
-03. [ ] Add CardSidebarView tests in scv-ui test target
-    - Test card selection updates CardManager.selectedCardId
-    - Test add card creates new SearchCard
-    - Test delete card removes from list
-
-04. [ ] Create ContentView with NavigationSplitView
-    - Sidebar: CardSidebarView
-    - Detail: Conditional view based on selected card type
-
-05. [ ] Create scv-ios app (Xcode project)
-    - Initialize SwiftData ModelContainer
-    - Create CardManager with modelContext
-    - Set up AppController for URL scheme handling
-    - Root view: ContentView with NavigationSplitView
-
 ### Add WebView wrapper for selected segment
 **Status**: Backlog
 
@@ -265,58 +320,3 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Handle navigation between segments in WebView
 04. [ ] Style WebView content according to theme
 05. [ ] Test WebView interaction and rendering
-
-### AppRootView Implementation in scv-ui
-**Status**: Backlog
-
-01. [ ] Design AppRootView structure
-    - NavigationSplitView with CardSidebarView on sidebar
-    - Conditional detail view based on selected card type
-    - Handle empty state (no cards selected)
-
-02. [ ] Implement AppRootView in scv-ui
-    - Take CardManager as generic dependency
-    - Dispatch to appropriate detail view based on card.cardType
-    - Route SearchCard to SearchCardView (when implemented)
-    - Route SuttaCard to SuttaCardView (if applicable)
-    - Pass card data and theme provider to detail views
-
-03. [ ] Add AppRootView tests
-    - Test NavigationSplitView layout on iOS (responsive)
-    - Test NavigationSplitView layout on macOS (split view)
-    - Test detail view changes when selectedCardId changes
-
-04. [ ] Integrate AppRootView into scv-ios and scv-mac apps
-    - scv-ios/App.swift uses AppRootView
-    - scv-mac/App.swift uses AppRootView
-
-### SearchCardView Implementation (new scv-ui package)
-**Decision:** SearchCardView lives in new scv-ui package that depends on and re-exports scv-core. Apps (scv-ios, scv-mac) import only scv-ui.
-
-01. [ ] Decide SearchCardView display scope
-    - Just matched passages?
-    - Full document metadata (title, author, score) + matched passages?
-    - All documents in expandable/collapsible sections?
-
-02. [ ] Decide SearchCardView UI focus
-    - Scrollable list view of results?
-    - Highlighting which text matched the query?
-    - Navigation capability to view full documents?
-
-03. [ ] Decide SearchCardView interactivity
-    - Tapping to expand/collapse documents?
-    - Filtering by relevance score or other criteria?
-    - Pagination or lazy loading for large result sets?
-
-04. [ ] Decide SearchCardView styling
-    - Light/dark mode support?
-    - Specific design system or minimal SwiftUI defaults?
-    - Compact vs detailed display density?
-
-05. [ ] Implement SearchCardView with MockResponse example
-
-06. [ ] Add SearchCardView tests
-
-07. [ ] Test SuttaView audio playback feature
-
-08. [ ] macOS locked screen playback
