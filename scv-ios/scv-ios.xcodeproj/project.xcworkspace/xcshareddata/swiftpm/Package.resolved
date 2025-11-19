@@ -1,0 +1,15 @@
+{
+  "originHash" : "735aa58528cdb8f35d261f9740209263862ba6463d5b8ca909360938a3edae48",
+  "pins" : [
+    {
+      "identity" : "zstd",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/facebook/zstd.git",
+      "state" : {
+        "revision" : "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "version" : "1.5.7"
+      }
+    }
+  ],
+  "version" : 3
+}

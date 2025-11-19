@@ -17,50 +17,50 @@
 			containerPortal = F26DF2DE2EB97B06007C60C9 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F26DF2E52EB97B06007C60C9;
-			remoteInfo = "scv-demo-ios";
+			remoteInfo = "scv-ios";
 		};
 		F26DF3002EB97B07007C60C9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F26DF2DE2EB97B06007C60C9 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F26DF2E52EB97B06007C60C9;
-			remoteInfo = "scv-demo-ios";
+			remoteInfo = "scv-ios";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F26DF2E62EB97B06007C60C9 /* scv-demo-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "scv-demo-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F26DF2F52EB97B07007C60C9 /* scv-demo-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scv-demo-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F26DF2FF2EB97B07007C60C9 /* scv-demo-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scv-demo-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F26DF2E62EB97B06007C60C9 /* scv-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "scv-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F26DF2F52EB97B07007C60C9 /* scv-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scv-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F26DF2FF2EB97B07007C60C9 /* scv-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "scv-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F26A32212EC98007007E7775 /* Exceptions for "scv-demo-ios" folder in "scv-demo-ios" target */ = {
+		F26A32212EC98007007E7775 /* Exceptions for "scv-ios" folder in "scv-ios" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = F26DF2E52EB97B06007C60C9 /* scv-demo-ios */;
+			target = F26DF2E52EB97B06007C60C9 /* scv-ios */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F26DF2E82EB97B06007C60C9 /* scv-demo-ios */ = {
+		F26DF2E82EB97B06007C60C9 /* scv-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				F26A32212EC98007007E7775 /* Exceptions for "scv-demo-ios" folder in "scv-demo-ios" target */,
+				F26A32212EC98007007E7775 /* Exceptions for "scv-ios" folder in "scv-ios" target */,
 			);
-			path = "scv-demo-ios";
+			path = "scv-ios";
 			sourceTree = "<group>";
 		};
-		F26DF2F82EB97B07007C60C9 /* scv-demo-iosTests */ = {
+		F26DF2F82EB97B07007C60C9 /* scv-iosTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "scv-demo-iosTests";
+			path = "scv-iosTests";
 			sourceTree = "<group>";
 		};
-		F26DF3022EB97B07007C60C9 /* scv-demo-iosUITests */ = {
+		F26DF3022EB97B07007C60C9 /* scv-iosUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "scv-demo-iosUITests";
+			path = "scv-iosUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -95,9 +95,9 @@
 		F26DF2DD2EB97B06007C60C9 = {
 			isa = PBXGroup;
 			children = (
-				F26DF2E82EB97B06007C60C9 /* scv-demo-ios */,
-				F26DF2F82EB97B07007C60C9 /* scv-demo-iosTests */,
-				F26DF3022EB97B07007C60C9 /* scv-demo-iosUITests */,
+				F26DF2E82EB97B06007C60C9 /* scv-ios */,
+				F26DF2F82EB97B07007C60C9 /* scv-iosTests */,
+				F26DF3022EB97B07007C60C9 /* scv-iosUITests */,
 				F26DF3132EB97DA2007C60C9 /* Frameworks */,
 				F26DF2E72EB97B06007C60C9 /* Products */,
 			);
@@ -106,9 +106,9 @@
 		F26DF2E72EB97B06007C60C9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F26DF2E62EB97B06007C60C9 /* scv-demo-ios.app */,
-				F26DF2F52EB97B07007C60C9 /* scv-demo-iosTests.xctest */,
-				F26DF2FF2EB97B07007C60C9 /* scv-demo-iosUITests.xctest */,
+				F26DF2E62EB97B06007C60C9 /* scv-ios.app */,
+				F26DF2F52EB97B07007C60C9 /* scv-iosTests.xctest */,
+				F26DF2FF2EB97B07007C60C9 /* scv-iosUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -123,9 +123,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F26DF2E52EB97B06007C60C9 /* scv-demo-ios */ = {
+		F26DF2E52EB97B06007C60C9 /* scv-ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F26DF3092EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-ios" */;
+			buildConfigurationList = F26DF3092EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-ios" */;
 			buildPhases = (
 				F26DF2E22EB97B06007C60C9 /* Sources */,
 				F26DF2E32EB97B06007C60C9 /* Frameworks */,
@@ -136,20 +136,20 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F26DF2E82EB97B06007C60C9 /* scv-demo-ios */,
+				F26DF2E82EB97B06007C60C9 /* scv-ios */,
 			);
-			name = "scv-demo-ios";
+			name = "scv-ios";
 			packageProductDependencies = (
 				F26DF3142EB97DA2007C60C9 /* scvUI */,
 				F26DF3172EB97DA2007C60C9 /* scvMacros */,
 			);
-			productName = "scv-demo-ios";
-			productReference = F26DF2E62EB97B06007C60C9 /* scv-demo-ios.app */;
+			productName = "scv-ios";
+			productReference = F26DF2E62EB97B06007C60C9 /* scv-ios.app */;
 			productType = "com.apple.product-type.application";
 		};
-		F26DF2F42EB97B07007C60C9 /* scv-demo-iosTests */ = {
+		F26DF2F42EB97B07007C60C9 /* scv-iosTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F26DF30C2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-iosTests" */;
+			buildConfigurationList = F26DF30C2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-iosTests" */;
 			buildPhases = (
 				F26DF2F12EB97B07007C60C9 /* Sources */,
 				F26DF2F22EB97B07007C60C9 /* Frameworks */,
@@ -161,18 +161,18 @@
 				F26DF2F72EB97B07007C60C9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				F26DF2F82EB97B07007C60C9 /* scv-demo-iosTests */,
+				F26DF2F82EB97B07007C60C9 /* scv-iosTests */,
 			);
-			name = "scv-demo-iosTests";
+			name = "scv-iosTests";
 			packageProductDependencies = (
 			);
-			productName = "scv-demo-iosTests";
-			productReference = F26DF2F52EB97B07007C60C9 /* scv-demo-iosTests.xctest */;
+			productName = "scv-iosTests";
+			productReference = F26DF2F52EB97B07007C60C9 /* scv-iosTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		F26DF2FE2EB97B07007C60C9 /* scv-demo-iosUITests */ = {
+		F26DF2FE2EB97B07007C60C9 /* scv-iosUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F26DF30F2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-iosUITests" */;
+			buildConfigurationList = F26DF30F2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-iosUITests" */;
 			buildPhases = (
 				F26DF2FB2EB97B07007C60C9 /* Sources */,
 				F26DF2FC2EB97B07007C60C9 /* Frameworks */,
@@ -184,13 +184,13 @@
 				F26DF3012EB97B07007C60C9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				F26DF3022EB97B07007C60C9 /* scv-demo-iosUITests */,
+				F26DF3022EB97B07007C60C9 /* scv-iosUITests */,
 			);
-			name = "scv-demo-iosUITests";
+			name = "scv-iosUITests";
 			packageProductDependencies = (
 			);
-			productName = "scv-demo-iosUITests";
-			productReference = F26DF2FF2EB97B07007C60C9 /* scv-demo-iosUITests.xctest */;
+			productName = "scv-iosUITests";
+			productReference = F26DF2FF2EB97B07007C60C9 /* scv-iosUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -216,7 +216,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F26DF2E12EB97B06007C60C9 /* Build configuration list for PBXProject "scv-demo-ios" */;
+			buildConfigurationList = F26DF2E12EB97B06007C60C9 /* Build configuration list for PBXProject "scv-ios" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -233,9 +233,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F26DF2E52EB97B06007C60C9 /* scv-demo-ios */,
-				F26DF2F42EB97B07007C60C9 /* scv-demo-iosTests */,
-				F26DF2FE2EB97B07007C60C9 /* scv-demo-iosUITests */,
+				F26DF2E52EB97B06007C60C9 /* scv-ios */,
+				F26DF2F42EB97B07007C60C9 /* scv-iosTests */,
+				F26DF2FE2EB97B07007C60C9 /* scv-iosUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -291,12 +291,12 @@
 /* Begin PBXTargetDependency section */
 		F26DF2F72EB97B07007C60C9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F26DF2E52EB97B06007C60C9 /* scv-demo-ios */;
+			target = F26DF2E52EB97B06007C60C9 /* scv-ios */;
 			targetProxy = F26DF2F62EB97B07007C60C9 /* PBXContainerItemProxy */;
 		};
 		F26DF3012EB97B07007C60C9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F26DF2E52EB97B06007C60C9 /* scv-demo-ios */;
+			target = F26DF2E52EB97B06007C60C9 /* scv-ios */;
 			targetProxy = F26DF3002EB97B07007C60C9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -428,13 +428,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosDebug.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "scv-ios/scv-iosDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.0.9;
+				CURRENT_PROJECT_VERSION = 0.0.7;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "scv-demo-ios/Info.plist";
+				INFOPLIST_FILE = "scv-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = scVoice;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -447,7 +447,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -467,13 +467,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "scv-demo-ios/scv-demo-iosRelease.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "scv-ios/scv-iosRelease.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.0.9;
+				CURRENT_PROJECT_VERSION = 0.0.7;
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "scv-demo-ios/Info.plist";
+				INFOPLIST_FILE = "scv-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = scVoice;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -486,7 +486,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -510,7 +510,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-iosTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-iosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -518,7 +518,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/scv-demo-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/scv-demo-ios";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/scv-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/scv-ios";
 			};
 			name = Debug;
 		};
@@ -531,7 +531,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-iosTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-iosTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -539,7 +539,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/scv-demo-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/scv-demo-ios";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/scv-ios.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/scv-ios";
 			};
 			name = Release;
 		};
@@ -550,7 +550,7 @@
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-iosUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-iosUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -558,7 +558,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "scv-demo-ios";
+				TEST_TARGET_NAME = "scv-ios";
 			};
 			name = Debug;
 		};
@@ -569,7 +569,7 @@
 				DEVELOPMENT_TEAM = ZDN9AX64KC;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-demo-iosUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-iosUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -577,14 +577,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "scv-demo-ios";
+				TEST_TARGET_NAME = "scv-ios";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F26DF2E12EB97B06007C60C9 /* Build configuration list for PBXProject "scv-demo-ios" */ = {
+		F26DF2E12EB97B06007C60C9 /* Build configuration list for PBXProject "scv-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F26DF3072EB97B07007C60C9 /* Debug */,
@@ -593,7 +593,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F26DF3092EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-ios" */ = {
+		F26DF3092EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F26DF30A2EB97B07007C60C9 /* Debug */,
@@ -602,7 +602,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F26DF30C2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-iosTests" */ = {
+		F26DF30C2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-iosTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F26DF30D2EB97B07007C60C9 /* Debug */,
@@ -611,7 +611,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F26DF30F2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-demo-iosUITests" */ = {
+		F26DF30F2EB97B07007C60C9 /* Build configuration list for PBXNativeTarget "scv-iosUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F26DF3102EB97B07007C60C9 /* Debug */,

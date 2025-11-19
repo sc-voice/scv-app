@@ -33,7 +33,7 @@ public struct AppRootView<Manager: ICardManager>: View {
             alertMessage = "selectCardId called with: \(newValue.map { String(describing: $0) } ?? "nil")"
             showAlert = true
             cardManager.selectCardId(newValue)
-          }
+          },
         ),
         onSettingsTap: nil,
       )
@@ -138,10 +138,12 @@ struct SearchCardDetailView<Card: ICard>: View {
 
   VStack {
     #if DEBUG
-      Text("Selected ID: \(manager.selectedCardId?.uuidString ?? "nil") (Build \(appVersion))")
-        .font(.caption)
-        .foregroundStyle(themeProvider.theme.debugForeground)
-        .padding()
+      Text(
+        "Selected ID: \(manager.selectedCardId?.uuidString ?? "nil") (Build \(appVersion))",
+      )
+      .font(.caption)
+      .foregroundStyle(themeProvider.theme.debugForeground)
+      .padding()
     #endif
 
     AppRootView(cardManager: manager)

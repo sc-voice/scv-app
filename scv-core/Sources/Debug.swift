@@ -33,6 +33,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct SCVApp: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct scvUITests: Sendable {
     public static let other: Int = 2
   }
