@@ -322,6 +322,46 @@ struct scvUITests {
     #expect(!card.searchQuery.isEmpty)
     cc.ok1(#line, "passed")
   }
+
+  @Test
+  func searchCardViewFiltersValidCharacters() {
+    let validInput = "mindfulness 123"
+    let filtered = SearchQueryFilter.filter(validInput)
+    #expect(filtered == "mindfulness 123")
+    cc.ok1(#line, "passed")
+  }
+
+  @Test
+  func searchCardViewFiltersInvalidCharacters() {
+    let invalidInput = "  !!!hello@world#test!!!  "
+    let filtered = SearchQueryFilter.filter(invalidInput)
+    #expect(filtered == "hello world test")
+    cc.ok1(#line, "passed")
+  }
+
+  @Test
+  func searchCardViewFiltersUppercaseToLowercase() {
+    let input = "MINDFULNESS"
+    let filtered = SearchQueryFilter.filter(input)
+    #expect(filtered == "mindfulness")
+    cc.ok1(#line, "passed")
+  }
+
+  @Test
+  func searchCardViewAcceptsDots() {
+    let input = "AN.3.31"
+    let filtered = SearchQueryFilter.filter(input)
+    #expect(filtered == "an.3.31")
+    cc.ok1(#line, "passed")
+  }
+
+  @Test
+  func searchCardViewAcceptsColons() {
+    let input = "hello:world"
+    let filtered = SearchQueryFilter.filter(input)
+    #expect(filtered == "hello:world")
+    cc.ok1(#line, "passed")
+  }
 }
 
 // MARK: - Mock URLOpener for Testing

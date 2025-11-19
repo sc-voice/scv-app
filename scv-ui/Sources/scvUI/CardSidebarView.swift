@@ -30,116 +30,116 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   }
 
   public var body: some View {
-    NavigationStack {
-      List(selection: $selectedCardId) {
-        ForEach(cardManager.allCards) { card in
-          HStack(spacing: 12) {
-            Image(systemName: card.iconName())
-              .foregroundStyle(.secondary)
-            VStack(alignment: .leading, spacing: 2) {
-              #if DEBUG
-                if selectedCardId == card.id {
-                  Text(card.name)
-                    .font(.caption)
-                    .foregroundStyle(themeProvider.theme.debugForeground)
-                }
-              #endif
-              if !card.searchQuery.isEmpty {
-                Text(card.searchQuery)
-                  .font(.headline)
-                  .lineLimit(1)
-              } else {
-                Text("card.search.placeholder".localized)
-                  .font(.headline)
-                  .foregroundStyle(.secondary)
-                  .lineLimit(1)
+    // NavigationStack {
+    List(selection: $selectedCardId) {
+      ForEach(cardManager.allCards) { card in
+        HStack(spacing: 12) {
+          Image(systemName: card.iconName())
+            .foregroundStyle(.secondary)
+          VStack(alignment: .leading, spacing: 2) {
+            #if DEBUG
+              if selectedCardId == card.id {
+                Text(card.name)
+                  .font(.caption)
+                  .foregroundStyle(themeProvider.theme.debugForeground)
               }
+            #endif
+            if !card.searchQuery.isEmpty {
+              Text(card.searchQuery)
+                .font(.headline)
+                .lineLimit(1)
+            } else {
+              Text("card.search.placeholder".localized)
+                .font(.headline)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
             }
           }
-          .contentShape(Rectangle())
-          .onTapGesture {
-            selectedCardId = card.id
-            cardManager.selectCard(card)
-            cc.ok1(#line, "Selected card:", card.name)
-          }
         }
-        .onDelete { indices in
-          cardManager.removeCards(at: indices)
-          cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
+        .contentShape(Rectangle())
+        .onTapGesture {
+          selectedCardId = card.id
+          cardManager.selectCard(card)
+          cc.ok1(#line, "Selected card:", card.name)
         }
       }
-      .toolbar {
-        ToolbarItem(placement: .principal) {
-          Text("scVoice")
-            .font(.title2)
-            .foregroundStyle(titleColor == .clear ? themeProvider.theme
-              .accentColor : titleColor)
-            .opacity(titleOpacity)
-            .scaleEffect(titleScale)
-        }
-        #if os(iOS)
-          ToolbarItem(placement: .navigationBarLeading) {
-            Button(action: addNewCard) {
-              Image(systemName: "magnifyingglass")
-                .font(.title2)
-            }
-            .help("Add new search card")
-          }
-          if let onSettingsTap {
-            ToolbarItem(placement: .navigationBarTrailing) {
-              Button(action: {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.accentColor
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                  withAnimation(.easeInOut(duration: 2.0)) {
-                    titleColor = themeProvider.theme.secondaryTextColor
-                  }
-                }
-                onSettingsTap()
-              }) {
-                Image(systemName: "gearshape")
-                  .font(.title2)
-              }
-              .help("Settings")
-            }
-          }
-        #else
-          // macOS uses different toolbar placement strategy
-          ToolbarItem(placement: .automatic) {
-            Button(action: addNewCard) {
-              Image(systemName: "magnifyingglass")
-                .font(.title2)
-            }
-            .help("Add new search card")
-          }
-          if let onSettingsTap {
-            ToolbarItem(placement: .automatic) {
-              Button(action: {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.accentColor
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                  withAnimation(.easeInOut(duration: 2.0)) {
-                    titleColor = themeProvider.theme.secondaryTextColor
-                  }
-                }
-                onSettingsTap()
-              }) {
-                Image(systemName: "gearshape")
-                  .font(.title2)
-              }
-              .help("Settings")
-            }
-          }
-        #endif
-      }
-      .onAppear {
-        withAnimation(.easeInOut(duration: 5.0)) {
-          titleColor = themeProvider.theme.secondaryTextColor
-        }
+      .onDelete { indices in
+        cardManager.removeCards(at: indices)
+        cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
       }
     }
+    .toolbar {
+      ToolbarItem(placement: .principal) {
+        Text("scVoice")
+          .font(.title2)
+          .foregroundStyle(titleColor == .clear ? themeProvider.theme
+            .accentColor : titleColor)
+          .opacity(titleOpacity)
+          .scaleEffect(titleScale)
+      }
+      #if os(iOS)
+        ToolbarItem(placement: .navigationBarLeading) {
+          Button(action: addNewCard) {
+            Image(systemName: "magnifyingglass")
+              .font(.title2)
+          }
+          .help("Add new search card")
+        }
+        if let onSettingsTap {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: {
+              withAnimation(.easeInOut(duration: 2.0)) {
+                titleColor = themeProvider.theme.accentColor
+              }
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.secondaryTextColor
+                }
+              }
+              onSettingsTap()
+            }) {
+              Image(systemName: "gearshape")
+                .font(.title2)
+            }
+            .help("Settings")
+          }
+        }
+      #else
+        // macOS uses different toolbar placement strategy
+        ToolbarItem(placement: .automatic) {
+          Button(action: addNewCard) {
+            Image(systemName: "magnifyingglass")
+              .font(.title2)
+          }
+          .help("Add new search card")
+        }
+        if let onSettingsTap {
+          ToolbarItem(placement: .automatic) {
+            Button(action: {
+              withAnimation(.easeInOut(duration: 2.0)) {
+                titleColor = themeProvider.theme.accentColor
+              }
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.secondaryTextColor
+                }
+              }
+              onSettingsTap()
+            }) {
+              Image(systemName: "gearshape")
+                .font(.title2)
+            }
+            .help("Settings")
+          }
+        }
+      #endif
+    }
+    .onAppear {
+      withAnimation(.easeInOut(duration: 5.0)) {
+        titleColor = themeProvider.theme.secondaryTextColor
+      }
+    }
+    // }
   }
 
   private func addNewCard() {
@@ -189,8 +189,20 @@ class MockCardManager: ICardManager {
     selectedCardId = card.id
   }
 
+  func selectCardId(_ id: UUID?) {
+    if let id, let card = cardFromId(id) {
+      selectedCardId = card.id
+    } else {
+      selectedCardId = nil
+    }
+  }
+
   func removeCards(at indices: IndexSet) {
     allCards.remove(atOffsets: indices)
+  }
+
+  func cardFromId(_ id: UUID) -> MockCard? {
+    allCards.first { $0.id == id }
   }
 
   @discardableResult

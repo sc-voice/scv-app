@@ -8,11 +8,44 @@
 import scvCore
 import SwiftUI
 
-/// Minimalist search card view with TextField for searchQuery editing
-/// Displays search query input with dashed border in debug color
+// MARK: - SearchQueryFilter
+
+/// Helper for filtering search query input
+public enum SearchQueryFilter {
+  public static func filter(_ input: String) -> String {
+    let allowedCharacters =
+      CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.: ")
+    let lowercased = input.lowercased()
+
+    // Replace 1+ consecutive invalid characters with single space
+    var result = ""
+    var lastWasInvalid = false
+
+    for char in lowercased {
+      if char.unicodeScalars.allSatisfy({ allowedCharacters.contains($0) }) {
+        result.append(char)
+        lastWasInvalid = false
+      } else if !lastWasInvalid {
+        result.append(" ")
+        lastWasInvalid = true
+      }
+    }
+
+    // Trim and collapse multiple spaces to single space
+    return result.trimmingCharacters(in: .whitespaces)
+      .replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
+  }
+}
+
+// MARK: - SearchCardView
+
+/// Search card view with custom toolbar TextField for searchQuery editing
+/// Phase 1: Allow user to enter search query and confirm with return key
 public struct SearchCardView: View {
   @Binding var card: Card
   @EnvironmentObject var themeProvider: ThemeProvider
+  @State private var showAlert = false
+  @State private var lastConfirmedQuery = ""
   let cc = ColorConsole(#file, #function)
 
   public init(card: Binding<Card>) {
@@ -20,16 +53,56 @@ public struct SearchCardView: View {
   }
 
   public var body: some View {
-    let cc = ColorConsole(#file, #function)
     VStack(alignment: .leading, spacing: 16) {
-      Text("Search Query")
-        .font(.headline)
-        .foregroundStyle(themeProvider.theme.textColor)
+      Text("Results will appear here")
+        .font(.body)
+        .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
+      Spacer()
+    }
+    .padding()
+    .background(themeProvider.theme.cardBackground)
+    .toolbar {
+      #if os(iOS)
+        ToolbarItem(placement: .navigationBarLeading) {
+          searchQueryField
+            .frame(maxWidth: .infinity)
+        }
+      #else
+        ToolbarItem(placement: .automatic) {
+          searchQueryField
+            .frame(maxWidth: .infinity)
+        }
+      #endif
+    }
+    .alert("Search Confirmation", isPresented: $showAlert) {
+      Button("OK") {}
+    } message: {
+      Text("Search for: \(lastConfirmedQuery)")
+    }
+    .onAppear {
+      cc.ok1(#line, "SearchCardView initialized for card:", card.name)
+    }
+  }
+
+  private var searchQueryField: some View {
+    HStack(spacing: 8) {
       TextField("Enter search query", text: $card.searchQuery)
         .textFieldStyle(.roundedBorder)
         .foregroundStyle(themeProvider.theme.textColor)
-        .padding()
+        .onChange(of: card.searchQuery) { _, newValue in
+          let filtered = SearchQueryFilter.filter(newValue)
+          if filtered != newValue {
+            card.searchQuery = filtered
+          }
+          cc.ok2(#line, "searchQuery filtered:", filtered)
+        }
+        .onSubmit {
+          lastConfirmedQuery = card.searchQuery
+          showAlert = true
+          cc.ok1(#line, "Search confirmed:", card.searchQuery)
+        }
+        .padding(8)
         .overlay(
           RoundedRectangle(cornerRadius: 4)
             .strokeBorder(
@@ -40,16 +113,6 @@ public struct SearchCardView: View {
             )
             .foregroundStyle(themeProvider.theme.debugForeground),
         )
-        .onChange(of: card.searchQuery) { _, newValue in
-          cc.ok2(#line, "searchQuery updated:", newValue)
-        }
-
-      Spacer()
-    }
-    .padding()
-    .background(themeProvider.theme.cardBackground)
-    .onAppear {
-      cc.ok1(#line, "SearchCardView initialized for card:", card.name)
     }
   }
 }
@@ -57,14 +120,33 @@ public struct SearchCardView: View {
 // MARK: - Preview
 
 #Preview("SearchCardView") {
-  @Previewable @State var card = Card(
+  @Previewable @State var selectedCardId: UUID?
+  @Previewable @State var bindableCard1 = Card(
     cardType: .search,
     typeId: 1,
     searchQuery: "mindfulness",
   )
 
-  SearchCardView(card: $card)
-    .environmentObject(ThemeProvider())
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(ThemeProvider().theme.backgroundColor)
+  let card1 = MockCard(cardType: .search, typeId: 1, searchQuery: "mindfulness")
+  let card2 = MockCard(cardType: .search, typeId: 2, searchQuery: "suffering")
+  let manager = MockCardManager(
+    cards: [card1, card2],
+    selectedCardId: card1.id,
+  )
+
+  selectedCardId = card1.id
+
+  return NavigationSplitView {
+    CardSidebarView(
+      cardManager: manager,
+      selectedCardId: $selectedCardId,
+    )
+  } detail: {
+    if selectedCardId == card1.id {
+      SearchCardView(card: $bindableCard1)
+    } else {
+      Text("Select a card")
+    }
+  }
+  .environmentObject(ThemeProvider())
 }

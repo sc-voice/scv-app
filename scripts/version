@@ -27,7 +27,14 @@ enum VersionBumpType: String {
     }
 }
 
-let pbxprojPath = FileManager.default.currentDirectoryPath + "/scv-demo-iOS/scv-demo-ios.xcodeproj/project.pbxproj"
+let currentDir = FileManager.default.currentDirectoryPath
+let versionSwiftPath = currentDir + "/scv-core/Sources/Version.swift"
+let pbxprojPath = currentDir + "/scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj"
+
+guard FileManager.default.fileExists(atPath: versionSwiftPath) else {
+    print("Error: Version.swift not found at \(versionSwiftPath)")
+    exit(1)
+}
 
 guard FileManager.default.fileExists(atPath: pbxprojPath) else {
     print("Error: project.pbxproj not found at \(pbxprojPath)")
@@ -47,30 +54,43 @@ guard let bumpType = VersionBumpType(rawValue: args[0]) else {
 }
 
 do {
-    var content = try String(contentsOfFile: pbxprojPath, encoding: .utf8)
+    // Read current version from Version.swift
+    var versionSwiftContent = try String(contentsOfFile: versionSwiftPath, encoding: .utf8)
 
-    // Pattern to match CURRENT_PROJECT_VERSION = N.M.P;
-    let pattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
-    let regex = try NSRegularExpression(pattern: pattern, options: [])
+    // Extract version using regex: public let appVersion = "X.Y.Z"
+    let versionPattern = "public let appVersion = \"([\\d.]+)\""
+    let versionRegex = try NSRegularExpression(pattern: versionPattern, options: [])
+    let versionMatches = versionRegex.matches(in: versionSwiftContent, options: [], range: NSRange(versionSwiftContent.startIndex..., in: versionSwiftContent))
 
-    let matches = regex.matches(in: content, options: [], range: NSRange(content.startIndex..., in: content))
-
-    if matches.isEmpty {
-        print("Warning: No CURRENT_PROJECT_VERSION found to update")
+    guard let versionMatch = versionMatches.first,
+          let versionRange = Range(versionMatch.range(at: 1), in: versionSwiftContent) else {
+        print("Error: Could not find version in Version.swift")
         exit(1)
     }
 
-    // Process matches in reverse order to avoid index shifting
-    var newVersion = "0.0.0"
-    for match in matches.reversed() {
-        if let versionRange = Range(match.range(at: 1), in: content) {
-            let currentVersion = String(content[versionRange])
-            newVersion = bumpType.bump(version: currentVersion)
-            content.replaceSubrange(versionRange, with: newVersion)
+    let currentVersion = String(versionSwiftContent[versionRange])
+    let newVersion = bumpType.bump(version: currentVersion)
+
+    // Update Version.swift
+    versionSwiftContent.replaceSubrange(versionRange, with: newVersion)
+    try versionSwiftContent.write(toFile: versionSwiftPath, atomically: true, encoding: .utf8)
+
+    // Update pbxproj
+    var pbxContent = try String(contentsOfFile: pbxprojPath, encoding: .utf8)
+    let pbxPattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
+    let pbxRegex = try NSRegularExpression(pattern: pbxPattern, options: [])
+    let pbxMatches = pbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
+
+    if !pbxMatches.isEmpty {
+        // Process matches in reverse order to avoid index shifting
+        for match in pbxMatches.reversed() {
+            if let versionRange = Range(match.range(at: 1), in: pbxContent) {
+                pbxContent.replaceSubrange(versionRange, with: newVersion)
+            }
         }
+        try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
     }
 
-    try content.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
     print("✓ Version bumped to \(newVersion)")
 
 } catch {

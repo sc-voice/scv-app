@@ -6,9 +6,10 @@ import Foundation
   import AppKit
 #endif
 
-/// Current app build version from Info.plist CFBundleVersion
-public let appVersion = Bundle.main
-  .infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+import scvCore
+
+/// Current app build version from scv-core/Sources/Version.swift
+public let appVersion = scvCore.appVersion
 
 /// Singleton controller for app-level operations including URL invocation
 @MainActor

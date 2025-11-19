@@ -18,7 +18,9 @@ public protocol ICardManager: Observable {
   var selectedCardId: ManagedCard.ID? { get set }
 
   func selectCard(_ card: ManagedCard)
+  func selectCardId(_ id: ManagedCard.ID?)
   func removeCards(at indices: IndexSet)
+  func cardFromId(_ id: ManagedCard.ID) -> ManagedCard?
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
 }
@@ -78,6 +80,11 @@ public class CardManager: ICardManager {
     return allCards.first { $0.id == selectedCardId }
   }
 
+  /// Returns a card by its PersistentIdentifier, or nil if not found
+  public func cardFromId(_ id: Card.ID) -> Card? {
+    allCards.first { $0.id == id }
+  }
+
   // MARK: - Public Methods
 
   /// Returns count for a specific card type
@@ -114,6 +121,15 @@ public class CardManager: ICardManager {
   /// Selects a card (ensures a card is always selected)
   public func selectCard(_ card: Card) {
     selectedCardId = card.id
+  }
+
+  /// Selects a card by ID, or clears selection if nil
+  public func selectCardId(_ id: Card.ID?) {
+    if let id, let card = cardFromId(id) {
+      selectedCardId = card.id
+    } else {
+      selectedCardId = nil
+    }
   }
 
   /// Removes a card and updates selection if necessary

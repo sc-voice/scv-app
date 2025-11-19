@@ -156,6 +156,45 @@ struct CardManagerTests {
     #expect(manager.selectedCard == card2)
   }
 
+  // MARK: - Card Lookup Tests
+
+  @Test
+  @MainActor
+  func cardFromIdReturnsExistingCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card1 = manager.allCards.first!
+    let card2 = manager.addCard(type: .search)
+
+    let foundCard1 = manager.cardFromId(card1.id)
+    let foundCard2 = manager.cardFromId(card2.id)
+
+    #expect(foundCard1 == card1)
+    #expect(foundCard2 == card2)
+  }
+
+  @Test
+  @MainActor
+  func cardFromIdReturnsNilForNonexistentId() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card1 = manager.allCards.first!
+
+    // Delete the card
+    manager.removeCard(card1)
+
+    // Try to find the deleted card by ID
+    let foundCard = manager.cardFromId(card1.id)
+
+    #expect(foundCard == nil)
+  }
+
   // MARK: - Count and State Tests
 
   @Test
