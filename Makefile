@@ -1,5 +1,5 @@
-.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration build build-core build-demo-ios \
-        clean clean-core clean-ui clean-demo-ios format mock-response-view scv-demo-ios \
+.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration build build-core build-demo-ios build-ios \
+        clean clean-core clean-ui clean-demo-ios clean-ios format mock-response-view scv-demo-ios \
         version-major version-minor version-patch commit build-ebt-data-db
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
@@ -50,7 +50,7 @@ test-demo-ios:
 	  head -1 | sed 's/.*= //;s/;$$//'); \
 	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
-build: build-core build-demo-ios
+build: build-core build-ios
 	@scripts/version patch
 
 # build-macros:
@@ -70,7 +70,15 @@ build-demo-ios:
 	    -destination 'platform=iOS Simulator,name=iPhone 15' \
 	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
-clean: clean-core clean-ui clean-demo-ios format
+build-ios:
+	@cd scv-ios && \
+	  xcodebuild build \
+	    -scheme scv-ios \
+	    -configuration Debug \
+	    -destination 'platform=iOS Simulator,name=iPhone 15' \
+	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
+
+clean: clean-core clean-ui clean-demo-ios clean-ios format
 
 format:
 	@swiftformat . --exclude Pods
@@ -92,6 +100,13 @@ clean-demo-ios:
 	rm -rf scv-demo-iOS/.swiftpm
 	cd scv-demo-ios && \
 	  xcodebuild clean -scheme scv-demo-ios 2>/dev/null || true
+
+clean-ios:
+	@echo "=====> clean-ios..."
+	rm -rf scv-ios/build
+	rm -rf scv-ios/.swiftpm
+	cd scv-ios && \
+	  xcodebuild clean -scheme scv-ios 2>/dev/null || true
 
 mock-response-view:
 	@cd scv-ui && swift run mock-response-view
@@ -142,12 +157,14 @@ help:
 	@echo "  make test-demo-ios     Validate scv-demo-ios build"
 	@echo "  make build             Build all (core and iOS)"
 	@echo "  make build-core        Build scv-core package"
-	@echo "  make build-demo-ios    Build iOS app (increments patch version)"
+	@echo "  make build-demo-ios    Build scv-demo-ios app (increments patch version)"
+	@echo "  make build-ios         Build scv-ios app"
 	@echo "  make build-ebt-data-db Force rebuild per-author databases from source"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-ui          Clean scv-ui package"
-	@echo "  make clean-demo-ios    Clean iOS app build artifacts"
+	@echo "  make clean-demo-ios    Clean scv-demo-ios app build artifacts"
+	@echo "  make clean-ios         Clean scv-ios app build artifacts"
 	@echo "  make format            Apply SwiftFormat to project"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
 	@echo "  make scv-demo-ios      Clean, build, and open scv-demo-iOS in Xcode"

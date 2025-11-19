@@ -15,8 +15,6 @@ public struct AppRootView<Manager: ICardManager>: View {
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
-  @State private var alertMessage = ""
-  @State private var showAlert = false
 
   public init(cardManager: Manager) {
     self.cardManager = cardManager
@@ -30,8 +28,7 @@ public struct AppRootView<Manager: ICardManager>: View {
         selectedCardId: Binding(
           get: { cardManager.selectedCardId },
           set: { newValue in
-            alertMessage = "selectCardId called with: \(newValue.map { String(describing: $0) } ?? "nil")"
-            showAlert = true
+            cc.ok2(#line, "selectCardId:", newValue.map { String(describing: $0) } ?? "nil")
             cardManager.selectCardId(newValue)
           },
         ),
@@ -76,11 +73,6 @@ public struct AppRootView<Manager: ICardManager>: View {
         .map { String(describing: $0) } ?? "nil"
       cc.ok2(#line, "selectedCardId:", idString)
     }
-    .alert("Debug", isPresented: $showAlert) {
-      Button("OK") {}
-    } message: {
-      Text(alertMessage)
-    }
   }
 
   @ViewBuilder
@@ -106,6 +98,7 @@ public struct AppRootView<Manager: ICardManager>: View {
 struct SearchCardDetailView<Card: ICard>: View {
   let card: Card
   @EnvironmentObject var themeProvider: ThemeProvider
+  let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -136,18 +129,7 @@ struct SearchCardDetailView<Card: ICard>: View {
 
   let themeProvider = ThemeProvider()
 
-  VStack {
-    #if DEBUG
-      Text(
-        "Selected ID: \(manager.selectedCardId?.uuidString ?? "nil") (Build \(appVersion))",
-      )
-      .font(.caption)
-      .foregroundStyle(themeProvider.theme.debugForeground)
-      .padding()
-    #endif
-
-    AppRootView(cardManager: manager)
-  }
+  AppRootView(cardManager: manager)
   .environmentObject(themeProvider)
   .previewDevice(.init(rawValue: "iPhone 15"))
   .previewInterfaceOrientation(.portrait)

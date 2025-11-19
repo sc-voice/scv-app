@@ -1,6 +1,10 @@
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
+  public struct App: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct AppController: Sendable {
     public static let other: Int = 2
   }
@@ -9,7 +13,15 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct CardSidebarView: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct ContentView: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct SearchCardView: Sendable {
     public static let other: Int = 2
   }
 

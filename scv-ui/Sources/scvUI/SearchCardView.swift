@@ -46,7 +46,7 @@ public struct SearchCardView: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showAlert = false
   @State private var lastConfirmedQuery = ""
-  let cc = ColorConsole(#file, #function)
+  let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
   public init(card: Binding<Card>) {
     _card = card

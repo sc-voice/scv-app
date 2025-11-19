@@ -12,12 +12,12 @@ import SwiftUI
 public struct CardSidebarView<Manager: ICardManager>: View {
   @Binding var selectedCardId: Manager.ManagedCard.ID?
   let cardManager: Manager
-  let cc = ColorConsole(#file, #function)
+  let cc = ColorConsole(#file, #function, dbg.CardSidebarView.other)
   @EnvironmentObject var themeProvider: ThemeProvider
   let onSettingsTap: (() -> Void)?
   @State private var titleOpacity: Double = 1.0
   @State private var titleScale: Double = 1.0
-  @State private var titleColor: Color = .clear
+  @State private var titleColor: Color?
 
   public init(
     cardManager: Manager,
@@ -72,15 +72,14 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       ToolbarItem(placement: .principal) {
         Text("scVoice")
           .font(.title2)
-          .foregroundStyle(titleColor == .clear ? themeProvider.theme
-            .accentColor : titleColor)
+          .foregroundStyle(titleColor ?? themeProvider.theme.accentColor)
           .opacity(titleOpacity)
           .scaleEffect(titleScale)
       }
       #if os(iOS)
         ToolbarItem(placement: .navigationBarLeading) {
           Button(action: addNewCard) {
-            Image(systemName: "magnifyingglass")
+            Image(systemName: "plus")
               .font(.title2)
           }
           .help("Add new search card")
@@ -135,7 +134,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       #endif
     }
     .onAppear {
-      withAnimation(.easeInOut(duration: 5.0)) {
+      if titleColor == nil {
         titleColor = themeProvider.theme.secondaryTextColor
       }
     }
