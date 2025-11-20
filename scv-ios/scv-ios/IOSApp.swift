@@ -1,5 +1,5 @@
 //
-//  App.swift
+//  IOSApp.swift
 //  scv-ios
 //
 //  Created by Claude on 2025-11-19.
@@ -63,32 +63,9 @@ struct SCVApp: App {
     WindowGroup {
       let cc = ColorConsole(#file, "SCVApp", dbg.SCVApp.other)
 
-      // ZStack {
-      // if isReady {
-      AppRootView(cardManager: cardManager)
+      IOSView(cardManager: cardManager)
         .environmentObject(player)
         .environmentObject(themeProvider)
-        .onAppear {
-          cc.ok1(
-            #line,
-            "SCVApp started with \(cardManager.allCards.count) card(s)",
-          )
-        }
-        // } else {
-        // VStack(spacing: 16) {
-        // ProgressView()
-        // Text("Coming soon...")
-        // .font(.headline)
-        // }
-        // .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // }
-        // }
-        // .task {
-        // cc.ok2(#line, "task started, delaying for view hierarchy setup")
-        // try? await Task.sleep(nanoseconds: 100_000_000)
-        // isReady = true
-        // cc.ok2(#line, "isReady = true")
-        // }
         .onOpenURL { url in
           cc.ok2(#line, "openURL", url.absoluteString)
           AppController.shared.handleSearchUrl(url: url)

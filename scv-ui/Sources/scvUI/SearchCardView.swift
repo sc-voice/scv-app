@@ -60,22 +60,21 @@ public struct SearchCardView<Card: ICard>: View {
 
       Spacer()
     }
-    .padding()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(themeProvider.theme.cardBackground)
+    .padding(0)
     .border(themeProvider.theme.debugForeground, width: 2)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .toolbar {
-      #if os(iOS)
-        ToolbarItem(placement: .navigationBarLeading) {
-          searchQueryField
-            .frame(maxWidth: .infinity)
-        }
-      #else
-        ToolbarItem(placement: .automatic) {
-          searchQueryField
-            .frame(maxWidth: .infinity)
-        }
-      #endif
+    .onChange(of: card.searchQuery) { _, newValue in
+      let filtered = SearchQueryFilter.filter(newValue)
+      if filtered != newValue {
+        card.searchQuery = filtered
+      }
+      cc.ok2(#line, "searchQuery filtered:", filtered)
+    }
+    .onSubmit(of: .search) {
+      lastConfirmedQuery = card.searchQuery
+      showAlert = true
+      cc.ok1(#line, "Search confirmed:", card.searchQuery)
     }
     .alert("Search Confirmation", isPresented: $showAlert) {
       Button("OK") {}
@@ -84,37 +83,6 @@ public struct SearchCardView<Card: ICard>: View {
     }
     .onAppear {
       cc.ok1(#line, "SearchCardView initialized for card:", card.name)
-    }
-  }
-
-  private var searchQueryField: some View {
-    HStack(spacing: 8) {
-      TextField("Enter search query", text: $card.searchQuery)
-        .textFieldStyle(.roundedBorder)
-        .foregroundStyle(themeProvider.theme.textColor)
-        .onChange(of: card.searchQuery) { _, newValue in
-          let filtered = SearchQueryFilter.filter(newValue)
-          if filtered != newValue {
-            card.searchQuery = filtered
-          }
-          cc.ok2(#line, "searchQuery filtered:", filtered)
-        }
-        .onSubmit {
-          lastConfirmedQuery = card.searchQuery
-          showAlert = true
-          cc.ok1(#line, "Search confirmed:", card.searchQuery)
-        }
-        .padding(8)
-        .overlay(
-          RoundedRectangle(cornerRadius: 4)
-            .strokeBorder(
-              style: StrokeStyle(
-                lineWidth: 2,
-                dash: [5],
-              ),
-            )
-            .foregroundStyle(themeProvider.theme.debugForeground),
-        )
     }
   }
 }

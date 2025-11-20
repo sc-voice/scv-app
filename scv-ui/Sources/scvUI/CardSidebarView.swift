@@ -133,6 +133,8 @@ public struct CardSidebarView<Manager: ICardManager>: View {
         }
       #endif
     }
+    // .toolbarBackground(themeProvider.theme.toolbarColor, for: .navigationBar)
+    // .toolbarBackground(.visible, for: .navigationBar)
     .onAppear {
       if titleColor == nil {
         titleColor = themeProvider.theme.secondaryTextColor
@@ -152,13 +154,13 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
 /// Simple mock card for preview
 @Observable
-class MockCard: ICard {
-  let id: UUID
-  var cardType: CardType
-  var typeId: Int
-  var searchQuery: String
+public class MockCard: ICard {
+  public let id: UUID
+  public var cardType: CardType
+  public var typeId: Int
+  public var searchQuery: String
 
-  init(
+  public init(
     id: UUID = UUID(),
     cardType: CardType,
     typeId: Int,
@@ -173,22 +175,22 @@ class MockCard: ICard {
 
 /// Simple mock card manager for preview
 @Observable
-class MockCardManager: ICardManager {
-  typealias ManagedCard = MockCard
+public class MockCardManager: ICardManager {
+  public typealias ManagedCard = MockCard
 
-  var allCards: [MockCard]
-  var selectedCardId: UUID?
+  public var allCards: [MockCard]
+  public var selectedCardId: UUID?
 
-  init(cards: [MockCard] = [], selectedCardId: UUID? = nil) {
+  public init(cards: [MockCard] = [], selectedCardId: UUID? = nil) {
     allCards = cards
     self.selectedCardId = selectedCardId
   }
 
-  func selectCard(_ card: MockCard) {
+  public func selectCard(_ card: MockCard) {
     selectedCardId = card.id
   }
 
-  func selectCardId(_ id: UUID?) {
+  public func selectCardId(_ id: UUID?) {
     if let id, let card = cardFromId(id) {
       selectedCardId = card.id
     } else {
@@ -196,15 +198,15 @@ class MockCardManager: ICardManager {
     }
   }
 
-  func removeCards(at indices: IndexSet) {
+  public func removeCards(at indices: IndexSet) {
     allCards.remove(atOffsets: indices)
   }
 
-  func cardFromId(_ id: UUID) -> MockCard? {
+  public func cardFromId(_ id: UUID) -> MockCard? {
     allCards.first { $0.id == id }
   }
 
-  func bindCard(id: UUID) -> Binding<MockCard>? {
+  public func bindCard(id: UUID) -> Binding<MockCard>? {
     guard cardFromId(id) != nil else {
       return nil
     }
@@ -222,7 +224,7 @@ class MockCardManager: ICardManager {
   }
 
   @discardableResult
-  func addCard(type cardType: scvCore.CardType) -> MockCard {
+  public func addCard(type cardType: scvCore.CardType) -> MockCard {
     let newId = (allCards.map(\.typeId).max() ?? 0) + 1
     let newCard = MockCard(cardType: cardType, typeId: newId)
     allCards.append(newCard)

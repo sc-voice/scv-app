@@ -39,6 +39,17 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### SearchCardView search field positioning (Build 0.0.125)
+**Status**: Completed
+
+01. [x] Refactored SearchCardView to use .searchable() modifier instead of custom TextField
+02. [x] Moved .searchable() from SearchCardView internal VStack to detail pane in AppRootView
+03. [x] Implemented conditional placement: .navigationBarDrawer(displayMode: .always) on iOS, .toolbar on macOS
+04. [x] Created IOSView wrapper for iOS-specific layout with bottom toolbar
+05. [x] Extracted IOSApp as main entry point separate from AppRootView
+06. [x] Updated COLOR_BROWN from #795548 to #3E2723
+07. [x] All 251 tests pass (0 failures)
+
 ## Backlog
 
 ### SearchCardView Implementation (new scv-ui package)
@@ -122,3 +133,21 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Handle navigation between segments in WebView
 04. [ ] Style WebView content according to theme
 05. [ ] Test WebView interaction and rendering
+
+### Fix Sendability warnings in CardManager and MockCardManager
+**Status**: Backlog
+
+01. [ ] Fix CardManager.swift:98 - 'self' with non-Sendable type in @Sendable closure
+02. [ ] Fix CardManager.swift:100 - unused 'self' variable in set closure
+03. [ ] Fix MockCardManager Sendability warnings in CardSidebarView:216, 219
+    - Requires architectural changes to CardManager and/or MockCardManager
+    - May need to make classes Sendable or use different binding strategy
+
+### Move SettingsView to scv-ui
+**Status**: Backlog
+
+01. [ ] Extract SettingsView from scv-ios/scv-ios
+02. [ ] Move to scv-ui package
+03. [ ] Update imports in scv-ios
+04. [ ] Test SettingsView integration with scv-ui
+05. [ ] Run tests to ensure no regressions

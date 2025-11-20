@@ -1,6 +1,9 @@
-.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration build build-core build-demo-ios build-ios \
-        clean clean-core clean-ui clean-demo-ios clean-ios format mock-response-view scv-demo-ios \
-        version-major version-minor version-patch commit build-ebt-data-db
+.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration\
+				build build-core build-demo-ios build-ios build-ios-part\
+        clean clean-core clean-ui clean-demo-ios clean-ios\
+				format mock-response-view scv-demo-ios \
+        version-major version-minor version-patch \
+				commit build-ebt-data-db
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
@@ -50,7 +53,10 @@ test-demo-ios:
 	  head -1 | sed 's/.*= //;s/;$$//'); \
 	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
-build: build-core build-ios
+build: build-core build-ios-part
+	@scripts/version patch
+
+build-ios: build-core build-ios-part
 	@scripts/version patch
 
 # build-macros:
@@ -70,7 +76,7 @@ build-demo-ios:
 	    -destination 'platform=iOS Simulator,name=iPhone 15' \
 	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
-build-ios:
+build-ios-part:
 	@cd scv-ios && \
 	  xcodebuild build \
 	    -scheme scv-ios \
@@ -155,10 +161,11 @@ help:
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-demo-ios     Validate scv-demo-ios build"
-	@echo "  make build             Build all (core and iOS)"
+	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-demo-ios    Build scv-demo-ios app (increments patch version)"
-	@echo "  make build-ios         Build scv-ios app"
+	@echo "  make build-ios         Build scv-ios app with new version"
+	@echo "  make build-ios-part    Build scv-ios app"
 	@echo "  make build-ebt-data-db Force rebuild per-author databases from source"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"

@@ -70,8 +70,8 @@ private let COLOR_SAFFRON = Color(red: 1.0, green: 0.6, blue: 0.2) // #ff9933
 private let COLOR_CYAN = Color(red: 0.0, green: 1.0, blue: 1.0) // #00ffff
 
 /// Brown color for toolbar (dark theme)
-private let COLOR_BROWN = Color(red: 0.474, green: 0.333,
-                                blue: 0.282) // #795548
+private let COLOR_BROWN = Color(red: 0.243, green: 0.161,
+                                blue: 0.141) // #3E2723
 
 /// Grey color for toolbar (light theme)
 private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD

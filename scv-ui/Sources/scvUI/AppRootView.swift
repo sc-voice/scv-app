@@ -21,56 +21,71 @@ public struct AppRootView<Manager: ICardManager>: View {
   }
 
   public var body: some View {
-    Text("v\(appVersion)")
-      .foregroundStyle(themeProvider.theme.debugForeground)
-    NavigationSplitView {
-      // Sidebar with card list
-      CardSidebarView(
-        cardManager: cardManager,
-        selectedCardId: Binding(
-          get: { cardManager.selectedCardId },
-          set: { newValue in
-            cc.ok2(
-              #line,
-              "selectCardId:",
-              newValue.map { String(describing: $0) } ?? "nil",
+    VStack(spacing: 0) {
+      Text("v\(appVersion)")
+        .foregroundStyle(themeProvider.theme.debugForeground)
+      NavigationSplitView {
+        // Sidebar with card list
+        CardSidebarView(
+          cardManager: cardManager,
+          selectedCardId: Binding(
+            get: { cardManager.selectedCardId },
+            set: { newValue in
+              cc.ok2(
+                #line,
+                "selectCardId:",
+                newValue.map { String(describing: $0) } ?? "nil",
+              )
+              cardManager.selectCardId(newValue)
+            },
+          ),
+          onSettingsTap: nil,
+        )
+      } detail: {
+        // Detail view based on selected card
+        if let selectedCardId = cardManager.selectedCardId,
+           let cardBinding = cardManager.bindCard(id: selectedCardId)
+        {
+          detailView(for: selectedCardId)
+            .searchable(
+              text: cardBinding.searchQuery,
+              placement: {
+                #if os(iOS)
+                  return .navigationBarDrawer(displayMode: .always)
+                #else
+                  return .toolbar
+                #endif
+              }(),
+              prompt: "Search",
             )
-            cardManager.selectCardId(newValue)
-          },
-        ),
-        onSettingsTap: nil,
-      )
-    } detail: {
-      // Detail view based on selected card
-      if let selectedCardId = cardManager.selectedCardId {
-        detailView(for: selectedCardId)
-      } else {
-        VStack(spacing: 16) {
-          Image(systemName: "square.3.layers.3d")
-            .font(.system(size: 48))
-            .foregroundStyle(.secondary)
-          Text("No card selected")
-            .font(.headline)
-          Text("Select a card from the sidebar")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        } else {
+          VStack(spacing: 16) {
+            Image(systemName: "square.3.layers.3d")
+              .font(.system(size: 48))
+              .foregroundStyle(.secondary)
+            Text("No card selected")
+              .font(.headline)
+            Text("Select a card from the sidebar")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(themeProvider.theme.cardBackground)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(themeProvider.theme.cardBackground)
       }
-    }
-    .onAppear {
-      cc.ok1(
-        #line,
-        "AppRootView initialized with",
-        cardManager.allCards.count,
-        "cards",
-      )
-    }
-    .onChange(of: cardManager.selectedCardId) {
-      let idString = cardManager.selectedCardId
-        .map { String(describing: $0) } ?? "nil"
-      cc.ok2(#line, "selectedCardId:", idString)
+      .onAppear {
+        cc.ok1(
+          #line,
+          "AppRootView initialized with",
+          cardManager.allCards.count,
+          "cards",
+        )
+      }
+      .onChange(of: cardManager.selectedCardId) {
+        let idString = cardManager.selectedCardId
+          .map { String(describing: $0) } ?? "nil"
+        cc.ok2(#line, "selectedCardId:", idString)
+      }
     }
   }
 
@@ -121,4 +136,8 @@ public struct AppRootView<Manager: ICardManager>: View {
 
   AppRootView(cardManager: manager)
     .environmentObject(themeProvider)
+  Text("AppRootView preview")
+    .font(.caption)
+    .foregroundStyle(themeProvider.theme.debugForeground)
+    .ignoresSafeArea()
 }

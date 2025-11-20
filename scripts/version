@@ -29,16 +29,21 @@ enum VersionBumpType: String {
 
 let currentDir = FileManager.default.currentDirectoryPath
 let versionSwiftPath = currentDir + "/scv-core/Sources/Version.swift"
-let pbxprojPath = currentDir + "/scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj"
+let pbxprojPaths = [
+    currentDir + "/scv-ios/scv-ios.xcodeproj/project.pbxproj",
+    currentDir + "/scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj"
+]
 
 guard FileManager.default.fileExists(atPath: versionSwiftPath) else {
     print("Error: Version.swift not found at \(versionSwiftPath)")
     exit(1)
 }
 
-guard FileManager.default.fileExists(atPath: pbxprojPath) else {
-    print("Error: project.pbxproj not found at \(pbxprojPath)")
-    exit(1)
+for pbxprojPath in pbxprojPaths {
+    guard FileManager.default.fileExists(atPath: pbxprojPath) else {
+        print("Warning: project.pbxproj not found at \(pbxprojPath)")
+        continue
+    }
 }
 
 // Parse arguments
@@ -75,20 +80,27 @@ do {
     versionSwiftContent.replaceSubrange(versionRange, with: newVersion)
     try versionSwiftContent.write(toFile: versionSwiftPath, atomically: true, encoding: .utf8)
 
-    // Update pbxproj
-    var pbxContent = try String(contentsOfFile: pbxprojPath, encoding: .utf8)
+    // Update pbxproj files
     let pbxPattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
     let pbxRegex = try NSRegularExpression(pattern: pbxPattern, options: [])
-    let pbxMatches = pbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
 
-    if !pbxMatches.isEmpty {
-        // Process matches in reverse order to avoid index shifting
-        for match in pbxMatches.reversed() {
-            if let versionRange = Range(match.range(at: 1), in: pbxContent) {
-                pbxContent.replaceSubrange(versionRange, with: newVersion)
-            }
+    for pbxprojPath in pbxprojPaths {
+        guard FileManager.default.fileExists(atPath: pbxprojPath) else {
+            continue
         }
-        try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
+
+        var pbxContent = try String(contentsOfFile: pbxprojPath, encoding: .utf8)
+        let pbxMatches = pbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
+
+        if !pbxMatches.isEmpty {
+            // Process matches in reverse order to avoid index shifting
+            for match in pbxMatches.reversed() {
+                if let versionRange = Range(match.range(at: 1), in: pbxContent) {
+                    pbxContent.replaceSubrange(versionRange, with: newVersion)
+                }
+            }
+            try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
+        }
     }
 
     print("✓ Version bumped to \(newVersion)")
