@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 // MARK: - ICardManager Protocol
 
@@ -21,6 +22,7 @@ public protocol ICardManager: Observable {
   func selectCardId(_ id: ManagedCard.ID?)
   func removeCards(at indices: IndexSet)
   func cardFromId(_ id: ManagedCard.ID) -> ManagedCard?
+  func bindCard(id: ManagedCard.ID) -> Binding<ManagedCard>?
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
 }
@@ -83,6 +85,23 @@ public class CardManager: ICardManager {
   /// Returns a card by its PersistentIdentifier, or nil if not found
   public func cardFromId(_ id: Card.ID) -> Card? {
     allCards.first { $0.id == id }
+  }
+
+  /// Returns a binding to a card by its ID, or nil if not found
+  public func bindCard(id: Card.ID) -> Binding<Card>? {
+    guard cardFromId(id) != nil else {
+      return nil
+    }
+
+    return Binding(
+      get: { [weak self] in
+        self?.cardFromId(id) ?? Card()
+      },
+      set: { [weak self] _ in
+        // SwiftData tracks changes automatically via @Model
+        // The card is already managed by ModelContext
+      },
+    )
   }
 
   // MARK: - Public Methods

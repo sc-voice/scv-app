@@ -204,6 +204,23 @@ class MockCardManager: ICardManager {
     allCards.first { $0.id == id }
   }
 
+  func bindCard(id: UUID) -> Binding<MockCard>? {
+    guard cardFromId(id) != nil else {
+      return nil
+    }
+
+    return Binding(
+      get: { [weak self] in
+        self?.cardFromId(id) ?? MockCard(cardType: .search, typeId: 0)
+      },
+      set: { [weak self] newValue in
+        if let index = self?.allCards.firstIndex(where: { $0.id == id }) {
+          self?.allCards[index] = newValue
+        }
+      },
+    )
+  }
+
   @discardableResult
   func addCard(type cardType: scvCore.CardType) -> MockCard {
     let newId = (allCards.map(\.typeId).max() ?? 0) + 1

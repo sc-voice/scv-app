@@ -546,4 +546,94 @@ struct CardManagerTests {
 
     #expect(manager.totalCount == 2)
   }
+
+  // MARK: - Binding Tests
+
+  @Test
+  @MainActor
+  func bindCardReturnsBindingForExistingCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+
+    let binding = manager.bindCard(id: card.id)
+
+    #expect(binding != nil)
+    #expect(binding?.wrappedValue.id == card.id)
+  }
+
+  @Test
+  @MainActor
+  func bindCardReturnsNilForNonexistentCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+    manager.removeCard(card)
+
+    let binding = manager.bindCard(id: card.id)
+
+    #expect(binding == nil)
+  }
+
+  @Test
+  @MainActor
+  func bindCardGetterReturnsCurrentCardState() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+    let binding = manager.bindCard(id: card.id)!
+
+    #expect(binding.wrappedValue.searchQuery == "")
+
+    // Modify card directly
+    card.searchQuery = "test query"
+
+    // Binding getter should reflect change
+    #expect(binding.wrappedValue.searchQuery == "test query")
+  }
+
+  @Test
+  @MainActor
+  func bindCardSetterUpdatesCard() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+    let binding = manager.bindCard(id: card.id)!
+
+    // Modify via binding
+    binding.wrappedValue.searchQuery = "modified"
+
+    // Verify change persists
+    #expect(card.searchQuery == "modified")
+    #expect(manager.cardFromId(card.id)?.searchQuery == "modified")
+  }
+
+  @Test
+  @MainActor
+  func bindCardUpdatesReflectedInAllCards() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+    let binding = manager.bindCard(id: card.id)!
+
+    binding.wrappedValue.searchQuery = "updated query"
+
+    let updatedCard = manager.allCards.first { $0.id == card.id }
+    #expect(updatedCard?.searchQuery == "updated query")
+  }
 }

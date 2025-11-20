@@ -43,14 +43,7 @@ public struct AppRootView<Manager: ICardManager>: View {
     } detail: {
       // Detail view based on selected card
       if let selectedCardId = cardManager.selectedCardId {
-        if let selectedCard = cardManager.allCards
-          .first(where: { $0.id == selectedCardId })
-        {
-          detailView(for: selectedCard)
-        } else {
-          Text("Card not found")
-            .foregroundStyle(.secondary)
-        }
+        detailView(for: selectedCardId)
       } else {
         VStack(spacing: 16) {
           Image(systemName: "square.3.layers.3d")
@@ -82,18 +75,30 @@ public struct AppRootView<Manager: ICardManager>: View {
   }
 
   @ViewBuilder
-  private func detailView(for card: Manager.ManagedCard) -> some View {
-    switch card.cardType {
-    case .search:
-      SearchCardDetailView(card: card)
-        .environmentObject(themeProvider)
+  private func detailView(for cardId: Manager.ManagedCard.ID) -> some View {
+    if let selectedCard = cardManager.allCards
+      .first(where: { $0.id == cardId })
+    {
+      switch selectedCard.cardType {
+      case .search:
+        if let binding = cardManager.bindCard(id: cardId) {
+          SearchCardView(card: binding)
+            .environmentObject(themeProvider)
+        } else {
+          Text("Card not found")
+            .foregroundStyle(.secondary)
+        }
 
-    case .sutta:
-      Text("Sutta view coming soon")
-        .font(.headline)
+      case .sutta:
+        Text("Sutta view coming soon")
+          .font(.headline)
+          .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(themeProvider.theme.cardBackground)
+      }
+    } else {
+      Text("Card not found")
         .foregroundStyle(.secondary)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(themeProvider.theme.cardBackground)
     }
   }
 }
