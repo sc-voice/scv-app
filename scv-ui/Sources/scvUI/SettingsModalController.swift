@@ -107,6 +107,17 @@ public class SettingsModalController: NSObject, ObservableObject {
   }
 
   private func scheduleDeferredSave() {
+    // IMPORTANT: pendingSave must be set to true for Settings.shared.save() to execute.
+    // Without this flag, the guard statement at line 118 prevents save() from
+    // being called,
+    // causing settings changes to remain in-memory only and never persist to
+    // disk.
+    // NOTE: This bug is hard to test via unit tests because:
+    // - In-memory Settings.shared updates happen in autosave() regardless
+    // - Disk persistence (Settings.shared.save()) can only be verified by
+    // mocking
+    // - Tests cannot easily verify file I/O without complex test infrastructure
+    pendingSave = true
     saveTimer?.invalidate()
     saveTimer = Timer
       .scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in

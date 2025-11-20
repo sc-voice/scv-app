@@ -39,6 +39,16 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Settings language display and persistence fixes (Build 0.0.159)
+**Status**: Completed
+
+01. [x] Added language code prefix to displayName (e.g., "EN / English", "PLI / Pali")
+02. [x] Added two-letter code for Pali language (case pli = "pli")
+03. [x] Fixed Settings persistence bug: pendingSave flag now set in scheduleDeferredSave()
+04. [x] Added detailed comment explaining persistence bug and testing challenges
+05. [x] Updated ScvLanguageTests to expect new displayName format
+06. [x] All 251 tests pass (0 failures)
+
 ### Refactor SettingsView with collapsible voice customization (Build 0.0.153)
 **Status**: Completed
 

@@ -25,24 +25,7 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
 
   /// Localized display name for the language
   public var displayName: String {
-    switch self {
-    case .english:
-      "English"
-    case .portuguese:
-      "Português"
-    case .spanish:
-      "Español"
-    case .french:
-      "Français"
-    case .german:
-      "Deutsch"
-    case .pli:
-      "Pali"
-    case .russian:
-      "Русский"
-    case .italian:
-      "Italiano"
-    }
+    "\(code.uppercased()) / \(nativeName)"
   }
 
   /// Native name of the language

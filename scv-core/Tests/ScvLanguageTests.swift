@@ -36,14 +36,14 @@ import Testing
   // MARK: - Display Name Tests
 
   @Test func displayNames() {
-    #expect(ScvLanguage.english.displayName == "English")
-    #expect(ScvLanguage.portuguese.displayName == "Português")
-    #expect(ScvLanguage.spanish.displayName == "Español")
-    #expect(ScvLanguage.french.displayName == "Français")
-    #expect(ScvLanguage.german.displayName == "Deutsch")
-    #expect(ScvLanguage.russian.displayName == "Русский")
-    #expect(ScvLanguage.pli.displayName == "Pali")
-    #expect(ScvLanguage.italian.displayName == "Italiano")
+    #expect(ScvLanguage.english.displayName == "EN / English")
+    #expect(ScvLanguage.portuguese.displayName == "PT / Português")
+    #expect(ScvLanguage.spanish.displayName == "ES / Español")
+    #expect(ScvLanguage.french.displayName == "FR / Français")
+    #expect(ScvLanguage.german.displayName == "DE / Deutsch")
+    #expect(ScvLanguage.russian.displayName == "RU / Русский")
+    #expect(ScvLanguage.pli.displayName == "PLI / Pali")
+    #expect(ScvLanguage.italian.displayName == "IT / Italiano")
   }
 
   // MARK: - Native Name Tests
