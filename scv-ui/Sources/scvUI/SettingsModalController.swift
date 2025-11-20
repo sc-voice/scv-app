@@ -1,17 +1,16 @@
 //
 //  SettingsModalController.swift
-//  scv-demo-ios
+//  scv-ui
 //
-//  Created by Visakha on 04/11/2025.
+//  Created by Visakha on 20/11/2025.
 //
 
 import Combine
 import scvCore
-import scvUI
 import SwiftUI
 
 class SettingsModalController: NSObject, ObservableObject {
-  let cc = ColorConsole(#file, "SettingsModalController", dbg.DemoIOSApp.other)
+  let cc = ColorConsole(#file, "SettingsModalController", dbg.ScvUI.other)
   @Published var docLang: ScvLanguage {
     didSet { autosave() }
   }
@@ -66,7 +65,7 @@ class SettingsModalController: NSObject, ObservableObject {
   private var pendingSave = false
   private var saveTimer: Timer?
 
-  init(from settings: Settings) {
+  init(from settings: scvCore.Settings) {
     docLang = settings.docLang
     refLang = settings.refLang
     uiLang = settings.uiLang
@@ -103,15 +102,8 @@ class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.docSpeech.pitch = docPitch
     Settings.shared.docSpeech.rate = docRate
 
-    // Only write to UserDefaults if audio is not playing
-    if !SuttaPlayer.shared.isPlaying {
-      Settings.shared.save()
-      pendingSave = false
-    } else {
-      // Mark for deferred save and schedule check
-      pendingSave = true
-      scheduleDeferredSave()
-    }
+    // Schedule deferred save to check playback state
+    scheduleDeferredSave()
   }
 
   private func scheduleDeferredSave() {

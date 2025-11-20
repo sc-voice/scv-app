@@ -33,6 +33,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct ScvUI: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct OpenURL: Sendable {
     public static let other: Int = 2
   }

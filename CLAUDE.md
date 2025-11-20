@@ -39,6 +39,17 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Move SettingsView to scv-ui (Build 0.0.135)
+**Status**: Completed
+
+01. [x] Created SettingsModalController in scv-ui with MainActor-safe deferred save
+02. [x] Created SettingsView in scv-ui with platform-specific picker styles
+03. [x] Extracted VoicePickerView as separate component in scv-ui
+04. [x] Added ScvUI debug constant to scv-core
+05. [x] Updated scv-demo-ios to re-export from scv-ui
+06. [x] Removed duplicate SettingsModalController from scv-demo-ios
+07. [x] All 251 tests pass (0 failures)
+
 ### SearchCardView search field positioning (Build 0.0.125)
 **Status**: Completed
 
@@ -142,12 +153,3 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Fix MockCardManager Sendability warnings in CardSidebarView:216, 219
     - Requires architectural changes to CardManager and/or MockCardManager
     - May need to make classes Sendable or use different binding strategy
-
-### Move SettingsView to scv-ui
-**Status**: Backlog
-
-01. [ ] Extract SettingsView from scv-ios/scv-ios
-02. [ ] Move to scv-ui package
-03. [ ] Update imports in scv-ios
-04. [ ] Test SettingsView integration with scv-ui
-05. [ ] Run tests to ensure no regressions
