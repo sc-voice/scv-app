@@ -103,28 +103,6 @@ public struct AppRootView<Manager: ICardManager>: View {
   }
 }
 
-// MARK: - SearchCardDetailView
-
-/// Wrapper to display search card details
-struct SearchCardDetailView<Card: ICard>: View {
-  let card: Card
-  @EnvironmentObject var themeProvider: ThemeProvider
-  let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      Text("Search: \(card.searchQuery.isEmpty ? "(empty)" : card.searchQuery)")
-        .font(.body)
-        .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-      Spacer()
-    }
-    .padding()
-    .background(themeProvider.theme.cardBackground)
-    .border(themeProvider.theme.debugForeground, width: 2)
-  }
-}
-
 // MARK: - Preview
 
 #Preview("AppRootView with 1 card", traits: .portrait) {
