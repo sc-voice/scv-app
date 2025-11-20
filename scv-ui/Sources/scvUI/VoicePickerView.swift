@@ -18,6 +18,7 @@ struct VoicePickerView: View {
   let language: ScvLanguage
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showVoicePicker = false
+  @State private var showCustomization = false
 
   var availableVoices: [AVSpeechSynthesisVoice] {
     AVSpeechSynthesisVoice.speechVoices()
@@ -72,21 +73,23 @@ struct VoicePickerView: View {
         #endif
       }
 
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          Text("Pitch")
-          Slider(value: $pitch, in: 0.5 ... 2.0, step: 0.1)
-          Text(String(format: "%.1f", pitch))
-            .foregroundColor(themeProvider.theme.valueColor)
-            .frame(width: 35)
-        }
+      DisclosureGroup("Customize...", isExpanded: $showCustomization) {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            Text("Pitch")
+            Slider(value: $pitch, in: 0.5 ... 2.0, step: 0.1)
+            Text(String(format: "%.1f", pitch))
+              .foregroundColor(themeProvider.theme.valueColor)
+              .frame(width: 35)
+          }
 
-        HStack {
-          Text("Rate")
-          Slider(value: $rate, in: 0.1 ... 2.0, step: 0.1)
-          Text(String(format: "%.1f", rate))
-            .foregroundColor(themeProvider.theme.valueColor)
-            .frame(width: 35)
+          HStack {
+            Text("Rate")
+            Slider(value: $rate, in: 0.1 ... 2.0, step: 0.1)
+            Text(String(format: "%.1f", rate))
+              .foregroundColor(themeProvider.theme.valueColor)
+              .frame(width: 35)
+          }
         }
       }
     }

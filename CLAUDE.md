@@ -39,6 +39,16 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Refactor SettingsView with collapsible voice customization (Build 0.0.153)
+**Status**: Completed
+
+01. [x] Added collapsible "Customize..." section to VoicePickerView for pitch/rate sliders
+02. [x] Voice selection remains fast and visible at top of VoicePickerView
+03. [x] Commented Pali voice section with // FUTURE: marker (future feature)
+04. [x] Added indeterminate ProgressView overlay during settings initialization
+05. [x] ProgressView displays with full black background for visibility
+06. [x] All 251 tests pass (0 failures)
+
 ### Move SettingsView to scv-ui (Build 0.0.135)
 **Status**: Completed
 

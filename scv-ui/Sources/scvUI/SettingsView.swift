@@ -16,6 +16,7 @@ public struct SettingsView: View {
   @ObservedObject public var controller: SettingsModalController
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
+  @State private var isLoading = true
   @State private var showResetConfirmation = false
   @State private var showDocLangPicker = false
   @State private var showRefLangPicker = false
@@ -30,159 +31,175 @@ public struct SettingsView: View {
   }
 
   public var body: some View {
-    VStack(spacing: 0) {
-      HStack {
-        Text("Settings")
-          .font(.headline)
-          .foregroundStyle(themeProvider.theme.textColor)
-        Spacer()
-        Button(action: { dismiss() }) {
-          Image(systemName: "xmark")
-            .font(.body)
-            .foregroundColor(themeProvider.theme.textColor)
-        }
-      }
-      .padding()
-      .background(themeProvider.theme.cardBackground)
-      .overlay(alignment: .bottom) {
-        Rectangle()
-          .fill(themeProvider.theme.borderColor)
-          .frame(height: 0.5)
-      }
-
-      Form {
-        // MARK: - Languages Section
-
-        Section("Languages") {
-          HStack {
-            Text("Document Language")
-            Spacer()
-            Button(action: { showDocLangPicker = true }) {
-              Text(controller.docLang.displayName)
-                .foregroundColor(themeProvider.theme.valueColor)
-            }
+    ZStack {
+      VStack(spacing: 0) {
+        HStack {
+          Text("Settings")
+            .font(.headline)
+            .foregroundStyle(themeProvider.theme.textColor)
+          Spacer()
+          Button(action: { dismiss() }) {
+            Image(systemName: "xmark")
+              .font(.body)
+              .foregroundColor(themeProvider.theme.textColor)
           }
-          .sheet(isPresented: $showDocLangPicker) {
-            Picker("Document Language", selection: $controller.docLang) {
-              ForEach(ScvLanguage.allCases, id: \.self) { lang in
-                Text(lang.displayName).tag(lang)
+        }
+        .padding()
+        .background(themeProvider.theme.cardBackground)
+        .overlay(alignment: .bottom) {
+          Rectangle()
+            .fill(themeProvider.theme.borderColor)
+            .frame(height: 0.5)
+        }
+
+        if isLoading {
+          ProgressView()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(themeProvider.theme.backgroundColor)
+        } else {
+          Form {
+            // MARK: - Languages Section
+
+            Section("Languages") {
+              HStack {
+                Text("Document Language")
+                Spacer()
+                Button(action: { showDocLangPicker = true }) {
+                  Text(controller.docLang.displayName)
+                    .foregroundColor(themeProvider.theme.valueColor)
+                }
+              }
+              .sheet(isPresented: $showDocLangPicker) {
+                Picker("Document Language", selection: $controller.docLang) {
+                  ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                    Text(lang.displayName).tag(lang)
+                  }
+                }
+                #if os(iOS)
+                .pickerStyle(.wheel)
+                .presentationDetents([.medium])
+                #else
+                .pickerStyle(.menu)
+                #endif
+              }
+
+              HStack {
+                Text("Reference Language")
+                Spacer()
+                Button(action: { showRefLangPicker = true }) {
+                  Text(controller.refLang.displayName)
+                    .foregroundColor(themeProvider.theme.valueColor)
+                }
+              }
+              .sheet(isPresented: $showRefLangPicker) {
+                Picker("Reference Language", selection: $controller.refLang) {
+                  ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                    Text(lang.displayName).tag(lang)
+                  }
+                }
+                #if os(iOS)
+                .pickerStyle(.wheel)
+                .presentationDetents([.medium])
+                #else
+                .pickerStyle(.menu)
+                #endif
+              }
+
+              HStack {
+                Text("UI Language")
+                Spacer()
+                Button(action: { showUILangPicker = true }) {
+                  Text(controller.uiLang.displayName)
+                    .foregroundColor(themeProvider.theme.valueColor)
+                }
+              }
+              .sheet(isPresented: $showUILangPicker) {
+                Picker("UI Language", selection: $controller.uiLang) {
+                  ForEach(ScvLanguage.uiLanguages, id: \.self) { lang in
+                    Text(lang.displayName).tag(lang)
+                  }
+                }
+                #if os(iOS)
+                .pickerStyle(.wheel)
+                .presentationDetents([.medium])
+                #else
+                .pickerStyle(.menu)
+                #endif
               }
             }
-            #if os(iOS)
-            .pickerStyle(.wheel)
-            .presentationDetents([.medium])
-            #else
-            .pickerStyle(.menu)
-            #endif
-          }
 
-          HStack {
-            Text("Reference Language")
-            Spacer()
-            Button(action: { showRefLangPicker = true }) {
-              Text(controller.refLang.displayName)
-                .foregroundColor(themeProvider.theme.valueColor)
-            }
-          }
-          .sheet(isPresented: $showRefLangPicker) {
-            Picker("Reference Language", selection: $controller.refLang) {
-              ForEach(ScvLanguage.allCases, id: \.self) { lang in
-                Text(lang.displayName).tag(lang)
+            // MARK: - Appearance Section
+
+            Section("Appearance") {
+              HStack {
+                Image(systemName: controller
+                  .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
+                  .foregroundColor(themeProvider.theme.accentColor)
+                Toggle("Dark Mode", isOn: Binding(
+                  get: { controller.isDarkModeEnabled },
+                  set: { newValue in
+                    controller.isDarkModeEnabled = newValue
+                    themeProvider.setTheme(newValue ? .dark : .light)
+                  },
+                ))
               }
             }
-            #if os(iOS)
-            .pickerStyle(.wheel)
-            .presentationDetents([.medium])
-            #else
-            .pickerStyle(.menu)
-            #endif
-          }
 
-          HStack {
-            Text("UI Language")
-            Spacer()
-            Button(action: { showUILangPicker = true }) {
-              Text(controller.uiLang.displayName)
-                .foregroundColor(themeProvider.theme.valueColor)
+            // MARK: - Pali Voice Section
+
+            // FUTURE: Enable Pali voice selection
+
+            // Section("Pali Narration Voice") {
+            //   VoicePickerView(
+            //     selectedVoiceId: $controller.paliVoiceId,
+            //     pitch: $controller.paliPitch,
+            //     rate: $controller.paliRate,
+            //     language: .pli,
+            //   )
+            // }
+
+            // MARK: - Document Voice Section
+
+            Section("Document Narration Voice") {
+              VoicePickerView(
+                selectedVoiceId: $controller.docVoiceId,
+                pitch: $controller.docPitch,
+                rate: $controller.docRate,
+                language: controller.docLang,
+              )
             }
-          }
-          .sheet(isPresented: $showUILangPicker) {
-            Picker("UI Language", selection: $controller.uiLang) {
-              ForEach(ScvLanguage.uiLanguages, id: \.self) { lang in
-                Text(lang.displayName).tag(lang)
+
+            // MARK: - Build Section
+
+            Section {
+              HStack {
+                Text("Build")
+                Spacer()
+                Text(buildNumber)
+                  .foregroundColor(themeProvider.theme.secondaryTextColor)
               }
             }
-            #if os(iOS)
-            .pickerStyle(.wheel)
-            .presentationDetents([.medium])
-            #else
-            .pickerStyle(.menu)
-            #endif
+
+            // MARK: - Reset Button Section
+
+            Section {
+              Button("Reset Settings", role: .destructive) {
+                showResetConfirmation = true
+              }
+            }
           }
-        }
-
-        // MARK: - Appearance Section
-
-        Section("Appearance") {
-          HStack {
-            Image(systemName: controller
-              .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
-              .foregroundColor(themeProvider.theme.accentColor)
-            Toggle("Dark Mode", isOn: Binding(
-              get: { controller.isDarkModeEnabled },
-              set: { newValue in
-                controller.isDarkModeEnabled = newValue
-                themeProvider.setTheme(newValue ? .dark : .light)
-              },
-            ))
-          }
-        }
-
-        // MARK: - Pali Voice Section
-
-        Section("Pali Narration Voice") {
-          VoicePickerView(
-            selectedVoiceId: $controller.paliVoiceId,
-            pitch: $controller.paliPitch,
-            rate: $controller.paliRate,
-            language: .pli,
-          )
-        }
-
-        // MARK: - Document Voice Section
-
-        Section("Document Narration Voice") {
-          VoicePickerView(
-            selectedVoiceId: $controller.docVoiceId,
-            pitch: $controller.docPitch,
-            rate: $controller.docRate,
-            language: controller.docLang,
-          )
-        }
-
-        // MARK: - Build Section
-
-        Section {
-          HStack {
-            Text("Build")
-            Spacer()
-            Text(buildNumber)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
-          }
-        }
-
-        // MARK: - Reset Button Section
-
-        Section {
-          Button("Reset Settings", role: .destructive) {
-            showResetConfirmation = true
-          }
+          .scrollContentBackground(.hidden)
+          .background(themeProvider.theme.backgroundColor)
         }
       }
-      .scrollContentBackground(.hidden)
       .background(themeProvider.theme.backgroundColor)
+
+      if isLoading {
+        ProgressView()
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(Color.black.opacity(1.0))
+      }
     }
-    .background(themeProvider.theme.backgroundColor)
     .onChange(of: showResetConfirmation) {
       if showResetConfirmation {
         cc.ok2(#line, "alert(Reset All Settings) presenting")
@@ -199,6 +216,8 @@ public struct SettingsView: View {
     }
     .onAppear {
       cc.ok1(#line, #function)
+      cc.ok2(#line, "isLoading: \(isLoading)")
+      isLoading = false
     }
   }
 }
