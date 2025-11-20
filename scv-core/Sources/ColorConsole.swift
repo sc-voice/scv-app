@@ -76,14 +76,16 @@ public final class ColorConsole: Sendable {
   }
 
   /// Print bright green text
-  public func ok1(_ messages: Any...) {
+  @discardableResult
+  public func ok1(_ messages: Any...) -> String? {
     if verbosity < 1 {
-      return
+      return nil
     }
     let messageStr = formatString(messages)
     let elapsed = getElapsedTimeAndUpdate()
     let result = "✅" + context + elapsed + " " + messageStr
     print(result)
+    return result
   }
 
   /// Print bright red text and return colored string or nil based on verbosity

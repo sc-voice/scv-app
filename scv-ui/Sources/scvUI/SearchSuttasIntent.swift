@@ -30,16 +30,16 @@ public struct SearchSuttasIntent: AppIntent {
 
   public func perform() async throws -> some IntentResult {
     let settings = Settings.shared
-    let language = settings.docLang.code
+    _ = settings.docLang.code
     if query == nil {
       query = try await $query.requestValue(
         .init(stringLiteral: "What are you searching for?"),
       )
-      cc.ok2(#line, "query:", query)
+      cc.ok2(#line, "query:", query ?? "")
     }
 
     normalizeQuery()
-    cc.ok2(#line, "normalized:", query)
+    cc.ok2(#line, "normalized:", query ?? "")
     let results = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
@@ -50,7 +50,7 @@ public struct SearchSuttasIntent: AppIntent {
     let strippedResults = results.map { result in
       result.replacingOccurrences(of: "en/sujato/", with: "")
     }
-    let resultsList = strippedResults.joined(separator: ", ")
+    _ = strippedResults.joined(separator: ", ")
 
     // Store search results and metadata for app to display
     let intentResults = SearchIntentResults(

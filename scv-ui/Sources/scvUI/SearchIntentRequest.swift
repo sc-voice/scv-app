@@ -8,9 +8,9 @@ public struct SearchIntentRequest: Codable {
   public let author: String
 
   public init(query: String, language: String, author: String) {
-    self.query = query ?? "WHATQUERY"
-    self.language = language ?? "WHATLANG"
-    self.author = author ?? "WHATAUTHOR"
+    self.query = query
+    self.language = language
+    self.author = author
   }
 }
 

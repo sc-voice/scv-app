@@ -282,7 +282,7 @@ struct scvUITests {
 
   @Test
   func searchCardViewUpdatesSearchQueryBinding() {
-    var card = Card(
+    let card = Card(
       cardType: .search,
       typeId: 1,
       searchQuery: "initial",

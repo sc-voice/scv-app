@@ -41,7 +41,7 @@ public enum SearchQueryFilter {
 
 /// Search card view with custom toolbar TextField for searchQuery editing
 /// Phase 1: Allow user to enter search query and confirm with return key
-public struct SearchCardView: View {
+public struct SearchCardView<Card: ICard>: View {
   @Binding var card: Card
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showAlert = false
@@ -62,6 +62,8 @@ public struct SearchCardView: View {
     }
     .padding()
     .background(themeProvider.theme.cardBackground)
+    .border(themeProvider.theme.debugForeground, width: 2)
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .toolbar {
       #if os(iOS)
         ToolbarItem(placement: .navigationBarLeading) {
@@ -121,7 +123,7 @@ public struct SearchCardView: View {
 
 #Preview("SearchCardView") {
   @Previewable @State var selectedCardId: UUID?
-  @Previewable @State var bindableCard1 = Card(
+  @Previewable @State var mockCard1 = MockCard(
     cardType: .search,
     typeId: 1,
     searchQuery: "mindfulness",
@@ -143,7 +145,7 @@ public struct SearchCardView: View {
     )
   } detail: {
     if selectedCardId == card1.id {
-      SearchCardView(card: $bindableCard1)
+      SearchCardView(card: $mockCard1)
     } else {
       Text("Select a card")
     }

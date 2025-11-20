@@ -21,6 +21,8 @@ public struct AppRootView<Manager: ICardManager>: View {
   }
 
   public var body: some View {
+    Text("v\(appVersion)")
+      .foregroundStyle(themeProvider.theme.debugForeground)
     NavigationSplitView {
       // Sidebar with card list
       CardSidebarView(
@@ -28,7 +30,11 @@ public struct AppRootView<Manager: ICardManager>: View {
         selectedCardId: Binding(
           get: { cardManager.selectedCardId },
           set: { newValue in
-            cc.ok2(#line, "selectCardId:", newValue.map { String(describing: $0) } ?? "nil")
+            cc.ok2(
+              #line,
+              "selectCardId:",
+              newValue.map { String(describing: $0) } ?? "nil",
+            )
             cardManager.selectCardId(newValue)
           },
         ),
@@ -110,12 +116,13 @@ struct SearchCardDetailView<Card: ICard>: View {
     }
     .padding()
     .background(themeProvider.theme.cardBackground)
+    .border(themeProvider.theme.debugForeground, width: 2)
   }
 }
 
 // MARK: - Preview
 
-#Preview("AppRootView with 1 card") {
+#Preview("AppRootView with 1 card", traits: .portrait) {
   let card1 = MockCard(
     cardType: .search,
     typeId: 1,
@@ -130,7 +137,5 @@ struct SearchCardDetailView<Card: ICard>: View {
   let themeProvider = ThemeProvider()
 
   AppRootView(cardManager: manager)
-  .environmentObject(themeProvider)
-  .previewDevice(.init(rawValue: "iPhone 15"))
-  .previewInterfaceOrientation(.portrait)
+    .environmentObject(themeProvider)
 }

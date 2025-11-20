@@ -28,7 +28,7 @@ struct SCVApp: App {
     let appGroupURL = FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: "group.sc-voice.scv-app",
     )?.appendingPathComponent("default.store")
-    cc.ok2(#line, "appGroupURL:", appGroupURL?.absoluteString ?? "nil");
+    cc.ok2(#line, "appGroupURL:", appGroupURL?.absoluteString ?? "nil")
     let config = ModelConfiguration(
       schema: Schema([Card.self]),
       url: appGroupURL ?? URL(fileURLWithPath: "/dev/null"),
@@ -38,7 +38,7 @@ struct SCVApp: App {
         for: Card.self,
         configurations: config,
       )
-      cc.ok2(#line, "modelContainer");
+      cc.ok2(#line, "modelContainer")
     } catch {
       let msg = "Could not initialize ModelContainer: \(error)"
       cc.bad1(#line, msg)
@@ -63,36 +63,36 @@ struct SCVApp: App {
     WindowGroup {
       let cc = ColorConsole(#file, "SCVApp", dbg.SCVApp.other)
 
-      ZStack {
-        if isReady {
-          AppRootView(cardManager: cardManager)
-            .environmentObject(player)
-            .environmentObject(themeProvider)
-            .onAppear {
-              cc.ok1(
-                #line,
-                "SCVApp started with \(cardManager.allCards.count) card(s)",
-              )
-            }
-        } else {
-          VStack(spacing: 16) {
-            ProgressView()
-            Text("Coming soon...")
-              .font(.headline)
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      // ZStack {
+      // if isReady {
+      AppRootView(cardManager: cardManager)
+        .environmentObject(player)
+        .environmentObject(themeProvider)
+        .onAppear {
+          cc.ok1(
+            #line,
+            "SCVApp started with \(cardManager.allCards.count) card(s)",
+          )
         }
-      }
-      .task {
-        cc.ok2(#line, "task started, delaying for view hierarchy setup")
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        isReady = true
-        cc.ok2(#line, "isReady = true")
-      }
-      .onOpenURL { url in
-        cc.ok2(#line, "openURL", url.absoluteString)
-        AppController.shared.handleSearchUrl(url: url)
-      }
+        // } else {
+        // VStack(spacing: 16) {
+        // ProgressView()
+        // Text("Coming soon...")
+        // .font(.headline)
+        // }
+        // .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // }
+        // }
+        // .task {
+        // cc.ok2(#line, "task started, delaying for view hierarchy setup")
+        // try? await Task.sleep(nanoseconds: 100_000_000)
+        // isReady = true
+        // cc.ok2(#line, "isReady = true")
+        // }
+        .onOpenURL { url in
+          cc.ok2(#line, "openURL", url.absoluteString)
+          AppController.shared.handleSearchUrl(url: url)
+        }
     }
   }
 }

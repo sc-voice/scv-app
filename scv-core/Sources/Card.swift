@@ -21,7 +21,7 @@ public enum CardType: String, CaseIterable, Codable {
 public protocol ICard: Identifiable {
   var cardType: CardType { get }
   var typeId: Int { get }
-  var searchQuery: String { get }
+  var searchQuery: String { get set }
 }
 
 public extension ICard {
