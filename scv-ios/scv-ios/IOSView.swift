@@ -14,6 +14,8 @@ struct IOSView<Manager: ICardManager>: View {
   @EnvironmentObject var player: SuttaPlayer
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showSettings = false
+  @State private var settingsController = SettingsModalController(from: Settings
+    .shared)
   let cc = ColorConsole(#file, #function, dbg.IOSView.other)
 
   var body: some View {
@@ -40,9 +42,13 @@ struct IOSView<Manager: ICardManager>: View {
 
   @ViewBuilder
   private var iosBottomToolbar: some View {
+    let cc = ColorConsole(#file, "iosBottomToolbar", dbg.Settings.other)
     HStack(spacing: 0) {
       Spacer()
-      Button(action: { showSettings = true }) {
+      Button(action: {
+        cc.ok1(#line, "Settings gear button pressed")
+        showSettings = true
+      }) {
         Image(systemName: "gearshape")
           .font(.system(size: 30))
           .foregroundStyle(themeProvider.theme.textColor)
@@ -53,8 +59,8 @@ struct IOSView<Manager: ICardManager>: View {
     .frame(maxHeight: 60)
     // .background(themeProvider.theme.toolbarColor)
     .sheet(isPresented: $showSettings) {
-      Text("Settings coming soon")
-        .padding()
+      SettingsView(controller: settingsController)
+        .environmentObject(themeProvider)
     }
   }
 }

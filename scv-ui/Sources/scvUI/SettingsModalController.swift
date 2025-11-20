@@ -9,8 +9,8 @@ import Combine
 import scvCore
 import SwiftUI
 
-class SettingsModalController: NSObject, ObservableObject {
-  let cc = ColorConsole(#file, "SettingsModalController", dbg.ScvUI.other)
+public class SettingsModalController: NSObject, ObservableObject {
+  let cc = ColorConsole(#file, "SettingsModalController", dbg.Settings.other)
   @Published var docLang: ScvLanguage {
     didSet { autosave() }
   }
@@ -65,7 +65,7 @@ class SettingsModalController: NSObject, ObservableObject {
   private var pendingSave = false
   private var saveTimer: Timer?
 
-  init(from settings: scvCore.Settings) {
+  public init(from settings: scvCore.Settings) {
     docLang = settings.docLang
     refLang = settings.refLang
     uiLang = settings.uiLang

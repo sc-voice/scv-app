@@ -11,9 +11,9 @@ import SwiftUI
 
 // MARK: - SettingsView
 
-struct SettingsView: View {
-  let cc = ColorConsole(#file, "SettingsView", dbg.ScvUI.other)
-  @ObservedObject var controller: SettingsModalController
+public struct SettingsView: View {
+  let cc = ColorConsole(#file, "SettingsView", dbg.Settings.other)
+  @ObservedObject public var controller: SettingsModalController
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
   @State private var showResetConfirmation = false
@@ -21,11 +21,15 @@ struct SettingsView: View {
   @State private var showRefLangPicker = false
   @State private var showUILangPicker = false
 
+  public init(controller: SettingsModalController) {
+    _controller = ObservedObject(wrappedValue: controller)
+  }
+
   var buildNumber: String {
     Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
   }
 
-  var body: some View {
+  public var body: some View {
     VStack(spacing: 0) {
       HStack {
         Text("Settings")
@@ -192,6 +196,9 @@ struct SettingsView: View {
       Button("Cancel", role: .cancel) {}
     } message: {
       Text("This will restore all settings to their default values.")
+    }
+    .onAppear {
+      cc.ok1(#line, #function)
     }
   }
 }

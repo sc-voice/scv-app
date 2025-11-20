@@ -33,7 +33,7 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
-  public struct ScvUI: Sendable {
+  public struct Settings: Sendable {
     public static let other: Int = 2
   }
 

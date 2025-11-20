@@ -145,6 +145,15 @@ cd scv-core && swift test --filter CardTests
 04. [ ] Style WebView content according to theme
 05. [ ] Test WebView interaction and rendering
 
+### Optimize SettingsView rendering performance
+**Status**: Backlog
+
+01. [ ] Profile SettingsView with Instruments to identify bottleneck
+02. [ ] Implement lazy loading for language pickers (See: scv-ui/Sources/scvUI/SettingsView.swift:60+)
+03. [ ] Collapse form sections by default to reduce initial render
+04. [ ] Test performance - target <1s sheet open time
+05. [ ] Document optimization impact
+
 ### Fix Sendability warnings in CardManager and MockCardManager
 **Status**: Backlog
 
