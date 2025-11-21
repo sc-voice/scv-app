@@ -39,6 +39,21 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Add EbtData.getMLDocument() and MLDocument.asSuttaCentralJson() methods (Build 0.0.164)
+**Status**: Completed
+
+01. [x] Add EbtData.getMLDocument(suttaKey:) → MLDocument? method
+02. [x] Add EbtData.getMLDocument(lang:author:suttaId:) → MLDocument? overload
+03. [x] Query database segments and construct Segment objects
+04. [x] Fetch author metadata and populate MLDocument fields
+05. [x] Add MLDocument.asSuttaCentralJson() → String? method
+06. [x] Serialize segments as {"scid": "text"} JSON format
+07. [x] Apply post-processing to remove spaces around colons
+08. [x] Make MLDocument conform to @unchecked Sendable for actor compatibility
+09. [x] Create test: asSuttaCentralJson matches source file formatting
+10. [x] Verify generated JSON matches local/ebt-data source files exactly
+11. [x] All 269 tests pass (1 new test added)
+
 ### Translate sutta-ref.mjs into SuttaRef.swift (Build 0.0.163)
 **Status**: Completed
 

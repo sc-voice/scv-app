@@ -215,6 +215,86 @@ public actor EbtData {
     }
   }
 
+  // MARK: - MLDocument Retrieval
+
+  /// Returns MLDocument for a given sutta_key (e.g., "en/sujato/an1.2")
+  /// - Parameter suttaKey: Sutta key in format "lang/author/sutta_uid"
+  /// - Returns: MLDocument with segments populated, or nil if not found
+  public func getMLDocument(suttaKey: String) -> MLDocument? {
+    let components = suttaKey.split(separator: "/").map(String.init)
+    guard components.count >= 3 else { return nil }
+
+    let lang = components[0]
+    let author = components[1]
+    let suttaId = components.dropFirst(2).joined(separator: "/")
+
+    return getMLDocument(lang: lang, author: author, suttaId: suttaId)
+  }
+
+  /// Returns MLDocument for explicit language/author/suttaId
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en")
+  ///   - author: Author identifier (e.g., "sujato")
+  ///   - suttaId: Sutta identifier (e.g., "an1.2")
+  /// - Returns: MLDocument with segments populated, or nil if not found
+  public func getMLDocument(lang: String, author: String, suttaId: String)
+    -> MLDocument?
+  {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return nil }
+
+      // Get author name from metadata
+      let authorName = metadata(lang: lang, author: author)?.authorName ?? author
+
+      // Query segments for this sutta
+      let query = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        return nil
+      }
+
+      defer { sqlite3_finalize(stmt) }
+
+      let fullSuttaKey = "\(lang)/\(author)/\(suttaId)"
+      sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
+
+      var segMap: [String: Segment] = [:]
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        guard let segmentIdC = sqlite3_column_text(stmt, 0),
+              let segmentTextC = sqlite3_column_text(stmt, 1)
+        else {
+          continue
+        }
+
+        let segmentId = String(cString: segmentIdC)
+        let segmentText = String(cString: segmentTextC)
+
+        // Create Segment with scid = segmentId
+        let segment = Segment(scid: segmentId, doc: segmentText, matched: false)
+        segMap[segmentId] = segment
+      }
+
+      guard !segMap.isEmpty else { return nil }
+
+      // Construct MLDocument
+      let mlDoc = MLDocument(
+        author: author,
+        segMap: segMap,
+        sutta_uid: suttaId,
+        docLang: lang,
+        docAuthor: author,
+        docAuthorName: authorName
+      )
+
+      return mlDoc
+    } catch {
+      return nil
+    }
+  }
+
   // MARK: - FTS Keyword Search
 
   /// Returns sutta keys ranked by relevance percentage (matching_segments /

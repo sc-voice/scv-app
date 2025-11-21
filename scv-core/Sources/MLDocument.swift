@@ -12,7 +12,7 @@ import SwiftData
 // MARK: - ML Document
 
 @Model
-public final class MLDocument: Codable {
+public final class MLDocument: Codable, @unchecked Sendable {
   public var author: String
   public var segMap: [String: Segment]
   public var blurb: String
@@ -275,5 +275,34 @@ extension MLDocument {
   func indexOfScid(_ scid: String) -> Int? {
     let sortedSegments = segments()
     return sortedSegments.firstIndex { $0.key == scid }
+  }
+
+  /// Serializes segments as JSON object in SuttaCentral translation format
+  /// Format: {"scid": "text", ...} with 2-space indentation and sorted keys
+  /// Example: {"an1.1:0.1": "Numbered Discourses 1.1–10 ", "an1.1:0.2": "The Chapter..."}
+  /// - Returns: JSON string or nil if serialization fails
+  func asSuttaCentralJson() -> String? {
+    // Build dictionary from segments: scid -> doc text
+    var dict: [String: String] = [:]
+    for (segmentId, segment) in segMap {
+      // Use segment.doc (translated text) as value
+      dict[segmentId] = segment.doc ?? ""
+    }
+
+    // Serialize with sorted keys and 2-space indentation
+    guard let jsonData = try? JSONSerialization.data(
+      withJSONObject: dict,
+      options: [.prettyPrinted, .sortedKeys],
+    ),
+      var jsonString = String(data: jsonData, encoding: .utf8)
+    else {
+      return nil
+    }
+
+    // Post-process: remove spaces around colons in key-value pairs
+    // Swift's JSONSerialization produces "key" : value, but SuttaCentral format uses "key": value
+    jsonString = jsonString.replacingOccurrences(of: "\" : ", with: "\": ")
+
+    return jsonString
   }
 }

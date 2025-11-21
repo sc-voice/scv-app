@@ -235,4 +235,40 @@ struct EbtDataTests {
       )
     }
   }
+
+  @Test("asSuttaCentralJson matches source file formatting")
+  func asSuttaCentralJsonFormatting() async {
+    let mlDoc = await EbtData.shared.getMLDocument(
+      suttaKey: "en/sujato/an1.1-10",
+    )
+
+    #expect(mlDoc != nil)
+    guard let mlDoc = mlDoc else { return }
+
+    // Load source file to compare formatting
+    let sourceFile = "/Users/visakha/dev/scv-app/local/ebt-data/translation/en/sujato/sutta/an/an1/an1.1-10_translation-en-sujato.json"
+    guard let sourceJson = try? String(contentsOfFile: sourceFile, encoding: .utf8) else {
+      print("ERROR: Cannot read source file")
+      return
+    }
+
+    // Get generated JSON
+    guard let generatedJson = mlDoc.asSuttaCentralJson() else {
+      print("ERROR: Failed to serialize to JSON")
+      return
+    }
+
+    // Check formatting: source uses "key": value, generated uses "key" : value
+    let sourceHasNoSpaceAroundColon = sourceJson.contains("\":") && !sourceJson.contains("\" :")
+    let generatedHasSpaceAroundColon = generatedJson.contains("\" :")
+
+    print("\nSource formatting: \(sourceHasNoSpaceAroundColon ? "\"key\":value" : "\"key\" : value")")
+    print("Generated formatting: \(generatedHasSpaceAroundColon ? "\"key\" : value" : "\"key\":value")")
+
+    // This test detects the mismatch
+    #expect(
+      sourceHasNoSpaceAroundColon == !generatedHasSpaceAroundColon,
+      "JSON formatting mismatch: source uses compact format, generated uses spaced format",
+    )
+  }
 }
