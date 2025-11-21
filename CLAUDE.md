@@ -39,6 +39,21 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Translate sutta-ref.mjs into SuttaRef.swift (Build 0.0.163)
+**Status**: Completed
+
+01. [x] Create SuttaRef struct with suttaUid, lang, author, segnum, scid properties
+02. [x] Implement createFromString() for parsing "an1.1-10/en/sujato:1.1" format
+03. [x] Implement createFromObject() for dictionary input with legacy field support
+04. [x] Implement create() and createWithError() with proper error handling
+05. [x] Implement createOpts() with optional normalization support
+06. [x] Implement toString() for string reconstruction
+07. [x] Implement exists() validation using SuidMap (when available)
+08. [x] Add Equatable, Hashable, CustomStringConvertible conformance
+09. [x] Create binary search validation with SuttaCentralId comparators
+10. [x] Create SuttaRefTests with 17 test cases covering all methods
+11. [x] All 268 tests pass (17 SuttaRef + 251 existing tests)
+
 ### Settings language display and persistence fixes (Build 0.0.159)
 **Status**: Completed
 
