@@ -12,6 +12,7 @@ import SwiftUI
 // MARK: - ICardManager Protocol
 
 /// Card manager interface - defines contract for managing cards
+@MainActor
 public protocol ICardManager: Observable {
   associatedtype ManagedCard: ICard
 
@@ -25,6 +26,7 @@ public protocol ICardManager: Observable {
   func bindCard(id: ManagedCard.ID) -> Binding<ManagedCard>?
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
+  func saveCard(_ card: ManagedCard)
 }
 
 // MARK: - CardManager
@@ -33,7 +35,7 @@ public protocol ICardManager: Observable {
 @Observable
 public class CardManager: ICardManager {
   public typealias ManagedCard = Card
-  let cc = ColorConsole(#file, #function)
+  let cc = ColorConsole(#file, #function, dbg.CardManager.other)
 
   // MARK: - Properties
 
@@ -94,10 +96,10 @@ public class CardManager: ICardManager {
     }
 
     return Binding(
-      get: { [weak self] in
-        self?.cardFromId(id) ?? Card()
+      get: {
+        self.cardFromId(id)!
       },
-      set: { [weak self] _ in
+      set: { _ in
         // SwiftData tracks changes automatically via @Model
         // The card is already managed by ModelContext
       },
@@ -200,6 +202,24 @@ public class CardManager: ICardManager {
         let card = cards[index]
         removeCard(card)
       }
+    }
+  }
+
+  /// Saves a card to persistent storage
+  /// Future implementation may queue commands for atomic batching and debounced
+  /// disk flushes
+  /// Currently executes synchronously
+  public func saveCard(_ card: Card) {
+    serializeCard(card)
+  }
+
+  /// Private method that handles card serialization and disk persistence
+  private func serializeCard(_ card: Card) {
+    do {
+      try modelContext.save()
+      cc.ok1(#line, "Card saved:", card.name)
+    } catch {
+      cc.bad1(#line, "Failed to save card:", error.localizedDescription)
     }
   }
 }

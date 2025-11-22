@@ -82,6 +82,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             Image(systemName: "plus")
               .font(.title2)
           }
+          .buttonStyle(.plain)
           .help("Add new search card")
         }
         if let onSettingsTap {
@@ -100,6 +101,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               Image(systemName: "gearshape")
                 .font(.title2)
             }
+            .buttonStyle(.plain)
             .help("Settings")
           }
         }
@@ -110,6 +112,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             Image(systemName: "magnifyingglass")
               .font(.title2)
           }
+          .buttonStyle(.plain)
           .help("Add new search card")
         }
         if let onSettingsTap {
@@ -128,6 +131,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               Image(systemName: "gearshape")
                 .font(.title2)
             }
+            .buttonStyle(.plain)
             .help("Settings")
           }
         }
@@ -229,6 +233,13 @@ public class MockCardManager: ICardManager {
     let newCard = MockCard(cardType: cardType, typeId: newId)
     allCards.append(newCard)
     return newCard
+  }
+
+  public func saveCard(_ card: MockCard) {
+    // Mock implementation - just updates in-memory
+    if let index = allCards.firstIndex(where: { $0.id == card.id }) {
+      allCards[index] = card
+    }
   }
 }
 

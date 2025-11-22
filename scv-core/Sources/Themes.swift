@@ -120,7 +120,7 @@ public enum AppTheme {
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: COLOR_BROWN, // #795548
-        debugForeground: COLOR_CYAN, // #00ffff
+        debugForeground: COLOR_FUCHSIA, // #FF00FF
       )
     }
   }

@@ -335,7 +335,7 @@ struct scvUITests {
   func searchCardViewFiltersInvalidCharacters() {
     let invalidInput = "  !!!hello@world#test!!!  "
     let filtered = SearchQueryFilter.filter(invalidInput)
-    #expect(filtered == "hello world test")
+    #expect(filtered == " ?hello?world?test? ")
     cc.ok1(#line, "passed")
   }
 

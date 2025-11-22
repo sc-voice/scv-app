@@ -14,6 +14,10 @@ import SwiftUI
 public struct AppRootView<Manager: ICardManager>: View {
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
+  @State private var isSearchFocused: Bool = true
+  @State private var showSettings = false
+  @State private var settingsController = SettingsModalController(from: Settings
+    .shared)
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
   public init(cardManager: Manager) {
@@ -39,7 +43,10 @@ public struct AppRootView<Manager: ICardManager>: View {
               cardManager.selectCardId(newValue)
             },
           ),
-          onSettingsTap: nil,
+          onSettingsTap: {
+            cc.ok1(#line, "Settings gear button pressed from sidebar")
+            showSettings = true
+          },
         )
       } detail: {
         // Detail view based on selected card
@@ -49,6 +56,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           detailView(for: selectedCardId)
             .searchable(
               text: cardBinding.searchQuery,
+              isPresented: $isSearchFocused,
               placement: {
                 #if os(iOS)
                   return .navigationBarDrawer(displayMode: .always)
@@ -58,6 +66,16 @@ public struct AppRootView<Manager: ICardManager>: View {
               }(),
               prompt: "Search",
             )
+            .onSubmit(of: .search) {
+              if let card = cardManager.cardFromId(selectedCardId) {
+                SearchCardView.searchSubmitHandler(
+                  card,
+                  cardManager: cardManager,
+                  searchQueryBinding: cardBinding.searchQuery,
+                )
+                isSearchFocused = false
+              }
+            }
         } else {
           VStack(spacing: 16) {
             Image(systemName: "square.3.layers.3d")
@@ -86,6 +104,10 @@ public struct AppRootView<Manager: ICardManager>: View {
           .map { String(describing: $0) } ?? "nil"
         cc.ok2(#line, "selectedCardId:", idString)
       }
+      .sheet(isPresented: $showSettings) {
+        SettingsView(controller: settingsController)
+          .environmentObject(themeProvider)
+      }
     }
   }
 
@@ -97,7 +119,7 @@ public struct AppRootView<Manager: ICardManager>: View {
       switch selectedCard.cardType {
       case .search:
         if let binding = cardManager.bindCard(id: cardId) {
-          SearchCardView(card: binding)
+          SearchCardView(card: binding, cardManager: cardManager)
             .environmentObject(themeProvider)
         } else {
           Text("Card not found")

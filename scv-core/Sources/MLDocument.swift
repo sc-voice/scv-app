@@ -279,7 +279,8 @@ extension MLDocument {
 
   /// Serializes segments as JSON object in SuttaCentral translation format
   /// Format: {"scid": "text", ...} with 2-space indentation and sorted keys
-  /// Example: {"an1.1:0.1": "Numbered Discourses 1.1–10 ", "an1.1:0.2": "The Chapter..."}
+  /// Example: {"an1.1:0.1": "Numbered Discourses 1.1–10 ", "an1.1:0.2": "The
+  /// Chapter..."}
   /// - Returns: JSON string or nil if serialization fails
   func asSuttaCentralJson() -> String? {
     // Build dictionary from segments: scid -> doc text
@@ -300,7 +301,8 @@ extension MLDocument {
     }
 
     // Post-process: remove spaces around colons in key-value pairs
-    // Swift's JSONSerialization produces "key" : value, but SuttaCentral format uses "key": value
+    // Swift's JSONSerialization produces "key" : value, but SuttaCentral format
+    // uses "key": value
     jsonString = jsonString.replacingOccurrences(of: "\" : ", with: "\": ")
 
     return jsonString

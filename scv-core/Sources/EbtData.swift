@@ -246,7 +246,8 @@ public actor EbtData {
       guard let db = databases[key] else { return nil }
 
       // Get author name from metadata
-      let authorName = metadata(lang: lang, author: author)?.authorName ?? author
+      let authorName = metadata(lang: lang, author: author)?
+        .authorName ?? author
 
       // Query segments for this sutta
       let query = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
@@ -286,7 +287,7 @@ public actor EbtData {
         sutta_uid: suttaId,
         docLang: lang,
         docAuthor: author,
-        docAuthorName: authorName
+        docAuthorName: authorName,
       )
 
       return mlDoc

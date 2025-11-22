@@ -32,7 +32,7 @@ struct IOSView<Manager: ICardManager>: View {
 
       // iOS bottom toolbar
       #if os(iOS)
-        iosBottomToolbar
+        // iosBottomToolbar
       #endif
     }
     .ignoresSafeArea()
