@@ -25,6 +25,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct EbtData: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct SearchCardView: Sendable {
     public static let other: Int = 2
   }
@@ -49,10 +53,6 @@ public struct dbg: Sendable {
     public static let search: Int = 0
   }
 
-  public struct SQLite: Sendable {
-    public static let zstd: Int = 2
-  }
-
   public struct SuttaPlayer: Sendable {
     public static let other: Int = 2
   }
@@ -62,6 +62,10 @@ public struct dbg: Sendable {
   }
 
   public struct scvUITests: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct ZStd: Sendable {
     public static let other: Int = 2
   }
 }

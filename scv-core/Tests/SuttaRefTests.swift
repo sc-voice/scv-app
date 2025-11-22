@@ -316,7 +316,7 @@ import Testing
 
     // Hashable (can be used in sets/dicts)
     if let r1 = ref1, let r2 = ref2, let r3 = ref3 {
-      var set: Set<SuttaRef> = [r1, r3]
+      let set: Set<SuttaRef> = [r1, r3]
       #expect(set.contains(r2)) // r2 == r1, so should be in set
       #expect(set.count == 2)
     }

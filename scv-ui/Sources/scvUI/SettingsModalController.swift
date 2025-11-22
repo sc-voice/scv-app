@@ -9,6 +9,7 @@ import Combine
 import scvCore
 import SwiftUI
 
+@MainActor
 public class SettingsModalController: NSObject, ObservableObject {
   let cc = ColorConsole(#file, "SettingsModalController", dbg.Settings.other)
   @Published var docLang: ScvLanguage {

@@ -29,6 +29,9 @@ let package = Package(
       resources: [
         .process("Resources"),
       ],
+      swiftSettings: [
+        .unsafeFlags(["-suppress-warnings"], .when(configuration: .debug)),
+      ],
     ),
     .testTarget(
       name: "scvCoreTests",

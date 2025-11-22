@@ -97,8 +97,8 @@ public struct SuttaRef: Equatable {
       .split(separator: "/")
       .map(String.init)
 
-    var suttaUid = parts.indices.contains(0) ? parts[0] : ""
-    var lang = parts.indices.contains(1) ? parts[1] : defaultLang
+    let suttaUid = parts.indices.contains(0) ? parts[0] : ""
+    let lang = parts.indices.contains(1) ? parts[1] : defaultLang
     var author = parts.indices.contains(2) ? parts[2] : nil
 
     // Special case: default author for Pali
@@ -156,11 +156,11 @@ public struct SuttaRef: Equatable {
       )
     }
 
-    var suttaUid = parsed?.suttaUid ?? (obj["sutta_uid"] as? String ?? "")
-    var lang = (obj["lang"] as? String) ?? parsed?.lang ?? defaultLang
+    let suttaUid = parsed?.suttaUid ?? (obj["sutta_uid"] as? String ?? "")
+    let lang = (obj["lang"] as? String) ?? parsed?.lang ?? defaultLang
     var author = obj["author"] as? String ?? parsed?.author
-    var segnum = (obj["segnum"] as? String) ?? parsed?.segnum
-    var scid = (obj["scid"] as? String) ?? parsed?.scid
+    let segnum = (obj["segnum"] as? String) ?? parsed?.segnum
+    let scid = (obj["scid"] as? String) ?? parsed?.scid
 
     // Handle legacy "translator" synonym
     if let translator = obj["translator"] as? String {

@@ -6,6 +6,7 @@ import SQLite3
 /// Each author has separate database containing segments and metadata
 /// Actor ensures thread-safe single-threaded access to SQLite
 public actor EbtData {
+  public let cc = ColorConsole(#file, #function, dbg.EbtData.other)
   public static let shared = EbtData()
 
   // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
@@ -54,7 +55,6 @@ public actor EbtData {
     )[0]
     let dbURL = cacheURL.appendingPathComponent(fileName)
     let exists = FileManager.default.fileExists(atPath: dbURL.path)
-    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
     cc.ok1(#line, fileName, "exists:", exists)
     return !exists
   }
@@ -68,7 +68,6 @@ public actor EbtData {
 
   /// Returns path to decompressed database in Caches, decompressing if needed
   private func ensureDecompressed(lang: String, author: String) throws -> URL {
-    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
     let fileName = "ebt-\(lang)-\(author).db"
     let cacheURL = FileManager.default.urls(
       for: .cachesDirectory,
@@ -641,10 +640,7 @@ public actor EbtData {
     }
   }
 
-  /// Logs database metadata with ColorConsole
   private func logDatabaseMetadata(lang: String, author: String) {
-    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
-
     guard let meta = metadata(lang: lang, author: author) else {
       cc.ok1(#line, "Database loaded: \(lang):\(author)")
       return

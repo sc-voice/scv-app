@@ -14,7 +14,7 @@ public enum ZstdDecompression {
   /// - Returns: The decompressed data
   /// - Throws: ZstdDecompression.Error if decompression fails
   public static func decompress(_ compressedData: Data) throws -> Data {
-    let cc = ColorConsole(#file, #function, dbg.SQLite.zstd)
+    let cc = ColorConsole(#file, #function, dbg.ZStd.other)
 
     var decompressed = Data()
 
