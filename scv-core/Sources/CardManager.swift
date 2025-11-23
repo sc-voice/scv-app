@@ -99,9 +99,16 @@ public class CardManager: ICardManager {
       get: {
         self.cardFromId(id)!
       },
-      set: { _ in
-        // SwiftData tracks changes automatically via @Model
-        // The card is already managed by ModelContext
+      set: { newCard in
+        // Update the card's mutable properties
+        // This allows nested bindings like cardBinding.searchQuery to work
+        // correctly
+        if let existingCard = self.cardFromId(id) {
+          existingCard.searchQuery = newCard.searchQuery
+          existingCard.suttaReference = newCard.suttaReference
+          existingCard.mlDoc = newCard.mlDoc
+          existingCard.searchResults = newCard.searchResults
+        }
       },
     )
   }

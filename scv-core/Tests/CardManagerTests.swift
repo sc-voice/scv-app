@@ -636,4 +636,32 @@ struct CardManagerTests {
     let updatedCard = manager.allCards.first { $0.id == card.id }
     #expect(updatedCard?.searchQuery == "updated query")
   }
+
+  @Test
+  @MainActor
+  func cardFromIdReturnsConsistentReference() throws {
+    // BUG: cardFromId() calls allCards.fetch() which creates NEW instances
+    // This test exposes that different calls to cardFromId() return different
+    // objects
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let cardId = manager.allCards.first!.id
+
+    // Get first reference
+    let card1 = manager.cardFromId(cardId)!
+    card1.searchQuery = "test query"
+
+    // Get second reference - should be SAME object, not a fresh copy
+    let card2 = manager.cardFromId(cardId)!
+
+    // This test FAILS because card2 is a different instance with empty
+    // searchQuery
+    // CardManager is NOT the source of truth - SwiftData fetch creates new
+    // instances
+    #expect(card2.searchQuery == "test query")
+    #expect(card1 === card2) // Same object identity
+  }
 }

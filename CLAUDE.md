@@ -39,6 +39,19 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Fix searchSubmitHandler empty searchQuery bug (Build 0.0.206)
+**Status**: Completed
+
+01. [x] Investigate why card.searchQuery appears empty in searchSubmitHandler logs
+02. [x] Identify root cause: bindCard setter was ignoring mutations, searchSubmitHandler got stale card snapshot
+03. [x] Fix CardManager.bindCard() setter to properly sync card properties on mutations
+04. [x] Fix SearchCardView.searchSubmitHandler() to fetch fresh card and explicitly sync binding value
+05. [x] Enhance ColorConsole with app launch time tracking for better log readability
+06. [x] Move async FIXME block after logging to prevent interference with card state
+07. [x] Add CardManagerTests.cardFromIdReturnsConsistentReference() test
+08. [x] Verify binding mutations now persist correctly to ModelContext
+09. [x] All 270 tests pass (1 new test added)
+
 ### Add EbtData.getMLDocument() and MLDocument.asSuttaCentralJson() methods (Build 0.0.164)
 **Status**: Completed
 
@@ -212,3 +225,4 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Fix MockCardManager Sendability warnings in CardSidebarView:216, 219
     - Requires architectural changes to CardManager and/or MockCardManager
     - May need to make classes Sendable or use different binding strategy
+- rtf means READ THE FILE

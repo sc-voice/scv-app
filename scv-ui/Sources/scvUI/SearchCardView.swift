@@ -70,28 +70,39 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   // MARK: - Private Methods
 
   private func autoComplete(_ query: String, card _: Card) {
-    cc.ok1(#line, "autocomplete:", query)
+    cc.ok1(#line, "autocomplete:", query, card.searchQuery)
   }
 
   // MARK: - Static Methods
 
   static func searchSubmitHandler(
-    _ card: Card,
     cardManager: Manager,
+    selectedCardId: Manager.ManagedCard.ID,
     searchQueryBinding: Binding<String>,
   ) {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
+    // Fetch fresh card from manager to ensure we have current state
+    guard var card = cardManager.cardFromId(selectedCardId) else {
+      cc.bad1(#line, "Card not found for id:", selectedCardId)
+      return
+    }
+
+    // SYNC: Update card with current binding value before saving
+    card.searchQuery = searchQueryBinding.wrappedValue
     cardManager.saveCard(card)
+
+    cc.ok1(#line, "Search submitted:", card.searchQuery)
+
     // FIXME: SwiftUI bug with searchable() - text field clears after onSubmit
     // See: https://developer.apple.com/forums/thread/734087
     // Workaround: Clear and restore binding to force UI sync
+    // NOTE: This is async and runs AFTER logging so it doesn't interfere with
+    // card state
     let savedQuery = searchQueryBinding.wrappedValue
     searchQueryBinding.wrappedValue = ""
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
       searchQueryBinding.wrappedValue = savedQuery
     }
-
-    cc.ok1(#line, "Search submitted:", card.searchQuery)
   }
 
   public var body: some View {

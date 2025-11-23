@@ -34,6 +34,7 @@ public final class ColorConsole: Sendable {
 
   // Thread-safe timestamp tracking
   private static let timestampLock = NSLock()
+  private nonisolated(unsafe) static var appLaunchTime: Date = .init()
   private nonisolated(unsafe) static var lastOutputTime: Date = .init()
 
   /// Initialize ColorConsole
@@ -54,6 +55,14 @@ public final class ColorConsole: Sendable {
     context = sourceFile == sourceMethod
       ? sourceFile + "::"
       : sourceFile + ":" + sourceMethod + ":"
+
+    // Initialize app launch time on first ColorConsole creation
+    ColorConsole.timestampLock.lock()
+    if ColorConsole.appLaunchTime.timeIntervalSince1970 == 0 {
+      ColorConsole.appLaunchTime = Date()
+      ColorConsole.lastOutputTime = ColorConsole.appLaunchTime
+    }
+    ColorConsole.timestampLock.unlock()
   }
 
   /// Return formatted string from array of messages
@@ -67,12 +76,13 @@ public final class ColorConsole: Sendable {
     defer { ColorConsole.timestampLock.unlock() }
 
     let now = Date()
-    let elapsed = now.timeIntervalSince(ColorConsole.lastOutputTime)
+    let sinceLaunch = now.timeIntervalSince(ColorConsole.appLaunchTime)
+    let sinceLastOutput = now.timeIntervalSince(ColorConsole.lastOutputTime)
     ColorConsole.lastOutputTime = now
 
-    let elapsedMs = Int(elapsed * 1000)
-    let elapsedSecs = Double(elapsedMs) / 1000.0
-    return String(format: "+%.3fs", elapsedSecs)
+    let launchMs = Int(sinceLaunch * 1000)
+    let prevMs = Int(sinceLastOutput * 1000)
+    return String(format: "%dms/+%dms", launchMs, prevMs)
   }
 
   /// Print bright green text

@@ -67,14 +67,12 @@ public struct AppRootView<Manager: ICardManager>: View {
               prompt: "Search",
             )
             .onSubmit(of: .search) {
-              if let card = cardManager.cardFromId(selectedCardId) {
-                SearchCardView.searchSubmitHandler(
-                  card,
-                  cardManager: cardManager,
-                  searchQueryBinding: cardBinding.searchQuery,
-                )
-                isSearchFocused = false
-              }
+              SearchCardView.searchSubmitHandler(
+                cardManager: cardManager,
+                selectedCardId: selectedCardId,
+                searchQueryBinding: cardBinding.searchQuery,
+              )
+              isSearchFocused = false
             }
         } else {
           VStack(spacing: 16) {
