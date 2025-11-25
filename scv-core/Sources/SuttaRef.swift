@@ -11,7 +11,7 @@ import Foundation
 /// Represents a parsed Sutta reference with language, author, and segment
 /// information
 /// Examples: "an1.1-10", "an1.1-10/en/sujato", "an1.1:1.1/en"
-public struct SuttaRef: Equatable {
+public struct SuttaRef: Equatable, Sendable {
   /// The sutta document identifier (e.g., "an1.1-10")
   public let suttaUid: String
 
@@ -67,11 +67,13 @@ public struct SuttaRef: Equatable {
   /// - Parameters:
   ///   - str: String in format "sutta_uid[/lang[/author]][:segnum]"
   ///   - defaultLang: Default language if not specified (default: "pli")
+  ///   - defaultAuthor: Default author for non-Pali languages (default: nil)
   ///   - suids: Sorted array of known sutta UIDs (default: auto-loaded)
   /// - Returns: SuttaRef matching the string, or throws if validation fails
   public static func createFromString(
     _ str: String = "",
     defaultLang: String = "pli",
+    defaultAuthor: String? = nil,
     suids: [String]? = nil,
   ) throws -> SuttaRef {
     let refLower = str.lowercased()
@@ -101,9 +103,11 @@ public struct SuttaRef: Equatable {
     let lang = parts.indices.contains(1) ? parts[1] : defaultLang
     var author = parts.indices.contains(2) ? parts[2] : nil
 
-    // Special case: default author for Pali
-    if author == nil, lang == "pli" {
-      author = "ms"
+    // Special case: default author for Pali, or use provided defaultAuthor
+    if author == nil {
+      author = lang == "pli"
+        ? "ms"
+        : defaultAuthor
     }
 
     // Use provided suids or load default
@@ -140,6 +144,7 @@ public struct SuttaRef: Equatable {
   ///   - defaultLang: Default language if not specified (default: "pli")
   ///   - suids: Sorted array of known sutta UIDs (default: auto-loaded)
   /// - Returns: New SuttaRef instance
+  @available(*, deprecated, message: "Use createFromString() instead")
   public static func createFromObject(
     _ obj: [String: Any],
     defaultLang: String = "pli",
@@ -185,66 +190,51 @@ public struct SuttaRef: Equatable {
   /// - Parameters:
   ///   - strOrObj: String or Dictionary
   ///   - defaultLang: Default language (default: "pli")
+  ///   - defaultAuthor: Default author for non-Pali languages (default: nil)
   ///   - suids: Sorted sutta UIDs (default: auto-loaded)
   /// - Returns: SuttaRef or nil if parsing fails
   public static func create(
     _ strOrObj: Any?,
     defaultLang: String = "pli",
+    defaultAuthor: String? = nil,
     suids: [String]? = nil,
   ) -> SuttaRef? {
     guard let input = strOrObj else { return nil }
 
     do {
-      return try createWithError(input, defaultLang: defaultLang, suids: suids)
+      return try createWithError(
+        input,
+        defaultLang: defaultLang,
+        defaultAuthor: defaultAuthor,
+        suids: suids,
+      )
     } catch {
       // Silently fail, returning nil
       return nil
     }
   }
 
-  /// Creates a SuttaRef with optional normalization
-  /// - Parameters:
-  ///   - strOrObj: String, Dictionary, or SuttaRef
-  ///   - opts: Options dictionary with keys: defaultLang, suids, normalize
-  /// - Returns: SuttaRef or nil if parsing fails
-  public static func createOpts(
-    _ strOrObj: Any?,
-    opts: [String: Any] = [:],
-  ) -> SuttaRef? {
-    guard let input = strOrObj else { return nil }
-
-    let defaultLang = (opts["defaultLang"] as? String) ?? "pli"
-    let suids = opts["suids"] as? [String]
-    let normalize = (opts["normalize"] as? Bool) ?? false
-
-    var sref = create(input, defaultLang: defaultLang, suids: suids)
-
-    if normalize, var ref = sref {
-      // Try to find default author if none specified
-      if ref.author == nil {
-        if let author = SuttaRef.findDefaultAuthor(for: ref) {
-          ref.author = author
-          sref = ref
-        }
-      }
-    }
-
-    return sref
-  }
-
   /// Creates a SuttaRef, throwing errors instead of returning nil
   /// - Parameters:
   ///   - strOrObj: String or Dictionary
   ///   - defaultLang: Default language (default: "pli")
+  ///   - defaultAuthor: Default author for non-Pali languages (default: nil)
   ///   - suids: Sorted sutta UIDs (default: auto-loaded)
   /// - Returns: SuttaRef
+  @available(*, deprecated, message: "Use createFromString() instead")
   public static func createWithError(
     _ strOrObj: Any,
     defaultLang: String = "pli",
+    defaultAuthor: String? = nil,
     suids: [String]? = nil,
   ) throws -> SuttaRef {
     if let str = strOrObj as? String {
-      return try createFromString(str, defaultLang: defaultLang, suids: suids)
+      return try createFromString(
+        str,
+        defaultLang: defaultLang,
+        defaultAuthor: defaultAuthor,
+        suids: suids,
+      )
     } else if let dict = strOrObj as? [String: Any] {
       return try createFromObject(dict, defaultLang: defaultLang, suids: suids)
     } else if let ref = strOrObj as? SuttaRef {
@@ -279,19 +269,6 @@ public struct SuttaRef: Equatable {
     }
 
     return result
-  }
-
-  /// Checks if this sutta reference exists in the database
-  /// - Returns: true if the sutta/lang/author combination exists
-  public func exists() -> Bool {
-    guard let suidMap = SuttaRef.loadSuidMap() else { return false }
-    guard let info = suidMap[suttaUid] else { return false }
-
-    let prefix = lang == "pli" ? "root" : "translation"
-    let author = author ?? SuttaRef.findDefaultAuthor(lang: lang)
-    let key = "\(prefix)/\(lang)/\(author ?? "")"
-
-    return info[key] != nil
   }
 
   // MARK: - Private Helpers
@@ -356,24 +333,6 @@ public struct SuttaRef: Equatable {
     throw SuttaRefError.suttaNotFound(
       "Cannot find \(uid) in range",
     )
-  }
-
-  /// Finds the default author for a language
-  private static func findDefaultAuthor(
-    lang _: String,
-  ) -> String? {
-    // Placeholder: would need AuthorsV2 data
-    // For now, return nil to match test expectations
-    nil
-  }
-
-  /// Finds the default author for a SuttaRef
-  private static func findDefaultAuthor(
-    for _: SuttaRef,
-  ) -> String? {
-    // Placeholder: would need AuthorsV2.suttaAuthor() logic
-    // For now, return nil
-    nil
   }
 }
 

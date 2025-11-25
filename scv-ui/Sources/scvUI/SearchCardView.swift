@@ -14,8 +14,11 @@ import SwiftUI
 public enum SearchQueryFilter {
   public static func filter(_ input: String) -> String {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
-    let allowedCharacters =
-      CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.: ")
+    // Allow alphanumerics, parsing punctuation (. : ,), and basic regexp
+    // (.*+^$\)
+    let allowedCharacters = CharacterSet(
+      charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.: .*+^$\\,",
+    )
     let lowercased = input.lowercased()
 
     // Replace 1+ consecutive invalid characters with single space

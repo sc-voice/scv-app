@@ -550,6 +550,248 @@ public actor EbtData {
     }
   }
 
+  // MARK: - Unified Search
+
+  /// Auto-detects search method based on query string content
+  /// Attempts to parse as comma-delimited SuttaRef list first
+  /// Falls back to regexp if metacharacters detected
+  /// Defaults to phrase search for natural text
+  /// - Parameters:
+  ///   - query: Search query string
+  ///   - docLang: Document language for SuttaRef parsing
+  ///   - docAuthor: Document author for SuttaRef parsing
+  /// - Returns: SearchMethodDetection with method and pre-parsed items
+  public nonisolated func autoSearchMethod(
+    _ query: String,
+    docLang: String,
+    docAuthor: String,
+  ) -> SearchMethodDetection {
+    let trimmed = query.trimmingCharacters(in: .whitespaces)
+
+    let entries = trimmed.split(separator: ",")
+      .map { $0.trimmingCharacters(in: .whitespaces) }
+
+    // Case: Empty query → default to phrase search
+    if entries.isEmpty {
+      return SearchMethodDetection(method: .phrase, items: [])
+    }
+
+    // Try to parse all entries as SuttaRef
+    var items: [SearchResultItem] = []
+    for entry in entries {
+      if let suttaRef = SuttaRef.create(
+        entry,
+        defaultLang: docLang,
+        defaultAuthor: docAuthor,
+      ) {
+        items.append(SearchResultItem(suttaRef: suttaRef, score: 1.0))
+      }
+    }
+
+    let suttaRefCount = items.count
+
+    // Case 2: All entries parsed successfully → use .suttaref
+    if suttaRefCount == entries.count, suttaRefCount > 0 {
+      return SearchMethodDetection(method: .suttaref, items: items)
+    }
+
+    // Case 1 or 3: No entries parsed or partial parse failure
+    // Check for regexp in original query first
+    if containsRegexpMetacharacters(trimmed) {
+      return SearchMethodDetection(method: .regexp, items: [])
+    }
+
+    // Default to phrase search
+    return SearchMethodDetection(method: .phrase, items: [])
+  }
+
+  /// Checks if string contains basic regexp metacharacters (. + * ^ $)
+  private nonisolated func containsRegexpMetacharacters(_ str: String)
+    -> Bool
+  {
+    let regexpChars = CharacterSet(
+      charactersIn: ".*+^$",
+    )
+    return str.unicodeScalars.contains { regexpChars.contains($0) }
+  }
+
+  // MARK: - Unified Search
+
+  /// Performs unified search with auto-detection or explicit method
+  /// - Parameters:
+  ///   - query: Search query string
+  ///   - docLang: Document language (default from Settings)
+  ///   - docAuthor: Document author (default from Settings)
+  ///   - method: Optional explicit search method (auto-detect if nil)
+  ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
+  /// - Returns: SearchResult with metadata and items
+  public func search(
+    query: String,
+    docLang: String = Settings.shared.docLang.code,
+    docAuthor: String = Settings.shared.docAuthor,
+    method: SearchMethod? = nil,
+    maxResults: Int = Settings.shared.maxDoc,
+  ) -> SearchResult {
+    let startTime = Date()
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+
+    // Auto-detect method if not provided
+    let detection = autoSearchMethod(
+      query,
+      docLang: docLang,
+      docAuthor: docAuthor,
+    )
+    let searchMethod = method ?? detection.method
+
+    // Execute search based on method
+    let items: [SearchResultItem] = switch searchMethod {
+    case .suttaref:
+      performSuttarefSearch(detection.items, maxResults: maxResults)
+    case .phrase:
+      performPhraseSearch(
+        query,
+        docLang: docLang,
+        docAuthor: docAuthor,
+        maxResults: maxResults,
+      )
+    case .keyword:
+      performKeywordSearch(
+        query,
+        docLang: docLang,
+        docAuthor: docAuthor,
+        maxResults: maxResults,
+      )
+    case .regexp:
+      performRegexpSearch(
+        query,
+        docLang: docLang,
+        docAuthor: docAuthor,
+        maxResults: maxResults,
+      )
+    }
+
+    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+
+    let metadata = SearchMetadata(
+      timestamp: startTime,
+      query: query,
+      method: searchMethod,
+      elapsedTime: elapsedTime,
+      docLang: docLang,
+      docAuthor: docAuthor,
+      refLang: Settings.shared.refLang.code,
+      refAuthor: Settings.shared.refAuthor,
+      maxDoc: maxResults,
+    )
+
+    return SearchResult(metadata: metadata, results: items)
+  }
+
+  // MARK: - Search Handlers
+
+  /// Handles .suttaref search using pre-parsed items
+  private func performSuttarefSearch(
+    _ items: [SearchResultItem],
+    maxResults: Int,
+  ) -> [SearchResultItem] {
+    Array(items.prefix(maxResults))
+  }
+
+  /// Handles .phrase search with keyword fallback
+  private func performPhraseSearch(
+    _ query: String,
+    docLang: String,
+    docAuthor: String,
+    maxResults: Int,
+  ) -> [SearchResultItem] {
+    let phraseKeys = searchPhrase(
+      lang: docLang,
+      author: docAuthor,
+      phrase: query,
+    )
+
+    guard !phraseKeys.isEmpty else {
+      // Fallback to keyword search if no phrase matches
+      return performKeywordSearch(
+        query,
+        docLang: docLang,
+        docAuthor: docAuthor,
+        maxResults: maxResults,
+      )
+    }
+
+    return phraseKeys
+      .prefix(maxResults)
+      .compactMap { key in
+        // Create SuttaRef from sutta key (e.g., "en/sujato/mn1")
+        if let suttaRef = createSuttaRefFromKey(key) {
+          SearchResultItem(suttaRef: suttaRef, score: 1.0)
+        } else {
+          nil
+        }
+      }
+  }
+
+  /// Handles .keyword search
+  private func performKeywordSearch(
+    _ query: String,
+    docLang: String,
+    docAuthor: String,
+    maxResults: Int,
+  ) -> [SearchResultItem] {
+    let results = searchKeywordsWithScores(
+      lang: docLang,
+      author: docAuthor,
+      query: query,
+    )
+
+    return results
+      .prefix(maxResults)
+      .compactMap { result in
+        if let suttaRef = createSuttaRefFromKey(result.key) {
+          SearchResultItem(suttaRef: suttaRef, score: result.score)
+        } else {
+          nil
+        }
+      }
+  }
+
+  /// Handles .regexp search
+  private func performRegexpSearch(
+    _ pattern: String,
+    docLang: String,
+    docAuthor: String,
+    maxResults: Int,
+  ) -> [SearchResultItem] {
+    let regexpKeys = searchRegexp(
+      lang: docLang,
+      author: docAuthor,
+      pattern: pattern,
+    )
+
+    return regexpKeys
+      .prefix(maxResults)
+      .compactMap { key in
+        if let suttaRef = createSuttaRefFromKey(key) {
+          SearchResultItem(suttaRef: suttaRef, score: 1.0)
+        } else {
+          nil
+        }
+      }
+  }
+
+  /// Creates SuttaRef from sutta key format (e.g., "en/sujato/mn1")
+  private func createSuttaRefFromKey(_ key: String) -> SuttaRef? {
+    let parts = key.split(separator: "/").map(String.init)
+    guard parts.count >= 2 else { return nil }
+
+    let lang = parts[0]
+    let author = parts[1]
+    let suttaUid = parts.count > 2 ? parts[2] : ""
+
+    return try? SuttaRef(suttaUid: suttaUid, lang: lang, author: author)
+  }
+
   // MARK: - Discovery Methods
 
   /// Returns list of available (language, author) pairs

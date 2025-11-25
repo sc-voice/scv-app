@@ -51,6 +51,16 @@ public struct DatabaseManifest: Codable {
   public func defaultAuthorForLanguage(_ language: String) -> DatabaseInfo? {
     authorsForLanguageSortedByFiles(language).first
   }
+
+  /// Checks if a SuttaRef exists in the database
+  /// - Parameters:
+  ///   - suttaRef: The SuttaRef to check
+  /// - Returns: true if the sutta/lang/author combination exists, false if
+  /// author is nil
+  public func suttaRefExists(_ suttaRef: SuttaRef) -> Bool {
+    guard let author = suttaRef.author else { return false }
+    return info(language: suttaRef.lang, author: author) != nil
+  }
 }
 
 /// Information about a single database

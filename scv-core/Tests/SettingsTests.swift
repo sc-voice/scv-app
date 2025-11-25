@@ -360,4 +360,128 @@ import Testing
     #expect(Settings.shared.docSpeech.voiceId == originalVoiceId)
     Settings.shared.reset()
   }
+
+  @Test func validateInitializesRefLangAndRefAuthor() {
+    Settings.shared.reset()
+    // Manually set refLang to .default to simulate uninitialized state
+    Settings.shared.refLang = .default
+    Settings.shared.refAuthor = nil
+
+    Settings.shared.validate()
+
+    // After validate(), refLang should be .english and refAuthor should be
+    // initialized
+    #expect(Settings.shared.refLang == .english)
+    #expect(Settings.shared.refAuthor != nil)
+    if let manifest = DatabaseManifest.load(),
+       let enInfo = manifest.defaultAuthorForLanguage("en")
+    {
+      #expect(Settings.shared.refAuthor == enInfo.author)
+    }
+  }
+
+  // MARK: - DocAuthor and RefAuthor Tests
+
+  @Test func docAuthorInitializedFromManifest() {
+    Settings.shared.reset()
+    Settings.shared.docLang = .english
+    Settings.shared.validate()
+
+    // English should have sujato as default author
+    #expect(Settings.shared.docAuthor == "sujato")
+  }
+
+  @Test func docAuthorInitializedForGerman() {
+    Settings.shared.reset()
+    Settings.shared.docLang = .german
+    Settings.shared.validate()
+
+    // German should have sabbamitta as default author
+    if let deInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("de") {
+      #expect(Settings.shared.docAuthor == deInfo.author)
+    }
+  }
+
+  @Test func refLangDefaultsToEnglish() {
+    Settings.shared.reset()
+
+    #expect(Settings.shared.refLang == .english)
+  }
+
+  @Test func refAuthorInitializedFromManifestForEnglish() {
+    Settings.shared.reset()
+    Settings.shared.refLang = .english
+    Settings.shared.validate()
+
+    // English reference should have sujato as default author
+    #expect(Settings.shared.refAuthor == "sujato")
+  }
+
+  @Test func refAuthorPersistsAcrossValidate() {
+    Settings.shared.reset()
+    Settings.shared.refLang = .english
+    Settings.shared.refAuthor = nil
+    Settings.shared.validate()
+
+    let firstAuthor = Settings.shared.refAuthor
+    Settings.shared.validate() // Call again
+
+    #expect(Settings.shared.refAuthor == firstAuthor)
+  }
+
+  @Test func docAuthorEncodedAndDecoded() throws {
+    Settings.shared.reset()
+    Settings.shared.docLang = .english
+    Settings.shared.docAuthor = "test-author"
+    Settings.shared.validate()
+
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(Settings.shared)
+    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+    #expect(json?["docAuthor"] as? String == "test-author")
+  }
+
+  @Test func refAuthorEncodedAndDecoded() throws {
+    Settings.shared.reset()
+    Settings.shared.refLang = .english
+    Settings.shared.refAuthor = "custom-ref-author"
+    Settings.shared.validate()
+
+    let encoder = JSONEncoder()
+    let data = try encoder.encode(Settings.shared)
+    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+    #expect(json?["refAuthor"] as? String == "custom-ref-author")
+  }
+
+  @Test func decodeRestoresDocAuthorAndRefAuthor() throws {
+    let json = """
+    {
+      "version": 1,
+      "docLang": "en",
+      "refLang": "en",
+      "uiLang": "en",
+      "docAuthor": "my-author",
+      "refAuthor": "my-ref-author"
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let settings = try decoder.decode(Settings.self, from: json)
+
+    #expect(settings.docAuthor == "my-author")
+    #expect(settings.refAuthor == "my-ref-author")
+  }
+
+  @Test func resetClearsDocAuthorAndRefAuthor() {
+    Settings.shared.reset()
+    Settings.shared.docAuthor = "some-author"
+    Settings.shared.refAuthor = "some-ref-author"
+
+    Settings.shared.reset()
+
+    #expect(Settings.shared.docAuthor == "")
+    #expect(Settings.shared.refAuthor == nil)
+  }
 }

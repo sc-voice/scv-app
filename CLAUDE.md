@@ -217,6 +217,30 @@ cd scv-core && swift test --filter CardTests
 04. [ ] Test performance - target <1s sheet open time
 05. [ ] Document optimization impact
 
+### Create sustainable database update process
+**Status**: Backlog
+
+**Decision:** Use db-manifest.json as source-of-truth for which lang:author databases to build. scv-build Swift package (future, depends on scv-core) will orchestrate. For languages needing heavy processing (KG ~500k nodes, RAG embeddings), create separate Rust tools called from scv-build/Makefile.
+
+01. [ ] Create scv-build Swift package (executable) depending on scv-core
+02. [ ] Implement UpdateTranslations command reading db-manifest.json
+03. [ ] Extract lang:author pairs from manifest minimal entries
+04. [ ] Run build-ebt-data with extracted pairs
+05. [ ] Run build-ebt-data build-manifest to regenerate full manifest
+06. [ ] Update Makefile: add `update-translations` target calling scv-build
+07. [ ] Document workflow: add author to db-manifest.json, run `make update-translations`
+08. [ ] Test de/sonjabuege builds + manifest updates correctly
+09. [ ] Validate all tests pass
+
+### Add de/sonjabuege German translation
+**Status**: Backlog
+
+01. [ ] Add de/sonjabuege to db-manifest.json
+02. [ ] Decompress and load de/sonjabuege database
+03. [ ] Test Settings can select German language with sonjabuege author
+04. [ ] Verify search works with de/sonjabuege
+05. [ ] All tests pass including SettingsTests initialization
+
 ### Fix Sendability warnings in CardManager and MockCardManager
 **Status**: Backlog
 

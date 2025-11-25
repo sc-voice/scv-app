@@ -250,49 +250,6 @@ import Testing
     // Just verify they are equal and separate instances
   }
 
-  @Test("createOpts() creates copy") func createOptsCopy() {
-    let sref1 = SuttaRef.createOpts("thig1.1")
-    let sref2 = SuttaRef.createOpts(sref1)
-
-    #expect(sref1 == sref2)
-    // Structs are values, not references, so === doesn't apply
-    // Just verify they are equal and separate instances
-  }
-
-  @Test("createOpts() with undefined") func createOptsUndefined() {
-    let result1 = SuttaRef.createOpts(nil)
-    #expect(result1 == nil)
-
-    let result2 = SuttaRef.createOpts(nil, opts: [:])
-    #expect(result2 == nil)
-  }
-
-  @Test("createOpts() preserves parameters") func createOptsPreserves() {
-    let opts1 = SuttaRef.createOpts("an1.31-40/jpn/kaz")
-    let create1 = SuttaRef.create("an1.31-40/jpn/kaz")
-    #expect(opts1 == create1)
-
-    let opts2 = SuttaRef.createOpts("an1.31-40/jpn")
-    let create2 = SuttaRef.create("an1.31-40/jpn")
-    #expect(opts2 == create2)
-
-    let opts3 = SuttaRef.createOpts("thig1.1/en/soma")
-    let create3 = SuttaRef.create("thig1.1/en/soma")
-    #expect(opts3 == create3)
-  }
-
-  @Test("createOpts() with defaultLang") func createOptsDefaultLang() {
-    let defaultLang = "de"
-    let opts = SuttaRef.createOpts(
-      "thig1.1",
-      opts: ["defaultLang": defaultLang],
-    )
-    let create = SuttaRef.create("thig1.1", defaultLang: defaultLang)
-
-    #expect(opts == create)
-    #expect(opts?.lang == "de")
-  }
-
   @Test("Equatable and Hashable") func equatableHashable() {
     let ref1 = try? SuttaRef(
       suttaUid: "thig1.1",
@@ -331,5 +288,45 @@ import Testing
     )
 
     #expect(ref.map { String(describing: $0) } == "thig1.1:2.3/en/soma")
+  }
+
+  @Test(
+    "createFromString with defaultAuthor parameter",
+  ) func createFromStringWithDefaultAuthor() {
+    // Test 1: Non-Pali with defaultAuthor uses provided author
+    let ref1 = try? SuttaRef.createFromString(
+      "mn1",
+      defaultLang: "en",
+      defaultAuthor: "soma",
+    )
+    #expect(ref1?.lang == "en")
+    #expect(ref1?.author == "soma")
+
+    // Test 2: Explicit lang, Pali still gets "ms"
+    let ref2 = try? SuttaRef.createFromString(
+      "mn1",
+      defaultLang: "pli",
+      defaultAuthor: "soma",
+    )
+    #expect(ref2?.lang == "pli")
+    #expect(ref2?.author == "ms")
+
+    // Test 3: Explicit author in query overrides defaultAuthor
+    let ref3 = try? SuttaRef.createFromString(
+      "mn1/en/other",
+      defaultLang: "de",
+      defaultAuthor: "soma",
+    )
+    #expect(ref3?.lang == "en")
+    #expect(ref3?.author == "other")
+
+    // Test 4: Non-Pali without defaultAuthor gets nil
+    let ref4 = try? SuttaRef.createFromString(
+      "mn1",
+      defaultLang: "en",
+      defaultAuthor: nil,
+    )
+    #expect(ref4?.lang == "en")
+    #expect(ref4?.author == nil)
   }
 }
