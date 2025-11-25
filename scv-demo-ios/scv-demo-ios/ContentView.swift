@@ -56,12 +56,12 @@ struct ContentView: View {
   private func performIntentSearch() {
     guard let request = searchIntentRequest else { return }
     Task {
-      let results = await EbtData.shared.searchKeywords(
-        lang: request.language,
-        author: request.author,
+      let result = await EbtData.shared.search(
         query: request.query,
+        docLang: request.language,
+        docAuthor: request.author,
       )
-      searchResults = results
+      searchResults = result.results.map(\.suttaRef.suttaUid)
     }
   }
 

@@ -300,11 +300,12 @@ public actor EbtData {
   /// Returns sutta keys ranked by relevance percentage (matching_segments /
   /// total_segments)
   /// Respects Settings.maxDoc limit
-  public func searchKeywords(lang: String, author: String,
-                             query: String) -> [String]
+  /// Returns sutta references matching keywords
+  func searchKeywords(lang: String, author: String,
+                      query: String) -> [SuttaRef]
   {
     searchKeywordsWithScores(lang: lang, author: author, query: query)
-      .map(\.key)
+      .map { createSuttaRefFromKey($0.key)! }
   }
 
   /// Returns sutta keys with match counts and scores for debugging/display
@@ -388,8 +389,8 @@ public actor EbtData {
   /// total_segments)
   /// Filters keyword search results to only those containing exact phrase
   /// Respects Settings.maxDoc limit
-  public func searchPhrase(lang: String, author: String,
-                           phrase: String) -> [String]
+  func searchPhrase(lang: String, author: String,
+                    phrase: String) -> [SuttaRef]
   {
     do {
       try ensureDatabase(lang: lang, author: author)
@@ -402,16 +403,17 @@ public actor EbtData {
       )
 
       // Step 2: Filter to only those containing exact phrase
-      var phraseMatches: [String] = []
+      var phraseMatches: [SuttaRef] = []
 
-      for suttaKey in keywordResults {
+      for suttaRef in keywordResults {
+        let suttaKey = "\(suttaRef.lang)/\(suttaRef.author ?? "")/\(suttaRef.suttaUid)"
         if containsPhrase(
           lang: lang,
           author: author,
           suttaKey: suttaKey,
           phrase: phrase,
         ) {
-          phraseMatches.append(suttaKey)
+          phraseMatches.append(suttaRef)
         }
       }
 
@@ -467,8 +469,8 @@ public actor EbtData {
   /// total_segments)
   /// using regexp pattern matching on segment text
   /// Respects Settings.maxDoc limit
-  public func searchRegexp(lang: String, author: String,
-                           pattern: String) -> [String]
+  func searchRegexp(lang: String, author: String,
+                    pattern: String) -> [SuttaRef]
   {
     do {
       try ensureDatabase(lang: lang, author: author)
@@ -544,7 +546,7 @@ public actor EbtData {
       return resultsWithScore
         .sorted { $0.score > $1.score }
         .prefix(limit)
-        .map(\.key)
+        .map { createSuttaRefFromKey($0.key)! }
     } catch {
       return []
     }
@@ -722,13 +724,8 @@ public actor EbtData {
 
     return phraseKeys
       .prefix(maxResults)
-      .compactMap { key in
-        // Create SuttaRef from sutta key (e.g., "en/sujato/mn1")
-        if let suttaRef = createSuttaRefFromKey(key) {
-          SearchResultItem(suttaRef: suttaRef, score: 1.0)
-        } else {
-          nil
-        }
+      .map { suttaRef in
+        SearchResultItem(suttaRef: suttaRef, score: 1.0)
       }
   }
 
@@ -771,12 +768,8 @@ public actor EbtData {
 
     return regexpKeys
       .prefix(maxResults)
-      .compactMap { key in
-        if let suttaRef = createSuttaRefFromKey(key) {
-          SearchResultItem(suttaRef: suttaRef, score: 1.0)
-        } else {
-          nil
-        }
+      .map { suttaRef in
+        SearchResultItem(suttaRef: suttaRef, score: 1.0)
       }
   }
 

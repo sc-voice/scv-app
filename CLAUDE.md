@@ -39,6 +39,21 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Refactor search() endpoint and make helpers internal (Build 0.0.219)
+**Status**: Completed
+
+01. [x] Add test searchRootOfSuffering() verifying search() returns SearchResult with 7 items
+02. [x] Refactor searchKeywords() to return [SuttaRef] instead of [String]
+03. [x] Refactor searchPhrase() to return [SuttaRef] instead of [String]
+04. [x] Refactor searchRegexp() to return [SuttaRef] instead of [String]
+05. [x] Update search() handlers to work with [SuttaRef] from helper methods
+06. [x] Update SearchSuttasIntent to call search() instead of searchPhrase()
+07. [x] Update SearchSuttasIntentTestHelper to call search() instead of searchKeywords()
+08. [x] Update ContentView to call search() instead of searchKeywords()
+09. [x] Change searchKeywords/Phrase/Regexp access from public to internal
+10. [x] Update all tests to work with SuttaRef objects instead of string keys
+11. [x] All 295 tests pass (278 core + 17 UI)
+
 ### Fix searchSubmitHandler empty searchQuery bug (Build 0.0.206)
 **Status**: Completed
 

@@ -30,7 +30,9 @@ public struct SearchSuttasIntent: AppIntent {
 
   public func perform() async throws -> some IntentResult {
     let settings = Settings.shared
-    _ = settings.docLang.code
+    let docLang = settings.docLang.code
+    let docAuthor = settings.docAuthor
+
     if query == nil {
       query = try await $query.requestValue(
         .init(stringLiteral: "What are you searching for?"),
@@ -40,24 +42,23 @@ public struct SearchSuttasIntent: AppIntent {
 
     normalizeQuery()
     cc.ok2(#line, "normalized:", query ?? "")
-    let results = await EbtData.shared.searchPhrase(
-      lang: "en",
-      author: "sujato",
-      phrase: query ?? "",
-    )
-    cc.ok2(#line, "searchPhrase=>", results)
 
-    let strippedResults = results.map { result in
-      result.replacingOccurrences(of: "en/sujato/", with: "")
-    }
-    _ = strippedResults.joined(separator: ", ")
+    let searchResult = await EbtData.shared.search(
+      query: query ?? "",
+      docLang: docLang,
+      docAuthor: docAuthor,
+    )
+    cc.ok2(#line, "search=>", searchResult.results.count, "results")
+
+    let suttaIds = searchResult.results.map(\.suttaRef.suttaUid)
+    _ = suttaIds.joined(separator: ", ")
 
     // Store search results and metadata for app to display
     let intentResults = SearchIntentResults(
       query: query ?? "",
-      language: "en",
-      author: "sujato",
-      results: strippedResults,
+      language: docLang,
+      author: docAuthor,
+      results: suttaIds,
     )
     if let encoded = try? JSONEncoder().encode(intentResults) {
       // Use app groups for inter-process communication between app and App
@@ -65,7 +66,7 @@ public struct SearchSuttasIntent: AppIntent {
       if let defaults = UserDefaults(suiteName: "group.sc-voice.scv-app") {
         defaults.set(encoded, forKey: "SearchSuttasIntentResults")
         let msg =
-          "Stored \(strippedResults.count) results for query '\(query ?? "")'"
+          "Stored \(suttaIds.count) results for query '\(query ?? "")'"
         cc.ok1(#line, msg)
       } else {
         // Fallback to standard UserDefaults if app groups not available

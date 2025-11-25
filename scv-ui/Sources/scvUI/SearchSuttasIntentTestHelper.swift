@@ -99,14 +99,14 @@ import SwiftUI
         let language = Settings.shared.docLang.code
         let author = "sujato"
 
-        let results = await EbtData.shared.searchKeywords(
-          lang: language,
-          author: author,
+        let searchResult = await EbtData.shared.search(
           query: testQuery,
+          docLang: language,
+          docAuthor: author,
         )
 
         await MainActor.run {
-          searchResults = results
+          searchResults = searchResult.results.map(\.suttaRef.suttaUid)
           isSearching = false
           showResults = true
         }
