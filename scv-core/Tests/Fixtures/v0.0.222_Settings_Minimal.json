@@ -1,0 +1,29 @@
+{
+  "docAuthor" : "sujato",
+  "docLang" : "en",
+  "docSpeech" : {
+    "emphasis" : true,
+    "language" : "en",
+    "pitch" : 1,
+    "rate" : 1,
+    "variant" : "default",
+    "voiceId" : "",
+    "voiceName" : ""
+  },
+  "isDarkModeEnabled" : true,
+  "lastApplicationVersion" : "0.0.222",
+  "maxDoc" : 50,
+  "paliSpeech" : {
+    "emphasis" : true,
+    "language" : "en",
+    "pitch" : 1,
+    "rate" : 1,
+    "variant" : "default",
+    "voiceId" : "",
+    "voiceName" : ""
+  },
+  "refAuthor" : null,
+  "refLang" : "en",
+  "uiLang" : "en",
+  "version" : 1
+}

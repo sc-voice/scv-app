@@ -43,6 +43,7 @@ let package = Package(
       resources: [
         .process("../Sources/Resources"),
         .process("Data"),
+        .process("Fixtures"),
       ],
     ),
   ],

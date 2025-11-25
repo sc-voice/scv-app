@@ -39,6 +39,19 @@ cd scv-core && swift test --filter CardTests
 
 ## Completed Work
 
+### Create V1 serialization baseline with fixtures (Build 0.0.226)
+**Status**: Completed
+
+01. [x] Create SerializationV1Tests.swift with fixture-based tests
+02. [x] Create scripts/generate-fixtures.swift to generate versioned fixture files
+03. [x] Generate v0.0.222 fixtures for Card (Search, Sutta, Search_Results) and Settings (Minimal, WithVoice)
+04. [x] Update Package.swift to include Fixtures in test resources
+05. [x] Implement loadFixture(version, fileName) helper for clean test code
+06. [x] Add V1 constant = "v0.0.222" to SerializationV1Tests for easy version management
+07. [x] All 285 tests pass (278 core + 7 serialization + 17 UI)
+
+**Enables**: Testing backwards compatibility when V2 serialization code is introduced
+
 ### Refactor search() endpoint and make helpers internal (Build 0.0.219)
 **Status**: Completed
 
