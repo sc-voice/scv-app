@@ -158,6 +158,10 @@ struct SerializationV1Tests {
     #expect(card.uuid == card2.uuid)
     #expect(card.cardType == card2.cardType)
     #expect(card.searchQuery == card2.searchQuery)
+
+    // Verify searchResultJSON is absent (old cards stay in old format)
+    let outputString = String(data: outputData, encoding: .utf8) ?? ""
+    #expect(!outputString.contains("searchResultJSON"))
   }
 
   @Test("Settings v1 round-trip serialization from fixture")

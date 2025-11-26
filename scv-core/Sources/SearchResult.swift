@@ -10,7 +10,7 @@ import Foundation
 // MARK: - SearchMethod Enum
 
 /// Search method used to find results
-public enum SearchMethod: String, Sendable {
+public enum SearchMethod: String, Sendable, Codable {
   /// Search by SuttaRef - parse comma-delimited list and lookup each reference
   case suttaref
 
@@ -24,10 +24,26 @@ public enum SearchMethod: String, Sendable {
   case regexp
 }
 
+// MARK: - SearchError
+
+/// Structured search error with localized message and technical details
+public struct SearchError: Sendable, Codable {
+  /// Localized error message for user display
+  public let message: String
+
+  /// English technical details for debugging
+  public let detail: String
+
+  public init(message: String, detail: String) {
+    self.message = message
+    self.detail = detail
+  }
+}
+
 // MARK: - SearchResultItem
 
 /// Individual search result with sutta reference and relevance score
-public struct SearchResultItem: Sendable {
+public struct SearchResultItem: Sendable, Codable {
   /// The sutta reference (e.g., mn1/en/sujato)
   public let suttaRef: SuttaRef
 
@@ -43,7 +59,7 @@ public struct SearchResultItem: Sendable {
 // MARK: - SearchMetadata
 
 /// Metadata about a search operation
-public struct SearchMetadata: Sendable {
+public struct SearchMetadata: Sendable, Codable {
   /// When search was performed
   public let timestamp: Date
 
@@ -97,16 +113,24 @@ public struct SearchMetadata: Sendable {
 // MARK: - SearchResult
 
 /// Complete search result with metadata and matched items
-public struct SearchResult: Sendable {
+public struct SearchResult: Sendable, Codable {
   /// Search metadata including query, method, timing, etc.
   public let metadata: SearchMetadata
 
   /// Array of matched results
   public let results: [SearchResultItem]
 
-  public init(metadata: SearchMetadata, results: [SearchResultItem]) {
+  /// Error if search failed (nil if successful)
+  public let error: SearchError?
+
+  public init(
+    metadata: SearchMetadata,
+    results: [SearchResultItem],
+    error: SearchError? = nil,
+  ) {
     self.metadata = metadata
     self.results = results
+    self.error = error
   }
 }
 

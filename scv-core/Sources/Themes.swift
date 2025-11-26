@@ -35,6 +35,9 @@ public struct Theme {
   /// Toolbar color
   public let toolbarColor: Color
 
+  /// Error text color
+  public let errorTextColor: Color
+
   /// Debug text color (only visible in debug builds)
   public let debugForeground: Color
 
@@ -47,6 +50,7 @@ public struct Theme {
     borderColor: Color,
     valueColor: Color,
     toolbarColor: Color,
+    errorTextColor: Color,
     debugForeground: Color,
   ) {
     self.backgroundColor = backgroundColor
@@ -57,6 +61,7 @@ public struct Theme {
     self.borderColor = borderColor
     self.valueColor = valueColor
     self.toolbarColor = toolbarColor
+    self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
   }
 }
@@ -78,6 +83,13 @@ private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD
 
 /// Fuchsia color for debug text (light theme)
 private let COLOR_FUCHSIA = Color(red: 1.0, green: 0.0, blue: 1.0) // #FF00FF
+
+/// Bright red color for errors (dark theme)
+private let COLOR_ERROR_BRIGHT = Color(red: 1.0, green: 0.2,
+                                       blue: 0.2) // #FF3333
+
+/// Dark red color for errors (light theme)
+private let COLOR_ERROR_DARK = Color(red: 0.8, green: 0.0, blue: 0.0) // #CC0000
 
 /// Application themes
 public enum AppTheme {
@@ -104,6 +116,7 @@ public enum AppTheme {
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: COLOR_GREY, // #BDBDBD
+        errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
       )
     case .dark:
@@ -120,6 +133,7 @@ public enum AppTheme {
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: COLOR_BROWN, // #795548
+        errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
       )
     }

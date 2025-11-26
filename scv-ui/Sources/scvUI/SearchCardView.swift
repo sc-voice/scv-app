@@ -60,8 +60,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var showAlert = false
-  @State private var lastConfirmedQuery = ""
   @State private var debounceTimer: Timer?
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -74,6 +72,100 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   private func autoComplete(_ query: String, card _: Card) {
     cc.ok1(#line, "autocomplete:", query, card.searchQuery)
+  }
+
+  private var resultsView: some View {
+    guard let searchResult = card.searchResult else {
+      return AnyView(
+        VStack(spacing: 12) {
+          Image(systemName: "magnifyingglass")
+            .font(.title2)
+            .foregroundColor(themeProvider.theme.secondaryTextColor)
+          Text("card.search.no.results".localized)
+            .font(.headline)
+            .foregroundColor(themeProvider.theme.textColor)
+          Text("card.search.enter.query".localized)
+            .font(.caption)
+            .foregroundColor(themeProvider.theme.secondaryTextColor)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(),
+      )
+    }
+
+    // Check for error
+    if let error = searchResult.error {
+      return AnyView(
+        VStack(spacing: 12) {
+          Image(systemName: "exclamationmark.circle")
+            .font(.title2)
+            .foregroundColor(themeProvider.theme.errorTextColor)
+          Text("card.search.error".localized)
+            .font(.headline)
+            .foregroundColor(themeProvider.theme.textColor)
+          Text(error.message)
+            .font(.body)
+            .foregroundColor(themeProvider.theme.errorTextColor)
+            .lineLimit(3)
+          if !error.detail.isEmpty {
+            Text(error.detail)
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
+              .lineLimit(2)
+          }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .background(themeProvider.theme.cardBackground),
+      )
+    }
+
+    // Display results
+    return AnyView(
+      VStack(alignment: .leading, spacing: 12) {
+        // Summary header
+        VStack(alignment: .leading, spacing: 4) {
+          Text(
+            "Found \(searchResult.results.count) document\(searchResult.results.count == 1 ? "" : "s")",
+          )
+          .font(.headline)
+          .foregroundColor(themeProvider.theme.textColor)
+          Text("Method: \(searchResult.metadata.method.rawValue)")
+            .font(.caption)
+            .foregroundColor(themeProvider.theme.textColor)
+            .fontWeight(.semibold)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(themeProvider.theme.cardBackground)
+        .cornerRadius(8)
+
+        // Results list
+        List(searchResult.results, id: \.suttaRef) { item in
+          VStack(alignment: .leading, spacing: 4) {
+            Text(item.suttaRef.toString())
+              .font(.body)
+              .fontWeight(.semibold)
+              .foregroundColor(themeProvider.theme.textColor)
+            Text(
+              String(
+                format: "Relevance: %.1f%%",
+                item.score * 100,
+              ),
+            )
+            .font(.caption)
+            .foregroundColor(themeProvider.theme.textColor)
+            .fontWeight(.semibold)
+          }
+          .padding(.vertical, 4)
+        }
+        #if os(iOS)
+        .listStyle(.insetGrouped)
+        #else
+        .listStyle(.automatic)
+        #endif
+      },
+    )
   }
 
   // MARK: - Static Methods
@@ -96,6 +188,31 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
     cc.ok1(#line, "Search submitted:", card.searchQuery)
 
+    // Execute search asynchronously
+    Task {
+      let settings = Settings.shared
+      let searchResult = await EbtData.shared.search(
+        query: card.searchQuery,
+        docLang: settings.docLang.code,
+        docAuthor: settings.docAuthor,
+        refLang: settings.refLang.code,
+        refAuthor: settings.refAuthor,
+      )
+
+      // Update card with search result
+      card.searchResult = searchResult
+      cardManager.saveCard(card)
+
+      if let error = searchResult.error {
+        cc.bad1(#line, "Search failed:", error.message, "detail:", error.detail)
+      } else {
+        cc.ok1(
+          #line,
+          "Search completed with \(searchResult.results.count) results",
+        )
+      }
+    }
+
     // FIXME: SwiftUI bug with searchable() - text field clears after onSubmit
     // See: https://developer.apple.com/forums/thread/734087
     // Workaround: Clear and restore binding to force UI sync
@@ -109,55 +226,40 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   public var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      Text("Results will appear here")
-        .font(.body)
-        .foregroundStyle(themeProvider.theme.secondaryTextColor)
+    resultsView
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(themeProvider.theme.cardBackground)
+      .padding(0)
+      .onChange(of: card.searchQuery) { _, newValue in
+        let filtered = SearchQueryFilter.filter(newValue)
+        if filtered != newValue {
+          card.searchQuery = filtered
+        }
+        cc.ok2(#line, "onChange:", filtered)
 
-      Spacer()
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(themeProvider.theme.cardBackground)
-    .padding(0)
-    .border(themeProvider.theme.debugForeground, width: 2)
-    .onChange(of: card.searchQuery) { _, newValue in
-      let filtered = SearchQueryFilter.filter(newValue)
-      if filtered != newValue {
-        card.searchQuery = filtered
-      }
-      cc.ok2(#line, "onChange:", filtered)
+        // Cancel existing debounce timer
+        debounceTimer?.invalidate()
 
-      // Cancel existing debounce timer
-      debounceTimer?.invalidate()
-
-      // Start new 500ms debounce timer for autocomplete
-      debounceTimer = Timer.scheduledTimer(
-        withTimeInterval: 0.5,
-        repeats: false,
-      ) { _ in
-        Task { @MainActor in
-          autoComplete(filtered, card: card)
+        // Start new 500ms debounce timer for autocomplete
+        debounceTimer = Timer.scheduledTimer(
+          withTimeInterval: 0.5,
+          repeats: false,
+        ) { _ in
+          Task { @MainActor in
+            autoComplete(filtered, card: card)
+          }
         }
       }
-    }
-    .onSubmit(of: .search) {
-      lastConfirmedQuery = card.searchQuery
-      cardManager.saveCard(card)
-      showAlert = true
-      cc.ok1(#line, "Search confirmed:", card.searchQuery)
-    }
-    .alert("Search Confirmation", isPresented: $showAlert) {
-      Button("OK") {}
-    } message: {
-      Text("Search for: \(lastConfirmedQuery)")
-    }
-    .onAppear {
-      cc.ok1(#line, "SearchCardView initialized for card:", card.name)
-    }
-    .onDisappear {
-      debounceTimer?.invalidate()
-      debounceTimer = nil
-    }
+      .onSubmit(of: .search) {
+        cc.ok1(#line, "Search submitted:", card.searchQuery)
+      }
+      .onAppear {
+        cc.ok1(#line, "SearchCardView initialized for card:", card.name)
+      }
+      .onDisappear {
+        debounceTimer?.invalidate()
+        debounceTimer = nil
+      }
   }
 }
 

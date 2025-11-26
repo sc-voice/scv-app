@@ -631,6 +631,8 @@ public actor EbtData {
     query: String,
     docLang: String = Settings.shared.docLang.code,
     docAuthor: String = Settings.shared.docAuthor,
+    refLang: String = Settings.shared.refLang.code,
+    refAuthor: String? = Settings.shared.refAuthor,
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
   ) -> SearchResult {
@@ -681,8 +683,8 @@ public actor EbtData {
       elapsedTime: elapsedTime,
       docLang: docLang,
       docAuthor: docAuthor,
-      refLang: Settings.shared.refLang.code,
-      refAuthor: Settings.shared.refAuthor,
+      refLang: refLang,
+      refAuthor: refAuthor,
       maxDoc: maxResults,
     )
 
@@ -724,8 +726,8 @@ public actor EbtData {
 
     return phraseKeys
       .prefix(maxResults)
-      .map { suttaRef in
-        SearchResultItem(suttaRef: suttaRef, score: 1.0)
+      .map { key in
+        SearchResultItem(suttaRef: key, score: 1.0)
       }
   }
 
@@ -768,8 +770,8 @@ public actor EbtData {
 
     return regexpKeys
       .prefix(maxResults)
-      .map { suttaRef in
-        SearchResultItem(suttaRef: suttaRef, score: 1.0)
+      .map { key in
+        SearchResultItem(suttaRef: key, score: 1.0)
       }
   }
 

@@ -11,7 +11,7 @@ import Foundation
 /// Represents a parsed Sutta reference with language, author, and segment
 /// information
 /// Examples: "an1.1-10", "an1.1-10/en/sujato", "an1.1:1.1/en"
-public struct SuttaRef: Equatable, Sendable {
+public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   /// The sutta document identifier (e.g., "an1.1-10")
   public let suttaUid: String
 
@@ -333,17 +333,6 @@ public struct SuttaRef: Equatable, Sendable {
     throw SuttaRefError.suttaNotFound(
       "Cannot find \(uid) in range",
     )
-  }
-}
-
-// MARK: - Conform to Hashable for use in collections
-
-extension SuttaRef: Hashable {
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(suttaUid)
-    hasher.combine(lang)
-    hasher.combine(author)
-    hasher.combine(segnum)
   }
 }
 

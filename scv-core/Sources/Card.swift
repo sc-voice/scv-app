@@ -22,6 +22,7 @@ public protocol ICard: Identifiable {
   var cardType: CardType { get }
   var typeId: Int { get }
   var searchQuery: String { get set }
+  var searchResult: SearchResult? { get set }
 }
 
 public extension ICard {
@@ -65,6 +66,8 @@ public final class Card: Codable, ICard {
 
   // Search card properties
   public var searchQuery: String = ""
+  /// JSON storage for searchResult (encoded/decoded via computed property)
+  private var searchResultJSON: String?
   public var searchResults: SearchResponse?
 
   // Sutta card properties
@@ -79,6 +82,7 @@ public final class Card: Codable, ICard {
     cardType: CardType = .search,
     typeId: Int = 0,
     searchQuery: String = "",
+    searchResult: SearchResult? = nil,
     searchResults: SearchResponse? = nil,
     suttaReference: String = "",
     mlDoc: MLDocument? = nil,
@@ -87,9 +91,41 @@ public final class Card: Codable, ICard {
     self.cardType = cardType
     self.typeId = typeId
     self.searchQuery = searchQuery
+    self.searchResult = searchResult
     self.searchResults = searchResults
     self.suttaReference = suttaReference
     self.mlDoc = mlDoc
+  }
+
+  // MARK: - SearchResult Property (JSON Encoded/Decoded)
+
+  /// Computed property to get/set searchResult with JSON serialization
+  public var searchResult: SearchResult? {
+    get {
+      guard let json = searchResultJSON else { return nil }
+      let decoder = JSONDecoder()
+      do {
+        return try decoder.decode(
+          SearchResult.self,
+          from: json.data(using: .utf8) ?? Data(),
+        )
+      } catch {
+        return nil
+      }
+    }
+    set {
+      if let result = newValue {
+        let encoder = JSONEncoder()
+        do {
+          let data = try encoder.encode(result)
+          searchResultJSON = String(data: data, encoding: .utf8)
+        } catch {
+          searchResultJSON = nil
+        }
+      } else {
+        searchResultJSON = nil
+      }
+    }
   }
 
   // MARK: - Codable
@@ -100,6 +136,7 @@ public final class Card: Codable, ICard {
     case cardType
     case typeId
     case searchQuery
+    case searchResultJSON
     case searchResults
     case suttaReference
     case mlDoc
@@ -112,6 +149,7 @@ public final class Card: Codable, ICard {
     try container.encode(cardType, forKey: .cardType)
     try container.encode(typeId, forKey: .typeId)
     try container.encode(searchQuery, forKey: .searchQuery)
+    try container.encodeIfPresent(searchResultJSON, forKey: .searchResultJSON)
     try container.encode(searchResults, forKey: .searchResults)
     try container.encode(suttaReference, forKey: .suttaReference)
     try container.encodeIfPresent(mlDoc, forKey: .mlDoc)
@@ -124,6 +162,10 @@ public final class Card: Codable, ICard {
     cardType = try container.decode(CardType.self, forKey: .cardType)
     typeId = try container.decode(Int.self, forKey: .typeId)
     searchQuery = try container.decode(String.self, forKey: .searchQuery)
+    searchResultJSON = try container.decodeIfPresent(
+      String.self,
+      forKey: .searchResultJSON,
+    )
     searchResults = try container.decodeIfPresent(
       SearchResponse.self,
       forKey: .searchResults,

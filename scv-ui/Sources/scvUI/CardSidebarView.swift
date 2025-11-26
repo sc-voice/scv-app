@@ -163,17 +163,20 @@ public class MockCard: ICard {
   public var cardType: CardType
   public var typeId: Int
   public var searchQuery: String
+  public var searchResult: SearchResult?
 
   public init(
     id: UUID = UUID(),
     cardType: CardType,
     typeId: Int,
     searchQuery: String = "",
+    searchResult: SearchResult? = nil,
   ) {
     self.id = id
     self.cardType = cardType
     self.typeId = typeId
     self.searchQuery = searchQuery
+    self.searchResult = searchResult
   }
 }
 
