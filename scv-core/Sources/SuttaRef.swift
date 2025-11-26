@@ -144,7 +144,6 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   ///   - defaultLang: Default language if not specified (default: "pli")
   ///   - suids: Sorted array of known sutta UIDs (default: auto-loaded)
   /// - Returns: New SuttaRef instance
-  @available(*, deprecated, message: "Use createFromString() instead")
   public static func createFromObject(
     _ obj: [String: Any],
     defaultLang: String = "pli",
@@ -221,7 +220,6 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   ///   - defaultAuthor: Default author for non-Pali languages (default: nil)
   ///   - suids: Sorted sutta UIDs (default: auto-loaded)
   /// - Returns: SuttaRef
-  @available(*, deprecated, message: "Use createFromString() instead")
   public static func createWithError(
     _ strOrObj: Any,
     defaultLang: String = "pli",

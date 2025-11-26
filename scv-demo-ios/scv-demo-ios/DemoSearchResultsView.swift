@@ -2,7 +2,7 @@ import scvCore
 import SwiftUI
 
 /// Displays search results as a list of sutta IDs and their relevance scores
-public struct SearchResultsView: View {
+public struct DemoSearchResultsView: View {
   let results: [String]
   let query: String
   let language: String
@@ -110,9 +110,9 @@ public struct SearchResultsView: View {
 }
 
 #if DEBUG
-  struct SearchResultsView_Previews: PreviewProvider {
+  struct DemoSearchResultsView_Previews: PreviewProvider {
     static var previews: some View {
-      SearchResultsView(
+      DemoSearchResultsView(
         results: ["mn1", "mn2", "dn1"],
         query: "root of suffering",
         language: "en",
