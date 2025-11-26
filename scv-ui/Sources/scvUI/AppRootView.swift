@@ -18,10 +18,12 @@ public struct AppRootView<Manager: ICardManager>: View {
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
     .shared)
+  let searchingIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
-  public init(cardManager: Manager) {
+  public init(cardManager: Manager, searchingIcon: Image? = nil) {
     self.cardManager = cardManager
+    self.searchingIcon = searchingIcon
   }
 
   public var body: some View {
@@ -117,8 +119,12 @@ public struct AppRootView<Manager: ICardManager>: View {
       switch selectedCard.cardType {
       case .search:
         if let binding = cardManager.bindCard(id: cardId) {
-          SearchCardView(card: binding, cardManager: cardManager)
-            .environmentObject(themeProvider)
+          SearchCardView(
+            card: binding,
+            cardManager: cardManager,
+            searchingIcon: searchingIcon,
+          )
+          .environmentObject(themeProvider)
         } else {
           Text("Card not found")
             .foregroundStyle(.secondary)

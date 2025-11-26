@@ -61,11 +61,20 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var debounceTimer: Timer?
+  @State private var iconOpacity: Double = 1.0
+  @State private var iconOffset: CGFloat = 0
+  @State private var maxIconOffset: CGFloat = -200
+  let searchingIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
-  public init(card: Binding<Card>, cardManager: Manager) {
+  public init(
+    card: Binding<Card>,
+    cardManager: Manager,
+    searchingIcon: Image? = nil,
+  ) {
     _card = card
     self.cardManager = cardManager
+    self.searchingIcon = searchingIcon ?? Image(systemName: "app.circle")
   }
 
   // MARK: - Private Methods
@@ -74,22 +83,38 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     cc.ok1(#line, "autocomplete:", query, card.searchQuery)
   }
 
+  private func scheduleFade() {
+    cc.ok2(#line, "scheduleFade: icon will fade and move up over 5s")
+    withAnimation(.easeOut(duration: 5.0)) {
+      iconOpacity = 0.1
+      iconOffset = maxIconOffset
+    }
+  }
+
   private var resultsView: some View {
     guard let searchResult = card.searchResult else {
       return AnyView(
-        VStack(spacing: 12) {
-          Image(systemName: "magnifyingglass")
-            .font(.title2)
-            .foregroundColor(themeProvider.theme.secondaryTextColor)
-          Text("card.search.no.results".localized)
-            .font(.headline)
-            .foregroundColor(themeProvider.theme.textColor)
-          Text("card.search.enter.query".localized)
-            .font(.caption)
-            .foregroundColor(themeProvider.theme.secondaryTextColor)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(),
+        GeometryReader { geometry in
+          VStack(spacing: 12) {
+            searchingIcon
+              .resizable()
+              .scaledToFit()
+              .frame(width: 80, height: 80)
+              .opacity(iconOpacity)
+              .offset(y: iconOffset)
+              .onAppear {
+                // Calculate offset: move icon to 16pt below top of its
+                // container
+                let targetY = 16.0
+                let iconCenterY = geometry.size.height / 2
+                let calculated = -(iconCenterY - targetY)
+                maxIconOffset = calculated
+                cc.ok2(#line, "maxOffset calculated: \(calculated)")
+              }
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .padding()
+        },
       )
     }
 
@@ -183,16 +208,17 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     }
 
     // SYNC: Update card with current binding value before saving
-    card.searchQuery = searchQueryBinding.wrappedValue
+    let searchQuery = searchQueryBinding.wrappedValue
+    card.searchQuery = searchQuery
     cardManager.saveCard(card)
 
-    cc.ok1(#line, "Search submitted:", card.searchQuery)
+    cc.ok1(#line, "Search submitted:", searchQuery)
 
     // Execute search asynchronously
     Task {
       let settings = Settings.shared
       let searchResult = await EbtData.shared.search(
-        query: card.searchQuery,
+        query: searchQuery,
         docLang: settings.docLang.code,
         docAuthor: settings.docAuthor,
         refLang: settings.refLang.code,
@@ -218,10 +244,9 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     // Workaround: Clear and restore binding to force UI sync
     // NOTE: This is async and runs AFTER logging so it doesn't interfere with
     // card state
-    let savedQuery = searchQueryBinding.wrappedValue
     searchQueryBinding.wrappedValue = ""
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-      searchQueryBinding.wrappedValue = savedQuery
+      searchQueryBinding.wrappedValue = searchQuery
     }
   }
 
@@ -236,6 +261,13 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           card.searchQuery = filtered
         }
         cc.ok2(#line, "onChange:", filtered)
+
+        // Reset icon when user types new query
+        withAnimation {
+          iconOpacity = 1.0
+          iconOffset = 0
+        }
+        scheduleFade()
 
         // Cancel existing debounce timer
         debounceTimer?.invalidate()
@@ -255,6 +287,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       }
       .onAppear {
         cc.ok1(#line, "SearchCardView initialized for card:", card.name)
+        scheduleFade()
       }
       .onDisappear {
         debounceTimer?.invalidate()

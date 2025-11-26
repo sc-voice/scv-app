@@ -19,8 +19,10 @@ struct IOSView<Manager: ICardManager>: View {
   let cc = ColorConsole(#file, #function, dbg.IOSView.other)
 
   var body: some View {
+    let appIcon = Bundle.main.appIcon.map { Image(uiImage: $0) }
+
     VStack(spacing: 0) {
-      AppRootView(cardManager: cardManager)
+      AppRootView(cardManager: cardManager, searchingIcon: appIcon)
         .environmentObject(player)
         .environmentObject(themeProvider)
         .onAppear {
