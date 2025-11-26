@@ -383,6 +383,89 @@ public actor EbtData {
     }
   }
 
+  /// Keyword search returning SearchResult with metadata and timing
+  /// Replacement for searchKeywords() - returns complete search result
+  /// - Parameters:
+  ///   - lang: Document language (e.g., "en")
+  ///   - author: Document author (e.g., "sujato")
+  ///   - query: Keyword query string
+  /// - Returns: SearchResult with metadata, scored items, and timing
+  func searchKeywords2(
+    lang: String,
+    author: String,
+    query: String,
+  ) -> SearchResult {
+    let cc = ColorConsole(#file, #function)
+    let startTime = Date()
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+    var items: [SearchResultItem] = []
+    var searchError: SearchError? = nil
+
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { throw NSError() }
+
+      let limit = Settings.shared.maxDoc
+
+      let sqlQuery = """
+      SELECT s.sutta_key, COUNT(sf.rowid) as match_count, s.total_segments,
+             CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments as relevance_pct,
+             COUNT(sf.rowid) + (CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments) as combined_score
+      FROM segments_fts sf
+      JOIN suttas s ON sf.sutta_key = s.sutta_key
+      WHERE sf.segment_text MATCH ?
+      GROUP BY sf.sutta_key
+      ORDER BY combined_score DESC
+      LIMIT ?
+      """
+
+      var stmt: OpaquePointer?
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK
+      else { throw NSError() }
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (query as NSString).utf8String, -1, nil)
+      sqlite3_bind_int(stmt, 2, Int32(limit))
+
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        if let cString = sqlite3_column_text(stmt, 0) {
+          let key = String(cString: cString)
+          let score = sqlite3_column_double(stmt, 4)
+          if let suttaRef = createSuttaRefFromKey(key) {
+            items.append(SearchResultItem(suttaRef: suttaRef, score: score))
+          }
+        }
+      }
+    } catch {
+      searchError = SearchError(
+        message: "search.error.failed".localized,
+        detail: error.localizedDescription,
+      )
+      cc.bad1(#line, "Search failed:", error.localizedDescription)
+    }
+
+    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+    cc.ok1(
+      #line,
+      "Found \(items.count) results in \(String(format: "%.3f", elapsedTime))s",
+    )
+
+    let metadata = SearchMetadata(
+      timestamp: startTime,
+      query: query,
+      method: .keyword,
+      elapsedTime: elapsedTime,
+      docLang: lang,
+      docAuthor: author,
+      refLang: Settings.shared.refLang.code,
+      refAuthor: Settings.shared.refAuthor,
+      maxDoc: Settings.shared.maxDoc,
+    )
+
+    return SearchResult(metadata: metadata, results: items, error: searchError)
+  }
+
   // MARK: - Phrase Search
 
   /// Returns sutta keys ranked by relevance percentage (matching_segments /

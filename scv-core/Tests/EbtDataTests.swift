@@ -209,6 +209,58 @@ struct EbtDataTests {
     #expect(results.isEmpty)
   }
 
+  @Test(
+    "searchKeywords2 returns SearchResult with correct ordering for root of suffering",
+  )
+  func searchKeywords2RootOfSuffering() async {
+    let result = await EbtData.shared.searchKeywords2(
+      lang: "en",
+      author: "sujato",
+      query: "root of suffering",
+    )
+
+    let expectedKeys = [
+      "sn42.11/en/sujato",
+      "mn105/en/sujato",
+      "mn1/en/sujato",
+      "an4.257/en/sujato",
+      "sn56.21/en/sujato",
+      "mn116/en/sujato",
+      "mn9/en/sujato",
+      "mn66/en/sujato",
+      "dn16/en/sujato",
+    ]
+
+    // Validate SearchResult structure
+    #expect(result.error == nil)
+    #expect(result.results.count == 9)
+
+    // Validate metadata
+    #expect(result.metadata.method == .keyword)
+    #expect(result.metadata.query == "root of suffering")
+    #expect(result.metadata.docLang == "en")
+    #expect(result.metadata.docAuthor == "sujato")
+    #expect(result.metadata.elapsedTime > 0)
+
+    // Validate exact ordering and keys
+    let resultStrings = result.results.map { "\($0.suttaRef)" }
+    for (i, expected) in expectedKeys.enumerated() {
+      #expect(
+        i < resultStrings.count,
+        "Result count \(resultStrings.count) less than expected \(expectedKeys.count)",
+      )
+      #expect(
+        resultStrings[i] == expected,
+        "Result at index \(i): got '\(resultStrings[i])' expected '\(expected)'",
+      )
+    }
+
+    // Validate all scores are positive
+    for item in result.results {
+      #expect(item.score > 0, "Score should be positive for \(item.suttaRef)")
+    }
+  }
+
   @Test("Display keyword vs phrase search results for 'root of suffering'")
   func displayRootOfSufferingResults() async {
     let keywordResults = await EbtData.shared.searchKeywordsWithScores(

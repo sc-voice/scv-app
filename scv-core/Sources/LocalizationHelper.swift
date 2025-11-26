@@ -8,18 +8,25 @@
 import Foundation
 
 /// Global bundle for localization - configurable for testing
-@MainActor
-var localizationBundle = Bundle.module
+private let localizationBundleLock = NSLock()
+private nonisolated(unsafe) var _localizationBundle = Bundle.module
+
+var localizationBundle: Bundle {
+  get {
+    localizationBundleLock.withLock { _localizationBundle }
+  }
+  set {
+    localizationBundleLock.withLock { _localizationBundle = newValue }
+  }
+}
 
 public extension String {
   /// Localized version of the string
-  @MainActor
   var localized: String {
     NSLocalizedString(self, bundle: localizationBundle, comment: "")
   }
 
   /// Localized version with format arguments
-  @MainActor
   func localized(_ arguments: CVarArg...) -> String {
     String(
       format: NSLocalizedString(self, bundle: localizationBundle, comment: ""),
