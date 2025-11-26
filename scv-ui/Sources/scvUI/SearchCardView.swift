@@ -174,8 +174,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               .foregroundColor(themeProvider.theme.textColor)
             Text(
               String(
-                format: "Relevance: %.1f%%",
-                item.score * 100,
+                format: "%.3f",
+                item.score,
               ),
             )
             .font(.caption)

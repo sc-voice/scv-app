@@ -61,42 +61,42 @@ public struct SearchResultItem: Sendable, Codable {
 /// Metadata about a search operation
 public struct SearchMetadata: Sendable, Codable {
   /// When search was performed
-  public let timestamp: Date
+  public var timestamp: Date
 
   /// Query string that was searched
-  public let query: String
+  public var query: String
 
   /// Method used to find results
-  public let method: SearchMethod
+  public var method: SearchMethod
 
   /// Time elapsed during search in seconds
-  public let elapsedTime: TimeInterval
+  public var elapsedTime: TimeInterval
 
   /// Document language for search
-  public let docLang: String
+  public var docLang: String
 
   /// Document author for search
-  public let docAuthor: String
+  public var docAuthor: String
 
   /// Reference language (e.g., pali for root texts)
-  public let refLang: String
+  public var refLang: String
 
   /// Reference author (e.g., "ms" for pali)
-  public let refAuthor: String?
+  public var refAuthor: String?
 
   /// Maximum documents limit from Settings at time of search
-  public let maxDoc: Int
+  public var maxDoc: Int
 
   public init(
-    timestamp: Date,
+    timestamp: Date = Date(),
     query: String,
     method: SearchMethod,
     elapsedTime: TimeInterval,
     docLang: String,
     docAuthor: String,
-    refLang: String,
-    refAuthor: String?,
-    maxDoc: Int,
+    refLang: String? = nil,
+    refAuthor: String? = nil,
+    maxDoc: Int? = nil,
   ) {
     self.timestamp = timestamp
     self.query = query
@@ -104,9 +104,9 @@ public struct SearchMetadata: Sendable, Codable {
     self.elapsedTime = elapsedTime
     self.docLang = docLang
     self.docAuthor = docAuthor
-    self.refLang = refLang
-    self.refAuthor = refAuthor
-    self.maxDoc = maxDoc
+    self.refLang = refLang ?? Settings.shared.refLang.code
+    self.refAuthor = refAuthor ?? Settings.shared.refAuthor
+    self.maxDoc = maxDoc ?? Settings.shared.maxDoc
   }
 }
 
@@ -115,13 +115,13 @@ public struct SearchMetadata: Sendable, Codable {
 /// Complete search result with metadata and matched items
 public struct SearchResult: Sendable, Codable {
   /// Search metadata including query, method, timing, etc.
-  public let metadata: SearchMetadata
+  public var metadata: SearchMetadata
 
   /// Array of matched results
-  public let results: [SearchResultItem]
+  public var results: [SearchResultItem]
 
   /// Error if search failed (nil if successful)
-  public let error: SearchError?
+  public var error: SearchError?
 
   public init(
     metadata: SearchMetadata,

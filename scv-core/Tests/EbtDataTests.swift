@@ -20,42 +20,16 @@ struct EbtDataTests {
     #expect(json == nil)
   }
 
-  @Test("Keyword search finds matching translations")
-  func keywordSearchMatches() async {
-    let results = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "suffering",
-    )
-
-    #expect(!results.isEmpty)
-    #expect(results.count > 0)
-  }
-
-  @Test("Keyword search returns valid SuttaRef objects")
-  func keywordSearchKeyFormat() async {
-    let results = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "root",
-    )
-
-    for ref in results {
-      #expect(ref.lang == "en")
-      #expect(ref.author == "sujato")
-      #expect(!ref.suttaUid.isEmpty)
-    }
-  }
-
   @Test("Keyword search with nonexistent term returns empty")
   func keywordSearchNoMatches() async {
-    let results = await EbtData.shared.searchKeywords(
+    let result = await EbtData.shared.searchKeywords2(
       lang: "en",
       author: "sujato",
       query: "xyzabc123notaword",
     )
 
-    #expect(results.isEmpty)
+    #expect(result.results.isEmpty)
+    #expect(result.error == nil)
   }
 
   @Test("Regexp search finds matching translations")
@@ -101,13 +75,14 @@ struct EbtDataTests {
     defer { Settings.shared.maxDoc = originalMaxDoc }
 
     Settings.shared.maxDoc = 5
-    let results = await EbtData.shared.searchKeywords(
+    let result = await EbtData.shared.searchKeywords2(
       lang: "en",
       author: "sujato",
       query: "the",
     )
 
-    #expect(results.count <= 5)
+    #expect(result.results.count <= 5)
+    #expect(result.metadata.maxDoc == 5)
   }
 
   @Test("Key lookup for known translation succeeds")
@@ -120,93 +95,68 @@ struct EbtDataTests {
     #expect(json?.contains("\"") ?? false)
   }
 
-  @Test("Search for 'root of suffering' finds translations")
-  func rootOfSufferingSearch() async {
-    let results = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "root of suffering",
-    )
-
-    #expect(!results.isEmpty)
-    #expect(results.count > 0)
-    // Verify all results are valid SuttaRef objects
-    for ref in results {
-      #expect(ref.lang == "en")
-      #expect(ref.author == "sujato")
-      #expect(!ref.suttaUid.isEmpty)
-    }
-  }
-
   @Test(
-    "'root of suffering' keyword search returns expected keys with segment-level ranking",
+    "Phrase search 2 returns exactly 7 results for 'root of suffering' with correct scores",
   )
-  func rootOfSufferingReturnsExpectedKeys() async {
-    let results = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "root of suffering",
-    )
-
-    let expectedKeys = [
-      "sn42.11/en/sujato",
-      "mn105/en/sujato",
-      "mn1/en/sujato",
-      "an4.257/en/sujato",
-      "sn56.21/en/sujato",
-      "mn116/en/sujato",
-      "mn9/en/sujato",
-      "mn66/en/sujato",
-      "dn16/en/sujato",
-    ]
-
-    let resultStrings = results.map { "\($0)" }
-    // Keyword search should return all 9 results in ranked order
-    for (i, expected) in expectedKeys.enumerated() {
-      #expect(
-        i < resultStrings.count,
-        "Result count \(resultStrings.count) less than expected \(expectedKeys.count)",
-      )
-      #expect(
-        resultStrings[i] == expected,
-        "Result at index \(i): got '\(resultStrings[i])' expected '\(expected)'",
-      )
-    }
-    #expect(results.count == 9)
-  }
-
-  @Test("Phrase search finds only suttas with exact phrase")
-  func phraseSearchFiltersResults() async {
-    let keywordResults = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "root of suffering",
-    )
-    let phraseResults = await EbtData.shared.searchPhrase(
+  func phraseSearch2RootOfSuffering() async {
+    let result = await EbtData.shared.searchPhrase2(
       lang: "en",
       author: "sujato",
       phrase: "root of suffering",
     )
 
-    // Phrase search should be more restrictive than keyword search
-    #expect(phraseResults.count <= keywordResults.count)
+    let expectedResults: [(key: String, score: Double)] = [
+      ("sn42.11/en/sujato", 5.09),
+      ("mn105/en/sujato", 3.02),
+      ("mn1/en/sujato", 2.01),
+      ("sn56.21/en/sujato", 1.05),
+      ("mn116/en/sujato", 1.01),
+      ("mn66/en/sujato", 1.00),
+      ("dn16/en/sujato", 1.00),
+    ]
 
-    let phraseSuttaStrings = phraseResults.map { "\($0)" }
-    // Should exclude false positives like an4.257
-    #expect(!phraseSuttaStrings.contains("an4.257/en/sujato"))
-    // Should still include suttas with actual phrase
-    #expect(phraseSuttaStrings.contains("sn42.11/en/sujato"))
+    // Validate count
+    #expect(result.results.count == 7)
+
+    // Validate exact ordering and scores (with 0.01 tolerance)
+    for (i, expected) in expectedResults.enumerated() {
+      #expect(
+        i < result.results.count,
+        "Result count \(result.results.count) less than expected \(expectedResults.count)",
+      )
+      let actual = result.results[i]
+      let resultKey = "\(actual.suttaRef)"
+      #expect(
+        resultKey == expected.key,
+        "Result at index \(i): got '\(resultKey)' expected '\(expected.key)'",
+      )
+      #expect(
+        abs(actual.score - expected.score) < 0.01,
+        "Score at index \(i) for \(expected.key): got \(actual.score) expected \(expected.score)",
+      )
+    }
+
+    // Verify metadata
+    #expect(result.metadata.method == .phrase)
+    #expect(result.metadata.query == "root of suffering")
+    #expect(result.error == nil)
+
+    // Verify no false positives (an4.257 and mn9 excluded)
+    let resultKeys = result.results.map { "\($0.suttaRef)" }
+    #expect(!resultKeys.contains("an4.257/en/sujato"))
+    #expect(!resultKeys.contains("mn9/en/sujato"))
   }
 
-  @Test("Phrase search with nonexistent phrase returns empty")
-  func phraseSearchNoMatches() async {
-    let results = await EbtData.shared.searchPhrase(
+  @Test("Phrase search 2 with nonexistent phrase returns empty")
+  func phraseSearch2NoMatches() async {
+    let result = await EbtData.shared.searchPhrase2(
       lang: "en",
       author: "sujato",
       phrase: "xyzabc123notaword phraseneverexists",
     )
 
-    #expect(results.isEmpty)
+    #expect(result.results.isEmpty)
+    #expect(result.error == nil)
   }
 
   @Test(
@@ -258,58 +208,6 @@ struct EbtDataTests {
     // Validate all scores are positive
     for item in result.results {
       #expect(item.score > 0, "Score should be positive for \(item.suttaRef)")
-    }
-  }
-
-  @Test("Display keyword vs phrase search results for 'root of suffering'")
-  func displayRootOfSufferingResults() async {
-    let keywordResults = await EbtData.shared.searchKeywordsWithScores(
-      lang: "en",
-      author: "sujato",
-      query: "root of suffering",
-    )
-    let phraseResults = await EbtData.shared.searchPhrase(
-      lang: "en",
-      author: "sujato",
-      phrase: "root of suffering",
-    )
-
-    print("\n========== KEYWORD SEARCH: 'root of suffering' ==========")
-    print("Total results: \(keywordResults.count)\n")
-
-    for (i, result) in keywordResults.enumerated() {
-      let relevancePct = Int(result.relevancePercent * 100)
-      print("\(i + 1). \(result.key)")
-      print(
-        "   Matches: \(result.matchCount), Total segments: \(result.totalSegments)",
-      )
-      print(
-        "   Relevance: \(relevancePct)%, Score: \(String(format: "%.2f", result.score))",
-      )
-    }
-
-    print("\n========== PHRASE SEARCH: 'root of suffering' ==========")
-    print("Total results: \(phraseResults.count)\n")
-    for (i, result) in phraseResults.enumerated() {
-      print("\(i + 1). \(result)")
-    }
-
-    print("\n========== FALSE POSITIVES FILTERED ==========")
-    let phraseUids = Set(phraseResults.map(\.suttaUid))
-    let falsePositives = keywordResults
-      .filter { keywordResult in
-        let keyComponents = keywordResult.key.split(separator: "/")
-          .map(String.init)
-        guard keyComponents.count >= 3 else { return false }
-        let suttaUid = keyComponents[2]
-        return !phraseUids.contains(suttaUid)
-      }
-    print("Excluded: \(falsePositives.count) suttas")
-    for fp in falsePositives {
-      let relevancePct = Int(fp.relevancePercent * 100)
-      print(
-        "  • \(fp.key): \(fp.matchCount) matches, \(relevancePct)%, score \(String(format: "%.2f", fp.score))",
-      )
     }
   }
 

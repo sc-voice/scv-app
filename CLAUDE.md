@@ -131,4 +131,24 @@ cd scv-core && swift test --filter CardTests
 03. [ ] Fix MockCardManager Sendability warnings in CardSidebarView:216, 219
     - Requires architectural changes to CardManager and/or MockCardManager
     - May need to make classes Sendable or use different binding strategy
+
+### Investigate phrase search vs keyword search score differences
+**Status**: Backlog
+
+01. [ ] Verify whether phrase search scores differ from keyword search scores (See: scv-core/Sources/EbtData.swift:788-815)
+    - Current assumption: phrase results use same scores as keyword results
+    - Reality: sutta matching phrase may have different scores than keyword-only match
+    - Currently performPhraseSearch hardcodes score: 1.0 for all results
+    - Need to calculate actual scores for phrase matches or inherit from keyword results
+    - Update phraseSearchRootOfSuffering test with actual discovered scores
+    - Consider whether phrase matches should score differently than keyword matches
+
+### Unify sutta_key format with SuttaRef
+**Status**: Backlog
+
+01. [ ] Database sutta_key format is lang/author/suttaId, SuttaRef.toString() format is suttaId/lang/author (See: scv-core/Sources/SuttaRef.swift:256-270, EbtData.swift:182-184)
+    - Currently code reconstructs sutta_key in multiple places (EbtData.swift:492, 1054, etc)
+    - Make sutta_key a property of SuttaRef or standardize on SuttaRef.toString() format
+    - Eliminates key reconstruction throughout codebase
+    - Simplifies function signatures (pass SuttaRef instead of lang/author/suttaKey)
 - rtf means READ THE FILE

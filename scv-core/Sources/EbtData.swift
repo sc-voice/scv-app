@@ -452,15 +452,11 @@ public actor EbtData {
     )
 
     let metadata = SearchMetadata(
-      timestamp: startTime,
       query: query,
       method: .keyword,
       elapsedTime: elapsedTime,
       docLang: lang,
       docAuthor: author,
-      refLang: Settings.shared.refLang.code,
-      refAuthor: Settings.shared.refAuthor,
-      maxDoc: Settings.shared.maxDoc,
     )
 
     return SearchResult(metadata: metadata, results: items, error: searchError)
@@ -468,42 +464,66 @@ public actor EbtData {
 
   // MARK: - Phrase Search
 
-  /// Returns sutta keys ranked by relevance percentage (matching_segments /
-  /// total_segments)
+  /// Returns complete search result for exact phrase matches
   /// Filters keyword search results to only those containing exact phrase
-  /// Respects Settings.maxDoc limit
-  func searchPhrase(lang: String, author: String,
-                    phrase: String) -> [SuttaRef]
+  /// Preserves scores from keyword search
+  /// - Parameters:
+  ///   - lang: Document language (e.g., "en")
+  ///   - author: Document author (e.g., "sujato")
+  ///   - phrase: Phrase query string
+  /// - Returns: SearchResult with metadata and scored items
+  func searchPhrase2(lang: String, author: String,
+                     phrase: String) -> SearchResult
   {
+    let startTime = Date()
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+
     do {
       try ensureDatabase(lang: lang, author: author)
+    } catch {
+      let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+      return SearchResult(
+        metadata: SearchMetadata(
+          query: phrase,
+          method: .phrase,
+          elapsedTime: elapsedTime,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        results: [],
+        error: SearchError(
+          message: "search.error.failed".localized,
+          detail: "Failed to initialize database",
+        ),
+      )
+    }
 
-      // Step 1: Get keyword search results (all words present)
-      let keywordResults = searchKeywords(
+    // Get keyword search results as starting point
+    var result = searchKeywords2(
+      lang: lang,
+      author: author,
+      query: phrase,
+    )
+
+    // Filter to only those containing exact phrase
+    result.results = result.results.filter { item in
+      let suttaRef = item.suttaRef
+      let suttaKey = "\(suttaRef.lang)/\(suttaRef.author ?? "")/\(suttaRef.suttaUid)"
+      return containsPhrase(
         lang: lang,
         author: author,
-        query: phrase,
+        suttaKey: suttaKey,
+        phrase: phrase,
       )
-
-      // Step 2: Filter to only those containing exact phrase
-      var phraseMatches: [SuttaRef] = []
-
-      for suttaRef in keywordResults {
-        let suttaKey = "\(suttaRef.lang)/\(suttaRef.author ?? "")/\(suttaRef.suttaUid)"
-        if containsPhrase(
-          lang: lang,
-          author: author,
-          suttaKey: suttaKey,
-          phrase: phrase,
-        ) {
-          phraseMatches.append(suttaRef)
-        }
-      }
-
-      return phraseMatches
-    } catch {
-      return []
     }
+
+    // Update metadata to reflect phrase search with actual elapsed time
+    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+    result.metadata.timestamp = startTime
+    result.metadata.method = .phrase
+    result.metadata.elapsedTime = elapsedTime
+
+    return result
   }
 
   /// Helper: Check if sutta contains exact phrase in any segment
@@ -719,9 +739,6 @@ public actor EbtData {
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
   ) -> SearchResult {
-    let startTime = Date()
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-
     // Auto-detect method if not provided
     let detection = autoSearchMethod(
       query,
@@ -730,24 +747,43 @@ public actor EbtData {
     )
     let searchMethod = method ?? detection.method
 
-    // Execute search based on method
-    let items: [SearchResultItem] = switch searchMethod {
-    case .suttaref:
-      performSuttarefSearch(detection.items, maxResults: maxResults)
+    // Handle phrase and keyword searches directly
+    switch searchMethod {
     case .phrase:
-      performPhraseSearch(
-        query,
-        docLang: docLang,
-        docAuthor: docAuthor,
-        maxResults: maxResults,
-      )
+      return searchPhrase2(lang: docLang, author: docAuthor, phrase: query)
     case .keyword:
-      performKeywordSearch(
-        query,
+      return searchKeywords2(lang: docLang, author: docAuthor, query: query)
+    case .suttaref, .regexp:
+      // Delegate other searches to searchOld
+      return searchOld(
+        query: query,
         docLang: docLang,
         docAuthor: docAuthor,
+        refLang: refLang,
+        refAuthor: refAuthor,
+        method: searchMethod,
+        items: detection.items,
         maxResults: maxResults,
       )
+    }
+  }
+
+  private func searchOld(
+    query: String,
+    docLang: String,
+    docAuthor: String,
+    refLang: String,
+    refAuthor: String?,
+    method: SearchMethod,
+    items: [SearchResultItem],
+    maxResults: Int,
+  ) -> SearchResult {
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+
+    // Execute search based on method
+    let resultItems: [SearchResultItem] = switch method {
+    case .suttaref:
+      performSuttarefSearch(items, maxResults: maxResults)
     case .regexp:
       performRegexpSearch(
         query,
@@ -755,14 +791,16 @@ public actor EbtData {
         docAuthor: docAuthor,
         maxResults: maxResults,
       )
+    case .phrase, .keyword:
+      // Should not reach here - handled directly in search()
+      []
     }
 
     let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
 
     let metadata = SearchMetadata(
-      timestamp: startTime,
       query: query,
-      method: searchMethod,
+      method: method,
       elapsedTime: elapsedTime,
       docLang: docLang,
       docAuthor: docAuthor,
@@ -771,7 +809,7 @@ public actor EbtData {
       maxDoc: maxResults,
     )
 
-    return SearchResult(metadata: metadata, results: items)
+    return SearchResult(metadata: metadata, results: resultItems)
   }
 
   // MARK: - Search Handlers
@@ -782,60 +820,6 @@ public actor EbtData {
     maxResults: Int,
   ) -> [SearchResultItem] {
     Array(items.prefix(maxResults))
-  }
-
-  /// Handles .phrase search with keyword fallback
-  private func performPhraseSearch(
-    _ query: String,
-    docLang: String,
-    docAuthor: String,
-    maxResults: Int,
-  ) -> [SearchResultItem] {
-    let phraseKeys = searchPhrase(
-      lang: docLang,
-      author: docAuthor,
-      phrase: query,
-    )
-
-    guard !phraseKeys.isEmpty else {
-      // Fallback to keyword search if no phrase matches
-      return performKeywordSearch(
-        query,
-        docLang: docLang,
-        docAuthor: docAuthor,
-        maxResults: maxResults,
-      )
-    }
-
-    return phraseKeys
-      .prefix(maxResults)
-      .map { key in
-        SearchResultItem(suttaRef: key, score: 1.0)
-      }
-  }
-
-  /// Handles .keyword search
-  private func performKeywordSearch(
-    _ query: String,
-    docLang: String,
-    docAuthor: String,
-    maxResults: Int,
-  ) -> [SearchResultItem] {
-    let results = searchKeywordsWithScores(
-      lang: docLang,
-      author: docAuthor,
-      query: query,
-    )
-
-    return results
-      .prefix(maxResults)
-      .compactMap { result in
-        if let suttaRef = createSuttaRefFromKey(result.key) {
-          SearchResultItem(suttaRef: suttaRef, score: result.score)
-        } else {
-          nil
-        }
-      }
   }
 
   /// Handles .regexp search
