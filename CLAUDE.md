@@ -143,12 +143,4 @@ cd scv-core && swift test --filter CardTests
     - Update phraseSearchRootOfSuffering test with actual discovered scores
     - Consider whether phrase matches should score differently than keyword matches
 
-### Unify sutta_key format with SuttaRef
-**Status**: Backlog
-
-01. [ ] Database sutta_key format is lang/author/suttaId, SuttaRef.toString() format is suttaId/lang/author (See: scv-core/Sources/SuttaRef.swift:256-270, EbtData.swift:182-184)
-    - Currently code reconstructs sutta_key in multiple places (EbtData.swift:492, 1054, etc)
-    - Make sutta_key a property of SuttaRef or standardize on SuttaRef.toString() format
-    - Eliminates key reconstruction throughout codebase
-    - Simplifies function signatures (pass SuttaRef instead of lang/author/suttaKey)
 - rtf means READ THE FILE

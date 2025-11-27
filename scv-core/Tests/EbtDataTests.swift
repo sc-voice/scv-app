@@ -5,17 +5,17 @@ import Testing
 struct EbtDataTests {
   @Test("Get translation by key returns JSON string")
   func getTranslationByKey() async {
-    let key = "en/sujato/mn1"
+    let key = "thig1.1/en/soma"
     let json = await EbtData.shared.getTranslation(suttaKey: key)
 
     #expect(json != nil)
-    #expect(json?.contains("mn1") ?? false)
+    #expect(json?.contains("thig1.1") ?? false)
   }
 
   @Test("Get translation with invalid key returns nil")
   func getTranslationInvalidKey() async {
     let json = await EbtData.shared
-      .getTranslation(suttaKey: "en/sujato/invalid999999")
+      .getTranslation(suttaKey: "invalid999999/en/soma")
 
     #expect(json == nil)
   }
@@ -87,7 +87,7 @@ struct EbtDataTests {
 
   @Test("Key lookup for known translation succeeds")
   func knownTranslationRetrieval() async {
-    let key = "en/sujato/mn1"
+    let key = "thig1.1/en/soma"
     let json = await EbtData.shared.getTranslation(suttaKey: key)
 
     #expect(json != nil)
@@ -99,6 +99,7 @@ struct EbtDataTests {
     "Phrase search 2 returns exactly 7 results for 'root of suffering' with correct scores",
   )
   func phraseSearch2RootOfSuffering() async {
+    await EbtData.shared.clearDatabaseCache()
     let result = await EbtData.shared.searchPhrase2(
       lang: "en",
       author: "sujato",
@@ -163,6 +164,7 @@ struct EbtDataTests {
     "searchKeywords2 returns SearchResult with correct ordering for root of suffering",
   )
   func searchKeywords2RootOfSuffering() async {
+    await EbtData.shared.clearDatabaseCache()
     let result = await EbtData.shared.searchKeywords2(
       lang: "en",
       author: "sujato",
@@ -244,7 +246,7 @@ struct EbtDataTests {
   @Test("asSuttaCentralJson matches source file formatting")
   func asSuttaCentralJsonFormatting() async {
     let mlDoc = await EbtData.shared.getMLDocument(
-      suttaKey: "en/sujato/an1.1-10",
+      suttaKey: "an1.1-10/en/sujato",
     )
 
     #expect(mlDoc != nil)

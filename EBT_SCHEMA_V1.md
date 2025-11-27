@@ -56,17 +56,17 @@ CREATE TABLE suttas (
 ```
 
 **Columns:**
-- `sutta_key`: Unique identifier in format `language/author/scid`
-  - Example: `en/sujato/mn1` (Majjhima Nikaya discourse 1)
+- `sutta_key`: Unique identifier in format `scid/language/author`
+  - Example: `mn1/en/sujato` (Majjhima Nikaya discourse 1)
 - `total_segments`: Number of segments in this sutta
 
 **Example:**
 ```
 sutta_key          | total_segments
 -------------------|----------------
-en/sujato/mn1      | 47
-en/sujato/an1.1    | 3
-en/sujato/dn1      | 152
+mn1/en/sujato      | 47
+an1.1/en/sujato    | 3
+dn1/en/sujato      | 152
 ```
 
 ---
@@ -83,19 +83,19 @@ CREATE TABLE segments (
 ```
 
 **Columns:**
-- `sutta_key`: Reference to sutta (e.g., `en/sujato/mn1`)
-- `segment_id`: Unique segment identifier within sutta (e.g., `mn1:1.0`, `mn1:1.1`)
+- `sutta_key`: Reference to sutta (e.g., `an1.2/en/sujato`)
+- `segment_id`: Unique segment identifier within sutta (e.g., `an1.2:1.0`, `an1.2:1.1`)
   - Format: `scid:section.subsegment`
   - `:0.0` and `:0.1` are headers; `:1.1`, `:1.2`, etc. are content
 - `segment_text`: The actual text content of the segment
 
 **Example:**
 ```
-sutta_key      | segment_id   | segment_text
-----------------|--------------|-------------------------------------------
-en/sujato/an1.2 | an1.2:1.0    | 2
-en/sujato/an1.2 | an1.2:1.1    | Mendicants, I do not see a single...
-en/sujato/an1.2 | an1.2:1.2    | The sound of a woman occupies...
+sutta_key       | segment_id   | segment_text
+-----------------|--------------|-------------------------------------------
+an1.2/en/sujato | an1.2:1.0    | 2
+an1.2/en/sujato | an1.2:1.1    | Mendicants, I do not see a single...
+an1.2/en/sujato | an1.2:1.2    | The sound of a woman occupies...
 ```
 
 ---
@@ -227,7 +227,7 @@ let translation = EbtData.shared.getTranslation(lang: "en", author: "sujato", su
 
 ```swift
 let results = EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "suffering")
-// Returns: ["en/sujato/dn1", "en/sujato/mn1", ...]  (sorted by relevance)
+// Returns: ["dn1/en/sujato", "mn1/en/sujato", ...]  (sorted by relevance)
 ```
 
 **SQL Query Used:**

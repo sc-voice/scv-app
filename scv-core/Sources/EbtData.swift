@@ -147,21 +147,21 @@ public actor EbtData {
   // MARK: - Key-based Retrieval
 
   /// Returns concatenated segments as JSON-like string for given key (e.g.,
-  /// "en/sujato/mn1")
-  /// Backwards compatible: parses lang and author from key
+  /// "mn1/en/sujato")
+  /// Parses suttaId, lang and author from key
   public func getTranslation(suttaKey: String) -> String? {
     let components = suttaKey.split(separator: "/").map(String.init)
     guard components.count >= 3 else { return nil }
 
-    let lang = components[0]
-    let author = components[1]
-    let suttaId = components.dropFirst(2).joined(separator: "/")
+    let suttaId = components[0]
+    let lang = components[1]
+    let author = components[2]
 
     return getTranslation(lang: lang, author: author, suttaId: suttaId)
   }
 
   /// Returns concatenated segments as JSON-like string for explicit
-  /// language/author/suttaId
+  /// suttaId/language/author
   public func getTranslation(lang: String, author: String,
                              suttaId: String) -> String?
   {
@@ -179,8 +179,8 @@ public actor EbtData {
 
       defer { sqlite3_finalize(stmt) }
 
-      // Construct full sutta_key for query: lang/author/suttaId
-      let fullSuttaKey = "\(lang)/\(author)/\(suttaId)"
+      // Construct full sutta_key for query: suttaId/lang/author
+      let fullSuttaKey = "\(suttaId)/\(lang)/\(author)"
       sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
 
       var segments: [(String, String)] = []
@@ -216,16 +216,16 @@ public actor EbtData {
 
   // MARK: - MLDocument Retrieval
 
-  /// Returns MLDocument for a given sutta_key (e.g., "en/sujato/an1.2")
-  /// - Parameter suttaKey: Sutta key in format "lang/author/sutta_uid"
+  /// Returns MLDocument for a given sutta_key (e.g., "an1.2/en/sujato")
+  /// - Parameter suttaKey: Sutta key in format "sutta_uid/lang/author"
   /// - Returns: MLDocument with segments populated, or nil if not found
   public func getMLDocument(suttaKey: String) -> MLDocument? {
     let components = suttaKey.split(separator: "/").map(String.init)
     guard components.count >= 3 else { return nil }
 
-    let lang = components[0]
-    let author = components[1]
-    let suttaId = components.dropFirst(2).joined(separator: "/")
+    let suttaId = components[0]
+    let lang = components[1]
+    let author = components[2]
 
     return getMLDocument(lang: lang, author: author, suttaId: suttaId)
   }
@@ -258,7 +258,7 @@ public actor EbtData {
 
       defer { sqlite3_finalize(stmt) }
 
-      let fullSuttaKey = "\(lang)/\(author)/\(suttaId)"
+      let fullSuttaKey = "\(suttaId)/\(lang)/\(author)"
       sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
 
       var segMap: [String: Segment] = [:]
@@ -420,7 +420,7 @@ public actor EbtData {
     // Filter to only those containing exact phrase
     result.results = result.results.filter { item in
       let suttaRef = item.suttaRef
-      let suttaKey = "\(suttaRef.lang)/\(suttaRef.author ?? "")/\(suttaRef.suttaUid)"
+      let suttaKey = "\(suttaRef.suttaUid)/\(suttaRef.lang)/\(suttaRef.author ?? "")"
       return containsPhrase(
         lang: lang,
         author: author,
@@ -561,7 +561,7 @@ public actor EbtData {
       return resultsWithScore
         .sorted { $0.score > $1.score }
         .prefix(limit)
-        .map { createSuttaRefFromKey($0.key)! }
+        .compactMap { createSuttaRefFromKey($0.key) }
     } catch {
       return []
     }
@@ -754,16 +754,9 @@ public actor EbtData {
       }
   }
 
-  /// Creates SuttaRef from sutta key format (e.g., "en/sujato/mn1")
+  /// Creates SuttaRef from sutta key format (e.g., "mn1/en/sujato")
   private func createSuttaRefFromKey(_ key: String) -> SuttaRef? {
-    let parts = key.split(separator: "/").map(String.init)
-    guard parts.count >= 2 else { return nil }
-
-    let lang = parts[0]
-    let author = parts[1]
-    let suttaUid = parts.count > 2 ? parts[2] : ""
-
-    return try? SuttaRef(suttaUid: suttaUid, lang: lang, author: author)
+    SuttaRef.create(key)
   }
 
   // MARK: - Discovery Methods
@@ -854,6 +847,17 @@ public actor EbtData {
     } catch {
       return nil
     }
+  }
+
+  /// Clears cached database connections (for testing after database files are
+  /// rebuilt)
+  public func clearDatabaseCache() {
+    for (_, dbPointer) in databases {
+      if let db = dbPointer {
+        sqlite3_close(db)
+      }
+    }
+    databases.removeAll()
   }
 
   private func logDatabaseMetadata(lang: String, author: String) {

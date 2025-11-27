@@ -1,6 +1,6 @@
-.PHONY: test test-all test-core test-core-verbose test-ui test-zstd-integration\
-				build build-core build-demo-ios build-ios build-ios-part\
-        clean clean-core clean-ui clean-demo-ios clean-ios\
+.PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration\
+				build build-core build-build build-demo-ios build-ios build-ios-part\
+        clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
 				format mock-response-view scv-demo-ios \
         version-major version-minor version-patch \
 				commit build-ebt-data-db
@@ -9,20 +9,23 @@ SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled)'
 
-# Build per-author databases if they don't exist
-scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst:
-	@echo "Building per-author databases..."
-	@scripts/build-ebt-data en:sujato de:sabbamitta
+# Build test database if it doesn't exist
+scv-core/Sources/Resources/ebt-en-soma.db.zst:
+	@echo "Building test database..."
+	@scripts/build-ebt-data en:soma
 
-# Force rebuild per-author databases
+# Rebuild test database with new format
 build-ebt-data-db:
-	@echo "build-ebt-data-db ..."
-	@rm -f scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst
-	@$(MAKE) scv-core/Sources/Resources/ebt-en-sujato.db.zst
+	@echo "Pulling latest ebt-data..."
+	@(cd local/ebt-data && git pull)
+	@echo "Rebuilding test database..."
+	@scripts/build-ebt-data en:soma
+	@echo "Regenerating manifest..."
+	@scripts/build-ebt-data --build-manifest
 
 test: test-all
 
-test-all: scv-core/Sources/Resources/ebt-en-sujato.db.zst scv-core/Sources/Resources/ebt-de-sabbamitta.db.zst
+test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@mkdir -p local
 	@echo "Building..."
 	@$(MAKE) clean build 2>&1 | tee local/test-all.log
@@ -38,6 +41,10 @@ test-core:
 
 test-core-verbose:
 	@cd scv-core && swift test --no-parallel --verbose
+
+test-build:
+	@echo "=======> test-build..."
+	@cd scv-build && swift test --no-parallel 2>&1 | grep -v "started\."
 
 test-ui:
 	@echo "=======> test-ui..."
@@ -68,6 +75,9 @@ build-ios: build-core build-ios-part
 build-core:
 	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
+build-build:
+	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+
 build-demo-ios:
 	@cd scv-demo-ios && \
 	  xcodebuild build \
@@ -84,7 +94,7 @@ build-ios-part:
 	    -destination 'platform=iOS Simulator,name=iPhone 15' \
 	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
-clean: clean-core clean-ui clean-demo-ios clean-ios format
+clean: clean-core clean-build clean-ui clean-demo-ios clean-ios format
 
 format:
 	@swiftformat . --exclude Pods
@@ -95,6 +105,11 @@ format:
 clean-core:
 	@echo "=====> clean-core..."
 	@cd scv-core && swift package clean 2>/dev/null || true
+
+clean-build:
+	@echo "=====> clean-build..."
+	@cd scv-build && swift package clean 2>/dev/null || true
+	@rm -f ~/Library/Caches/ebt-*.db 2>/dev/null || true
 
 clean-ui:
 	@echo "=====> clean-ui..."
@@ -158,17 +173,20 @@ help:
 	@echo "  make test-all          Run all package tests and build validation"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make test-build        Run scv-build tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-demo-ios     Validate scv-demo-ios build"
 	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"
+	@echo "  make build-build       Build scv-build package (build tools)"
 	@echo "  make build-demo-ios    Build scv-demo-ios app (increments patch version)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-ios-part    Build scv-ios app"
-	@echo "  make build-ebt-data-db Force rebuild per-author databases from source"
+	@echo "  make build-ebt-data-db Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
+	@echo "  make clean-build       Clean scv-build package"
 	@echo "  make clean-ui          Clean scv-ui package"
 	@echo "  make clean-demo-ios    Clean scv-demo-ios app build artifacts"
 	@echo "  make clean-ios         Clean scv-ios app build artifacts"
