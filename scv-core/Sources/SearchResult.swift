@@ -50,9 +50,14 @@ public struct SearchResultItem: Sendable, Codable {
   /// Relevance score (0.0 to 1.0+)
   public let score: Double
 
-  public init(suttaRef: SuttaRef, score: Double) {
+  /// First matching segment as HTML with matched text wrapped in <span> and
+  /// ellipsis before/after (populated by background thread)
+  public var quote: String?
+
+  public init(suttaRef: SuttaRef, score: Double, quote: String? = nil) {
     self.suttaRef = suttaRef
     self.score = score
+    self.quote = quote
   }
 }
 

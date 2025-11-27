@@ -362,6 +362,140 @@ struct scvUITests {
     #expect(filtered == "hello:world")
     cc.ok1(#line, "passed")
   }
+
+  @Test
+  func quoteHTMLParserHandlesNilQuote() {
+    let result = QuoteHTMLParser.parseQuoteHTML(nil, accentColor: .blue)
+    #expect(result == nil)
+  }
+
+  @Test
+  func quoteHTMLParserHandlesEmptyQuote() {
+    let result = QuoteHTMLParser.parseQuoteHTML("", accentColor: .blue)!
+    #expect(String(result.characters).isEmpty)
+  }
+
+  @Test
+  func quoteHTMLParserHandlesTextWithoutSpan() {
+    let html = "This is plain text without span"
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
+    let fullText = String(result.characters)
+    #expect(fullText == "This is plain text without span")
+    var runs = Array(result.runs)
+    #expect(runs.count == 1)
+    #expect(String(result[runs[0].range].characters) ==
+      "This is plain text without span")
+  }
+
+  @Test
+  func quoteHTMLParserExtractsSpanContent() {
+    let html = "Before <span>matched text</span> after"
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
+    let fullText = String(result.characters)
+    #expect(fullText == "Before matched text after")
+    var runs = Array(result.runs)
+    #expect(runs.count == 3)
+
+    // Run 0: "Before "
+    #expect(String(result[runs[0].range].characters) == "Before ")
+    #expect(runs[0].font == nil)
+
+    // Run 1: "matched text" (bold + color)
+    #expect(String(result[runs[1].range].characters) == "matched text")
+    #expect(runs[1].font == .system(.body, design: .default, weight: .bold))
+    #expect(runs[1].foregroundColor == .blue)
+
+    // Run 2: " after"
+    #expect(String(result[runs[2].range].characters) == " after")
+    #expect(runs[2].font == nil)
+  }
+
+  @Test
+  func quoteHTMLParserHandlesMultipleSpans() {
+    let html = "First <span>match1</span> middle <span>match2</span> end"
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
+    let fullText = String(result.characters)
+    #expect(fullText == "First match1 middle match2 end")
+    var runs = Array(result.runs)
+    #expect(runs.count == 5)
+
+    // Run 0: "First "
+    #expect(String(result[runs[0].range].characters) == "First ")
+
+    // Run 1: "match1" (bold + color)
+    #expect(String(result[runs[1].range].characters) == "match1")
+    #expect(runs[1].font == .system(.body, design: .default, weight: .bold))
+    #expect(runs[1].foregroundColor == .blue)
+
+    // Run 2: " middle "
+    #expect(String(result[runs[2].range].characters) == " middle ")
+
+    // Run 3: "match2" (bold + color)
+    #expect(String(result[runs[3].range].characters) == "match2")
+    #expect(runs[3].font == .system(.body, design: .default, weight: .bold))
+    #expect(runs[3].foregroundColor == .blue)
+
+    // Run 4: " end"
+    #expect(String(result[runs[4].range].characters) == " end")
+  }
+
+  @Test
+  func quoteHTMLParserHandlesMalformedHTML() {
+    // Missing closing tag
+    let html = "Before <span>matched text after"
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
+    let fullText = String(result.characters)
+    #expect(fullText == "Before matched text after")
+    let runs = Array(result.runs)
+    #expect(runs.count == 1)
+
+    // Run 0: entire text unformatted (no closing span tag)
+    #expect(String(result[runs[0].range].characters) ==
+      "Before matched text after")
+    #expect(runs[0].font == nil)
+  }
+
+  @Test
+  func quoteHTMLParserWithEllipsis() {
+    let html = "...before <span>matched</span> after..."
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
+    let fullText = String(result.characters)
+    #expect(fullText == "...before matched after...")
+    var runs = Array(result.runs)
+    #expect(runs.count == 3)
+
+    // Run 0: "...before "
+    #expect(String(result[runs[0].range].characters) == "...before ")
+
+    // Run 1: "matched" (bold + color)
+    #expect(String(result[runs[1].range].characters) == "matched")
+    #expect(runs[1].font == .system(.body, design: .default, weight: .bold))
+    #expect(runs[1].foregroundColor == .blue)
+
+    // Run 2: " after..."
+    #expect(String(result[runs[2].range].characters) == " after...")
+  }
+
+  @Test
+  func quoteHTMLParserAppliesBoldToSpan() {
+    let html = "Normal <span>bold</span> text"
+    let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .red)!
+    let fullText = String(result.characters)
+    #expect(fullText == "Normal bold text")
+    var runs = Array(result.runs)
+    #expect(runs.count == 3)
+
+    // Run 0: "Normal "
+    #expect(String(result[runs[0].range].characters) == "Normal ")
+
+    // Run 1: "bold" (bold + red color)
+    #expect(String(result[runs[1].range].characters) == "bold")
+    #expect(runs[1].font == .system(.body, design: .default, weight: .bold))
+    #expect(runs[1].foregroundColor == .red)
+
+    // Run 2: " text"
+    #expect(String(result[runs[2].range].characters) == " text")
+  }
 }
 
 // MARK: - Mock URLOpener for Testing

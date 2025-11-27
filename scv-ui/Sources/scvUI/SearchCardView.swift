@@ -8,6 +8,58 @@
 import scvCore
 import SwiftUI
 
+// MARK: - Quote HTML Parsing
+
+/// Helper for parsing HTML quotes and converting to AttributedString
+public enum QuoteHTMLParser {
+  /// Parses HTML quote with <span> tag and returns AttributedString with bold
+  /// accent formatting
+  static func parseQuoteHTML(_ html: String?,
+                             accentColor: Color) -> AttributedString?
+  {
+    guard let html else { return nil }
+
+    var attributed = AttributedString()
+
+    // Simple HTML parser for <span> tags
+    var remaining = html
+    while !remaining.isEmpty {
+      if let spanStart = remaining.range(of: "<span>") {
+        // Add text before span
+        let before = String(remaining[..<spanStart.lowerBound])
+        attributed.append(AttributedString(before))
+
+        // Move past the opening tag
+        remaining = String(remaining[spanStart.upperBound...])
+
+        // Find closing tag
+        if let spanEnd = remaining.range(of: "</span>") {
+          let spanContent = String(remaining[..<spanEnd.lowerBound])
+
+          // Add span content with bold and accent color
+          var spanAttributed = AttributedString(spanContent)
+          spanAttributed.font = .system(.body, design: .default, weight: .bold)
+          spanAttributed.foregroundColor = accentColor
+          attributed.append(spanAttributed)
+
+          // Move past the closing tag
+          remaining = String(remaining[spanEnd.upperBound...])
+        } else {
+          // Malformed HTML, just add the rest
+          attributed.append(AttributedString(remaining))
+          remaining = ""
+        }
+      } else {
+        // No more spans, add remaining text
+        attributed.append(AttributedString(remaining))
+        remaining = ""
+      }
+    }
+
+    return attributed
+  }
+}
+
 // MARK: - SearchQueryFilter
 
 /// Helper for filtering search query input
@@ -81,6 +133,44 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   private func autoComplete(_ query: String, card _: Card) {
     cc.ok1(#line, "autocomplete:", query, card.searchQuery)
+  }
+
+  private func populateQuotesInBackground(
+    searchResult: SearchResult,
+    cardManager: Manager,
+    cardId: Card.ID,
+  ) {
+    cc.ok1(
+      #line,
+      "Starting background quote population for \(searchResult.results.count) results",
+    )
+
+    Task {
+      var updatedResults = searchResult.results
+
+      for (index, var item) in updatedResults.enumerated() {
+        let success = await EbtData.shared.populateQuote(
+          item: &item,
+          query: searchResult.metadata.query,
+          method: searchResult.metadata.method,
+          lang: searchResult.metadata.docLang,
+          author: searchResult.metadata.docAuthor,
+        )
+
+        if success {
+          updatedResults[index] = item
+          cc.ok2(#line, "Populated quote for \(item.suttaRef.suttaUid)")
+        }
+      }
+
+      // Update card with populated results
+      if let card = cardManager.cardFromId(cardId) {
+        var updatedCard = card
+        updatedCard.searchResult?.results = updatedResults
+        cardManager.saveCard(updatedCard)
+        cc.ok1(#line, "Saved card with populated quotes")
+      }
+    }
   }
 
   private func scheduleFade() {
@@ -185,6 +275,19 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               .foregroundColor(themeProvider.theme.textColor)
               .fontWeight(.semibold)
             }
+
+            // Display quote if available
+            if let quote = item.quote,
+               let attributed = QuoteHTMLParser.parseQuoteHTML(
+                 quote,
+                 accentColor: themeProvider.theme.accentColor,
+               )
+            {
+              Text(attributed)
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
+                .lineLimit(2)
+            }
           }
           .padding(.vertical, 4)
         }
@@ -240,6 +343,21 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           #line,
           "Search completed with \(searchResult.results.count) results",
         )
+
+        // Trigger background quote population
+        // Note: We need to spawn this on the main thread context
+        // Create a temporary view instance to call the instance method
+        DispatchQueue.main.async {
+          let view = SearchCardView<Manager.ManagedCard, Manager>(
+            card: .constant(card),
+            cardManager: cardManager,
+          )
+          view.populateQuotesInBackground(
+            searchResult: searchResult,
+            cardManager: cardManager,
+            cardId: selectedCardId,
+          )
+        }
       }
     }
 

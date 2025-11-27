@@ -59,10 +59,7 @@ public class Settings: Codable {
 
   // MARK: - Instance Properties
 
-  let cc = ColorConsole(#file, #function)
-
-  /// Flag to prevent validation during initialization and deserialization
-  private var isInitializing: Bool = true
+  let cc = ColorConsole(#file, #function, dbg.Settings.other)
 
   /// Schema version of this settings instance
   public var version: Int = 1
@@ -112,8 +109,8 @@ public class Settings: Codable {
     }
 
     load()
-    isInitializing = false
     validate()
+    cc.ok1(#line, "init()")
   }
 
   // MARK: - Codable
@@ -249,8 +246,8 @@ public class Settings: Codable {
       maxDoc = MAX_DOC_DEFAULT
     }
 
-    isInitializing = false
     validate()
+    cc.ok1(#line, "init(Decoder)")
   }
 
   // MARK: - Validation

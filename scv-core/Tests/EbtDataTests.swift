@@ -286,4 +286,179 @@ struct EbtDataTests {
       "JSON formatting mismatch: source uses compact format, generated uses spaced format",
     )
   }
+
+  @Test("populateQuote() finds first matching segment for keyword search")
+  func populateQuoteKeywordSearch() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("mn1/en/sujato")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "suffering",
+      method: .keyword,
+      lang: "en",
+      author: "sujato",
+    )
+
+    #expect(success)
+    #expect(item.quote != nil)
+    #expect(item.quote?.contains("<span>") ?? false)
+    #expect(item.quote?.contains("</span>") ?? false)
+  }
+
+  @Test("populateQuote() matched text is exactly between span tags")
+  func populateQuoteExactMatch() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "sleep",
+      method: .keyword,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(success)
+    guard let quote = item.quote else {
+      #expect(Bool(false), "Quote should not be nil")
+      return
+    }
+
+    // Verify exact HTML quote output
+    // The JSON source has curly quote (U+201C LEFT DOUBLE QUOTATION MARK), not
+    // ASCII quote
+    let expectedQuote = "\u{201C}<span>Sleep</span> with ease, Elder, "
+    #expect(quote == expectedQuote)
+  }
+
+  @Test("populateQuote() HTML escapes special characters")
+  func populateQuoteHTMLEscaping() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "i",
+      method: .keyword,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(success)
+    if let quote = item.quote {
+      // The quote itself shouldn't contain unescaped HTML entities
+      // (unless they're inside the tags)
+      let beforeSpan = quote.components(separatedBy: "<span>")[0]
+      let afterSpan = quote.components(separatedBy: "</span>").last ?? ""
+
+      // Check that special chars in non-span parts are escaped
+      // & should be &amp;, < should be &lt;, etc. (if they appear in text)
+      #expect(!beforeSpan.contains("<") || beforeSpan.contains("&lt;"))
+      #expect(!afterSpan.contains("<") || afterSpan.contains("&lt;"))
+    }
+  }
+
+  @Test("populateQuote() adds ellipsis when context is truncated")
+  func populateQuoteEllipsis() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "i",
+      method: .keyword,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(success)
+    guard let quote = item.quote else {
+      #expect(Bool(false), "Quote should not be nil")
+      return
+    }
+
+    // If the text is long enough, ellipsis should be present
+    // (contextLength = 50 chars before/after)
+    // We can't guarantee it will be there for this specific sutta,
+    // but we can verify the format: if ellipsis is present, it should be "..."
+    if quote.contains("...") {
+      #expect(quote.hasPrefix("...") || quote.contains("...<span>") || quote
+        .contains("</span>...") || quote.hasSuffix("..."))
+    }
+  }
+
+  @Test("populateQuote() returns false for non-matching search")
+  func populateQuoteNoMatch() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "xyzabc123notaword",
+      method: .keyword,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(!success)
+    #expect(item.quote == nil)
+  }
+
+  @Test("populateQuote() works with phrase search")
+  func populateQuotePhraseSearch() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "sleep with ease",
+      method: .phrase,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(success)
+    #expect(item.quote != nil)
+    #expect(item.quote?.contains("<span>") ?? false)
+  }
+
+  @Test("populateQuote() works with regexp search")
+  func populateQuoteRegexpSearch() async {
+    var item = SearchResultItem(
+      suttaRef: SuttaRef.create("thig1.1/en/soma")!,
+      score: 1.0,
+      quote: nil,
+    )
+
+    let success = await EbtData.shared.populateQuote(
+      item: &item,
+      query: "sleep.*ease",
+      method: .regexp,
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(success)
+    #expect(item.quote != nil)
+    #expect(item.quote?.contains("<span>") ?? false)
+  }
 }

@@ -107,9 +107,15 @@ public struct DatabaseInfo: Codable, Identifiable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     language = try container.decode(String.self, forKey: .language)
     author = try container.decode(String.self, forKey: .author)
-    authorName = try container.decode(String.self, forKey: .authorName)
-    buildTimestamp = try container.decode(String.self, forKey: .buildTimestamp)
-    files = try container.decode(Int.self, forKey: .files)
+    authorName = try container.decodeIfPresent(
+      String.self,
+      forKey: .authorName,
+    ) ?? ""
+    buildTimestamp = try container.decodeIfPresent(
+      String.self,
+      forKey: .buildTimestamp,
+    ) ?? ""
+    files = try container.decodeIfPresent(Int.self, forKey: .files) ?? 0
     gitHash = try container.decodeIfPresent(String.self, forKey: .gitHash)
     json = try container.decodeIfPresent(String.self, forKey: .json)
     id = "\(language)/\(author)"

@@ -77,8 +77,15 @@ public actor EbtData {
 
     // Check if already decompressed in Caches
     if FileManager.default.fileExists(atPath: dbURL.path) {
-      cc.ok1(#line, "cached:", fileName)
-      return dbURL
+      // Validate that cached database has FTS table (V2+ format)
+      if hasFTSTable(dbURL: dbURL) {
+        cc.ok1(#line, "cached:", fileName)
+        return dbURL
+      } else {
+        // Cached database is old format without FTS, delete it
+        cc.ok2(#line, "Old cache detected (no FTS), deleting:", fileName)
+        try? FileManager.default.removeItem(at: dbURL)
+      }
     }
 
     // Find and decompress .zst from bundle
@@ -127,6 +134,9 @@ public actor EbtData {
     }
 
     databases[key] = database
+
+    // Check if cached database is stale by comparing timestamps
+    checkDatabaseTimestamp(dbURL: dbURL, lang: lang, author: author)
 
     // Log database metadata
     logDatabaseMetadata(lang: lang, author: author)
@@ -307,7 +317,10 @@ public actor EbtData {
     author: String,
     query: String,
   ) -> SearchResult {
-    let cc = ColorConsole(#file, #function)
+    cc.ok2(
+      #line,
+      "searchKeywords2 START: query='\(query)' lang=\(lang) author=\(author)",
+    )
     let startTime = Date()
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
     var items: [SearchResultItem] = []
@@ -333,19 +346,200 @@ public actor EbtData {
       """
 
       var stmt: OpaquePointer?
-      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK
-      else { throw NSError() }
+      let prepareResult = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil)
+      guard prepareResult == SQLITE_OK else {
+        let errMsg = String(cString: sqlite3_errmsg(db))
+        cc.bad1(#line, "sqlite3_prepare_v2 failed:", errMsg)
+        throw NSError()
+      }
       defer { sqlite3_finalize(stmt) }
 
       sqlite3_bind_text(stmt, 1, (query as NSString).utf8String, -1, nil)
       sqlite3_bind_int(stmt, 2, Int32(limit))
 
+      // Check if segments_fts table exists and has data
+      let tableCheckQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name='segments_fts'"
+      var tableStmt: OpaquePointer?
+      if sqlite3_prepare_v2(db, tableCheckQuery, -1, &tableStmt, nil) ==
+        SQLITE_OK
+      {
+        defer { sqlite3_finalize(tableStmt) }
+        let tableExists = sqlite3_step(tableStmt) == SQLITE_ROW
+        if tableExists {
+          cc.ok1(#line, "segments_fts table exists in cached database")
+          // Also check if table has any rows
+          let countQuery = "SELECT COUNT(*) FROM segments_fts"
+          var countStmt: OpaquePointer?
+          if sqlite3_prepare_v2(db, countQuery, -1, &countStmt, nil) ==
+            SQLITE_OK
+          {
+            defer { sqlite3_finalize(countStmt) }
+            if sqlite3_step(countStmt) == SQLITE_ROW {
+              let rowCount = sqlite3_column_int64(countStmt, 0)
+              cc.ok2(#line, "FTS table has \(rowCount) rows")
+            }
+          }
+        } else {
+          cc.bad1(#line, "segments_fts table NOT FOUND in cached database")
+        }
+      } else {
+        cc.bad1(#line, "Could not check for segments_fts table in database")
+      }
+
+      cc.ok2(#line, "Executing FTS MATCH query: '\(query)' with limit \(limit)")
+
+      var resultCount = 0
       while sqlite3_step(stmt) == SQLITE_ROW {
         if let cString = sqlite3_column_text(stmt, 0) {
           let key = String(cString: cString)
           let score = sqlite3_column_double(stmt, 4)
           if let suttaRef = createSuttaRefFromKey(key) {
             items.append(SearchResultItem(suttaRef: suttaRef, score: score))
+            resultCount += 1
+          }
+        }
+      }
+
+      // Diagnostic: if no results, try a simpler query
+      if resultCount == 0 {
+        cc.ok2(#line, "FTS MATCH returned 0 results, running diagnostics")
+
+        // Check FTS table schema
+        let schemaQuery = "PRAGMA table_info(segments_fts)"
+        var schemaStmt: OpaquePointer?
+        if sqlite3_prepare_v2(db, schemaQuery, -1, &schemaStmt, nil) ==
+          SQLITE_OK
+        {
+          defer { sqlite3_finalize(schemaStmt) }
+          var schemaInfo = ""
+          while sqlite3_step(schemaStmt) == SQLITE_ROW {
+            if let colName = sqlite3_column_text(schemaStmt, 1) {
+              let name = String(cString: colName)
+              schemaInfo += "\(name);"
+            }
+          }
+          cc.ok2(#line, "FTS schema columns: \(schemaInfo)")
+        }
+
+        // Try a simple unqualified MATCH on the FTS table
+        let simpleMatch = "SELECT COUNT(*) FROM segments_fts WHERE segments_fts MATCH ?"
+        var simpleStmt: OpaquePointer?
+        if sqlite3_prepare_v2(db, simpleMatch, -1, &simpleStmt, nil) ==
+          SQLITE_OK
+        {
+          defer { sqlite3_finalize(simpleStmt) }
+          sqlite3_bind_text(
+            simpleStmt,
+            1,
+            ("root" as NSString).utf8String,
+            -1,
+            nil,
+          )
+          if sqlite3_step(simpleStmt) == SQLITE_ROW {
+            let simpleCount = sqlite3_column_int64(simpleStmt, 0)
+            cc.ok2(#line, "Simple FTS MATCH count for 'root': \(simpleCount)")
+          }
+        }
+
+        // Check if any rows can be retrieved without MATCH
+        let plainQuery = "SELECT sutta_key FROM segments_fts LIMIT 1"
+        var plainStmt: OpaquePointer?
+        if sqlite3_prepare_v2(db, plainQuery, -1, &plainStmt, nil) ==
+          SQLITE_OK
+        {
+          defer { sqlite3_finalize(plainStmt) }
+          if sqlite3_step(plainStmt) == SQLITE_ROW {
+            if let key = sqlite3_column_text(plainStmt, 0) {
+              cc.ok2(#line, "Sample FTS row: \(String(cString: key))")
+            }
+          }
+        }
+
+        // Check if suttas table exists
+        let suttasCheckQuery =
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='suttas'"
+        var suttasCheckStmt: OpaquePointer?
+        if sqlite3_prepare_v2(
+          db,
+          suttasCheckQuery,
+          -1,
+          &suttasCheckStmt,
+          nil,
+        ) ==
+          SQLITE_OK
+        {
+          defer { sqlite3_finalize(suttasCheckStmt) }
+          let suttasExists = sqlite3_step(suttasCheckStmt) == SQLITE_ROW
+          if suttasExists {
+            cc.ok2(#line, "suttas table EXISTS")
+
+            // Check row count in suttas
+            let suttaCountQuery = "SELECT COUNT(*) FROM suttas"
+            var suttaCountStmt: OpaquePointer?
+            if sqlite3_prepare_v2(
+              db,
+              suttaCountQuery,
+              -1,
+              &suttaCountStmt,
+              nil,
+            ) ==
+              SQLITE_OK
+            {
+              defer { sqlite3_finalize(suttaCountStmt) }
+              if sqlite3_step(suttaCountStmt) == SQLITE_ROW {
+                let suttaCount = sqlite3_column_int64(suttaCountStmt, 0)
+                cc.ok2(#line, "suttas table has \(suttaCount) rows")
+              }
+            }
+
+            // Check schema
+            let suttaSchemaQuery = "PRAGMA table_info(suttas)"
+            var suttaSchemaStmt: OpaquePointer?
+            if sqlite3_prepare_v2(
+              db,
+              suttaSchemaQuery,
+              -1,
+              &suttaSchemaStmt,
+              nil,
+            ) ==
+              SQLITE_OK
+            {
+              defer { sqlite3_finalize(suttaSchemaStmt) }
+              var suttaSchemaInfo = ""
+              while sqlite3_step(suttaSchemaStmt) == SQLITE_ROW {
+                if let colName = sqlite3_column_text(suttaSchemaStmt, 1) {
+                  let name = String(cString: colName)
+                  suttaSchemaInfo += "\(name);"
+                }
+              }
+              cc.ok2(#line, "suttas schema: \(suttaSchemaInfo)")
+            }
+
+            // Try the join
+            let joinQuery =
+              "SELECT COUNT(*) FROM segments_fts sf JOIN suttas s ON sf.sutta_key = s.sutta_key WHERE sf.segment_text MATCH ? LIMIT 1"
+            var joinStmt: OpaquePointer?
+            if sqlite3_prepare_v2(db, joinQuery, -1, &joinStmt, nil) ==
+              SQLITE_OK
+            {
+              defer { sqlite3_finalize(joinStmt) }
+              sqlite3_bind_text(
+                joinStmt,
+                1,
+                ("root" as NSString).utf8String,
+                -1,
+                nil,
+              )
+              if sqlite3_step(joinStmt) == SQLITE_ROW {
+                let joinCount = sqlite3_column_int64(joinStmt, 0)
+                cc.ok2(#line, "JOIN result count for 'root': \(joinCount)")
+              }
+            }
+          } else {
+            cc.bad1(
+              #line,
+              "suttas table DOES NOT EXIST - database is missing critical table!",
+            )
           }
         }
       }
@@ -651,6 +845,11 @@ public actor EbtData {
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
   ) -> SearchResult {
+    cc.ok2(
+      #line,
+      "search: query=\(query) docLang=\(docLang) docAuthor='\(docAuthor)' refLang=\(refLang) refAuthor=\(refAuthor ?? "nil")",
+    )
+
     // Auto-detect method if not provided
     let detection = autoSearchMethod(
       query,
@@ -849,6 +1048,182 @@ public actor EbtData {
     }
   }
 
+  /// Fetches first matching segment for a search result item and populates the
+  /// quote
+  /// - Parameters:
+  ///   - item: SearchResultItem to populate with quote
+  ///   - query: Search query string
+  ///   - method: Search method used (keyword, phrase, regexp, suttaref)
+  ///   - lang: Document language
+  ///   - author: Document author
+  /// - Returns: Updated SearchResultItem with quote populated (or nil if
+  /// segment not found)
+  public func populateQuote(
+    item: inout SearchResultItem,
+    query: String,
+    method: SearchMethod,
+    lang: String,
+    author: String,
+  ) -> Bool {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return false }
+
+      // Query segments for this sutta
+      let suttaKey = "\(item.suttaRef.suttaUid)/\(item.suttaRef.lang)/\(item.suttaRef.author ?? "")"
+      let sqlQuery = "SELECT segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        return false
+      }
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+
+      // Find first matching segment
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
+        let segmentText = String(cString: segmentTextC)
+
+        // Check if segment matches based on search method
+        let matchRange = findMatch(
+          in: segmentText,
+          query: query,
+          method: method,
+        )
+        if let matchRange {
+          // Build HTML with span around matched text
+          item.quote = buildQuoteHTML(
+            segmentText: segmentText,
+            matchRange: matchRange,
+          )
+          return true
+        }
+      }
+
+      return false
+    } catch {
+      return false
+    }
+  }
+
+  /// Finds the range of matched text in a segment based on search method
+  private func findMatch(
+    in text: String,
+    query: String,
+    method: SearchMethod,
+  ) -> Range<String.Index>? {
+    switch method {
+    case .keyword, .phrase:
+      // Case-insensitive substring search
+      let lowercased = text.lowercased()
+      let lowerQuery = query.lowercased()
+      if let range = lowercased.range(of: lowerQuery) {
+        // Convert lowercased range to original text range
+        let startDistance = lowercased.distance(
+          from: lowercased.startIndex,
+          to: range.lowerBound,
+        )
+        let start = text.index(text.startIndex, offsetBy: startDistance)
+        let end = text.index(start, offsetBy: lowerQuery.count)
+        return start ..< end
+      }
+      return nil
+
+    case .regexp:
+      // Regex search
+      do {
+        let regex = try NSRegularExpression(
+          pattern: query,
+          options: [.caseInsensitive],
+        )
+        let nsText = text as NSString
+        if let match = regex.firstMatch(
+          in: text,
+          range: NSRange(location: 0, length: nsText.length),
+        ) {
+          let matchRange = match.range
+          let start = text.index(text.startIndex, offsetBy: matchRange.location)
+          let end = text.index(start, offsetBy: matchRange.length)
+          return start ..< end
+        }
+      } catch {
+        // Invalid regex, return nil
+        return nil
+      }
+      return nil
+
+    case .suttaref:
+      // No quote for suttaref search (it's just a reference lookup)
+      return nil
+    }
+  }
+
+  /// Builds HTML string with matched text in span and ellipsis for context
+  private func buildQuoteHTML(
+    segmentText: String,
+    matchRange: Range<String.Index>,
+  ) -> String {
+    let contextLength = 50 // characters before/after
+    let fullText = segmentText
+
+    // Get start of context (with ellipsis if needed)
+    let contextStart: String.Index
+    let prefixEllipsis: String
+    let startDistance = fullText.distance(
+      from: fullText.startIndex,
+      to: matchRange.lowerBound,
+    )
+    if startDistance <= contextLength {
+      contextStart = fullText.startIndex
+      prefixEllipsis = ""
+    } else {
+      contextStart = fullText.index(
+        matchRange.lowerBound,
+        offsetBy: -contextLength,
+      )
+      prefixEllipsis = "..."
+    }
+
+    // Get end of context (with ellipsis if needed)
+    let contextEnd: String.Index
+    let suffixEllipsis: String
+    let endDistance = fullText.distance(
+      from: matchRange.upperBound,
+      to: fullText.endIndex,
+    )
+    if endDistance <= contextLength {
+      contextEnd = fullText.endIndex
+      suffixEllipsis = ""
+    } else {
+      contextEnd = fullText.index(
+        matchRange.upperBound,
+        offsetBy: contextLength,
+      )
+      suffixEllipsis = "..."
+    }
+
+    // Extract parts
+    let beforeMatch = String(fullText[contextStart ..< matchRange.lowerBound])
+    let matchedText = String(fullText[matchRange])
+    let afterMatch = String(fullText[matchRange.upperBound ..< contextEnd])
+
+    // HTML escape function
+    func htmlEscape(_ str: String) -> String {
+      str
+        .replacingOccurrences(of: "&", with: "&amp;")
+        .replacingOccurrences(of: "<", with: "&lt;")
+        .replacingOccurrences(of: ">", with: "&gt;")
+        .replacingOccurrences(of: "\"", with: "&quot;")
+    }
+
+    // Build HTML
+    let html = "\(prefixEllipsis)\(htmlEscape(beforeMatch))<span>\(htmlEscape(matchedText))</span>\(htmlEscape(afterMatch))\(suffixEllipsis)"
+    return html
+  }
+
   /// Clears cached database connections (for testing after database files are
   /// rebuilt)
   public func clearDatabaseCache() {
@@ -858,6 +1233,122 @@ public actor EbtData {
       }
     }
     databases.removeAll()
+  }
+
+  /// Checks if a database file is valid V2+ format (has FTS and correct
+  /// sutta_key format)
+  /// Returns false for old V1 format or databases with malformed sutta_key
+  private func hasFTSTable(dbURL: URL) -> Bool {
+    var db: OpaquePointer?
+    let openResult = sqlite3_open_v2(
+      dbURL.path,
+      &db,
+      SQLITE_OPEN_READONLY,
+      nil,
+    )
+
+    guard openResult == SQLITE_OK, let database = db else {
+      cc.ok2(#line, "Could not open database to check FTS table")
+      return false
+    }
+
+    defer { sqlite3_close(database) }
+
+    let query = "SELECT name FROM sqlite_master WHERE type='table' AND name='segments_fts'"
+    var stmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
+    else {
+      cc.ok2(#line, "Could not prepare FTS table check query")
+      return false
+    }
+
+    defer { sqlite3_finalize(stmt) }
+
+    let tableExists = sqlite3_step(stmt) == SQLITE_ROW
+    if !tableExists {
+      cc.ok2(#line, "Database missing FTS table - old V1 format detected")
+      return false
+    }
+
+    // Check that sutta_key format is correct (should start with sutta_uid, not
+    // lang)
+    let sampleQuery = "SELECT sutta_key FROM segments_fts LIMIT 1"
+    var sampleStmt: OpaquePointer?
+    if sqlite3_prepare_v2(database, sampleQuery, -1, &sampleStmt, nil) ==
+      SQLITE_OK
+    {
+      defer { sqlite3_finalize(sampleStmt) }
+      if sqlite3_step(sampleStmt) == SQLITE_ROW {
+        if let keyText = sqlite3_column_text(sampleStmt, 0) {
+          let key = String(cString: keyText)
+          // Malformed: "en/sujato/an1.1-10", Correct: "an1.1-10/en/sujato"
+          let keyParts = key.split(separator: "/")
+          if keyParts.count >= 2 {
+            let firstPart = String(keyParts[0])
+            // If first part is exactly 2 lowercase letters, it's a lang code
+            // (malformed)
+            if firstPart.count == 2, firstPart.allSatisfy(\.isLowercase) {
+              cc.ok2(
+                #line,
+                "Database has malformed sutta_key: '\(key)' - lang before sutta_uid",
+              )
+              return false
+            }
+          }
+        }
+      }
+    }
+
+    return tableExists
+  }
+
+  private func checkDatabaseTimestamp(dbURL: URL, lang: String,
+                                      author: String)
+  {
+    do {
+      let fileAttributes = try FileManager.default
+        .attributesOfItem(atPath: dbURL.path)
+      guard let fileModDate = fileAttributes[.modificationDate] as? Date else {
+        cc.bad1(#line, "Could not get file modification date")
+        return
+      }
+
+      // Get expected build timestamp from manifest
+      guard let manifest = DatabaseManifest.load() else {
+        cc.bad1(#line, "Could not load manifest")
+        return
+      }
+
+      guard let dbInfo = manifest.info(language: lang, author: author) else {
+        cc.bad1(#line, "No manifest entry for \(lang)/\(author)")
+        return
+      }
+
+      // Parse ISO 8601 timestamp from manifest (e.g., "2025-11-15T15:51:01Z")
+      let formatter = ISO8601DateFormatter()
+      guard let expectedDate = formatter.date(from: dbInfo.buildTimestamp)
+      else {
+        cc.bad1(
+          #line,
+          "Could not parse manifest timestamp: \(dbInfo.buildTimestamp)",
+        )
+        return
+      }
+
+      // Compare timestamps
+      let isStale = fileModDate < expectedDate
+      cc.ok1(
+        #line,
+        "Database timestamp: cached=\(fileModDate.description) expected=\(expectedDate.description) stale=\(isStale)",
+      )
+    } catch {
+      cc.bad1(
+        #line,
+        "Error checking database timestamp:",
+        error.localizedDescription,
+      )
+    }
   }
 
   private func logDatabaseMetadata(lang: String, author: String) {
