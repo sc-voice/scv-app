@@ -62,6 +62,10 @@
       "authorName" : "SV theravada.ru",
       "buildTimestamp" : "2025-11-15T15:51:01Z",
       "language" : "ru"
+    },
+    {
+      "author" : "sonjabuege",
+      "language": "de"
     }
   ]
 }
