@@ -121,6 +121,7 @@ public actor EbtData {
   private func ensureDatabase(lang: String, author: String) throws {
     let key = "\(lang)/\(author)"
     guard databases[key] == nil else { return }
+    cc.ok2(#line, "ensureDatabase key:", key)
 
     // Ensure decompressed database exists in Caches
     let dbURL = try ensureDecompressed(lang: lang, author: author)
@@ -134,6 +135,7 @@ public actor EbtData {
     )
 
     guard result == SQLITE_OK else {
+      cc.bad1(#line, "cannotOpenDatabase")
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
 
@@ -141,6 +143,7 @@ public actor EbtData {
 
     // Log database metadata
     logDatabaseMetadata(lang: lang, author: author)
+    cc.ok1(#line, "ensureDatabase OK")
   }
 
   deinit {
