@@ -9,6 +9,10 @@ public actor EbtData {
   public let cc = ColorConsole(#file, #function, dbg.EbtData.other)
   public static let shared = EbtData()
 
+  /// Database schema version - increment when changing how data is interpreted
+  /// Must match schema_version in database metadata table
+  public static let schemaVersion = 3
+
   // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
   // Actor serialization ensures only one task accesses databases at a time.
   // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
@@ -77,13 +81,13 @@ public actor EbtData {
 
     // Check if already decompressed in Caches
     if FileManager.default.fileExists(atPath: dbURL.path) {
-      // Validate that cached database has FTS table (V2+ format)
-      if hasFTSTable(dbURL: dbURL) {
+      // Validate schema version and git hash
+      if isValidCache(dbURL: dbURL, lang: lang, author: author) {
         cc.ok1(#line, "cached:", fileName)
         return dbURL
       } else {
-        // Cached database is old format without FTS, delete it
-        cc.ok2(#line, "Old cache detected (no FTS), deleting:", fileName)
+        // Cache invalid (old schema or stale content), delete it
+        cc.ok2(#line, "Invalid cache detected, deleting:", fileName)
         try? FileManager.default.removeItem(at: dbURL)
       }
     }
@@ -134,9 +138,6 @@ public actor EbtData {
     }
 
     databases[key] = database
-
-    // Check if cached database is stale by comparing timestamps
-    checkDatabaseTimestamp(dbURL: dbURL, lang: lang, author: author)
 
     // Log database metadata
     logDatabaseMetadata(lang: lang, author: author)
@@ -1235,10 +1236,8 @@ public actor EbtData {
     databases.removeAll()
   }
 
-  /// Checks if a database file is valid V2+ format (has FTS and correct
-  /// sutta_key format)
-  /// Returns false for old V1 format or databases with malformed sutta_key
-  private func hasFTSTable(dbURL: URL) -> Bool {
+  /// Validates that cached database has correct schema version and content
+  private func isValidCache(dbURL: URL, lang: String, author: String) -> Bool {
     var db: OpaquePointer?
     let openResult = sqlite3_open_v2(
       dbURL.path,
@@ -1248,107 +1247,65 @@ public actor EbtData {
     )
 
     guard openResult == SQLITE_OK, let database = db else {
-      cc.ok2(#line, "Could not open database to check FTS table")
       return false
     }
 
     defer { sqlite3_close(database) }
 
-    let query = "SELECT name FROM sqlite_master WHERE type='table' AND name='segments_fts'"
+    // Query schema_version and git_hash from metadata
+    let query = "SELECT schema_version, git_hash FROM metadata WHERE language = ? AND author = ? LIMIT 1"
     var stmt: OpaquePointer?
 
     guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
     else {
-      cc.ok2(#line, "Could not prepare FTS table check query")
       return false
     }
 
     defer { sqlite3_finalize(stmt) }
 
-    let tableExists = sqlite3_step(stmt) == SQLITE_ROW
-    if !tableExists {
-      cc.ok2(#line, "Database missing FTS table - old V1 format detected")
+    sqlite3_bind_text(stmt, 1, (lang as NSString).utf8String, -1, nil)
+    sqlite3_bind_text(stmt, 2, (author as NSString).utf8String, -1, nil)
+
+    guard sqlite3_step(stmt) == SQLITE_ROW else {
       return false
     }
 
-    // Check that sutta_key format is correct (should start with sutta_uid, not
-    // lang)
-    let sampleQuery = "SELECT sutta_key FROM segments_fts LIMIT 1"
-    var sampleStmt: OpaquePointer?
-    if sqlite3_prepare_v2(database, sampleQuery, -1, &sampleStmt, nil) ==
-      SQLITE_OK
-    {
-      defer { sqlite3_finalize(sampleStmt) }
-      if sqlite3_step(sampleStmt) == SQLITE_ROW {
-        if let keyText = sqlite3_column_text(sampleStmt, 0) {
-          let key = String(cString: keyText)
-          // Malformed: "en/sujato/an1.1-10", Correct: "an1.1-10/en/sujato"
-          let keyParts = key.split(separator: "/")
-          if keyParts.count >= 2 {
-            let firstPart = String(keyParts[0])
-            // If first part is exactly 2 lowercase letters, it's a lang code
-            // (malformed)
-            if firstPart.count == 2, firstPart.allSatisfy(\.isLowercase) {
-              cc.ok2(
-                #line,
-                "Database has malformed sutta_key: '\(key)' - lang before sutta_uid",
-              )
-              return false
-            }
-          }
-        }
-      }
+    // Check schema version
+    var cachedSchemaVersion = ""
+    if let versionText = sqlite3_column_text(stmt, 0) {
+      cachedSchemaVersion = String(cString: versionText)
     }
 
-    return tableExists
-  }
-
-  private func checkDatabaseTimestamp(dbURL: URL, lang: String,
-                                      author: String)
-  {
-    do {
-      let fileAttributes = try FileManager.default
-        .attributesOfItem(atPath: dbURL.path)
-      guard let fileModDate = fileAttributes[.modificationDate] as? Date else {
-        cc.bad1(#line, "Could not get file modification date")
-        return
-      }
-
-      // Get expected build timestamp from manifest
-      guard let manifest = DatabaseManifest.load() else {
-        cc.bad1(#line, "Could not load manifest")
-        return
-      }
-
-      guard let dbInfo = manifest.info(language: lang, author: author) else {
-        cc.bad1(#line, "No manifest entry for \(lang)/\(author)")
-        return
-      }
-
-      // Parse ISO 8601 timestamp from manifest (e.g., "2025-11-15T15:51:01Z")
-      let formatter = ISO8601DateFormatter()
-      guard let expectedDate = formatter.date(from: dbInfo.buildTimestamp)
-      else {
-        cc.bad1(
-          #line,
-          "Could not parse manifest timestamp: \(dbInfo.buildTimestamp)",
-        )
-        return
-      }
-
-      // Compare timestamps
-      let isStale = fileModDate < expectedDate
-      cc.ok1(
+    let requiredVersion = String(Self.schemaVersion)
+    guard cachedSchemaVersion == requiredVersion else {
+      cc.ok2(
         #line,
-        "Database timestamp: cached=\(fileModDate.description) expected=\(expectedDate.description) stale=\(isStale)",
+        "Schema mismatch: cached=\(cachedSchemaVersion) required=\(requiredVersion)",
       )
-    } catch {
-      cc.bad1(
-        #line,
-        "Error checking database timestamp:",
-        error.localizedDescription,
-      )
+      return false
     }
+
+    // Check git hash
+    var cachedGitHash = ""
+    if let hashText = sqlite3_column_text(stmt, 1) {
+      cachedGitHash = String(cString: hashText)
+    }
+
+    guard let manifest = DatabaseManifest.load(),
+          let dbInfo = manifest.info(language: lang, author: author)
+    else {
+      return false
+    }
+
+    guard cachedGitHash == dbInfo.gitHash else {
+      cc.ok2(
+        #line,
+        "Content stale: cached=\(cachedGitHash) expected=\(dbInfo.gitHash ?? "nil")",
+      )
+      return false
+    }
+
+    return true
   }
 
   private func logDatabaseMetadata(lang: String, author: String) {

@@ -12,6 +12,7 @@ DerivedData/
 *.db-journal
 *.sqlite
 *.sqlite3
+*.zst
 *-build.log
 *-launch-warnings.log
 **/build/

@@ -1,4 +1,5 @@
 import Foundation
+import scvCore
 import SQLite3
 
 class EbtDBBuilder {
@@ -81,6 +82,7 @@ class EbtDBBuilder {
       build_timestamp TEXT,
       files INTEGER,
       json TEXT,
+      schema_version TEXT,
       PRIMARY KEY (language, author)
     );
 
@@ -122,7 +124,7 @@ class EbtDBBuilder {
     let buildTimestamp = dateFormatter.string(from: Date())
 
     let statement =
-      "INSERT INTO metadata (language, author, author_name, git_hash, build_timestamp, files, json) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO metadata (language, author, author_name, git_hash, build_timestamp, files, json, schema_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     var stmt: OpaquePointer?
     guard sqlite3_prepare_v2(db, statement, -1, &stmt, nil) == SQLITE_OK else {
       throw BuildError.cannotPrepareStatement
@@ -143,6 +145,14 @@ class EbtDBBuilder {
     } else {
       sqlite3_bind_null(stmt, 7)
     }
+    let schemaVersionStr = String(EbtData.schemaVersion)
+    sqlite3_bind_text(
+      stmt,
+      8,
+      (schemaVersionStr as NSString).utf8String,
+      -1,
+      nil,
+    )
 
     if sqlite3_step(stmt) != SQLITE_DONE {
       sqlite3_finalize(stmt)

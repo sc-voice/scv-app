@@ -85,6 +85,37 @@ make build
 make clean
 ```
 
+## Build Management
+
+The app includes pre-built, compressed SQLite databases with Buddhist scripture translations. These are bundled in the app and decompressed on first use.
+
+### Building Databases
+
+To rebuild databases after schema changes or to add new translations:
+
+```bash
+swift run scv-build en:sujato          # Build single database
+swift run scv-build en:sujato de:sabbamitta  # Build multiple
+swift run scv-build --rebuild-from-manifest  # Rebuild all from db-manifest.json
+```
+
+Generated `.zst` files are placed in `scv-core/Sources/Resources/` and automatically included in the app bundle.
+
+### Schema Versioning
+
+When EbtData code changes how it interprets database data:
+1. Increment `EbtData.schemaVersion` in `scv-core/Sources/EbtData.swift`
+2. Run scv-build to regenerate databases
+3. New databases automatically embed the new schema version
+4. Cached databases on devices with mismatched schema are auto-rebuilt
+
+### For More Details
+
+See `scv-build/README.md` for comprehensive documentation on:
+- Database building and manifest management
+- Schema definition and FTS configuration
+- Distribution workflow and troubleshooting
+
 ## Architecture
 
 ### Patterns
