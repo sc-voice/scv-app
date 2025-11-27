@@ -168,19 +168,23 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         // Results list
         List(searchResult.results, id: \.suttaRef) { item in
           VStack(alignment: .leading, spacing: 4) {
-            Text(item.suttaRef.toString())
+            Text(item.suttaRef.suttaUid)
               .font(.body)
               .fontWeight(.semibold)
               .foregroundColor(themeProvider.theme.textColor)
-            Text(
-              String(
-                format: "%.3f",
-                item.score,
-              ),
-            )
-            .font(.caption)
-            .foregroundColor(themeProvider.theme.textColor)
-            .fontWeight(.semibold)
+            HStack {
+              Text(item.suttaRef.author ?? "unknown")
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.textColor)
+                .fontWeight(.semibold)
+              Spacer()
+              Text(
+                "★ \(String(format: "%.2f", item.score))",
+              )
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.textColor)
+              .fontWeight(.semibold)
+            }
           }
           .padding(.vertical, 4)
         }
