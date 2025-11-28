@@ -461,4 +461,99 @@ struct EbtDataTests {
     #expect(item.quote != nil)
     #expect(item.quote?.contains("<span>") ?? false)
   }
+
+  @Test("Database schema_version matches EbtData.schemaVersion")
+  func databaseSchemaVersionMatch() async throws {
+    let expectedVersion = String(EbtData.schemaVersion)
+
+    // Query database for actual schema_version
+    let dbVersion = try await EbtData.shared.getDatabaseSchemaVersion(
+      lang: "en",
+      author: "soma",
+    )
+
+    #expect(
+      dbVersion == expectedVersion,
+      "Database schema_version '\(dbVersion)' does not match EbtData.schemaVersion '\(expectedVersion)'",
+    )
+  }
+
+  @Test("Search brahmali returns vinaya documents")
+  func searchBrahmaliVinaya() async {
+    let cc = ColorConsole(#file, #function, 2)
+
+    cc.ok2(#line, "Starting brahmali vinaya search")
+
+    let result = await EbtData.shared.search(
+      query: "men shaving heads",
+      docLang: "en",
+      docAuthor: "brahmali",
+    )
+
+    cc.ok2(
+      #line,
+      "Search returned \(result.results.count) results, method: \(result.metadata.method), error: \(result.error?.message ?? "none")",
+    )
+
+    if !result.results.isEmpty {
+      for (i, item) in result.results.enumerated() {
+        cc.ok2(
+          #line,
+          "Result \(i): \(item.suttaRef.suttaUid) author:\(item.suttaRef.author ?? "nil") score:\(item.score)",
+        )
+      }
+    }
+
+    #expect(
+      result.results.count == 1,
+      "Expected 1 result, got \(result.results.count)",
+    )
+    #expect(result.results.first?.suttaRef.suttaUid == "pli-tv-kd20")
+    #expect(result.results.first?.suttaRef.author == "brahmali")
+  }
+
+  @Test("Files breakdown: sujato has at least 4167 sutta files")
+  func filesBreakdownSujato() throws {
+    guard let manifest = DatabaseManifest.load(),
+          let sujato = manifest.info(language: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Could not load sujato from manifest")
+      return
+    }
+
+    #expect(
+      sujato.files >= 4167,
+      "en/sujato should have at least 4167 files, got \(sujato.files)",
+    )
+  }
+
+  @Test("Files breakdown: sabbamitta has at least 4055 sutta files")
+  func filesBreakdownSabbamitta() throws {
+    guard let manifest = DatabaseManifest.load(),
+          let sabbamitta = manifest.info(language: "de", author: "sabbamitta")
+    else {
+      #expect(Bool(false), "Could not load sabbamitta from manifest")
+      return
+    }
+
+    #expect(
+      sabbamitta.files >= 4055,
+      "de/sabbamitta should have at least 4055 files, got \(sabbamitta.files)",
+    )
+  }
+
+  @Test("Files breakdown: brahmali has at least 427 vinaya files")
+  func filesBreakdownBrahmali() throws {
+    guard let manifest = DatabaseManifest.load(),
+          let brahmali = manifest.info(language: "en", author: "brahmali")
+    else {
+      #expect(Bool(false), "Could not load brahmali from manifest")
+      return
+    }
+
+    #expect(
+      brahmali.files >= 427,
+      "en/brahmali should have at least 427 files, got \(brahmali.files)",
+    )
+  }
 }

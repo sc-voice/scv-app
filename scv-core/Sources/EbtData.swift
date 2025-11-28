@@ -11,7 +11,11 @@ public actor EbtData {
 
   /// Database schema version - increment when changing how data is interpreted
   /// Must match schema_version in database metadata table
-  public static let schemaVersion = 3
+  /// V5: Added files field with breakdown (sutta/vinaya/abhidhamma/other
+  /// counts)
+  /// Excludes metadata files (ending in -name). Uses khuddaka abbreviations
+  /// (thag, thig, etc).
+  public static let schemaVersion = 5
 
   // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
   // Actor serialization ensures only one task accesses databases at a time.
@@ -68,6 +72,46 @@ public actor EbtData {
   /// Allows UI to show progress indicator while decompression occurs
   public func decompressDatabase(lang: String, author: String) throws {
     _ = try ensureDecompressed(lang: lang, author: author)
+  }
+
+  /// Returns schema_version from database metadata for testing/validation
+  public func getDatabaseSchemaVersion(lang: String,
+                                       author: String) throws -> String
+  {
+    let dbURL = try ensureDecompressed(lang: lang, author: author)
+
+    var db: OpaquePointer?
+    let openResult = sqlite3_open_v2(
+      dbURL.path,
+      &db,
+      SQLITE_OPEN_READONLY,
+      nil,
+    )
+
+    guard openResult == SQLITE_OK, let database = db else {
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    defer { sqlite3_close(database) }
+
+    let query = "SELECT schema_version FROM metadata LIMIT 1"
+    var stmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
+    else {
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    defer { sqlite3_finalize(stmt) }
+
+    guard sqlite3_step(stmt) == SQLITE_ROW,
+          sqlite3_column_type(stmt, 0) != SQLITE_NULL,
+          let versionText = sqlite3_column_text(stmt, 0)
+    else {
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    return String(cString: versionText)
   }
 
   /// Returns path to decompressed database in Caches, decompressing if needed
@@ -865,7 +909,31 @@ public actor EbtData {
     // Handle phrase and keyword searches directly
     switch searchMethod {
     case .phrase:
-      return searchPhrase2(lang: docLang, author: docAuthor, phrase: query)
+      let phraseResult = searchPhrase2(
+        lang: docLang,
+        author: docAuthor,
+        phrase: query,
+      )
+      // Fallback to keyword search if phrase returns no results
+      if phraseResult.results.isEmpty {
+        cc.ok2(
+          #line,
+          "Phrase search returned 0 results, falling back to keyword search",
+        )
+        let keywordResult = searchKeywords2(
+          lang: docLang,
+          author: docAuthor,
+          query: query,
+        )
+        // Update metadata to reflect keyword method was used
+        var fallbackMetadata = keywordResult.metadata
+        fallbackMetadata.method = .keyword
+        return SearchResult(
+          metadata: fallbackMetadata,
+          results: keywordResult.results,
+        )
+      }
+      return phraseResult
     case .keyword:
       return searchKeywords2(lang: docLang, author: docAuthor, query: query)
     case .suttaref, .regexp:

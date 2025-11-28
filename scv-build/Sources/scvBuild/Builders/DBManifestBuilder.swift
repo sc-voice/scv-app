@@ -48,7 +48,7 @@ class DBManifestBuilder {
       defer { sqlite3_close(db) }
 
       let query =
-        "SELECT language, author, author_name, git_hash, build_timestamp, files, json FROM metadata LIMIT 1"
+        "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version, files_breakdown FROM metadata LIMIT 1"
       var stmt: OpaquePointer?
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
         print("ERROR: Cannot prepare query for \(file)")
@@ -84,6 +84,26 @@ class DBManifestBuilder {
              let jsonC = sqlite3_column_text(stmt, 6)
           {
             metaDict["json"] = String(cString: jsonC)
+          }
+
+          // Optional schema_version
+          if sqlite3_column_type(stmt, 7) != SQLITE_NULL,
+             let schemaVersionC = sqlite3_column_text(stmt, 7)
+          {
+            metaDict["schemaVersion"] = String(cString: schemaVersionC)
+          }
+
+          // Optional files_breakdown - maps to "files" field in manifest
+          if sqlite3_column_type(stmt, 8) != SQLITE_NULL,
+             let filesBreakdownC = sqlite3_column_text(stmt, 8)
+          {
+            let filesBreakdownStr = String(cString: filesBreakdownC)
+            if let filesData = filesBreakdownStr.data(using: .utf8),
+               let filesJson = try? JSONSerialization
+               .jsonObject(with: filesData) as? [String: Any]
+            {
+              metaDict["files"] = filesJson
+            }
           }
 
           manifestDatabases.append(metaDict)
@@ -183,6 +203,12 @@ class DBManifestBuilder {
       if let gitHash = db["gitHash"] as? String {
         print("   Git Hash: \(gitHash)")
       }
+      if let schemaVersion = db["schemaVersion"] as? String {
+        print("   Schema Version: \(schemaVersion)")
+      }
+      if let filesBreakdown = db["filesBreakdown"] as? [String: Any] {
+        print("   Files Breakdown: \(filesBreakdown)")
+      }
       print("")
     }
 
@@ -199,7 +225,7 @@ class DBManifestBuilder {
     defer { sqlite3_close(db) }
 
     let query =
-      "SELECT language, author, author_name, git_hash, build_timestamp, files, json FROM metadata WHERE language = ? AND author = ?"
+      "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version FROM metadata WHERE language = ? AND author = ?"
     var stmt: OpaquePointer?
     guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
       throw ManifestError.cannotPrepareQuery
@@ -229,6 +255,11 @@ class DBManifestBuilder {
         print("  JSON Metadata: \(jsonStr)")
       } else {
         print("  JSON Metadata: (none)")
+      }
+
+      if sqlite3_column_type(stmt, 7) != SQLITE_NULL {
+        let schemaVersionStr = String(cString: sqlite3_column_text(stmt, 7))
+        print("  Schema Version: \(schemaVersionStr)")
       }
     } else {
       print("ERROR: No metadata found for \(lang):\(author)")

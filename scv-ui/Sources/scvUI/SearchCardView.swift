@@ -258,10 +258,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         // Results list
         List(searchResult.results, id: \.suttaRef) { item in
           VStack(alignment: .leading, spacing: 4) {
-            Text(item.suttaRef.suttaUid)
-              .font(.body)
-              .fontWeight(.semibold)
-              .foregroundColor(themeProvider.theme.textColor)
             HStack {
               Text(item.suttaRef.author ?? "unknown")
                 .font(.caption)
@@ -275,6 +271,10 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               .foregroundColor(themeProvider.theme.textColor)
               .fontWeight(.semibold)
             }
+            Text(item.suttaRef.suttaUid)
+              .font(.body)
+              .fontWeight(.semibold)
+              .foregroundColor(themeProvider.theme.textColor)
 
             // Display quote if available
             if let quote = item.quote,

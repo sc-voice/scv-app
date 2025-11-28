@@ -115,7 +115,25 @@ public struct DatabaseInfo: Codable, Identifiable {
       String.self,
       forKey: .buildTimestamp,
     ) ?? ""
-    files = try container.decodeIfPresent(Int.self, forKey: .files) ?? 0
+    // Handle both Int (legacy) and Dictionary (v5 schema with breakdown)
+    do {
+      // Try to decode as Int first (legacy format)
+      files = try container.decodeIfPresent(Int.self, forKey: .files) ?? 0
+    } catch {
+      // If Int decode fails, try Dictionary (v5 format)
+      do {
+        if let dictFiles = try container.decodeIfPresent(
+          [String: Int].self,
+          forKey: .files,
+        ) {
+          files = dictFiles["total"] ?? 0
+        } else {
+          files = 0
+        }
+      } catch {
+        files = 0
+      }
+    }
     gitHash = try container.decodeIfPresent(String.self, forKey: .gitHash)
     json = try container.decodeIfPresent(String.self, forKey: .json)
     id = "\(language)/\(author)"

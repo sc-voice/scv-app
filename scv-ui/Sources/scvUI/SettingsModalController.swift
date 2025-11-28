@@ -92,6 +92,8 @@ public class SettingsModalController: NSObject, ObservableObject {
 
   private func autosave() {
     // Always update in-memory settings for live player reads
+    let langChanged = Settings.shared.docLang != docLang
+      || Settings.shared.refLang != refLang
     Settings.shared.docLang = docLang
     Settings.shared.refLang = refLang
     Settings.shared.uiLang = uiLang
@@ -102,6 +104,16 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.paliSpeech.rate = paliRate
     Settings.shared.docSpeech.pitch = docPitch
     Settings.shared.docSpeech.rate = docRate
+
+    // If language changed, validate to ensure docAuthor/refAuthor are valid for
+    // the new language
+    if langChanged {
+      Settings.shared.validate()
+      // Sync back any changes validate() made (e.g., fallback to english if no
+      // voice available)
+      docLang = Settings.shared.docLang
+      refLang = Settings.shared.refLang
+    }
 
     // Schedule deferred save to check playback state
     scheduleDeferredSave()

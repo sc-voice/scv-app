@@ -387,8 +387,10 @@ import Testing
     Settings.shared.docLang = .english
     Settings.shared.validate()
 
-    // English should have sujato as default author
-    #expect(Settings.shared.docAuthor == "sujato")
+    // English should have default author from manifest
+    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+      #expect(Settings.shared.docAuthor == enInfo.author)
+    }
   }
 
   @Test func docAuthorInitializedForGerman() {
@@ -413,8 +415,10 @@ import Testing
     Settings.shared.refLang = .english
     Settings.shared.validate()
 
-    // English reference should have sujato as default author
-    #expect(Settings.shared.refAuthor == "sujato")
+    // English reference should have default author from manifest
+    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+      #expect(Settings.shared.refAuthor == enInfo.author)
+    }
   }
 
   @Test func refAuthorPersistsAcrossValidate() {
@@ -432,27 +436,25 @@ import Testing
   @Test func docAuthorEncodedAndDecoded() throws {
     Settings.shared.reset()
     Settings.shared.docLang = .english
-    Settings.shared.docAuthor = "test-author"
-    Settings.shared.validate()
+    Settings.shared.docAuthor = "sujato"
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(Settings.shared)
     let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
-    #expect(json?["docAuthor"] as? String == "test-author")
+    #expect(json?["docAuthor"] as? String == "sujato")
   }
 
   @Test func refAuthorEncodedAndDecoded() throws {
     Settings.shared.reset()
     Settings.shared.refLang = .english
-    Settings.shared.refAuthor = "custom-ref-author"
-    Settings.shared.validate()
+    Settings.shared.refAuthor = "sujato"
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(Settings.shared)
     let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
-    #expect(json?["refAuthor"] as? String == "custom-ref-author")
+    #expect(json?["refAuthor"] as? String == "sujato")
   }
 
   @Test func decodeRestoresDocAuthorAndRefAuthor() throws {
@@ -462,16 +464,16 @@ import Testing
       "docLang": "en",
       "refLang": "en",
       "uiLang": "en",
-      "docAuthor": "my-author",
-      "refAuthor": "my-ref-author"
+      "docAuthor": "sujato",
+      "refAuthor": "sujato"
     }
     """.data(using: .utf8)!
 
     let decoder = JSONDecoder()
     let settings = try decoder.decode(Settings.self, from: json)
 
-    #expect(settings.docAuthor == "my-author")
-    #expect(settings.refAuthor == "my-ref-author")
+    #expect(settings.docAuthor == "sujato")
+    #expect(settings.refAuthor == "sujato")
   }
 
   @Test func resetClearsDocAuthorAndRefAuthor() {
@@ -483,5 +485,41 @@ import Testing
 
     #expect(Settings.shared.docAuthor == "")
     #expect(Settings.shared.refAuthor == nil)
+  }
+
+  @Test func validateFixesInvalidDocAuthorWhenDocLangChanges() {
+    Settings.shared.reset()
+    // Set to valid en/sujato combination
+    Settings.shared.docLang = .english
+    Settings.shared.docAuthor = "sujato"
+    Settings.shared.validate()
+    #expect(Settings.shared.docLang == .english)
+    #expect(Settings.shared.docAuthor == "sujato")
+
+    // Change docLang to German - sujato doesn't exist for German
+    Settings.shared.docLang = .german
+    Settings.shared.validate()
+
+    // After validate, docAuthor should be sabbamitta (default for German)
+    #expect(Settings.shared.docLang == .german)
+    #expect(Settings.shared.docAuthor == "sabbamitta")
+  }
+
+  @Test func validateFixesInvalidRefAuthorWhenRefLangChanges() {
+    Settings.shared.reset()
+    // Set to valid en/sujato combination
+    Settings.shared.refLang = .english
+    Settings.shared.refAuthor = "sujato"
+    Settings.shared.validate()
+    #expect(Settings.shared.refLang == .english)
+    #expect(Settings.shared.refAuthor == "sujato")
+
+    // Change refLang to German - sujato doesn't exist for German
+    Settings.shared.refLang = .german
+    Settings.shared.validate()
+
+    // After validate, refAuthor should be sabbamitta (default for German)
+    #expect(Settings.shared.refLang == .german)
+    #expect(Settings.shared.refAuthor == "sabbamitta")
   }
 }

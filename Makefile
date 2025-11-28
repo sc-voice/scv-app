@@ -3,7 +3,7 @@
         clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
 				format mock-response-view scv-demo-ios \
         version-major version-minor version-patch \
-				commit build-ebt-data-db
+				commit build-zst
 
 SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
@@ -14,14 +14,15 @@ scv-core/Sources/Resources/ebt-en-soma.db.zst:
 	@echo "Building test database..."
 	@scripts/build-ebt-data en:soma
 
-# Rebuild test database with new format
-build-ebt-data-db:
+# Rebuild all .zst files from latest ebt-data content and regenerate manifest
+build-zst: build-build
 	@echo "Pulling latest ebt-data..."
 	@(cd local/ebt-data && git pull)
-	@echo "Rebuilding test database..."
-	@scripts/build-ebt-data en:soma
-	@echo "Regenerating manifest..."
+	@echo "Rebuilding all databases from latest content..."
+	@scripts/build-ebt-data --rebuild-from-manifest
+	@echo "Regenerating db-manifest.json with schema versions..."
 	@scripts/build-ebt-data --build-manifest
+	@echo "✓ All .zst files rebuilt and manifest regenerated"
 
 test: test-all
 

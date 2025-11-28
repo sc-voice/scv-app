@@ -111,10 +111,13 @@ struct SerializationV1Tests {
     #expect(settings.docLang == ScvLanguage.english)
     #expect(settings.refLang == ScvLanguage.english)
     #expect(settings.uiLang == ScvLanguage.english)
+    // Fixture contains hardcoded docAuthor - should be preserved exactly
     #expect(settings.docAuthor == "sujato")
     // refAuthor initialized from manifest default for refLang during
     // deserialization
-    #expect(settings.refAuthor == "sujato")
+    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+      #expect(settings.refAuthor == enInfo.author)
+    }
     #expect(settings.isDarkModeEnabled == true)
     #expect(settings.maxDoc == 50)
   }

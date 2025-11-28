@@ -275,11 +275,15 @@ public class Settings: Codable {
   public func validate() {
     let startTime = CFAbsoluteTimeGetCurrent()
 
-    // Initialize docAuthor from manifest if empty
-    if docAuthor.isEmpty {
-      if let defaultInfo = DatabaseManifest.load()?
-        .defaultAuthorForLanguage(docLang.code)
-      {
+    guard let manifest = DatabaseManifest.load() else {
+      return
+    }
+
+    // Validate and fix docAuthor if it's invalid for docLang
+    if docAuthor.isEmpty ||
+      manifest.info(language: docLang.code, author: docAuthor) == nil
+    {
+      if let defaultInfo = manifest.defaultAuthorForLanguage(docLang.code) {
         docAuthor = defaultInfo.author
       }
     }
@@ -289,11 +293,11 @@ public class Settings: Codable {
       refLang = .english
     }
 
-    // Initialize refAuthor from manifest if nil
-    if refAuthor == nil {
-      if let defaultInfo = DatabaseManifest.load()?
-        .defaultAuthorForLanguage(refLang.code)
-      {
+    // Validate and fix refAuthor if it's invalid for refLang
+    if refAuthor == nil ||
+      manifest.info(language: refLang.code, author: refAuthor ?? "") == nil
+    {
+      if let defaultInfo = manifest.defaultAuthorForLanguage(refLang.code) {
         refAuthor = defaultInfo.author
       }
     }
