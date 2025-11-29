@@ -256,6 +256,7 @@ public class Settings: Codable {
   /// - Parameter language: The language to find a voice for
   /// - Returns: An AVSpeechSynthesisVoice if available, nil otherwise
   private func findVoice(for language: ScvLanguage) -> AVSpeechSynthesisVoice? {
+    cc.ok2(#line, "findVoice: searching for voice for language:", language.code)
     let allVoices = AVSpeechSynthesisVoice.speechVoices()
     let languageCode = language.code
 
@@ -265,7 +266,13 @@ public class Settings: Codable {
         .isVoiceDenied(voice.name)
     }
 
-    return availableVoices.first
+    let result = availableVoices.first
+    if let voice = result {
+      cc.ok1(#line, "findVoice: found voice:", voice.name)
+    } else {
+      cc.ok1(#line, "findVoice: no voice found for language:", language.code)
+    }
+    return result
   }
 
   /// Validates and synchronizes settings to maintain consistency
@@ -304,6 +311,7 @@ public class Settings: Codable {
 
     // Check if docSpeech language matches docLang
     if docSpeech.language != docLang {
+      cc.ok2(#line, "validate: checking docSpeech language for:", docLang.code)
       // Try to find a voice for docLang
       if let voice = findVoice(for: docLang) {
         // Update docSpeech to match docLang with actual voice
@@ -311,15 +319,18 @@ public class Settings: Codable {
         newConfig.voiceId = voice.identifier
         newConfig.voiceName = voice.name
         docSpeech = newConfig
+        cc.ok1(#line, "validate: docSpeech updated with voice")
       } else {
         // No voice available for docLang, fallback to English
+        cc.ok2(#line, "validate: no voice found, falling back to English")
         docLang = .english
         validate() // Revalidate with new docLang
+        cc.ok1(#line, "validate: revalidation complete after fallback")
       }
     }
 
     let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-    cc.ok2(#line, "validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
+    cc.ok1(#line, "validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
   }
 
   // MARK: - Persistence

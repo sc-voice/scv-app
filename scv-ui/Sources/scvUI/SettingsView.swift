@@ -19,6 +19,7 @@ public struct SettingsView: View {
   @State private var isLoading = true
   @State private var showResetConfirmation = false
   @State private var showDocLangPicker = false
+  @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
   @State private var showUILangPicker = false
 
@@ -28,6 +29,24 @@ public struct SettingsView: View {
 
   var buildNumber: String {
     Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
+  }
+
+  var availableDocAuthors: [DatabaseInfo] {
+    EbtData.authorsForLanguageFromManifest(controller.docLang.code)
+      .sorted { $0.files.total > $1.files.total }
+  }
+
+  var docAuthorName: String {
+    availableDocAuthors.first { $0.author == controller.docAuthor }?.authorName
+      ?? controller.docAuthor
+  }
+
+  var sortedLanguages: [ScvLanguage] {
+    ScvLanguage.allCases.sorted { $0.code < $1.code }
+  }
+
+  var sortedUILanguages: [ScvLanguage] {
+    ScvLanguage.uiLanguages.sorted { $0.code < $1.code }
   }
 
   public var body: some View {
@@ -71,8 +90,30 @@ public struct SettingsView: View {
               }
               .sheet(isPresented: $showDocLangPicker) {
                 Picker("Document Language", selection: $controller.docLang) {
-                  ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                  ForEach(sortedLanguages, id: \.self) { lang in
                     Text(lang.displayName).tag(lang)
+                  }
+                }
+                #if os(iOS)
+                .pickerStyle(.wheel)
+                .presentationDetents([.medium])
+                #else
+                .pickerStyle(.menu)
+                #endif
+              }
+
+              HStack {
+                Text("Document Author")
+                Spacer()
+                Button(action: { showDocAuthorPicker = true }) {
+                  Text(docAuthorName)
+                    .foregroundColor(themeProvider.theme.valueColor)
+                }
+              }
+              .sheet(isPresented: $showDocAuthorPicker) {
+                Picker("Document Author", selection: $controller.docAuthor) {
+                  ForEach(availableDocAuthors, id: \.author) { info in
+                    Text(info.authorName).tag(info.author)
                   }
                 }
                 #if os(iOS)
@@ -93,7 +134,7 @@ public struct SettingsView: View {
               }
               .sheet(isPresented: $showRefLangPicker) {
                 Picker("Reference Language", selection: $controller.refLang) {
-                  ForEach(ScvLanguage.allCases, id: \.self) { lang in
+                  ForEach(sortedLanguages, id: \.self) { lang in
                     Text(lang.displayName).tag(lang)
                   }
                 }
@@ -115,7 +156,7 @@ public struct SettingsView: View {
               }
               .sheet(isPresented: $showUILangPicker) {
                 Picker("UI Language", selection: $controller.uiLang) {
-                  ForEach(ScvLanguage.uiLanguages, id: \.self) { lang in
+                  ForEach(sortedUILanguages, id: \.self) { lang in
                     Text(lang.displayName).tag(lang)
                   }
                 }

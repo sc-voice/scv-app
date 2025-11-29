@@ -95,6 +95,17 @@ class BuildDBCommand {
         resourcesDir: resourcesDir,
       )
       selectedAuthors = try manifestBuilder.readManifest()
+
+      // Always ensure pli:ms is included
+      let pliMsEntry = (lang: "pli", author: "ms")
+      if !selectedAuthors
+        .contains(where: {
+          $0.lang == pliMsEntry.lang && $0.author == pliMsEntry.author
+        })
+      {
+        selectedAuthors.append(pliMsEntry)
+      }
+
       print(
         "Rebuilding databases from manifest: \(selectedAuthors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))",
       )
@@ -128,6 +139,16 @@ class BuildDBCommand {
       throw BuildDBError.noArgumentsProvided
     }
 
+    // Always ensure pli:ms is included
+    let pliMsEntry = (lang: "pli", author: "ms")
+    if !selectedAuthors
+      .contains(where: {
+        $0.lang == pliMsEntry.lang && $0.author == pliMsEntry.author
+      })
+    {
+      selectedAuthors.append(pliMsEntry)
+    }
+
     print(
       "Building selected databases: \(selectedAuthors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))",
     )
@@ -140,12 +161,17 @@ class BuildDBCommand {
     var builtCount = 0
 
     for (lang, author) in selectedAuthors {
+      // Use root directory for pli:ms, translation directory for others
+      let builderTranslationDir = (lang == "pli" && author == "ms")
+        ? "\(projectRoot)/local/ebt-data/root"
+        : translationDir
+
       let builder = EbtDBBuilder(
         language: lang,
         author: author,
         buildDir: buildDir,
         resourcesDir: resourcesDir,
-        translationDir: translationDir,
+        translationDir: builderTranslationDir,
         authorInfoImporter: authorInfoImporter,
         gitHash: gitHash,
       )

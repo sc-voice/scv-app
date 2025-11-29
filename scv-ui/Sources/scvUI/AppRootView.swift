@@ -7,6 +7,9 @@
 
 import scvCore
 import SwiftUI
+#if os(iOS)
+  import UIKit
+#endif
 
 // MARK: - AppRootView
 
@@ -14,7 +17,8 @@ import SwiftUI
 public struct AppRootView<Manager: ICardManager>: View {
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var isSearchFocused: Bool = true
+  @State private var isSearchFocused: Bool = false
+  @FocusState private var searchFieldIsFocused: Bool
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
     .shared)
@@ -56,6 +60,9 @@ public struct AppRootView<Manager: ICardManager>: View {
            let cardBinding = cardManager.bindCard(id: selectedCardId)
         {
           detailView(for: selectedCardId)
+            .onAppear {
+              cc.ok1(#line, "Detail view layout complete")
+            }
             .searchable(
               text: cardBinding.searchQuery,
               isPresented: $isSearchFocused,
@@ -68,7 +75,29 @@ public struct AppRootView<Manager: ICardManager>: View {
               }(),
               prompt: "Search",
             )
+            .focused($searchFieldIsFocused)
+            .onChange(of: isSearchFocused) { _, newValue in
+              cc.ok1(#line, "isSearchFocused changed to:", newValue)
+            }
+            .onChange(of: searchFieldIsFocused) { _, newValue in
+              cc.ok1(
+                #line,
+                "searchFieldIsFocused (TextField actual focus) changed to:",
+                newValue,
+              )
+            }
+            .onChange(of: cardBinding.searchQuery.wrappedValue) { _, newValue in
+              cc.ok1(#line, "searchQuery changed in keyboard to:", newValue)
+            }
+            .onAppear {
+              cc.ok1(
+                #line,
+                "searchable modifier appeared, isSearchFocused:",
+                isSearchFocused,
+              )
+            }
             .onSubmit(of: .search) {
+              cc.ok1(#line, "Search submitted in keyboard")
               SearchCardView.searchSubmitHandler(
                 cardManager: cardManager,
                 selectedCardId: selectedCardId,
@@ -98,6 +127,52 @@ public struct AppRootView<Manager: ICardManager>: View {
           cardManager.allCards.count,
           "cards",
         )
+        // Listen for keyboard notifications
+        #if os(iOS)
+          NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil,
+            queue: .main,
+          ) { _ in
+            // Known iOS 18 issue: ~7s delay between search focus request and
+            // keyboard appearance
+            // See: https://www.hackingwithswift.com/forums/swiftui/modifier-searchable-slow-on-ios-18-x/28323
+            cc.ok2(#line, "UIKeyboardWillShow notification received")
+          }
+
+          NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardDidShowNotification,
+            object: nil,
+            queue: .main,
+          ) { _ in
+            cc.ok1(
+              #line,
+              "UIKeyboardDidShow notification received - keyboard is interactive",
+            )
+          }
+        #endif
+
+        // Probe main thread responsiveness every 50ms until it responds
+        DispatchQueue.global(qos: .background).async {
+          var mainActorBusy = true
+          var checkCount = 0
+          while mainActorBusy, checkCount < 300 {
+            let sem = DispatchSemaphore(value: 0)
+            DispatchQueue.main.async { sem.signal() } // simple probe
+            // Wait up to 100ms for main thread to execute
+            if sem.wait(timeout: .now() + 0.1) == .success {
+              cc.ok1(#line, "MainThread now responsive")
+              mainActorBusy = false
+            }
+            checkCount += 1
+          }
+        }
+
+        // Delay search focus to allow view hierarchy to stabilize
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+          cc.ok1(#line, "Enabling search focus after delay")
+          isSearchFocused = true
+        }
       }
       .onChange(of: cardManager.selectedCardId) {
         let idString = cardManager.selectedCardId
@@ -125,6 +200,9 @@ public struct AppRootView<Manager: ICardManager>: View {
             searchingIcon: searchingIcon,
           )
           .environmentObject(themeProvider)
+          .onAppear {
+            cc.ok1(#line, "SearchCardView appeared on screen")
+          }
         } else {
           Text("Card not found")
             .foregroundStyle(.secondary)

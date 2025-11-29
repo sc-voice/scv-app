@@ -381,7 +381,7 @@ struct scvUITests {
     let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
     let fullText = String(result.characters)
     #expect(fullText == "This is plain text without span")
-    var runs = Array(result.runs)
+    let runs = Array(result.runs)
     #expect(runs.count == 1)
     #expect(String(result[runs[0].range].characters) ==
       "This is plain text without span")
@@ -393,7 +393,7 @@ struct scvUITests {
     let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
     let fullText = String(result.characters)
     #expect(fullText == "Before matched text after")
-    var runs = Array(result.runs)
+    let runs = Array(result.runs)
     #expect(runs.count == 3)
 
     // Run 0: "Before "
@@ -416,7 +416,7 @@ struct scvUITests {
     let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
     let fullText = String(result.characters)
     #expect(fullText == "First match1 middle match2 end")
-    var runs = Array(result.runs)
+    let runs = Array(result.runs)
     #expect(runs.count == 5)
 
     // Run 0: "First "
@@ -461,7 +461,7 @@ struct scvUITests {
     let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .blue)!
     let fullText = String(result.characters)
     #expect(fullText == "...before matched after...")
-    var runs = Array(result.runs)
+    let runs = Array(result.runs)
     #expect(runs.count == 3)
 
     // Run 0: "...before "
@@ -482,7 +482,7 @@ struct scvUITests {
     let result = QuoteHTMLParser.parseQuoteHTML(html, accentColor: .red)!
     let fullText = String(result.characters)
     #expect(fullText == "Normal bold text")
-    var runs = Array(result.runs)
+    let runs = Array(result.runs)
     #expect(runs.count == 3)
 
     // Run 0: "Normal "

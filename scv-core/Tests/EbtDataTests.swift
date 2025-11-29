@@ -522,8 +522,8 @@ struct EbtDataTests {
     }
 
     #expect(
-      sujato.files >= 4167,
-      "en/sujato should have at least 4167 files, got \(sujato.files)",
+      sujato.files.total >= 4167,
+      "en/sujato should have at least 4167 files, got \(sujato.files.total)",
     )
   }
 
@@ -537,8 +537,8 @@ struct EbtDataTests {
     }
 
     #expect(
-      sabbamitta.files >= 4055,
-      "de/sabbamitta should have at least 4055 files, got \(sabbamitta.files)",
+      sabbamitta.files.total >= 4055,
+      "de/sabbamitta should have at least 4055 files, got \(sabbamitta.files.total)",
     )
   }
 
@@ -552,8 +552,8 @@ struct EbtDataTests {
     }
 
     #expect(
-      brahmali.files >= 427,
-      "en/brahmali should have at least 427 files, got \(brahmali.files)",
+      brahmali.files.vinaya >= 427,
+      "en/brahmali should have at least 427 vinaya files, got \(brahmali.files.vinaya)",
     )
   }
 }

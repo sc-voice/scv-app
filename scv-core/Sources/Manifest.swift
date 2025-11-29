@@ -7,6 +7,47 @@
 
 import Foundation
 
+/// Files breakdown for a database (sutta/vinaya/abhidhamma/other counts)
+public struct FilesBreakdown: Codable, Sendable {
+  public let sutta: Int
+  public let vinaya: Int
+  public let abhidhamma: Int
+  public let other: Int
+  public let total: Int
+
+  public init(
+    sutta: Int = 0,
+    vinaya: Int = 0,
+    abhidhamma: Int = 0,
+    other: Int = 0,
+    total: Int = 0,
+  ) {
+    self.sutta = sutta
+    self.vinaya = vinaya
+    self.abhidhamma = abhidhamma
+    self.other = other
+    self.total = total
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case sutta
+    case vinaya
+    case abhidhamma
+    case other
+    case total
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    sutta = try container.decodeIfPresent(Int.self, forKey: .sutta) ?? 0
+    vinaya = try container.decodeIfPresent(Int.self, forKey: .vinaya) ?? 0
+    abhidhamma = try container
+      .decodeIfPresent(Int.self, forKey: .abhidhamma) ?? 0
+    other = try container.decodeIfPresent(Int.self, forKey: .other) ?? 0
+    total = try container.decodeIfPresent(Int.self, forKey: .total) ?? 0
+  }
+}
+
 /// Database manifest containing metadata for all bundled databases
 /// Loaded from db-manifest.json at app startup
 public struct DatabaseManifest: Codable {
@@ -44,7 +85,7 @@ public struct DatabaseManifest: Codable {
   public func authorsForLanguageSortedByFiles(_ language: String)
     -> [DatabaseInfo]
   {
-    authorsForLanguage(language).sorted { $0.files > $1.files }
+    authorsForLanguage(language).sorted { $0.files.total > $1.files.total }
   }
 
   /// Get default (most comprehensive) author for language by file count
@@ -70,7 +111,7 @@ public struct DatabaseInfo: Codable, Identifiable {
   public let author: String
   public let authorName: String
   public let buildTimestamp: String
-  public let files: Int
+  public let files: FilesBreakdown
   public let gitHash: String?
   public let json: String?
 
@@ -89,7 +130,7 @@ public struct DatabaseInfo: Codable, Identifiable {
     author: String,
     authorName: String,
     buildTimestamp: String,
-    files: Int,
+    files: FilesBreakdown,
     gitHash: String? = nil,
     json: String? = nil,
   ) {
@@ -115,23 +156,18 @@ public struct DatabaseInfo: Codable, Identifiable {
       String.self,
       forKey: .buildTimestamp,
     ) ?? ""
-    // Handle both Int (legacy) and Dictionary (v5 schema with breakdown)
+    // Decode files as FilesBreakdown (v5 schema) or create from Int (legacy)
     do {
-      // Try to decode as Int first (legacy format)
-      files = try container.decodeIfPresent(Int.self, forKey: .files) ?? 0
+      files = try container.decode(FilesBreakdown.self, forKey: .files)
     } catch {
-      // If Int decode fails, try Dictionary (v5 format)
-      do {
-        if let dictFiles = try container.decodeIfPresent(
-          [String: Int].self,
-          forKey: .files,
-        ) {
-          files = dictFiles["total"] ?? 0
-        } else {
-          files = 0
-        }
-      } catch {
-        files = 0
+      // Fallback for legacy format (Int)
+      if let legacyTotal = try container.decodeIfPresent(
+        Int.self,
+        forKey: .files,
+      ) {
+        files = FilesBreakdown(total: legacyTotal)
+      } else {
+        files = FilesBreakdown()
       }
     }
     gitHash = try container.decodeIfPresent(String.self, forKey: .gitHash)

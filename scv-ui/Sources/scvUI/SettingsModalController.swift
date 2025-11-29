@@ -52,6 +52,10 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var docAuthor: String {
+    didSet { autosave() }
+  }
+
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
   private let originalUiLang: ScvLanguage
@@ -77,6 +81,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     paliRate = settings.paliSpeech.rate
     docPitch = settings.docSpeech.pitch
     docRate = settings.docSpeech.rate
+    docAuthor = settings.docAuthor
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
@@ -104,15 +109,17 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.paliSpeech.rate = paliRate
     Settings.shared.docSpeech.pitch = docPitch
     Settings.shared.docSpeech.rate = docRate
+    Settings.shared.docAuthor = docAuthor
 
     // If language changed, validate to ensure docAuthor/refAuthor are valid for
     // the new language
     if langChanged {
       Settings.shared.validate()
       // Sync back any changes validate() made (e.g., fallback to english if no
-      // voice available)
+      // voice available, or docAuthor changed to default for new language)
       docLang = Settings.shared.docLang
       refLang = Settings.shared.refLang
+      docAuthor = Settings.shared.docAuthor
     }
 
     // Schedule deferred save to check playback state
@@ -155,8 +162,25 @@ public class SettingsModalController: NSObject, ObservableObject {
   }
 
   func resetToDefaults() {
-    // Reset to app defaults, not session originals
-    docLang = .default
+    // Reset docLang to system language or english if system language has no DB
+    if let preferredLanguage = Locale.preferredLanguages.first,
+       let systemLanguage = ScvLanguage.toVoiceLanguage(preferredLanguage),
+       EbtData.authorsForLanguageFromManifest(systemLanguage.code).count > 0
+    {
+      docLang = systemLanguage
+    } else {
+      docLang = .english
+    }
+
+    // Set docAuthor to default author for the new docLang
+    if let defaultInfo = DatabaseManifest.load()?
+      .defaultAuthorForLanguage(docLang.code)
+    {
+      docAuthor = defaultInfo.author
+    } else {
+      docAuthor = ""
+    }
+
     refLang = .default
     uiLang = .default
     isDarkModeEnabled = true
