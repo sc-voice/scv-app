@@ -160,6 +160,50 @@ struct EbtDataTests {
     #expect(result.error == nil)
   }
 
+  @Test("searchSuttaRef returns single result for valid sutta reference")
+  func searchSuttaRefValid() async {
+    await EbtData.shared.clearDatabaseCache()
+    let result = await EbtData.shared.searchSuttaRef(
+      "mn1",
+      lang: "en",
+      author: "sujato",
+    )
+
+    #expect(result.results.count == 1)
+    #expect(result.results[0].suttaRef.suttaUid == "mn1")
+    #expect(result.results[0].score == 1.0)
+    #expect(result.metadata.method == .suttaref)
+    #expect(result.metadata.query == "mn1")
+    #expect(result.error == nil)
+  }
+
+  @Test("searchSuttaRef with full reference mn1/en/sujato")
+  func searchSuttaRefFull() async {
+    let result = await EbtData.shared.searchSuttaRef(
+      "mn1/en/sujato",
+      lang: "en",
+      author: "sujato",
+    )
+
+    #expect(result.results.count == 1)
+    #expect(result.results[0].suttaRef.suttaUid == "mn1")
+    #expect(result.metadata.method == .suttaref)
+    #expect(result.error == nil)
+  }
+
+  @Test("searchSuttaRef with invalid reference returns error")
+  func searchSuttaRefInvalid() async {
+    let result = await EbtData.shared.searchSuttaRef(
+      "not-a-valid-sutta-ref!!!",
+      lang: "en",
+      author: "sujato",
+    )
+
+    #expect(result.results.isEmpty)
+    #expect(result.error != nil)
+    #expect(result.metadata.method == .suttaref)
+  }
+
   @Test(
     "searchKeywords returns SearchResult with correct ordering for root of suffering",
   )

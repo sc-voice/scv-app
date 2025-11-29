@@ -680,6 +680,80 @@ public actor EbtData {
     return result
   }
 
+  /// Search for a specific sutta by reference (e.g., "mn1", "sn42.11")
+  /// Returns SearchResult with .suttaref method
+  func searchSuttaRef(
+    _ query: String,
+    lang: String,
+    author: String,
+  ) -> SearchResult {
+    let startTime = Date()
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+    let maxResults = Settings.shared.maxDoc
+
+    do {
+      try ensureDatabase(lang: lang, author: author)
+    } catch {
+      let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+      return SearchResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .suttaref,
+          elapsedTime: elapsedTime,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        results: [],
+        error: SearchError(
+          message: "search.error.failed".localized,
+          detail: "Failed to initialize database",
+        ),
+      )
+    }
+
+    // Parse the sutta reference
+    guard let parsedRef = SuttaRef.create(
+      query,
+      defaultLang: lang,
+      defaultAuthor: author,
+    ) else {
+      let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+      return SearchResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .suttaref,
+          elapsedTime: elapsedTime,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        results: [],
+        error: SearchError(
+          message: "search.error.invalid_suttaref".localized,
+          detail: "Could not parse '\(query)' as a valid sutta reference",
+        ),
+      )
+    }
+
+    // Create result item with score 1.0
+    let items = [SearchResultItem(suttaRef: parsedRef, score: 1.0)]
+
+    // Apply maxResults limit
+    let limitedItems = Array(items.prefix(maxResults))
+
+    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
+
+    let metadata = SearchMetadata(
+      timestamp: startTime,
+      query: query,
+      method: .suttaref,
+      elapsedTime: elapsedTime,
+      docLang: lang,
+      docAuthor: author,
+    )
+
+    return SearchResult(metadata: metadata, results: limitedItems)
+  }
+
   /// Helper: Check if sutta contains exact phrase in any segment
   private func containsPhrase(
     lang: String,
