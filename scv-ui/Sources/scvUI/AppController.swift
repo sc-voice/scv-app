@@ -18,6 +18,7 @@ public class AppController {
   public static let shared = AppController()
 
   private let urlOpener: URLOpener
+  private var cardManager: CardManager?
 
   /// Initialize AppController for platform
   public init(urlOpener: URLOpener? = nil) {
@@ -32,8 +33,9 @@ public class AppController {
     }
   }
 
-  /// Perform common app launch initialization
-  public func initialize() {
+  /// Perform common app launch initialization with CardManager
+  public func initialize(cardManager: CardManager? = nil) {
+    self.cardManager = cardManager
     cc.ok1(#line, "build:", appVersion)
   }
 
@@ -52,12 +54,12 @@ public class AppController {
 
   /// Handle incoming sc-voice:// URL and perform search
   /// - Parameter url: The incoming URL to handle
-  public func handleSearchUrl(url: URL) {
+  public func handleSearchUrl(url: URL) async {
     guard let query = extractSearchQuery(from: url) else {
       showError("Invalid URL or missing q parameter")
       return
     }
-    performSearch(query: query)
+    await performSearch(query)
   }
 
   /// Search by invoking SC-Voice URL scheme with query parameter
@@ -87,9 +89,35 @@ public class AppController {
 
   /// Perform search with given query
   /// - Parameter query: The search query to execute
-  private func performSearch(query _: String) {
-    // TODO: Implement actual search functionality
-    // This will integrate with SearchSuttasIntent or EbtData
+  func performSearch(_ query: String) async {
+    guard let cardManager else {
+      cc.bad1(#line, "CardManager not initialized")
+      return
+    }
+
+    // Create a new search card
+    let newCard = cardManager.addCard(type: .search)
+
+    // Set the search query
+    newCard.searchQuery = query
+
+    // Execute the search (await because EbtData is an actor)
+    let searchResult = await EbtData.shared.search(query: query)
+
+    // Assign results to the card
+    newCard.searchResult = searchResult
+
+    // Save the card to persistent storage
+    cardManager.saveCard(newCard)
+
+    // Select the card so user sees results
+    cardManager.selectCard(newCard)
+
+    cc.ok1(
+      #line,
+      #function,
+      "Search created card with \(searchResult.results.count) results",
+    )
   }
 
   private func showError(_ message: String) {

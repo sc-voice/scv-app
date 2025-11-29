@@ -1,6 +1,7 @@
 import Foundation
 @testable import scvCore
 @testable import scvUI
+import SwiftData
 import Testing
 
 @Suite
@@ -256,12 +257,12 @@ struct scvUITests {
 
   @Test
   @MainActor
-  func appControllerHandleSearchUrlWithValidURL() {
+  func appControllerHandleSearchUrlWithValidURL() async {
     let controller = AppController()
     let url = URL(string: "sc-voice://search?q=dukkha")!
 
-    // Should not crash or throw
-    controller.handleSearchUrl(url: url)
+    // Should not crash or throw (exits early since cardManager is nil)
+    await controller.handleSearchUrl(url: url)
     cc.ok1(#line, "passed")
   }
 
@@ -277,6 +278,25 @@ struct scvUITests {
      cc.ok1(#line, "passed")
    }
    */
+
+  // MARK: - AppController performSearch Tests
+
+  @Test
+  @MainActor
+  func performSearchCreatesCardWithQueryAndSelects() async throws {
+    let manager = try createTestCardManager()
+    let controller = AppController(urlOpener: MockURLOpener())
+    controller.initialize(cardManager: manager)
+
+    await controller.performSearch("root of suffering")
+
+    #expect(manager.allCards.count == 2) // default + new
+    let newCard = manager.allCards.last
+    #expect(newCard?.searchQuery == "root of suffering")
+    #expect(newCard?.searchResult?.results.count == 7)
+    #expect(manager.selectedCardId == newCard?.id)
+    cc.ok1(#line, #function, "passed")
+  }
 
   // MARK: - SearchCardView Tests
 
@@ -496,6 +516,16 @@ struct scvUITests {
     // Run 2: " text"
     #expect(String(result[runs[2].range].characters) == " text")
   }
+}
+
+// MARK: - Test Helpers
+
+@MainActor
+func createTestCardManager() throws -> CardManager {
+  let config = ModelConfiguration(isStoredInMemoryOnly: true)
+  let container = try ModelContainer(for: Card.self, configurations: config)
+  let context = ModelContext(container)
+  return CardManager(modelContext: context)
 }
 
 // MARK: - Mock URLOpener for Testing

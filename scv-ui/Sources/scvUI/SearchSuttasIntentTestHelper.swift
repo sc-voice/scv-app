@@ -96,13 +96,8 @@ import SwiftUI
       errorMessage = nil
 
       Task {
-        let language = Settings.shared.docLang.code
-        let author = "sujato"
-
         let searchResult = await EbtData.shared.search(
           query: testQuery,
-          docLang: language,
-          docAuthor: author,
         )
 
         await MainActor.run {

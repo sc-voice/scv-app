@@ -55,7 +55,7 @@ struct SCVApp: App {
     cc.ok2(#line, "_themeProvider")
 
     // Initialize app controller for URL scheme handling
-    AppController.shared.initialize()
+    AppController.shared.initialize(cardManager: cardManager)
     cc.ok1(#line, "init OK")
   }
 
@@ -68,7 +68,9 @@ struct SCVApp: App {
         .environmentObject(themeProvider)
         .onOpenURL { url in
           cc.ok2(#line, "openURL", url.absoluteString)
-          AppController.shared.handleSearchUrl(url: url)
+          Task {
+            await AppController.shared.handleSearchUrl(url: url)
+          }
         }
     }
   }
