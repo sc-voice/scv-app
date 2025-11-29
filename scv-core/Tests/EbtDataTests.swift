@@ -22,7 +22,7 @@ struct EbtDataTests {
 
   @Test("Keyword search with nonexistent term returns empty")
   func keywordSearchNoMatches() async {
-    let result = await EbtData.shared.searchKeywords2(
+    let result = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
       query: "xyzabc123notaword",
@@ -75,7 +75,7 @@ struct EbtDataTests {
     defer { Settings.shared.maxDoc = originalMaxDoc }
 
     Settings.shared.maxDoc = 5
-    let result = await EbtData.shared.searchKeywords2(
+    let result = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
       query: "the",
@@ -161,11 +161,11 @@ struct EbtDataTests {
   }
 
   @Test(
-    "searchKeywords2 returns SearchResult with correct ordering for root of suffering",
+    "searchKeywords returns SearchResult with correct ordering for root of suffering",
   )
-  func searchKeywords2RootOfSuffering() async {
+  func searchKeywordsRootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let result = await EbtData.shared.searchKeywords2(
+    let result = await EbtData.shared.searchKeywords(
       lang: "en",
       author: "sujato",
       query: "root of suffering",

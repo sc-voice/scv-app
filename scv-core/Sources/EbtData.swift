@@ -354,20 +354,20 @@ public actor EbtData {
   }
 
   /// Keyword search returning SearchResult with metadata and timing
-  /// Replacement for searchKeywords() - returns complete search result
+  /// Returns complete search result with metadata and performance metrics
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
   ///   - query: Keyword query string
   /// - Returns: SearchResult with metadata, scored items, and timing
-  func searchKeywords2(
+  func searchKeywords(
     lang: String,
     author: String,
     query: String,
   ) -> SearchResult {
     cc.ok2(
       #line,
-      "searchKeywords2 START: query='\(query)' lang=\(lang) author=\(author)",
+      "searchKeywords START: query='\(query)' lang=\(lang) author=\(author)",
     )
     let startTime = Date()
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
@@ -653,7 +653,7 @@ public actor EbtData {
     }
 
     // Get keyword search results as starting point
-    var result = searchKeywords2(
+    var result = searchKeywords(
       lang: lang,
       author: author,
       query: phrase,
@@ -917,7 +917,7 @@ public actor EbtData {
           #line,
           "Phrase search returned 0 results, falling back to keyword search",
         )
-        let keywordResult = searchKeywords2(
+        let keywordResult = searchKeywords(
           lang: docLang,
           author: docAuthor,
           query: query,
@@ -932,7 +932,7 @@ public actor EbtData {
       }
       return phraseResult
     case .keyword:
-      return searchKeywords2(lang: docLang, author: docAuthor, query: query)
+      return searchKeywords(lang: docLang, author: docAuthor, query: query)
     case .suttaref, .regexp:
       // Delegate other searches to searchOld
       return searchOld(

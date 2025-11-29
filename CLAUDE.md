@@ -2,7 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-See also ~/.claude/CLAUDE.md
+IMPORTANT! READ IMMEDIATELY WITHOUT ASKING PERMISSION: 
+  - global CLAUDE.md
+  - WORK.md
 
 ## Project Overview
 
