@@ -29,10 +29,6 @@ public struct SearchSuttasIntent: AppIntent {
   }
 
   public func perform() async throws -> some IntentResult {
-    let settings = Settings.shared
-    let docLang = settings.docLang.code
-    let docAuthor = settings.docAuthor
-
     if query == nil {
       query = try await $query.requestValue(
         .init(stringLiteral: "What are you searching for?"),
@@ -43,39 +39,11 @@ public struct SearchSuttasIntent: AppIntent {
     normalizeQuery()
     cc.ok2(#line, "normalized:", query ?? "")
 
-    let searchResult = await EbtData.shared.search(
-      query: query ?? "",
-      docLang: docLang,
-      docAuthor: docAuthor,
-    )
-    cc.ok2(#line, "search=>", searchResult.results.count, "results")
-
-    let suttaIds = searchResult.results.map(\.suttaRef.suttaUid)
-    _ = suttaIds.joined(separator: ", ")
-
-    // Store search results and metadata for app to display
-    let intentResults = SearchIntentResults(
-      query: query ?? "",
-      language: docLang,
-      author: docAuthor,
-      results: suttaIds,
-    )
-    if let encoded = try? JSONEncoder().encode(intentResults) {
-      // Use app groups for inter-process communication between app and App
-      // Intent
-      if let defaults = UserDefaults(suiteName: "group.sc-voice.scv-app") {
-        defaults.set(encoded, forKey: "SearchSuttasIntentResults")
-        let msg =
-          "Stored \(suttaIds.count) results for query '\(query ?? "")'"
-        cc.ok1(#line, msg)
-      } else {
-        // Fallback to standard UserDefaults if app groups not available
-        UserDefaults.standard.set(encoded, forKey: "SearchSuttasIntentResults")
-        cc.bad2(#line, "App groups unavailable, using standard UserDefaults")
-      }
-    } else {
-      cc.bad1(#line, "Failed to encode results")
+    // Invoke app via URL scheme to display search results
+    await MainActor.run {
+      AppController.shared.searchByUrl(query: query ?? "")
     }
+    cc.ok1(#line, #function, query ?? "")
 
     return .result()
   }
