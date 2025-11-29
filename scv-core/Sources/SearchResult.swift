@@ -138,19 +138,3 @@ public struct SearchResult: Sendable, Codable {
     self.error = error
   }
 }
-
-// MARK: - SearchMethodDetection
-
-/// Result of auto-detecting search method from query string
-public struct SearchMethodDetection: Sendable {
-  /// Detected search method
-  public let method: SearchMethod
-
-  /// Pre-parsed SearchResultItems (populated for .suttaref, empty for others)
-  public let items: [SearchResultItem]
-
-  public init(method: SearchMethod, items: [SearchResultItem] = []) {
-    self.method = method
-    self.items = items
-  }
-}

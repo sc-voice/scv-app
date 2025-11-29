@@ -22,14 +22,19 @@ struct EbtDataTests {
 
   @Test("Keyword search with nonexistent term returns empty")
   func keywordSearchNoMatches() async {
-    let result = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "xyzabc123notaword",
+    let result = await EbtData.shared.initSearchResult(
+      "xyzabc123notaword",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
+      method: .keyword,
     )
+    let searchResult = await EbtData.shared.searchKeywords(result)
 
-    #expect(result.results.isEmpty)
-    #expect(result.error == nil)
+    #expect(searchResult.results.isEmpty)
+    #expect(searchResult.error == nil)
   }
 
   @Test("Regexp search finds matching translations")
@@ -75,14 +80,19 @@ struct EbtDataTests {
     defer { Settings.shared.maxDoc = originalMaxDoc }
 
     Settings.shared.maxDoc = 5
-    let result = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "the",
+    let result = await EbtData.shared.initSearchResult(
+      "the",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 5,
+      method: .keyword,
     )
+    let searchResult = await EbtData.shared.searchKeywords(result)
 
-    #expect(result.results.count <= 5)
-    #expect(result.metadata.maxDoc == 5)
+    #expect(searchResult.results.count <= 5)
+    #expect(searchResult.metadata.maxDoc == 5)
   }
 
   @Test("Key lookup for known translation succeeds")
@@ -100,11 +110,16 @@ struct EbtDataTests {
   )
   func phraseSearch2RootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let result = await EbtData.shared.searchPhrase(
-      lang: "en",
-      author: "sujato",
-      phrase: "root of suffering",
+    let initResult = await EbtData.shared.initSearchResult(
+      "root of suffering",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
+      method: .phrase,
     )
+    let result = await EbtData.shared.searchPhrase(initResult)
 
     let expectedResults: [(key: String, score: Double)] = [
       ("sn42.11/en/sujato", 5.09),
@@ -150,11 +165,16 @@ struct EbtDataTests {
 
   @Test("Phrase search 2 with nonexistent phrase returns empty")
   func phraseSearch2NoMatches() async {
-    let result = await EbtData.shared.searchPhrase(
-      lang: "en",
-      author: "sujato",
-      phrase: "xyzabc123notaword phraseneverexists",
+    let initResult = await EbtData.shared.initSearchResult(
+      "xyzabc123notaword phraseneverexists",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
+      method: .phrase,
     )
+    let result = await EbtData.shared.searchPhrase(initResult)
 
     #expect(result.results.isEmpty)
     #expect(result.error == nil)
@@ -163,11 +183,15 @@ struct EbtDataTests {
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
     await EbtData.shared.clearDatabaseCache()
-    let result = await EbtData.shared.searchSuttaRef(
+    let initResult = await EbtData.shared.initSearchResult(
       "mn1",
-      lang: "en",
-      author: "sujato",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
     )
+    let result = await EbtData.shared.searchSuttaRef(initResult)
 
     #expect(result.results.count == 1)
     #expect(result.results[0].suttaRef.suttaUid == "mn1")
@@ -179,11 +203,15 @@ struct EbtDataTests {
 
   @Test("searchSuttaRef with full reference mn1/en/sujato")
   func searchSuttaRefFull() async {
-    let result = await EbtData.shared.searchSuttaRef(
+    let initResult = await EbtData.shared.initSearchResult(
       "mn1/en/sujato",
-      lang: "en",
-      author: "sujato",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
     )
+    let result = await EbtData.shared.searchSuttaRef(initResult)
 
     #expect(result.results.count == 1)
     #expect(result.results[0].suttaRef.suttaUid == "mn1")
@@ -193,11 +221,16 @@ struct EbtDataTests {
 
   @Test("searchSuttaRef with invalid reference returns error")
   func searchSuttaRefInvalid() async {
-    let result = await EbtData.shared.searchSuttaRef(
+    let initResult = await EbtData.shared.initSearchResult(
       "not-a-valid-sutta-ref!!!",
-      lang: "en",
-      author: "sujato",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
+      method: .suttaref,
     )
+    let result = await EbtData.shared.searchSuttaRef(initResult)
 
     #expect(result.results.isEmpty)
     #expect(result.error != nil)
@@ -209,11 +242,16 @@ struct EbtDataTests {
   )
   func searchKeywordsRootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let result = await EbtData.shared.searchKeywords(
-      lang: "en",
-      author: "sujato",
-      query: "root of suffering",
+    let initResult = await EbtData.shared.initSearchResult(
+      "root of suffering",
+      docLang: "en",
+      docAuthor: "sujato",
+      refLang: "pli",
+      refAuthor: "ms",
+      maxResults: 10,
+      method: .keyword,
     )
+    let result = await EbtData.shared.searchKeywords(initResult)
 
     let expectedKeys = [
       "sn42.11/en/sujato",
