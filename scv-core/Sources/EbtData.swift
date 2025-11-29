@@ -893,10 +893,7 @@ public actor EbtData {
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
   ) -> SearchResult {
-    cc.ok2(
-      #line,
-      "search: query=\(query) docLang=\(docLang) docAuthor='\(docAuthor)' refLang=\(refLang) refAuthor=\(refAuthor ?? "nil")",
-    )
+    cc.ok2(#line, "search:\(query)|\(docLang)/'\(docAuthor)'")
 
     // Auto-detect method if not provided
     let detection = autoSearchMethod(

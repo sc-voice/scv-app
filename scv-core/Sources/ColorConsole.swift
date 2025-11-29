@@ -82,7 +82,7 @@ public final class ColorConsole: Sendable {
 
     let launchMs = Int(sinceLaunch * 1000)
     let prevMs = Int(sinceLastOutput * 1000)
-    return String(format: "%dms/+%dms", launchMs, prevMs)
+    return String(format: "%dms+%d", launchMs, prevMs)
   }
 
   /// Print bright green text
