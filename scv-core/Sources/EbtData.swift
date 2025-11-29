@@ -626,8 +626,8 @@ public actor EbtData {
   ///   - author: Document author (e.g., "sujato")
   ///   - phrase: Phrase query string
   /// - Returns: SearchResult with metadata and scored items
-  func searchPhrase2(lang: String, author: String,
-                     phrase: String) -> SearchResult
+  func searchPhrase(lang: String, author: String,
+                    phrase: String) -> SearchResult
   {
     let startTime = Date()
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
@@ -906,7 +906,7 @@ public actor EbtData {
     // Handle phrase and keyword searches directly
     switch searchMethod {
     case .phrase:
-      let phraseResult = searchPhrase2(
+      let phraseResult = searchPhrase(
         lang: docLang,
         author: docAuthor,
         phrase: query,

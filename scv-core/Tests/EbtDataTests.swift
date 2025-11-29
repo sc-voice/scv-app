@@ -100,7 +100,7 @@ struct EbtDataTests {
   )
   func phraseSearch2RootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let result = await EbtData.shared.searchPhrase2(
+    let result = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
       phrase: "root of suffering",
@@ -150,7 +150,7 @@ struct EbtDataTests {
 
   @Test("Phrase search 2 with nonexistent phrase returns empty")
   func phraseSearch2NoMatches() async {
-    let result = await EbtData.shared.searchPhrase2(
+    let result = await EbtData.shared.searchPhrase(
       lang: "en",
       author: "sujato",
       phrase: "xyzabc123notaword phraseneverexists",
