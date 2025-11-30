@@ -5,6 +5,7 @@ secret/
 venv/
 DerivedData/
 WORK.md
+work*.md
 .DS_Store
 **/*.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
