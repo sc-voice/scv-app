@@ -70,10 +70,11 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    // Create three cards
+    // Create three cards (reverse order: [card3, card2, card1])
     #expect(manager.allCards.count == 1)
+    let card1 = manager.allCards.first! // Default card (oldest)
     let card2 = manager.addCard(type: .search)
-    let card3 = manager.addCard(type: .sutta)
+    let card3 = manager.addCard(type: .sutta) // Newest
 
     // Select middle card and delete it
     manager.selectCard(card2)
@@ -81,9 +82,9 @@ struct CardManagerTests {
 
     manager.removeCard(card2)
 
-    // Should select card3 (next card after deletion)
-    #expect(manager.selectedCard == card3)
-    #expect(manager.selectedCard?.id == card3.id)
+    // Should select card1 (next older card after deletion)
+    #expect(manager.selectedCard == card1)
+    #expect(manager.selectedCard?.id == card1.id)
   }
 
   @Test
@@ -250,17 +251,19 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     #expect(manager.allCards.count == 1)
-    manager.addCard(type: .search)
-    let card3 = manager.addCard(type: .sutta)
+    let card1 = manager.allCards.first! // Default card (oldest)
+    let card2 = manager.addCard(type: .search)
+    let card3 = manager.addCard(type: .sutta) // Newest
 
-    manager.selectCard(card3)
+    // Reverse order: [card3, card2, card1] at indices [0, 1, 2]
+    manager.selectCard(card2) // Select middle card
     let initialCount = manager.totalCount
 
-    // Remove cards at indices 0 and 1
-    manager.removeCards(at: IndexSet([0, 1]))
+    // Remove cards at indices 0 and 2 (card3 and card1)
+    manager.removeCards(at: IndexSet([0, 2]))
 
     #expect(manager.totalCount == initialCount - 2)
-    #expect(manager.selectedCard == card3)
+    #expect(manager.selectedCard == card2) // card2 not deleted, still selected
   }
 
   @Test
@@ -272,16 +275,17 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    let card1 = manager.allCards.first!
+    let card1 = manager.allCards.last! // Oldest card (last in reverse order)
     let card2 = manager.addCard(type: .search)
-    manager.addCard(type: .sutta)
+    let card3 = manager.addCard(type: .sutta) // Newest card
 
     manager.selectCard(card1)
 
-    // Remove card at index 0 (which is the selected card1)
-    manager.removeCards(at: IndexSet([0]))
+    // With reverse order: allCards = [card3, card2, card1]
+    // Remove card at index 2 (which is the selected card1, oldest)
+    manager.removeCards(at: IndexSet([2]))
 
-    // Should select card2 (next card)
+    // Should select card2 (new last item, since no older card exists)
     #expect(manager.selectedCard == card2)
     #expect(manager.totalCount == 2)
   }
@@ -357,27 +361,27 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    // Create 4 cards
-    let card1 = manager.allCards.first!
+    // Create 4 cards (reverse chronological: [card4, card3, card2, card1])
+    let card1 = manager.allCards.first! // Default card (oldest)
     let card2 = manager.addCard(type: .search)
     let card3 = manager.addCard(type: .search)
-    let card4 = manager.addCard(type: .sutta)
+    let card4 = manager.addCard(type: .sutta) // Newest
 
     manager.selectCard(card2)
 
-    // Delete selected card - should select next (card3)
+    // Delete card2 - should select next older card (card1)
     manager.removeCard(card2)
+    #expect(manager.selectedCard == card1)
+    #expect(manager.totalCount >= 1)
+
+    // Delete card1 - should select next newer (card3, since no older exists)
+    manager.removeCard(card1)
     #expect(manager.selectedCard == card3)
     #expect(manager.totalCount >= 1)
 
-    // Delete the new selection - should select next (card4)
+    // Delete card3 - should select card4 (remaining, newest)
     manager.removeCard(card3)
     #expect(manager.selectedCard == card4)
-    #expect(manager.totalCount >= 1)
-
-    // Delete card4 - should select card1 (remaining)
-    manager.removeCard(card4)
-    #expect(manager.selectedCard == card1)
     #expect(manager.totalCount == 1)
   }
 
@@ -390,25 +394,26 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    // Create 6 cards
-    _ = manager.allCards.first!
-    _ = manager.addCard(type: .search)
+    // Create 6 cards (reverse: [card6, card5, card4, card3, card2, card1])
+    let card1 = manager.allCards.first! // Oldest
+    let card2 = manager.addCard(type: .search)
     let card3 = manager.addCard(type: .search)
     let card4 = manager.addCard(type: .sutta)
-    _ = manager.addCard(type: .sutta)
-    _ = manager.addCard(type: .sutta)
+    let card5 = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta) // card6, newest
 
     manager.selectCard(card3)
 
-    // Delete indices 0, 2, 5 (cards 1, 3, 6) - card3 is at index 2
-    manager.removeCards(at: IndexSet([0, 2, 5]))
+    // With reverse order: indices are [6,5,4,3,2,1] → [0,1,2,3,4,5]
+    // Delete indices 0, 2, 4 (card6, card4, card2)
+    manager.removeCards(at: IndexSet([0, 2, 4]))
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
-    // Should have 3 cards remaining (cards 2, 4, 5)
+    // Should have 3 cards remaining (card5, card3, card1)
     #expect(manager.totalCount == 3)
-    // Selection should have moved from card3
-    #expect(manager.selectedCard == card4)
+    // card3 was selected and not deleted, should still be selected
+    #expect(manager.selectedCard == card3)
   }
 
   @Test

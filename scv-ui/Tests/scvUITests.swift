@@ -291,7 +291,8 @@ struct scvUITests {
     await controller.performSearch("root of suffering")
 
     #expect(manager.allCards.count == 2) // default + new
-    let newCard = manager.allCards.last
+    let newCard = manager.allCards
+      .first // Newest card (reverse chronological order)
     #expect(newCard?.searchQuery == "root of suffering")
     #expect(newCard?.searchResult?.results.count == 7)
     #expect(manager.selectedCardId == newCard?.id)

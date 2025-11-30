@@ -40,12 +40,8 @@ struct DemoIOSAppShortcuts: AppShortcutsProvider {
     AppShortcut(
       intent: SearchSuttasIntent(),
       phrases: [
-        // AppShortcuts do support parameters with enumarable values.
-        // However, AppShortcuts do NOT support open-ended parameter values.
-        // Arbitrary queries are open-ended parameters, so we need
-        // to use recognizable shortcut phrases for Siri.
-        // In addition, the application name MUST be in the shortcut
-        "Search \(.applicationName)", // app-specific shortcut
+        "Search \(.applicationName)",
+        "Find in \(.applicationName)",
       ],
       shortTitle: "Search Suttas",
       systemImageName: "magnifyingglass",

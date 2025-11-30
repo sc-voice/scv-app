@@ -85,6 +85,7 @@ struct SCVAppShortcuts: AppShortcutsProvider {
       intent: SearchSuttasIntent(),
       phrases: [
         "Search \(.applicationName)",
+        "Find in \(.applicationName)",
       ],
       shortTitle: "Search Suttas",
       systemImageName: "magnifyingglass",

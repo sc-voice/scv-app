@@ -60,10 +60,10 @@ public class CardManager: ICardManager {
 
   // MARK: - Public Properties
 
-  /// Returns all cards sorted by createdAt in ascending order
+  /// Returns all cards sorted by createdAt in descending order (latest first)
   public var allCards: [Card] {
     let fetchDescriptor = FetchDescriptor<Card>(sortBy: [
-      SortDescriptor(\.createdAt, order: .forward),
+      SortDescriptor(\.createdAt, order: .reverse),
     ])
     do {
       return try modelContext.fetch(fetchDescriptor)
@@ -162,6 +162,10 @@ public class CardManager: ICardManager {
 
   /// Removes a card and updates selection if necessary
   func removeCard(_ card: Card) {
+    // Force-resolve cardType attribute to avoid SwiftData fault crash
+    // when SwiftUI tries to access deleted card during view update
+    _ = card.cardType
+
     // If the deleted card was selected, find the next card to select
     if selectedCardId == card.id {
       let remainingCards = allCards.filter { $0.id != card.id }
@@ -182,22 +186,24 @@ public class CardManager: ICardManager {
   }
 
   /// Finds the next card to select after deleting a card
+  /// With reverse chronological order, selects the next older card (or newer if
+  /// none older)
   private func findNextCard(after deletedCard: Card,
                             in remainingCards: [Card]) -> Card?
   {
     guard !remainingCards.isEmpty else { return nil }
 
-    // Sort cards by creation date
-    let sortedCards = remainingCards.sorted { $0.createdAt < $1.createdAt }
+    // Sort cards by creation date (newest first, matching UI order)
+    let sortedCards = remainingCards.sorted { $0.createdAt > $1.createdAt }
 
-    // Find the card created after the deleted card
+    // Find the first card older than the deleted card (appears next in list)
     if let nextIndex = sortedCards
-      .firstIndex(where: { $0.createdAt > deletedCard.createdAt })
+      .firstIndex(where: { $0.createdAt < deletedCard.createdAt })
     {
       return sortedCards[nextIndex]
     }
 
-    // If no card was created after, select the last card
+    // If no older card exists, select the last card (next newest/new last item)
     return sortedCards.last
   }
 
