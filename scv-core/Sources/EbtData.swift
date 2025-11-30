@@ -274,29 +274,15 @@ public actor EbtData {
 
   // MARK: - MLDocument Retrieval
 
-  /// Returns MLDocument for a given sutta_key (e.g., "an1.2/en/sujato")
-  /// - Parameter suttaKey: Sutta key in format "sutta_uid/lang/author"
+  /// Returns MLDocument for a SuttaRef
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
+  /// identifier
   /// - Returns: MLDocument with segments populated, or nil if not found
-  public func getMLDocument(suttaKey: String) -> MLDocument? {
-    let components = suttaKey.split(separator: "/").map(String.init)
-    guard components.count >= 3 else { return nil }
+  public func getMLDocument(suttaRef: SuttaRef) -> MLDocument? {
+    guard let author = suttaRef.author else { return nil }
+    let lang = suttaRef.lang
+    let suttaId = suttaRef.suttaUid
 
-    let suttaId = components[0]
-    let lang = components[1]
-    let author = components[2]
-
-    return getMLDocument(lang: lang, author: author, suttaId: suttaId)
-  }
-
-  /// Returns MLDocument for explicit language/author/suttaId
-  /// - Parameters:
-  ///   - lang: Language code (e.g., "en")
-  ///   - author: Author identifier (e.g., "sujato")
-  ///   - suttaId: Sutta identifier (e.g., "an1.2")
-  /// - Returns: MLDocument with segments populated, or nil if not found
-  public func getMLDocument(lang: String, author: String, suttaId: String)
-    -> MLDocument?
-  {
     do {
       try ensureDatabase(lang: lang, author: author)
       let key = "\(lang)/\(author)"

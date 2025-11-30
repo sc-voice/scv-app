@@ -1,3 +1,4 @@
+import Foundation
 @testable import scvCore
 import Testing
 
@@ -327,9 +328,11 @@ struct EbtDataTests {
 
   @Test("asSuttaCentralJson matches source file formatting")
   func asSuttaCentralJsonFormatting() async {
-    let mlDoc = await EbtData.shared.getMLDocument(
-      suttaKey: "an1.1-10/en/sujato",
-    )
+    guard let suttaRef = SuttaRef.create("an1.1-10/en/sujato") else {
+      Issue.record("Failed to create SuttaRef")
+      return
+    }
+    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
 
     #expect(mlDoc != nil)
     guard let mlDoc else { return }
@@ -367,6 +370,36 @@ struct EbtDataTests {
       sourceHasNoSpaceAroundColon == !generatedHasSpaceAroundColon,
       "JSON formatting mismatch: source uses compact format, generated uses spaced format",
     )
+  }
+
+  @Test("getMLDocument(suttaRef:) returns MLDocument with matching fields")
+  func getMLDocumentFromSuttaRefMatchesFields() async {
+    guard let suttaRef = SuttaRef.create("an1.1-10/en/sujato") else {
+      Issue.record("Failed to create SuttaRef")
+      return
+    }
+    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+
+    #expect(mlDoc != nil)
+    guard let mlDoc else { return }
+
+    // Verify MLDocument fields match SuttaRef properties
+    #expect(mlDoc.sutta_uid == suttaRef.suttaUid)
+    #expect(mlDoc.docLang == suttaRef.lang)
+    #expect(mlDoc.docAuthor == suttaRef.author)
+    #expect(mlDoc.author == suttaRef.author)
+    #expect(!mlDoc.segMap.isEmpty)
+
+    // Verify segment data matches known content from source JSON
+    let testSegmentId = "an1.1:2.2"
+    let expectedTextFragment = "sight of a woman occupies"
+
+    guard let segment = mlDoc.segMap[testSegmentId] else {
+      Issue.record("Segment not found")
+      return
+    }
+    #expect(segment.doc != nil)
+    #expect(segment.doc!.contains(expectedTextFragment))
   }
 
   @Test("populateQuote() finds first matching segment for keyword search")
