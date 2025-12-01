@@ -669,4 +669,47 @@ struct CardManagerTests {
     #expect(card2.searchQuery == "test query")
     #expect(card1 === card2) // Same object identity
   }
+
+  // MARK: - SuttaRef Card Tests
+
+  @Test
+  @MainActor
+  func suttaCardForRefCreatesNewCardWhenNotFound() async throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let initialCount = manager.totalCount
+
+    let suttaRef = SuttaRef.create("mn1/en/sujato")!
+    let card = await manager.suttaCardForRef(suttaRef)
+
+    #expect(manager.totalCount == initialCount + 1)
+    #expect(card.cardType == .sutta)
+    #expect(card.suttaReference == suttaRef.toString())
+    #expect(card.mlDoc != nil)
+  }
+
+  @Test
+  @MainActor
+  func suttaCardForRefReusesExistingCard() async throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+    let suttaRef = SuttaRef.create("mn1/en/sujato")!
+
+    // Create first card
+    let card1 = await manager.suttaCardForRef(suttaRef)
+    let countAfterFirst = manager.totalCount
+
+    // Request same suttaRef again
+    let card2 = await manager.suttaCardForRef(suttaRef)
+
+    #expect(manager.totalCount == countAfterFirst)
+    #expect(card1.id == card2.id)
+    #expect(card1 === card2)
+  }
 }

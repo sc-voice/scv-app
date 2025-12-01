@@ -146,6 +146,34 @@ public class CardManager: ICardManager {
     return newCard
   }
 
+  /// Returns existing sutta card for given SuttaRef, or creates a new one
+  public func suttaCardForRef(_ suttaRef: SuttaRef) async -> Card {
+    let refString = suttaRef.toString()
+
+    // Search for existing sutta card with this reference
+    if let existingCard = allCards.first(where: {
+      $0.cardType == .sutta && $0.suttaReference == refString
+    }) {
+      cc.ok1(#line, "Reusing existing sutta card for \(refString)")
+      return existingCard
+    }
+
+    // Not found - create new sutta card
+    let newCard = addCard(type: .sutta)
+    newCard.suttaReference = refString
+    newCard.mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+
+    // Save the updated card properties
+    do {
+      try modelContext.save()
+      cc.ok1(#line, "Created new sutta card for \(refString)")
+    } catch {
+      cc.bad1(#line, "Failed to save sutta card: \(error)")
+    }
+
+    return newCard
+  }
+
   /// Selects a card (ensures a card is always selected)
   public func selectCard(_ card: Card) {
     selectedCardId = card.id
