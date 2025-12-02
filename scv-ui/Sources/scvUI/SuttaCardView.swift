@@ -20,15 +20,18 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
+  @ObservedObject var player: SuttaPlayer
   @State private var segments: [(key: String, value: Segment)] = []
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
   public init(
     card: Binding<Card>,
     cardManager: Manager,
+    player: SuttaPlayer = .shared,
   ) {
     _card = card
     self.cardManager = cardManager
+    self.player = player
   }
 
   public var body: some View {
@@ -53,6 +56,21 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 .foregroundColor(themeProvider.theme.textColor)
             }
             .font(.caption)
+
+            Spacer()
+
+            Button(action: {
+              if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
+                player.load(mlDoc)
+              }
+              player.togglePlayback()
+            }) {
+              Image(systemName: isCurrentlyPlaying && player
+                .isPlaying ? "pause.fill" : "play.fill")
+                .font(.title2)
+                .foregroundColor(themeProvider.theme.textColor)
+                .padding()
+            }
           }
         }
       }
@@ -98,6 +116,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 .id(scid)
                 .onTapGesture {
                   mlDoc.currentScid = scid
+                  if isCurrentlyPlaying, player.isPlaying {
+                    player.jumpToSegment(scid: scid)
+                  }
                   // Dismiss keyboard when segment is selected
                   #if os(iOS)
                     UIApplication.shared.sendAction(
@@ -150,7 +171,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         if mlDoc.currentScid == nil, let firstSegment = segments.first {
           mlDoc.currentScid = firstSegment.key
         }
-        cc.ok1(#line, "onAppear \(mlDoc.currentScid)")
+        cc.ok1(#line, "onAppear \(mlDoc.currentScid ?? "nil")")
       } else {
         cc.ok1(#line, "onAppear no mlDoc")
       }
@@ -158,6 +179,10 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   // MARK: - Private Methods
+
+  private var isCurrentlyPlaying: Bool {
+    player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid
+  }
 
   private func isSegmentSelected(_ scid: String) -> Bool {
     card.mlDoc?.currentScid == scid
