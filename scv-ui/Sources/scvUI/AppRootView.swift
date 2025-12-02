@@ -209,11 +209,16 @@ public struct AppRootView<Manager: ICardManager>: View {
         }
 
       case .sutta:
-        Text("Sutta view coming soon")
-          .font(.headline)
-          .foregroundStyle(.secondary)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .background(themeProvider.theme.cardBackground)
+        if let binding = cardManager.bindCard(id: cardId) {
+          SuttaCardView(
+            card: binding,
+            cardManager: cardManager,
+          )
+          .environmentObject(themeProvider)
+        } else {
+          Text("Card not found")
+            .foregroundStyle(.secondary)
+        }
       }
     } else {
       Text("Card not found")

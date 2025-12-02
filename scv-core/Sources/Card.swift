@@ -23,6 +23,8 @@ public protocol ICard: Identifiable {
   var typeId: Int { get }
   var searchQuery: String { get set }
   var searchResult: SearchResult? { get set }
+  var suttaReference: String { get set }
+  var mlDoc: MLDocument? { get set }
 }
 
 public extension ICard {
@@ -47,6 +49,20 @@ public extension ICard {
       "card.type.search".localized
     case .sutta:
       "card.type.sutta".localized
+    }
+  }
+
+  @MainActor
+  var sidebarTitle: String {
+    switch cardType {
+    case .search:
+      searchQuery.isEmpty ? "search.placeholder".localized : searchQuery
+    case .sutta:
+      suttaReference.isEmpty ? "card.type.sutta"
+        .localized : // Extract suttaUid from suttaReference (format:
+        // "uid/lang/author")
+        suttaReference.split(separator: "/").first
+        .map(String.init) ?? suttaReference
     }
   }
 }

@@ -264,6 +264,21 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
                 .foregroundColor(themeProvider.theme.textColor)
                 .fontWeight(.semibold)
               Spacer()
+              Button(action: {
+                Task {
+                  let card = await cardManager.suttaCardForRef(item.suttaRef)
+                  cardManager.selectCard(card)
+                  cc.ok1(
+                    #line,
+                    "Selected sutta card for:",
+                    item.suttaRef.toString(),
+                  )
+                }
+              }) {
+                Image(systemName: "book.fill")
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.accentColor)
+              }
               Text(
                 "★ \(String(format: "%.2f", item.score))",
               )

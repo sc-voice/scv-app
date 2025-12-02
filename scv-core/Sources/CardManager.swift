@@ -27,6 +27,7 @@ public protocol ICardManager: Observable {
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
   func saveCard(_ card: ManagedCard)
+  func suttaCardForRef(_ suttaRef: SuttaRef) async -> ManagedCard
 }
 
 // MARK: - CardManager

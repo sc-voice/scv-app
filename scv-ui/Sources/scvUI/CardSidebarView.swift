@@ -44,16 +44,12 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                   .foregroundStyle(themeProvider.theme.debugForeground)
               }
             #endif
-            if !card.searchQuery.isEmpty {
-              Text(card.searchQuery)
-                .font(.headline)
-                .lineLimit(1)
-            } else {
-              Text("card.search.placeholder".localized)
-                .font(.headline)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-            }
+            Text(card.sidebarTitle)
+              .font(.headline)
+              .lineLimit(1)
+              .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
+                .localized || card.sidebarTitle == "card.type.sutta"
+                .localized ? .secondary : .primary)
           }
         }
         .contentShape(Rectangle())
@@ -164,6 +160,8 @@ public class MockCard: ICard {
   public var typeId: Int
   public var searchQuery: String
   public var searchResult: SearchResult?
+  public var suttaReference: String
+  public var mlDoc: MLDocument?
 
   public init(
     id: UUID = UUID(),
@@ -171,12 +169,16 @@ public class MockCard: ICard {
     typeId: Int,
     searchQuery: String = "",
     searchResult: SearchResult? = nil,
+    suttaReference: String = "",
+    mlDoc: MLDocument? = nil,
   ) {
     self.id = id
     self.cardType = cardType
     self.typeId = typeId
     self.searchQuery = searchQuery
     self.searchResult = searchResult
+    self.suttaReference = suttaReference
+    self.mlDoc = mlDoc
   }
 }
 
@@ -243,6 +245,26 @@ public class MockCardManager: ICardManager {
     if let index = allCards.firstIndex(where: { $0.id == card.id }) {
       allCards[index] = card
     }
+  }
+
+  public func suttaCardForRef(_ suttaRef: SuttaRef) async -> MockCard {
+    // Mock implementation - return existing or create new sutta card
+    let refString = suttaRef.toString()
+    if let existing = allCards.first(where: {
+      $0.cardType == .sutta && $0.suttaReference == refString
+    }) {
+      return existing
+    }
+
+    let newId = (allCards.filter { $0.cardType == .sutta }.map(\.typeId)
+      .max() ?? 0) + 1
+    let newCard = MockCard(
+      cardType: .sutta,
+      typeId: newId,
+      suttaReference: refString,
+    )
+    allCards.append(newCard)
+    return newCard
   }
 }
 
