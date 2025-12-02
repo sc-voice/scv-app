@@ -54,7 +54,8 @@ class DBManifestBuilder {
 
       if FileManager.default.fileExists(atPath: pliMsDbPath),
          FileManager.default.fileExists(atPath: pliMsZstPath),
-         let metadata = extractMetadata(from: pliMsDbPath) {
+         let metadata = extractMetadata(from: pliMsDbPath)
+      {
         manifestDatabases.append(metadata)
         print("  Added pli:ms to manifest")
       }

@@ -266,7 +266,10 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               Spacer()
               Button(action: {
                 Task {
-                  let card = await cardManager.suttaCardForRef(item.suttaRef)
+                  let card = await cardManager.suttaCardForRef(
+                    item.suttaRef,
+                    searchQuery: card.searchQuery,
+                  )
                   cardManager.selectCard(card)
                   cc.ok1(
                     #line,

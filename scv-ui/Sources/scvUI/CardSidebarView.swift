@@ -247,7 +247,9 @@ public class MockCardManager: ICardManager {
     }
   }
 
-  public func suttaCardForRef(_ suttaRef: SuttaRef) async -> MockCard {
+  public func suttaCardForRef(_ suttaRef: SuttaRef,
+                              searchQuery: String?) async -> MockCard
+  {
     // Mock implementation - return existing or create new sutta card
     let refString = suttaRef.toString()
     if let existing = allCards.first(where: {
@@ -261,6 +263,7 @@ public class MockCardManager: ICardManager {
     let newCard = MockCard(
       cardType: .sutta,
       typeId: newId,
+      searchQuery: searchQuery ?? "",
       suttaReference: refString,
     )
     allCards.append(newCard)

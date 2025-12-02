@@ -27,7 +27,17 @@ public protocol ICardManager: Observable {
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
   func saveCard(_ card: ManagedCard)
+  func suttaCardForRef(_ suttaRef: SuttaRef, searchQuery: String?) async
+    -> ManagedCard
   func suttaCardForRef(_ suttaRef: SuttaRef) async -> ManagedCard
+}
+
+// MARK: - ICardManager Default Implementation
+
+public extension ICardManager {
+  func suttaCardForRef(_ suttaRef: SuttaRef) async -> ManagedCard {
+    await suttaCardForRef(suttaRef, searchQuery: nil)
+  }
 }
 
 // MARK: - CardManager
@@ -148,7 +158,9 @@ public class CardManager: ICardManager {
   }
 
   /// Returns existing sutta card for given SuttaRef, or creates a new one
-  public func suttaCardForRef(_ suttaRef: SuttaRef) async -> Card {
+  public func suttaCardForRef(_ suttaRef: SuttaRef,
+                              searchQuery: String?) async -> Card
+  {
     let refString = suttaRef.toString()
 
     // Search for existing sutta card with this reference
@@ -162,6 +174,9 @@ public class CardManager: ICardManager {
     // Not found - create new sutta card
     let newCard = addCard(type: .sutta)
     newCard.suttaReference = refString
+    if let searchQuery {
+      newCard.searchQuery = searchQuery
+    }
     newCard.mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
 
     // Save the updated card properties

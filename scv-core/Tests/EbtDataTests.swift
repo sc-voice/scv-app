@@ -677,7 +677,7 @@ struct EbtDataTests {
       refAuthor: "ms",
     )
 
-    let suttas = Set(result.results.map { $0.suttaRef.description })
+    let suttas = Set(result.results.map(\.suttaRef.description))
     #expect(suttas == ["mn1/pli/ms"])
   }
 }
