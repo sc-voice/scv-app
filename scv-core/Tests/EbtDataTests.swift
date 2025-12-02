@@ -666,4 +666,18 @@ struct EbtDataTests {
       "en/brahmali should have at least 427 vinaya files, got \(brahmali.files.vinaya)",
     )
   }
+
+  @Test("Pali database contains 'Nandī dukkhassa mūlan' only in mn1")
+  func paliDatabaseSearchNandi() async {
+    let result = await EbtData.shared.search(
+      query: "Nandī dukkhassa mūlan",
+      docLang: "pli",
+      docAuthor: "ms",
+      refLang: "pli",
+      refAuthor: "ms",
+    )
+
+    let suttas = Set(result.results.map { $0.suttaRef.description })
+    #expect(suttas == ["mn1/pli/ms"])
+  }
 }

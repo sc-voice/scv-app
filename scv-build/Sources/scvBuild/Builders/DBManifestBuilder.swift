@@ -39,75 +39,24 @@ class DBManifestBuilder {
         continue
       }
 
-      // Extract metadata from .db
-      var db: OpaquePointer?
-      guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
-        print("ERROR: Cannot open database at \(dbPath)")
-        continue
+      if let metadata = extractMetadata(from: dbPath) {
+        manifestDatabases.append(metadata)
       }
-      defer { sqlite3_close(db) }
+    }
 
-      let query =
-        "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version, files_breakdown FROM metadata LIMIT 1"
-      var stmt: OpaquePointer?
-      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
-        print("ERROR: Cannot prepare query for \(file)")
-        continue
-      }
-      defer { sqlite3_finalize(stmt) }
+    // Ensure pli:ms is always in the manifest if it exists
+    let hasPliMs = manifestDatabases.contains { db in
+      (db["language"] as? String) == "pli" && (db["author"] as? String) == "ms"
+    }
+    if !hasPliMs {
+      let pliMsDbPath = "\(buildDir)/ebt-pli-ms.db"
+      let pliMsZstPath = "\(resourcesDir)/ebt-pli-ms.db.zst"
 
-      if sqlite3_step(stmt) == SQLITE_ROW {
-        if let langC = sqlite3_column_text(stmt, 0),
-           let authorC = sqlite3_column_text(stmt, 1),
-           let authorNameC = sqlite3_column_text(stmt, 2),
-           let buildTimestampC = sqlite3_column_text(stmt, 4)
-        {
-          let dbFiles = Int(sqlite3_column_int(stmt, 5))
-
-          var metaDict: [String: Any] = [
-            "language": String(cString: langC),
-            "author": String(cString: authorC),
-            "authorName": String(cString: authorNameC),
-            "buildTimestamp": String(cString: buildTimestampC),
-            "files": dbFiles,
-          ]
-
-          // Optional git_hash
-          if sqlite3_column_type(stmt, 3) != SQLITE_NULL,
-             let gitHashC = sqlite3_column_text(stmt, 3)
-          {
-            metaDict["gitHash"] = String(cString: gitHashC)
-          }
-
-          // Optional json
-          if sqlite3_column_type(stmt, 6) != SQLITE_NULL,
-             let jsonC = sqlite3_column_text(stmt, 6)
-          {
-            metaDict["json"] = String(cString: jsonC)
-          }
-
-          // Optional schema_version
-          if sqlite3_column_type(stmt, 7) != SQLITE_NULL,
-             let schemaVersionC = sqlite3_column_text(stmt, 7)
-          {
-            metaDict["schemaVersion"] = String(cString: schemaVersionC)
-          }
-
-          // Optional files_breakdown - maps to "files" field in manifest
-          if sqlite3_column_type(stmt, 8) != SQLITE_NULL,
-             let filesBreakdownC = sqlite3_column_text(stmt, 8)
-          {
-            let filesBreakdownStr = String(cString: filesBreakdownC)
-            if let filesData = filesBreakdownStr.data(using: .utf8),
-               let filesJson = try? JSONSerialization
-               .jsonObject(with: filesData) as? [String: Any]
-            {
-              metaDict["files"] = filesJson
-            }
-          }
-
-          manifestDatabases.append(metaDict)
-        }
+      if FileManager.default.fileExists(atPath: pliMsDbPath),
+         FileManager.default.fileExists(atPath: pliMsZstPath),
+         let metadata = extractMetadata(from: pliMsDbPath) {
+        manifestDatabases.append(metadata)
+        print("  Added pli:ms to manifest")
       }
     }
 
@@ -130,6 +79,82 @@ class DBManifestBuilder {
     } catch {
       throw ManifestError.cannotWriteFile(manifestPath)
     }
+  }
+
+  private func extractMetadata(from dbPath: String) -> [String: Any]? {
+    var db: OpaquePointer?
+    guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
+      print("ERROR: Cannot open database at \(dbPath)")
+      return nil
+    }
+    defer { sqlite3_close(db) }
+
+    let query =
+      "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version, files_breakdown FROM metadata LIMIT 1"
+    var stmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+      print("ERROR: Cannot prepare query for \(dbPath)")
+      return nil
+    }
+    defer { sqlite3_finalize(stmt) }
+
+    guard sqlite3_step(stmt) == SQLITE_ROW else {
+      return nil
+    }
+
+    guard let langC = sqlite3_column_text(stmt, 0),
+          let authorC = sqlite3_column_text(stmt, 1),
+          let authorNameC = sqlite3_column_text(stmt, 2),
+          let buildTimestampC = sqlite3_column_text(stmt, 4)
+    else {
+      return nil
+    }
+
+    let dbFiles = Int(sqlite3_column_int(stmt, 5))
+
+    var metaDict: [String: Any] = [
+      "language": String(cString: langC),
+      "author": String(cString: authorC),
+      "authorName": String(cString: authorNameC),
+      "buildTimestamp": String(cString: buildTimestampC),
+      "files": dbFiles,
+    ]
+
+    // Optional git_hash
+    if sqlite3_column_type(stmt, 3) != SQLITE_NULL,
+       let gitHashC = sqlite3_column_text(stmt, 3)
+    {
+      metaDict["gitHash"] = String(cString: gitHashC)
+    }
+
+    // Optional json
+    if sqlite3_column_type(stmt, 6) != SQLITE_NULL,
+       let jsonC = sqlite3_column_text(stmt, 6)
+    {
+      metaDict["json"] = String(cString: jsonC)
+    }
+
+    // Optional schema_version
+    if sqlite3_column_type(stmt, 7) != SQLITE_NULL,
+       let schemaVersionC = sqlite3_column_text(stmt, 7)
+    {
+      metaDict["schemaVersion"] = String(cString: schemaVersionC)
+    }
+
+    // Optional files_breakdown
+    if sqlite3_column_type(stmt, 8) != SQLITE_NULL,
+       let filesBreakdownC = sqlite3_column_text(stmt, 8)
+    {
+      let filesBreakdownStr = String(cString: filesBreakdownC)
+      if let filesData = filesBreakdownStr.data(using: .utf8),
+         let filesJson = try? JSONSerialization
+         .jsonObject(with: filesData) as? [String: Any]
+      {
+        metaDict["files"] = filesJson
+      }
+    }
+
+    return metaDict
   }
 
   func readManifest() throws -> [(lang: String, author: String)] {
