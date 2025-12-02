@@ -605,17 +605,12 @@ struct EbtDataTests {
       docAuthor: "brahmali",
     )
 
-    cc.ok2(
-      #line,
-      "Search returned \(result.results.count) results, method: \(result.metadata.method), error: \(result.error?.message ?? "none")",
-    )
+    cc.ok2(#line, #function,
+           "results:\(result.results.count) \(result.error?.message ?? "ok")")
 
     if !result.results.isEmpty {
       for (i, item) in result.results.enumerated() {
-        cc.ok2(
-          #line,
-          "Result \(i): \(item.suttaRef.suttaUid) author:\(item.suttaRef.author ?? "nil") score:\(item.score)",
-        )
+        cc.ok2(#line, "[\(i)] \(item.suttaRef.description) score:\(item.score)")
       }
     }
 

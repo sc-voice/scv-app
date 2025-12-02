@@ -18,7 +18,7 @@ and provides a card-based interface where users can create multiple search and s
   - EXCEPTION: Claude can read any file in project local/ebt-data
   - EXCEPTION: Claude can read any file in project local/bilara-data
   - EXCEPTION: Claude can read any file in project local/build
-  - EXCEPTION: Claude can read/write local/test-all.log
+  - EXCEPTION: Claude can read/write local/*.log
 2. Claude can read any file in project except those in secret/
 
 ## Code Best Practice

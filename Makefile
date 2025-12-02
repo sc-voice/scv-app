@@ -5,53 +5,36 @@
         version-major version-minor version-patch \
 				commit build-zst
 
-SWIFT_BUILD_FILTER = '(error:|warning:|Build complete)'
+SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
-TEST_ALL_FILTER = '(error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled)'
+TEST_ALL_FILTER = '(✘|Suite.*after|error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled)'
 
 # Build test database if it doesn't exist
 scv-core/Sources/Resources/ebt-en-soma.db.zst:
 	@echo "Building test database..."
 	@scripts/build-ebt-data en:soma
 
-# Rebuild all .zst files from latest ebt-data content and regenerate manifest
-build-zst: build-build
-	@echo "Pulling latest ebt-data..."
-	@(cd local/ebt-data && git pull)
-	@echo "Rebuilding all databases from latest content..."
-	@scripts/build-ebt-data --rebuild-from-manifest
-	@echo "Regenerating db-manifest.json with schema versions..."
-	@scripts/build-ebt-data --build-manifest
-	@echo "✓ All .zst files rebuilt and manifest regenerated"
-
 test: test-all
 
-test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst
+test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst test-core test-ui test-demo-ios
 	@mkdir -p local
-	@echo "Building..."
-	@$(MAKE) clean build 2>&1 | tee local/test-all.log
-	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/test-all.log
-	@$(MAKE) test-core test-ui test-demo-ios 2>&1 | tee -a local/test-all.log 
-	@echo "=========TEST SUMMARY======="
-	@echo "EXPECTED: 1 unhandled resource warning" 
-	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true
 
-test-core: clean-core build-core
+test-core: build-core
 	@echo "=======> test-core..."
 	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 \
 	| tee ../local/test-core.log \
-	| rg -e "(✘|Suite.*after|warning:)" || true
+	| grep -E $(TEST_ALL_FILTER) || true
 
-test-core-verbose:
+test-core-verbose: build-core
 	@cd scv-core && swift test --no-parallel --verbose
 
-test-build:
+test-build: build-build
 	@echo "=======> test-build..."
 	@cd scv-build && swift test --no-parallel 2>&1 | grep -v "started\."
 
-test-ui:
+test-ui: build-ui
 	@echo "=======> test-ui..."
-	@cd scv-ui && swift test --no-parallel 2>&1 | grep -v "started\."
+	@cd scv-ui && swift test --no-parallel 2>&1 | grep -E $(TEST_ALL_FILTER) || true
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
@@ -63,11 +46,38 @@ test-demo-ios:
 	  head -1 | sed 's/.*= //;s/;$$//'); \
 	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
 
-build: build-core build-ios-part
+
+# build-macros:
+# 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+# Note: scv-macros is a compiler plugin that rarely changes.
+# Uncomment above to rebuild when macro code changes.
+# Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
+
+# Rebuild all .zst files from latest ebt-data content and regenerate manifest
+build-zst: build-build
+	@echo "Pulling latest ebt-data..."
+	@(cd local/ebt-data && git pull)
+	@echo "Rebuilding all databases from latest content..."
+	@scripts/build-ebt-data --rebuild-from-manifest
+	@echo "Regenerating db-manifest.json with schema versions..."
+	@scripts/build-ebt-data --build-manifest
+	@echo "✓ All .zst files rebuilt and manifest regenerated"
+
+build-build:
+	@echo "=====> build-build..."
+	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+
+build-core:
+	@echo "=====> build-core..."
+	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
 build-ui: build-core
+	@echo "=====> build-ui..."
+	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
-build-ios: build-core build-ios-part
+build-ios: build-core build-ui build-ios-part
+
+build: build-core build-ui build-ios-part
 
 rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@scripts/version patch
@@ -79,20 +89,6 @@ rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@echo "=========TEST SUMMARY======="
 	@echo "EXPECTED: 1 unhandled resource warning" 
 	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true > local/rebuild.log
-
-# build-macros:
-# 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
-# Note: scv-macros is a compiler plugin that rarely changes.
-# Uncomment above to rebuild when macro code changes.
-# Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
-
-build-core:
-	@echo "=====> build-core..."
-	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
-
-build-build:
-	@echo "=====> build-build..."
-	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
 build-demo-ios:
 	@echo "=====> build-demo-ios..."
