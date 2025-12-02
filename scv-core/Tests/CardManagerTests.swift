@@ -74,7 +74,7 @@ struct CardManagerTests {
     #expect(manager.allCards.count == 1)
     let card1 = manager.allCards.first! // Default card (oldest)
     let card2 = manager.addCard(type: .search)
-    let card3 = manager.addCard(type: .sutta) // Newest
+    _ = manager.addCard(type: .sutta) // Newest
 
     // Select middle card and delete it
     manager.selectCard(card2)
@@ -251,9 +251,9 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     #expect(manager.allCards.count == 1)
-    let card1 = manager.allCards.first! // Default card (oldest)
+    _ = manager.allCards.first! // Default card (oldest)
     let card2 = manager.addCard(type: .search)
-    let card3 = manager.addCard(type: .sutta) // Newest
+    _ = manager.addCard(type: .sutta) // Newest
 
     // Reverse order: [card3, card2, card1] at indices [0, 1, 2]
     manager.selectCard(card2) // Select middle card
@@ -277,7 +277,7 @@ struct CardManagerTests {
 
     let card1 = manager.allCards.last! // Oldest card (last in reverse order)
     let card2 = manager.addCard(type: .search)
-    let card3 = manager.addCard(type: .sutta) // Newest card
+    _ = manager.addCard(type: .sutta) // Newest card
 
     manager.selectCard(card1)
 
@@ -395,11 +395,11 @@ struct CardManagerTests {
     let manager = CardManager(modelContext: context)
 
     // Create 6 cards (reverse: [card6, card5, card4, card3, card2, card1])
-    let card1 = manager.allCards.first! // Oldest
-    let card2 = manager.addCard(type: .search)
+    _ = manager.allCards.first! // Oldest
+    _ = manager.addCard(type: .search)
     let card3 = manager.addCard(type: .search)
-    let card4 = manager.addCard(type: .sutta)
-    let card5 = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
+    _ = manager.addCard(type: .sutta)
     _ = manager.addCard(type: .sutta) // card6, newest
 
     manager.selectCard(card3)
