@@ -164,46 +164,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     }
   }
 
-  private func populateQuotesInBackground(
-    searchResult: SeekerResult,
-    cardManager: Manager,
-    cardId: Card.ID,
-  ) {
-    cc.ok2(
-      #line,
-      "Starting background quote population for \(searchResult.items.count) items",
-    )
-
-    Task {
-      var updatedResults = searchResult.items
-
-      for (index, var item) in updatedResults.enumerated() {
-        let success = await EbtData.shared.populateQuote(
-          item: &item,
-          query: searchResult.metadata.query,
-          method: searchResult.metadata.method,
-          lang: searchResult.metadata.docLang,
-          author: searchResult.metadata.docAuthor,
-        )
-
-        if success {
-          updatedResults[index] = item
-          cc.ok2(#line, "Populated quote for \(item.suttaRef.suttaUid)")
-        }
-      }
-
-      // Update card with populated results
-      if let card = cardManager.cardFromId(cardId) {
-        var updatedCard = card
-        updatedCard.searchResult?.items = updatedResults
-        cardManager.saveCard(updatedCard)
-        cc.ok1(#line, "Saved card with populated quotes")
-      } else {
-        cc.bad1(#line, "Card not found for id:", cardId)
-      }
-    }
-  }
-
   private func scheduleFade() {
     cc.ok2(#line, "scheduleFade: icon will fade and move up over 5s")
     withAnimation(.easeOut(duration: 5.0)) {
@@ -399,18 +359,13 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
         // Trigger background sutta info and quote population
         // Note: We need to spawn this on the main thread context
-        // Create a temporary view instance to call the instance methods
+        // Create a temporary view instance to call the instance method
         DispatchQueue.main.async {
           let view = SearchCardView<Manager.ManagedCard, Manager>(
             card: .constant(card),
             cardManager: cardManager,
           )
           view.populateSuttaInfoInBackground(
-            searchResult: searchResult,
-            cardManager: cardManager,
-            cardId: selectedCardId,
-          )
-          view.populateQuotesInBackground(
             searchResult: searchResult,
             cardManager: cardManager,
             cardId: selectedCardId,

@@ -141,6 +141,171 @@ public actor EbtSeeker {
 
     return true
   }
+
+  /// Populates quote field for search result items based on query and search
+  /// method
+  func populateQuotes(for searchResult: inout SeekerResult) throws -> Bool {
+    for i in 0 ..< searchResult.items.count {
+      let success = populateQuote(
+        item: &searchResult.items[i],
+        query: searchResult.metadata.query,
+        method: searchResult.metadata.method,
+      )
+      if success {
+        cc.ok2(
+          #line,
+          "Populated quote for \(searchResult.items[i].suttaRef.suttaUid)",
+        )
+      }
+    }
+    return true
+  }
+
+  /// Populates quote field for a single search result item
+  private func populateQuote(
+    item: inout SeekerResultItem,
+    query: String,
+    method: SearchMethod,
+  ) -> Bool {
+    // Query segments for this sutta
+    let suttaKey = "\(item.suttaRef.suttaUid)/\(item.suttaRef.lang)/\(item.suttaRef.author ?? "")"
+    let sqlQuery = "SELECT segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+    var stmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+      return false
+    }
+    defer { sqlite3_finalize(stmt) }
+
+    sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+
+    // Find first matching segment
+    while sqlite3_step(stmt) == SQLITE_ROW {
+      guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
+      let segmentText = String(cString: segmentTextC)
+
+      // Check if segment matches based on search method
+      let matchRange = findMatch(
+        in: segmentText,
+        query: query,
+        method: method,
+      )
+      if let matchRange {
+        // Build HTML with span around matched text
+        item.quote = buildQuoteHTML(
+          segmentText: segmentText,
+          matchRange: matchRange,
+        )
+        return true
+      }
+    }
+
+    return false
+  }
+
+  /// Finds the range of matched text in a segment based on search method
+  private func findMatch(
+    in text: String,
+    query: String,
+    method: SearchMethod,
+  ) -> Range<String.Index>? {
+    switch method {
+    case .keyword, .phrase:
+      // Case-insensitive substring search
+      let lowercased = text.lowercased()
+      let lowerQuery = query.lowercased()
+      if let range = lowercased.range(of: lowerQuery) {
+        // Convert lowercased range to original text range
+        let startDistance = lowercased.distance(
+          from: lowercased.startIndex,
+          to: range.lowerBound,
+        )
+        let start = text.index(text.startIndex, offsetBy: startDistance)
+        let end = text.index(start, offsetBy: lowerQuery.count)
+        return start ..< end
+      }
+      return nil
+
+    case .regexp:
+      // Regex search
+      do {
+        let regex = try NSRegularExpression(
+          pattern: query,
+          options: [.caseInsensitive],
+        )
+        let nsText = text as NSString
+        if let match = regex.firstMatch(
+          in: text,
+          range: NSRange(location: 0, length: nsText.length),
+        ) {
+          let matchRange = match.range
+          let start = text.index(text.startIndex, offsetBy: matchRange.location)
+          let end = text.index(start, offsetBy: matchRange.length)
+          return start ..< end
+        }
+      } catch {
+        // Invalid regex, return nil
+        return nil
+      }
+      return nil
+
+    case .suttaref:
+      // No quote for suttaref search (it's just a reference lookup)
+      return nil
+    }
+  }
+
+  /// Builds HTML string with matched text in span and ellipsis for context
+  private func buildQuoteHTML(
+    segmentText: String,
+    matchRange: Range<String.Index>,
+  ) -> String {
+    let contextLength = 50 // characters before/after
+    let fullText = segmentText
+
+    // Get start of context (with ellipsis if needed)
+    let contextStart: String.Index
+    let prefixEllipsis: String
+    let startDistance = fullText.distance(
+      from: fullText.startIndex,
+      to: matchRange.lowerBound,
+    )
+    if startDistance <= contextLength {
+      contextStart = fullText.startIndex
+      prefixEllipsis = ""
+    } else {
+      contextStart = fullText.index(
+        matchRange.lowerBound,
+        offsetBy: -contextLength,
+      )
+      prefixEllipsis = "..."
+    }
+
+    // Get end of context (with ellipsis if needed)
+    let contextEnd: String.Index
+    let suffixEllipsis: String
+    let endDistance = fullText.distance(
+      from: matchRange.upperBound,
+      to: fullText.endIndex,
+    )
+    if endDistance <= contextLength {
+      contextEnd = fullText.endIndex
+      suffixEllipsis = ""
+    } else {
+      contextEnd = fullText.index(
+        matchRange.upperBound,
+        offsetBy: contextLength,
+      )
+      suffixEllipsis = "..."
+    }
+
+    // Extract context and matched text
+    let beforeMatch = String(fullText[contextStart ..< matchRange.lowerBound])
+    let matchedText = String(fullText[matchRange])
+    let afterMatch = String(fullText[matchRange.upperBound ..< contextEnd])
+
+    return "\(prefixEllipsis)\(beforeMatch)<span>\(matchedText)</span>\(afterMatch)\(suffixEllipsis)"
+  }
 }
 
 // MARK: - SearchMethod Enum
@@ -308,7 +473,7 @@ public struct SeekerResult: Sendable, Codable {
     self.error = error
   }
 
-  /// Populates segmentCount and headerSegments for each item from
+  /// Populates segmentCount, headerSegments, and quotes for each item from
   /// database
   /// Called on-demand by clients (e.g., SearchCardView) in background thread
   @discardableResult
@@ -318,14 +483,26 @@ public struct SeekerResult: Sendable, Codable {
         lang: metadata.docLang,
         author: metadata.docAuthor,
       )
-      let success = try await seeker.populateSuttaInfo(for: &self)
-      if success {
-        cc.ok1(
-          #line,
-          "addSuttaInfo: populated sutta info for \(items.count) items",
-        )
+
+      // Populate sutta info (segment count and headers)
+      let infoSuccess = try await seeker.populateSuttaInfo(for: &self)
+      if !infoSuccess {
+        cc.bad1(#line, "Failed to populate sutta info")
+        return false
       }
-      return success
+
+      // Populate quotes
+      let quotesSuccess = try await seeker.populateQuotes(for: &self)
+      if !quotesSuccess {
+        cc.bad1(#line, "Failed to populate quotes")
+        return false
+      }
+
+      cc.ok1(
+        #line,
+        "addSuttaInfo: populated sutta info and quotes for \(items.count) items",
+      )
+      return true
     } catch {
       cc.bad1(#line, "addSuttaInfo failed: \(error)")
       return false
