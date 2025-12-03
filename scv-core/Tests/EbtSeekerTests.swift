@@ -10,6 +10,8 @@ import Testing
 
 @Suite("EbtSeeker Tests")
 struct EbtSeekerTests {
+  let cc = ColorConsole(#file, #function, dbg.EbtSeeker.other)
+
   @Test("addSuttaInfo populates segment data for thig1.1")
   func addSuttaInfoThig11() async {
     // Search for thig1.1/en/soma using suttaref method
@@ -175,5 +177,56 @@ struct EbtSeekerTests {
     #expect(!result.results.isEmpty, "Search for mn1/en/soma should find results")
     #expect(result.results[0].suttaRef.lang == "en", "Result should have lang en")
     #expect(result.results[0].suttaRef.author == "soma", "Result should have author soma")
+  }
+
+  @Test("Search brahmali returns vinaya documents")
+  func searchBrahmaliVinaya() async throws {
+    cc.ok2(#line, "Starting brahmali vinaya search")
+
+    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "brahmali")
+    let result = await seeker.search(query: "men shaving heads")
+
+    cc.ok2(#line, #function,
+           "results:\(result.results.count) \(result.error?.message ?? "ok")")
+
+    if !result.results.isEmpty {
+      for (i, item) in result.results.enumerated() {
+        cc.ok2(#line, "[\(i)] \(item.suttaRef.description) score:\(item.score)")
+      }
+    }
+
+    #expect(
+      result.results.count == 1,
+      "Expected 1 result, got \(result.results.count)",
+    )
+    #expect(result.results.first?.suttaRef.suttaUid == "pli-tv-kd20")
+    #expect(result.results.first?.suttaRef.author == "brahmali")
+  }
+
+  @Test("Unified search endpoint returns SeekerResult with metadata")
+  func searchRootOfSuffering() async throws {
+    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "sujato")
+    let result = await seeker.search(query: "root of suffering")
+
+    // Verify SeekerResult structure
+    #expect(result.results.count == 7)
+    #expect(result.metadata.query == "root of suffering")
+    #expect(result.metadata.method == .phrase)
+    #expect(result.metadata.docLang == "en")
+    #expect(result.metadata.docAuthor == "sujato")
+
+    // Verify all expected suttas are present
+    let resultSuttas = result.results.map(\.suttaRef.suttaUid)
+    for expectedSutta in [
+      "sn42.11",
+      "mn105",
+      "mn1",
+      "sn56.21",
+      "mn116",
+      "mn66",
+      "dn16",
+    ] {
+      #expect(resultSuttas.contains(expectedSutta))
+    }
   }
 }

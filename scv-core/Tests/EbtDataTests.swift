@@ -296,35 +296,6 @@ struct EbtDataTests {
     }
   }
 
-  @Test("Unified search endpoint returns SeekerResult with metadata")
-  func searchRootOfSuffering() async {
-    let result = await EbtData.shared.search(
-      query: "root of suffering",
-      docLang: "en",
-      docAuthor: "sujato",
-    )
-
-    // Verify SeekerResult structure
-    #expect(result.results.count == 7)
-    #expect(result.metadata.query == "root of suffering")
-    #expect(result.metadata.method == .phrase)
-    #expect(result.metadata.docLang == "en")
-    #expect(result.metadata.docAuthor == "sujato")
-
-    // Verify all expected suttas are present
-    let resultSuttas = result.results.map(\.suttaRef.suttaUid)
-    for expectedSutta in [
-      "sn42.11",
-      "mn105",
-      "mn1",
-      "sn56.21",
-      "mn116",
-      "mn66",
-      "dn16",
-    ] {
-      #expect(resultSuttas.contains(expectedSutta))
-    }
-  }
 
   @Test("asSuttaCentralJson matches source file formatting")
   func asSuttaCentralJsonFormatting() async {
@@ -591,35 +562,6 @@ struct EbtDataTests {
       dbVersion == expectedVersion,
       "Database schema_version '\(dbVersion)' does not match EbtData.schemaVersion '\(expectedVersion)'",
     )
-  }
-
-  @Test("Search brahmali returns vinaya documents")
-  func searchBrahmaliVinaya() async {
-    let cc = ColorConsole(#file, #function, 2)
-
-    cc.ok2(#line, "Starting brahmali vinaya search")
-
-    let result = await EbtData.shared.search(
-      query: "men shaving heads",
-      docLang: "en",
-      docAuthor: "brahmali",
-    )
-
-    cc.ok2(#line, #function,
-           "results:\(result.results.count) \(result.error?.message ?? "ok")")
-
-    if !result.results.isEmpty {
-      for (i, item) in result.results.enumerated() {
-        cc.ok2(#line, "[\(i)] \(item.suttaRef.description) score:\(item.score)")
-      }
-    }
-
-    #expect(
-      result.results.count == 1,
-      "Expected 1 result, got \(result.results.count)",
-    )
-    #expect(result.results.first?.suttaRef.suttaUid == "pli-tv-kd20")
-    #expect(result.results.first?.suttaRef.author == "brahmali")
   }
 
   @Test("Files breakdown: sujato has at least 4167 sutta files")
