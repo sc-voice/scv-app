@@ -123,7 +123,7 @@ func generateFixtures() throws {
     "searchSuggestion": "",
   ]
 
-  let cardSearchResultsData: [String: Any] = [
+  let cardSeekerResultsData: [String: Any] = [
     "uuid": "550e8400-e29b-41d4-a716-446655440002",
     "createdAt": 733_650.5,
     "cardType": "search",
@@ -134,14 +134,14 @@ func generateFixtures() throws {
     "mlDoc": NSNull(),
   ]
 
-  let cardSearchResultsJSON = try JSONSerialization.data(
-    withJSONObject: cardSearchResultsData,
+  let cardSeekerResultsJSON = try JSONSerialization.data(
+    withJSONObject: cardSeekerResultsData,
     options: [.prettyPrinted, .sortedKeys],
   )
-  let cardSearchResultsFile = "\(fixturesPath)/v\(appVersion)_Card_Search_Results.json"
-  try cardSearchResultsJSON
-    .write(to: URL(fileURLWithPath: cardSearchResultsFile))
-  print("✓ \(URL(fileURLWithPath: cardSearchResultsFile).lastPathComponent)")
+  let cardSeekerResultsFile = "\(fixturesPath)/v\(appVersion)_Card_Search_Results.json"
+  try cardSeekerResultsJSON
+    .write(to: URL(fileURLWithPath: cardSeekerResultsFile))
+  print("✓ \(URL(fileURLWithPath: cardSeekerResultsFile).lastPathComponent)")
 
   // MARK: - Settings Fixtures
 

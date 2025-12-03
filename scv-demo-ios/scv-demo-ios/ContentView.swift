@@ -188,7 +188,7 @@ struct ContentView: View {
     .sheet(isPresented: $showResultsDialog) {
       if let results = searchIntentResults {
         NavigationStack {
-          DemoSearchResultsView(
+          DemoSeekerResultsView(
             results: results.results,
             query: results.query,
             language: results.language,

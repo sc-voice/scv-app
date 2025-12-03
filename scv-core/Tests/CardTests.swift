@@ -62,7 +62,7 @@ struct CardTests {
   }
 
   @Test
-  func cardWithSearchResults() {
+  func cardWithSeekerResults() {
     let response = SearchResponse(pattern: "mindfulness")
     let card = Card(cardType: .search, searchResults: response)
 

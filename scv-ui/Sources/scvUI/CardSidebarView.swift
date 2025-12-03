@@ -159,7 +159,7 @@ public class MockCard: ICard {
   public var cardType: CardType
   public var typeId: Int
   public var searchQuery: String
-  public var searchResult: SearchResult?
+  public var searchResult: SeekerResult?
   public var suttaReference: String
   public var mlDoc: MLDocument?
 
@@ -168,7 +168,7 @@ public class MockCard: ICard {
     cardType: CardType,
     typeId: Int,
     searchQuery: String = "",
-    searchResult: SearchResult? = nil,
+    searchResult: SeekerResult? = nil,
     suttaReference: String = "",
     mlDoc: MLDocument? = nil,
   ) {

@@ -22,7 +22,7 @@ public protocol ICard: Identifiable {
   var cardType: CardType { get }
   var typeId: Int { get }
   var searchQuery: String { get set }
-  var searchResult: SearchResult? { get set }
+  var searchResult: SeekerResult? { get set }
   var suttaReference: String { get set }
   var mlDoc: MLDocument? { get set }
 }
@@ -98,7 +98,7 @@ public final class Card: Codable, ICard {
     cardType: CardType = .search,
     typeId: Int = 0,
     searchQuery: String = "",
-    searchResult: SearchResult? = nil,
+    searchResult: SeekerResult? = nil,
     searchResults: SearchResponse? = nil,
     suttaReference: String = "",
     mlDoc: MLDocument? = nil,
@@ -113,16 +113,16 @@ public final class Card: Codable, ICard {
     self.mlDoc = mlDoc
   }
 
-  // MARK: - SearchResult Property (JSON Encoded/Decoded)
+  // MARK: - SeekerResult Property (JSON Encoded/Decoded)
 
   /// Computed property to get/set searchResult with JSON serialization
-  public var searchResult: SearchResult? {
+  public var searchResult: SeekerResult? {
     get {
       guard let json = searchResultJSON else { return nil }
       let decoder = JSONDecoder()
       do {
         return try decoder.decode(
-          SearchResult.self,
+          SeekerResult.self,
           from: json.data(using: .utf8) ?? Data(),
         )
       } catch {

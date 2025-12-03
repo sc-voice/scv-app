@@ -136,7 +136,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   private func populateQuotesInBackground(
-    searchResult: SearchResult,
+    searchResult: SeekerResult,
     cardManager: Manager,
     cardId: Card.ID,
   ) {

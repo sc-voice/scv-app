@@ -86,7 +86,7 @@ struct SerializationV1Tests {
   }
 
   @Test("Card v1 with search results deserializes from fixture")
-  func cardV1WithSearchResultsDeserialization() throws {
+  func cardV1WithSeekerResultsDeserialization() throws {
     let data = try Self.loadFixture(Self.V1, "Card_Search_Results")
     let decoder = JSONDecoder()
     let card = try decoder.decode(Card.self, from: data)

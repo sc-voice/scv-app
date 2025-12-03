@@ -23,7 +23,7 @@ struct EbtDataTests {
 
   @Test("Keyword search with nonexistent term returns empty")
   func keywordSearchNoMatches() async {
-    let result = await EbtData.shared.initSearchResult(
+    let result = await EbtData.shared.initSeekerResult(
       "xyzabc123notaword",
       docLang: "en",
       docAuthor: "sujato",
@@ -81,7 +81,7 @@ struct EbtDataTests {
     defer { Settings.shared.maxDoc = originalMaxDoc }
 
     Settings.shared.maxDoc = 5
-    let result = await EbtData.shared.initSearchResult(
+    let result = await EbtData.shared.initSeekerResult(
       "the",
       docLang: "en",
       docAuthor: "sujato",
@@ -111,7 +111,7 @@ struct EbtDataTests {
   )
   func phraseSearch2RootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "root of suffering",
       docLang: "en",
       docAuthor: "sujato",
@@ -166,7 +166,7 @@ struct EbtDataTests {
 
   @Test("Phrase search 2 with nonexistent phrase returns empty")
   func phraseSearch2NoMatches() async {
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "xyzabc123notaword phraseneverexists",
       docLang: "en",
       docAuthor: "sujato",
@@ -184,7 +184,7 @@ struct EbtDataTests {
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
     await EbtData.shared.clearDatabaseCache()
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "mn1",
       docLang: "en",
       docAuthor: "sujato",
@@ -204,7 +204,7 @@ struct EbtDataTests {
 
   @Test("searchSuttaRef with full reference mn1/en/sujato")
   func searchSuttaRefFull() async {
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "mn1/en/sujato",
       docLang: "en",
       docAuthor: "sujato",
@@ -222,7 +222,7 @@ struct EbtDataTests {
 
   @Test("searchSuttaRef with invalid reference returns error")
   func searchSuttaRefInvalid() async {
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "not-a-valid-sutta-ref!!!",
       docLang: "en",
       docAuthor: "sujato",
@@ -239,11 +239,11 @@ struct EbtDataTests {
   }
 
   @Test(
-    "searchKeywords returns SearchResult with correct ordering for root of suffering",
+    "searchKeywords returns SeekerResult with correct ordering for root of suffering",
   )
   func searchKeywordsRootOfSuffering() async {
     await EbtData.shared.clearDatabaseCache()
-    let initResult = await EbtData.shared.initSearchResult(
+    let initResult = await EbtData.shared.initSeekerResult(
       "root of suffering",
       docLang: "en",
       docAuthor: "sujato",
@@ -266,7 +266,7 @@ struct EbtDataTests {
       "dn16/en/sujato",
     ]
 
-    // Validate SearchResult structure
+    // Validate SeekerResult structure
     #expect(result.error == nil)
     #expect(result.results.count == 9)
 
@@ -296,7 +296,7 @@ struct EbtDataTests {
     }
   }
 
-  @Test("Unified search endpoint returns SearchResult with metadata")
+  @Test("Unified search endpoint returns SeekerResult with metadata")
   func searchRootOfSuffering() async {
     let result = await EbtData.shared.search(
       query: "root of suffering",
@@ -304,7 +304,7 @@ struct EbtDataTests {
       docAuthor: "sujato",
     )
 
-    // Verify SearchResult structure
+    // Verify SeekerResult structure
     #expect(result.results.count == 7)
     #expect(result.metadata.query == "root of suffering")
     #expect(result.metadata.method == .phrase)
@@ -404,7 +404,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() finds first matching segment for keyword search")
   func populateQuoteKeywordSearch() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("mn1/en/sujato")!,
       score: 1.0,
       quote: nil,
@@ -426,7 +426,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() matched text is exactly between span tags")
   func populateQuoteExactMatch() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,
@@ -455,7 +455,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() HTML escapes special characters")
   func populateQuoteHTMLEscaping() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,
@@ -485,7 +485,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() adds ellipsis when context is truncated")
   func populateQuoteEllipsis() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,
@@ -517,7 +517,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() returns false for non-matching search")
   func populateQuoteNoMatch() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,
@@ -537,7 +537,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() works with phrase search")
   func populateQuotePhraseSearch() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,
@@ -558,7 +558,7 @@ struct EbtDataTests {
 
   @Test("populateQuote() works with regexp search")
   func populateQuoteRegexpSearch() async {
-    var item = SearchResultItem(
+    var item = SeekerResultItem(
       suttaRef: SuttaRef.create("thig1.1/en/soma")!,
       score: 1.0,
       quote: nil,

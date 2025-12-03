@@ -20,7 +20,17 @@ public actor EbtData {
   // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
   // Actor serialization ensures only one task accesses databases at a time.
   // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
-  private nonisolated(unsafe) var databases: [String: OpaquePointer?] = [:]
+  private nonisolated(unsafe) var databases: [String: OpaquePointer] = [:]
+
+  // Safe: EbtSeeker instances are only accessed within actor-isolated methods.
+  // Actor serialization ensures only one task accesses searchCache at a time.
+  // nonisolated(unsafe) is used because searchCache holds references to
+  // EbtSeeker actors,
+  // which would otherwise create isolation boundary issues. The actor's
+  // serialization
+  // ensures thread-safety despite the unsafe annotation.
+  // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
+  private nonisolated(unsafe) var searchCache: [String: EbtSeeker] = [:]
 
   // Manifest loaded once at app startup
   private nonisolated(unsafe) static let manifestCache: DatabaseManifest? =
@@ -190,15 +200,35 @@ public actor EbtData {
     cc.ok1(#line, "ensureDatabase OK")
   }
 
+  /// Returns cached EbtSeeker for given language and author, creating if needed
+  /// Ensures database is loaded before creating EbtSeeker
+  func getSeeker(lang: String, author: String) throws -> EbtSeeker {
+    let key = "\(lang)/\(author)"
+
+    // Return cached instance if available
+    if let cached = searchCache[key] {
+      return cached
+    }
+
+    // Create new seeker and cache it
+    try ensureDatabase(lang: lang, author: author)
+    guard let db = databases[key] else {
+      cc.bad1(#line, "getSeeker: database not found for \(lang)/\(author)")
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    let seeker = EbtSeeker(lang: lang, author: author, db: db)
+    searchCache[key] = seeker
+    return seeker
+  }
+
   deinit {
     // Safe: Actor has no remaining references when deinit runs.
     // databases dictionary is nonisolated(unsafe) but only accessed here and in
     // actor methods.
     // sqlite3_close must be called on same thread that opened connection.
     for (_, database) in databases {
-      if let db = database {
-        sqlite3_close(db)
-      }
+      sqlite3_close(database)
     }
   }
 
@@ -339,14 +369,14 @@ public actor EbtData {
     }
   }
 
-  /// Keyword search returning SearchResult with metadata and timing
+  /// Keyword search returning SeekerResult with metadata and timing
   /// Returns complete search result with metadata and performance metrics
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
   ///   - query: Keyword query string
-  /// - Returns: SearchResult with metadata, scored items, and timing
-  func searchKeywords(_ result: SearchResult) -> SearchResult {
+  /// - Returns: SeekerResult with metadata, scored items, and timing
+  func searchKeywords(_ result: SeekerResult) -> SeekerResult {
     let lang = result.metadata.docLang
     let author = result.metadata.docAuthor
     let query = result.metadata.query
@@ -356,7 +386,7 @@ public actor EbtData {
       "searchKeywords START: query='\(query)' lang=\(lang) author=\(author)",
     )
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-    var items: [SearchResultItem] = []
+    var items: [SeekerResultItem] = []
     var refinedResult = result
     var searchError: SearchError? = nil
 
@@ -427,7 +457,7 @@ public actor EbtData {
           let key = String(cString: cString)
           let score = sqlite3_column_double(stmt, 4)
           if let suttaRef = createSuttaRefFromKey(key) {
-            items.append(SearchResultItem(suttaRef: suttaRef, score: score))
+            items.append(SeekerResultItem(suttaRef: suttaRef, score: score))
             resultCount += 1
           }
         }
@@ -598,7 +628,7 @@ public actor EbtData {
       docAuthor: author,
     )
 
-    return SearchResult(metadata: metadata, results: items, error: searchError)
+    return SeekerResult(metadata: metadata, results: items, error: searchError)
   }
 
   // MARK: - Phrase Search
@@ -610,8 +640,8 @@ public actor EbtData {
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
   ///   - phrase: Phrase query string
-  /// - Returns: SearchResult with metadata and scored items
-  func searchPhrase(_ result: SearchResult) -> SearchResult {
+  /// - Returns: SeekerResult with metadata and scored items
+  func searchPhrase(_ result: SeekerResult) -> SeekerResult {
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
     var refinedResult = result
 
@@ -638,8 +668,8 @@ public actor EbtData {
   }
 
   /// Search for a specific sutta by reference (e.g., "mn1", "sn42.11")
-  /// Returns SearchResult with .suttaref method
-  func searchSuttaRef(_ result: SearchResult) -> SearchResult {
+  /// Returns SeekerResult with .suttaref method
+  func searchSuttaRef(_ result: SeekerResult) -> SeekerResult {
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
     var refinedResult = result
 
@@ -803,7 +833,7 @@ public actor EbtData {
     return str.unicodeScalars.contains { regexpChars.contains($0) }
   }
 
-  /// Initializes SearchResult with auto-detected or explicit method and
+  /// Initializes SeekerResult with auto-detected or explicit method and
   /// pre-parsed items (if suttaref)
   /// Ensures database is decompressed before returning
   /// - Parameters:
@@ -814,9 +844,9 @@ public actor EbtData {
   ///   - refAuthor: Reference author
   ///   - maxResults: Maximum results limit
   ///   - method: Explicit search method (auto-detect if nil)
-  /// - Returns: SearchResult with metadata and results (populated for
+  /// - Returns: SeekerResult with metadata and results (populated for
   /// .suttaref, empty for others)
-  public func initSearchResult(
+  public func initSeekerResult(
     _ query: String,
     docLang: String,
     docAuthor: String,
@@ -824,13 +854,13 @@ public actor EbtData {
     refAuthor: String?,
     maxResults: Int,
     method: SearchMethod? = nil,
-  ) -> SearchResult {
+  ) -> SeekerResult {
     let trimmed = query.trimmingCharacters(in: .whitespaces)
     let entries = trimmed.split(separator: ",")
       .map { $0.trimmingCharacters(in: .whitespaces) }
 
     // Determine method and parse items
-    let (detectedMethod, items): (SearchMethod, [SearchResultItem])
+    let (detectedMethod, items): (SearchMethod, [SeekerResultItem])
 
     if let explicitMethod = method {
       detectedMethod = explicitMethod
@@ -854,7 +884,7 @@ public actor EbtData {
           refAuthor: refAuthor,
           maxDoc: maxResults,
         )
-        return SearchResult(
+        return SeekerResult(
           metadata: metadata,
           results: [],
           error: SearchError(
@@ -889,7 +919,7 @@ public actor EbtData {
         maxDoc: maxResults,
       )
       cc.bad1(#line, #function, "ensureDatbase?", docLang, docAuthor)
-      return SearchResult(
+      return SeekerResult(
         metadata: metadata,
         results: [],
         error: SearchError(
@@ -911,7 +941,7 @@ public actor EbtData {
     )
 
     cc.ok1(#line, #function, detectedMethod, query)
-    return SearchResult(metadata: metadata, results: items)
+    return SeekerResult(metadata: metadata, results: items)
   }
 
   private nonisolated func parseItemsForMethod(
@@ -919,17 +949,17 @@ public actor EbtData {
     entries: [String],
     docLang: String,
     docAuthor: String,
-  ) -> [SearchResultItem] {
+  ) -> [SeekerResultItem] {
     guard method == .suttaref, !entries.isEmpty else { return [] }
 
-    var items: [SearchResultItem] = []
+    var items: [SeekerResultItem] = []
     for entry in entries {
       if let suttaRef = SuttaRef.create(
         entry,
         defaultLang: docLang,
         defaultAuthor: docAuthor,
       ) {
-        items.append(SearchResultItem(suttaRef: suttaRef, score: 1.0))
+        items.append(SeekerResultItem(suttaRef: suttaRef, score: 1.0))
       }
     }
     return items
@@ -940,17 +970,17 @@ public actor EbtData {
     trimmed: String,
     docLang: String,
     docAuthor: String,
-  ) -> (method: SearchMethod, items: [SearchResultItem]) {
+  ) -> (method: SearchMethod, items: [SeekerResultItem]) {
     guard !entries.isEmpty else { return (.phrase, []) }
 
-    var items: [SearchResultItem] = []
+    var items: [SeekerResultItem] = []
     for entry in entries {
       if let suttaRef = SuttaRef.create(
         entry,
         defaultLang: docLang,
         defaultAuthor: docAuthor,
       ) {
-        items.append(SearchResultItem(suttaRef: suttaRef, score: 1.0))
+        items.append(SeekerResultItem(suttaRef: suttaRef, score: 1.0))
       }
     }
 
@@ -975,7 +1005,7 @@ public actor EbtData {
   ///   - docAuthor: Document author (default from Settings)
   ///   - method: Optional explicit search method (auto-detect if nil)
   ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
-  /// - Returns: SearchResult with metadata and items
+  /// - Returns: SeekerResult with metadata and items
   public func search(
     query: String,
     docLang: String = Settings.shared.docLang.code,
@@ -984,11 +1014,11 @@ public actor EbtData {
     refAuthor: String? = Settings.shared.refAuthor,
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
-  ) -> SearchResult {
+  ) -> SeekerResult {
     cc.ok2(#line, "search:\(query)|\(docLang)/'\(docAuthor)'")
 
     // Auto-detect method if not provided
-    let result = initSearchResult(
+    let result = initSeekerResult(
       query,
       docLang: docLang,
       docAuthor: docAuthor,
@@ -1018,7 +1048,7 @@ public actor EbtData {
         // Update metadata to reflect keyword method was used
         var fallbackMetadata = keywordResult.metadata
         fallbackMetadata.method = .keyword
-        return SearchResult(
+        return SeekerResult(
           metadata: fallbackMetadata,
           results: keywordResult.results,
         )
@@ -1049,11 +1079,11 @@ public actor EbtData {
     refAuthor: String?,
     method: SearchMethod,
     maxResults: Int,
-  ) -> SearchResult {
+  ) -> SeekerResult {
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
 
     // Execute search based on method
-    let resultItems: [SearchResultItem] = switch method {
+    let resultItems: [SeekerResultItem] = switch method {
     case .regexp:
       performRegexpSearch(
         query,
@@ -1079,7 +1109,7 @@ public actor EbtData {
       maxDoc: maxResults,
     )
 
-    return SearchResult(metadata: metadata, results: resultItems)
+    return SeekerResult(metadata: metadata, results: resultItems)
   }
 
   // MARK: - Search Handlers
@@ -1090,7 +1120,7 @@ public actor EbtData {
     docLang: String,
     docAuthor: String,
     maxResults: Int,
-  ) -> [SearchResultItem] {
+  ) -> [SeekerResultItem] {
     let regexpKeys = searchRegexp(
       lang: docLang,
       author: docAuthor,
@@ -1100,7 +1130,7 @@ public actor EbtData {
     return regexpKeys
       .prefix(maxResults)
       .map { key in
-        SearchResultItem(suttaRef: key, score: 1.0)
+        SeekerResultItem(suttaRef: key, score: 1.0)
       }
   }
 
@@ -1202,15 +1232,15 @@ public actor EbtData {
   /// Fetches first matching segment for a search result item and populates the
   /// quote
   /// - Parameters:
-  ///   - item: SearchResultItem to populate with quote
+  ///   - item: SeekerResultItem to populate with quote
   ///   - query: Search query string
   ///   - method: Search method used (keyword, phrase, regexp, suttaref)
   ///   - lang: Document language
   ///   - author: Document author
-  /// - Returns: Updated SearchResultItem with quote populated (or nil if
+  /// - Returns: Updated SeekerResultItem with quote populated (or nil if
   /// segment not found)
   public func populateQuote(
-    item: inout SearchResultItem,
+    item: inout SeekerResultItem,
     query: String,
     method: SearchMethod,
     lang: String,
@@ -1379,9 +1409,7 @@ public actor EbtData {
   /// rebuilt)
   public func clearDatabaseCache() {
     for (_, dbPointer) in databases {
-      if let db = dbPointer {
-        sqlite3_close(db)
-      }
+      sqlite3_close(dbPointer)
     }
     databases.removeAll()
   }
