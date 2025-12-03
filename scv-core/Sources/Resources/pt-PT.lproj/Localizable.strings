@@ -6,3 +6,6 @@
 
 /* Placeholder text for empty search query */
 "card.search.placeholder" = "raiz do sofrimento";
+
+/* Prompt text for Siri shortcut search query request */
+"search.for.what" = "O que você está procurando?";

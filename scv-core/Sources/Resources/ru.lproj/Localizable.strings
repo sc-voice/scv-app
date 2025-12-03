@@ -1,11 +1,11 @@
 /* Card type label for search card */
-"card.type.search" = "Suche";
+"card.type.search" = "Поиск";
 
 /* Card type label for sutta viewer card */
-"card.type.sutta" = "Sutra";
+"card.type.sutta" = "Сутта";
 
 /* Placeholder text for empty search query */
-"card.search.placeholder" = "Ursprung des Leidens";
+"card.search.placeholder" = "корень страдания";
 
 /* Prompt text for Siri shortcut search query request */
-"search.for.what" = "Was suchst du?";
+"search.for.what" = "Что вы ищете?";

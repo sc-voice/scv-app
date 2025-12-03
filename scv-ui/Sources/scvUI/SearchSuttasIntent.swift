@@ -1,6 +1,7 @@
 import AppIntents
 import Foundation
 import scvCore
+import SwiftUI
 
 /// AppIntent that accepts a search query and performs a search in SC-Voice
 /// Uses Settings for language and author configuration
@@ -31,7 +32,7 @@ public struct SearchSuttasIntent: AppIntent {
   public func perform() async throws -> some IntentResult {
     if query == nil {
       query = try await $query.requestValue(
-        .init(stringLiteral: "What are you searching for?"),
+        .init(stringLiteral: "search.for.what".localized),
       )
       cc.ok2(#line, "query:", query ?? "")
     }
