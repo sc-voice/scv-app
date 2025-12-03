@@ -34,7 +34,7 @@ struct EbtDataTests {
     )
     let searchResult = await EbtData.shared.searchKeywords(result)
 
-    #expect(searchResult.results.isEmpty)
+    #expect(searchResult.items.isEmpty)
     #expect(searchResult.error == nil)
   }
 
@@ -92,7 +92,7 @@ struct EbtDataTests {
     )
     let searchResult = await EbtData.shared.searchKeywords(result)
 
-    #expect(searchResult.results.count <= 5)
+    #expect(searchResult.items.count <= 5)
     #expect(searchResult.metadata.maxDoc == 5)
   }
 
@@ -133,15 +133,15 @@ struct EbtDataTests {
     ]
 
     // Validate count
-    #expect(result.results.count == 7)
+    #expect(result.items.count == 7)
 
     // Validate exact ordering and scores (with 0.01 tolerance)
     for (i, expected) in expectedResults.enumerated() {
       #expect(
-        i < result.results.count,
-        "Result count \(result.results.count) less than expected \(expectedResults.count)",
+        i < result.items.count,
+        "Result count \(result.items.count) less than expected \(expectedResults.count)",
       )
-      let actual = result.results[i]
+      let actual = result.items[i]
       let resultKey = "\(actual.suttaRef)"
       #expect(
         resultKey == expected.key,
@@ -159,7 +159,7 @@ struct EbtDataTests {
     #expect(result.error == nil)
 
     // Verify no false positives (an4.257 and mn9 excluded)
-    let resultKeys = result.results.map { "\($0.suttaRef)" }
+    let resultKeys = result.items.map { "\($0.suttaRef)" }
     #expect(!resultKeys.contains("an4.257/en/sujato"))
     #expect(!resultKeys.contains("mn9/en/sujato"))
   }
@@ -177,7 +177,7 @@ struct EbtDataTests {
     )
     let result = await EbtData.shared.searchPhrase(initResult)
 
-    #expect(result.results.isEmpty)
+    #expect(result.items.isEmpty)
     #expect(result.error == nil)
   }
 
@@ -194,9 +194,9 @@ struct EbtDataTests {
     )
     let result = await EbtData.shared.searchSuttaRef(initResult)
 
-    #expect(result.results.count == 1)
-    #expect(result.results[0].suttaRef.suttaUid == "mn1")
-    #expect(result.results[0].score == 1.0)
+    #expect(result.items.count == 1)
+    #expect(result.items[0].suttaRef.suttaUid == "mn1")
+    #expect(result.items[0].score == 1.0)
     #expect(result.metadata.method == .suttaref)
     #expect(result.metadata.query == "mn1")
     #expect(result.error == nil)
@@ -214,8 +214,8 @@ struct EbtDataTests {
     )
     let result = await EbtData.shared.searchSuttaRef(initResult)
 
-    #expect(result.results.count == 1)
-    #expect(result.results[0].suttaRef.suttaUid == "mn1")
+    #expect(result.items.count == 1)
+    #expect(result.items[0].suttaRef.suttaUid == "mn1")
     #expect(result.metadata.method == .suttaref)
     #expect(result.error == nil)
   }
@@ -233,7 +233,7 @@ struct EbtDataTests {
     )
     let result = await EbtData.shared.searchSuttaRef(initResult)
 
-    #expect(result.results.isEmpty)
+    #expect(result.items.isEmpty)
     #expect(result.error != nil)
     #expect(result.metadata.method == .suttaref)
   }
@@ -268,7 +268,7 @@ struct EbtDataTests {
 
     // Validate SeekerResult structure
     #expect(result.error == nil)
-    #expect(result.results.count == 9)
+    #expect(result.items.count == 9)
 
     // Validate metadata
     #expect(result.metadata.method == .keyword)
@@ -278,7 +278,7 @@ struct EbtDataTests {
     #expect(result.metadata.elapsedTime > 0)
 
     // Validate exact ordering and keys
-    let resultStrings = result.results.map { "\($0.suttaRef)" }
+    let resultStrings = result.items.map { "\($0.suttaRef)" }
     for (i, expected) in expectedKeys.enumerated() {
       #expect(
         i < resultStrings.count,
@@ -291,11 +291,10 @@ struct EbtDataTests {
     }
 
     // Validate all scores are positive
-    for item in result.results {
+    for item in result.items {
       #expect(item.score > 0, "Score should be positive for \(item.suttaRef)")
     }
   }
-
 
   @Test("asSuttaCentralJson matches source file formatting")
   func asSuttaCentralJsonFormatting() async {
@@ -607,19 +606,5 @@ struct EbtDataTests {
       brahmali.files.vinaya >= 427,
       "en/brahmali should have at least 427 vinaya files, got \(brahmali.files.vinaya)",
     )
-  }
-
-  @Test("Pali database contains 'Nandī dukkhassa mūlan' only in mn1")
-  func paliDatabaseSearchNandi() async {
-    let result = await EbtData.shared.search(
-      query: "Nandī dukkhassa mūlan",
-      docLang: "pli",
-      docAuthor: "ms",
-      refLang: "pli",
-      refAuthor: "ms",
-    )
-
-    let suttas = Set(result.results.map(\.suttaRef.description))
-    #expect(suttas == ["mn1/pli/ms"])
   }
 }

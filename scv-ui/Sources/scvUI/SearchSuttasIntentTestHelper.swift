@@ -101,7 +101,7 @@ import SwiftUI
         )
 
         await MainActor.run {
-          searchResults = searchResult.results.map(\.suttaRef.suttaUid)
+          searchResults = searchResult.items.map(\.suttaRef.suttaUid)
           isSearching = false
           showResults = true
         }

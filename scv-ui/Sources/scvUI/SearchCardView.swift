@@ -142,11 +142,11 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   ) {
     cc.ok1(
       #line,
-      "Starting background quote population for \(searchResult.results.count) results",
+      "Starting background quote population for \(searchResult.items.count) results",
     )
 
     Task {
-      var updatedResults = searchResult.results
+      var updatedResults = searchResult.items
 
       for (index, var item) in updatedResults.enumerated() {
         let success = await EbtData.shared.populateQuote(
@@ -166,7 +166,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       // Update card with populated results
       if let card = cardManager.cardFromId(cardId) {
         var updatedCard = card
-        updatedCard.searchResult?.results = updatedResults
+        updatedCard.searchResult?.items = updatedResults
         cardManager.saveCard(updatedCard)
         cc.ok1(#line, "Saved card with populated quotes")
       }
@@ -241,7 +241,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         // Summary header
         VStack(alignment: .leading, spacing: 4) {
           Text(
-            "Found \(searchResult.results.count) document\(searchResult.results.count == 1 ? "" : "s")",
+            "Found \(searchResult.items.count) document\(searchResult.items.count == 1 ? "" : "s")",
           )
           .font(.headline)
           .foregroundColor(themeProvider.theme.textColor)
@@ -256,7 +256,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         .cornerRadius(8)
 
         // Results list
-        List(searchResult.results, id: \.suttaRef) { item in
+        List(searchResult.items, id: \.suttaRef) { item in
           VStack(alignment: .leading, spacing: 4) {
             HStack {
               Text(item.suttaRef.author ?? "unknown")
@@ -359,7 +359,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       } else {
         cc.ok1(
           #line,
-          "Search completed with \(searchResult.results.count) results",
+          "Search completed with \(searchResult.items.count) results",
         )
 
         // Trigger background quote population

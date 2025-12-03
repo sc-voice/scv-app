@@ -35,7 +35,8 @@ public actor EbtSeeker {
   ///   - query: Search query string
   ///   - method: Optional explicit search method (auto-detect if nil)
   ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
-  /// - Returns: SeekerResult with metadata and items, or error if results target different lang/author
+  /// - Returns: SeekerResult with metadata and items, or error if results
+  /// target different lang/author
   public func search(
     query: String,
     method: SearchMethod? = nil,
@@ -49,28 +50,28 @@ public actor EbtSeeker {
       maxResults: maxResults,
     )
 
-    // Validate that all results match this seeker's lang/author
-    for item in result.results {
+    // Validate that all items match this seeker's lang/author
+    for item in result.items {
       if item.suttaRef.lang != lang || item.suttaRef.author != author {
         let detail = "Expected \(lang)/\(author) but got \(item.suttaRef.lang)/\(item.suttaRef.author)"
         result.error = SearchError(
-          message: "Search results target wrong database",
-          detail: detail
+          message: "Search items target wrong database",
+          detail: detail,
         )
-        result.results = []
+        result.items = []
         cc.bad1(#line, #function, detail)
         return result
       }
     }
 
-    cc.ok1(#line, #function, result.results.count, "items")
+    cc.ok1(#line, #function, result.items.count, "items")
     return result
   }
 
   /// Populates segmentCount and headerSegments for search result items
   func populateSuttaInfo(for searchResult: inout SeekerResult) throws -> Bool {
-    for i in 0 ..< searchResult.results.count {
-      let suttaKey = searchResult.results[i].suttaRef.toString()
+    for i in 0 ..< searchResult.items.count {
+      let suttaKey = searchResult.items[i].suttaRef.toString()
 
       // Query total segment count
       let countQuery = "SELECT total_segments FROM suttas WHERE sutta_key = ?"
@@ -95,7 +96,7 @@ public actor EbtSeeker {
 
       if sqlite3_step(countStmt) == SQLITE_ROW {
         let segmentCount = Int(sqlite3_column_int(countStmt, 0))
-        searchResult.results[i].segmentCount = segmentCount
+        searchResult.items[i].segmentCount = segmentCount
       }
 
       // Query header segments (segment_id LIKE "%:0%")
@@ -135,7 +136,7 @@ public actor EbtSeeker {
         headerSegments.append(segment)
       }
 
-      searchResult.results[i].headerSegments = headerSegments
+      searchResult.items[i].headerSegments = headerSegments
     }
 
     return true
@@ -168,7 +169,7 @@ public enum EbtSeekerError: Error, Sendable {
     expectedLang: String,
     expectedAuthor: String,
     requestedLang: String,
-    requestedAuthor: String
+    requestedAuthor: String,
   )
 }
 
@@ -284,8 +285,8 @@ public struct SeekerResult: Sendable, Codable {
   /// Search metadata including query, method, timing, etc.
   public var metadata: SearchMetadata
 
-  /// Array of matched results
-  public var results: [SeekerResultItem]
+  /// Array of matched items
+  public var items: [SeekerResultItem]
 
   /// Error if search failed (nil if successful)
   public var error: SearchError?
@@ -299,15 +300,15 @@ public struct SeekerResult: Sendable, Codable {
 
   public init(
     metadata: SearchMetadata,
-    results: [SeekerResultItem],
+    items: [SeekerResultItem],
     error: SearchError? = nil,
   ) {
     self.metadata = metadata
-    self.results = results
+    self.items = items
     self.error = error
   }
 
-  /// Populates segmentCount and headerSegments for each result item from
+  /// Populates segmentCount and headerSegments for each item from
   /// database
   /// Called on-demand by clients (e.g., SearchCardView) in background thread
   @discardableResult
@@ -321,7 +322,7 @@ public struct SeekerResult: Sendable, Codable {
       if success {
         cc.ok1(
           #line,
-          "addSuttaInfo: populated sutta info for \(results.count) items",
+          "addSuttaInfo: populated sutta info for \(items.count) items",
         )
       }
       return success
@@ -335,21 +336,21 @@ public struct SeekerResult: Sendable, Codable {
 
   enum CodingKeys: String, CodingKey {
     case metadata
-    case results
+    case items
     case error
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     metadata = try container.decode(SearchMetadata.self, forKey: .metadata)
-    results = try container.decode([SeekerResultItem].self, forKey: .results)
+    items = try container.decode([SeekerResultItem].self, forKey: .items)
     error = try container.decodeIfPresent(SearchError.self, forKey: .error)
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(metadata, forKey: .metadata)
-    try container.encode(results, forKey: .results)
+    try container.encode(items, forKey: .items)
     try container.encodeIfPresent(error, forKey: .error)
   }
 }

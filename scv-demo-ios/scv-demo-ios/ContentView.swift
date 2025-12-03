@@ -61,7 +61,7 @@ struct ContentView: View {
         docLang: request.language,
         docAuthor: request.author,
       )
-      searchResults = result.results.map(\.suttaRef.suttaUid)
+      searchResults = result.items.map(\.suttaRef.suttaUid)
     }
   }
 
@@ -189,7 +189,7 @@ struct ContentView: View {
       if let results = searchIntentResults {
         NavigationStack {
           DemoSeekerResultsView(
-            results: results.results,
+            results: results.items,
             query: results.query,
             language: results.language,
             author: results.author,
@@ -198,7 +198,7 @@ struct ContentView: View {
           .onAppear {
             cc.ok2(
               #line,
-              "sheet: Showing results. query='\(results.query)', results count=\(results.results.count)",
+              "sheet: Showing results. query='\(results.query)', results count=\(results.items.count)",
             )
           }
           .navigationTitle("Search Results")

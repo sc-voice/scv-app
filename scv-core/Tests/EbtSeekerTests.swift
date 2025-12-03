@@ -22,18 +22,18 @@ struct EbtSeekerTests {
     )
 
     // Verify search returned the expected result
-    #expect(result.results.count == 1, "Expected 1 result for thig1.1/en/soma")
-    #expect(result.results[0].suttaRef.suttaUid == "thig1.1")
-    #expect(result.results[0].suttaRef.lang == "en")
-    #expect(result.results[0].suttaRef.author == "soma")
+    #expect(result.items.count == 1, "Expected 1 result for thig1.1/en/soma")
+    #expect(result.items[0].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[0].suttaRef.lang == "en")
+    #expect(result.items[0].suttaRef.author == "soma")
 
     // Initially segmentCount and headerSegments should be empty/nil
     #expect(
-      result.results[0].segmentCount == nil,
+      result.items[0].segmentCount == nil,
       "segmentCount should be nil before addSuttaInfo",
     )
     #expect(
-      result.results[0].headerSegments.isEmpty,
+      result.items[0].headerSegments.isEmpty,
       "headerSegments should be empty before addSuttaInfo",
     )
 
@@ -43,17 +43,17 @@ struct EbtSeekerTests {
 
     // Verify segmentCount was populated
     #expect(
-      result.results[0].segmentCount != nil,
+      result.items[0].segmentCount != nil,
       "segmentCount should be populated after addSuttaInfo",
     )
     #expect(
-      result.results[0].segmentCount == 9,
-      "thig1.1/en/soma should have 9 segments, got \(result.results[0].segmentCount ?? -1)",
+      result.items[0].segmentCount == 9,
+      "thig1.1/en/soma should have 9 segments, got \(result.items[0].segmentCount ?? -1)",
     )
 
     // Verify headerSegments was populated with header segments (segments with
     // :0 in segment_id)
-    let headerSegments = result.results[0].headerSegments
+    let headerSegments = result.items[0].headerSegments
     #expect(!headerSegments.isEmpty, "thig1.1 should have header segments")
 
     // Verify header segment ids contain ":0"
@@ -100,10 +100,10 @@ struct EbtSeekerTests {
     let result = await seeker.search(query: "thig1.1/en/soma")
 
     // Verify search returned the expected result
-    #expect(result.results.count == 1, "Expected 1 result for thig1.1")
-    #expect(result.results[0].suttaRef.suttaUid == "thig1.1")
-    #expect(result.results[0].suttaRef.lang == "en")
-    #expect(result.results[0].suttaRef.author == "soma")
+    #expect(result.items.count == 1, "Expected 1 result for thig1.1")
+    #expect(result.items[0].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[0].suttaRef.lang == "en")
+    #expect(result.items[0].suttaRef.author == "soma")
 
     // Verify metadata
     #expect(result.metadata.docLang == "en", "docLang should be en")
@@ -149,21 +149,22 @@ struct EbtSeekerTests {
     let wrongLangResult = await seeker.search(query: "mn1/de/sabbamitta")
     #expect(
       wrongLangResult.error != nil,
-      "Search with wrong lang should return error"
+      "Search with wrong lang should return error",
     )
 
-    // Try to search for a sutta with valid author (kelly) but not in en/soma database
+    // Try to search for a sutta with valid author (kelly) but not in en/soma
+    // database
     let wrongAuthorResult = await seeker.search(query: "mn1/en/kelly")
     #expect(
       wrongAuthorResult.error != nil,
-      "Search with valid author not in database should return error"
+      "Search with valid author not in database should return error",
     )
 
     // Try to search for a sutta with wrong lang code
     let wrongLangCodeResult = await seeker.search(query: "mn1/xx/soma")
     #expect(
       wrongLangCodeResult.error != nil,
-      "Search with invalid lang code should return or error"
+      "Search with invalid lang code should return or error",
     )
   }
 
@@ -174,49 +175,58 @@ struct EbtSeekerTests {
 
     // Search for mn1/en/soma which should match seeker's database
     let result = await seeker.search(query: "mn1/en/soma")
-    #expect(!result.results.isEmpty, "Search for mn1/en/soma should find results")
-    #expect(result.results[0].suttaRef.lang == "en", "Result should have lang en")
-    #expect(result.results[0].suttaRef.author == "soma", "Result should have author soma")
+    #expect(!result.items.isEmpty, "Search for mn1/en/soma should find results")
+    #expect(result.items[0].suttaRef.lang == "en", "Result should have lang en")
+    #expect(
+      result.items[0].suttaRef.author == "soma",
+      "Result should have author soma",
+    )
   }
 
   @Test("Search brahmali returns vinaya documents")
   func searchBrahmaliVinaya() async throws {
     cc.ok2(#line, "Starting brahmali vinaya search")
 
-    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "brahmali")
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "brahmali",
+    )
     let result = await seeker.search(query: "men shaving heads")
 
     cc.ok2(#line, #function,
-           "results:\(result.results.count) \(result.error?.message ?? "ok")")
+           "results:\(result.items.count) \(result.error?.message ?? "ok")")
 
-    if !result.results.isEmpty {
-      for (i, item) in result.results.enumerated() {
+    if !result.items.isEmpty {
+      for (i, item) in result.items.enumerated() {
         cc.ok2(#line, "[\(i)] \(item.suttaRef.description) score:\(item.score)")
       }
     }
 
     #expect(
-      result.results.count == 1,
-      "Expected 1 result, got \(result.results.count)",
+      result.items.count == 1,
+      "Expected 1 result, got \(result.items.count)",
     )
-    #expect(result.results.first?.suttaRef.suttaUid == "pli-tv-kd20")
-    #expect(result.results.first?.suttaRef.author == "brahmali")
+    #expect(result.items.first?.suttaRef.suttaUid == "pli-tv-kd20")
+    #expect(result.items.first?.suttaRef.author == "brahmali")
   }
 
   @Test("Unified search endpoint returns SeekerResult with metadata")
   func searchRootOfSuffering() async throws {
-    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "sujato")
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "sujato",
+    )
     let result = await seeker.search(query: "root of suffering")
 
     // Verify SeekerResult structure
-    #expect(result.results.count == 7)
+    #expect(result.items.count == 7)
     #expect(result.metadata.query == "root of suffering")
     #expect(result.metadata.method == .phrase)
     #expect(result.metadata.docLang == "en")
     #expect(result.metadata.docAuthor == "sujato")
 
     // Verify all expected suttas are present
-    let resultSuttas = result.results.map(\.suttaRef.suttaUid)
+    let resultSuttas = result.items.map(\.suttaRef.suttaUid)
     for expectedSutta in [
       "sn42.11",
       "mn105",
@@ -228,5 +238,14 @@ struct EbtSeekerTests {
     ] {
       #expect(resultSuttas.contains(expectedSutta))
     }
+  }
+
+  @Test("Pali database contains 'Nandī dukkhassa mūlan' only in mn1")
+  func paliDatabaseSearchNandi() async throws {
+    let seeker = try await EbtData.shared.getSeeker(lang: "pli", author: "ms")
+    let result = await seeker.search(query: "Nandī dukkhassa mūlan")
+
+    let suttas = Set(result.items.map(\.suttaRef.description))
+    #expect(suttas == ["mn1/pli/ms"])
   }
 }

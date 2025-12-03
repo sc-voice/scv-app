@@ -116,7 +116,7 @@ public class AppController {
     cc.ok1(
       #line,
       #function,
-      "Search created card with \(searchResult.results.count) results",
+      "Search created card with \(searchResult.items.count) results",
     )
   }
 

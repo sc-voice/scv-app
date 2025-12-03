@@ -204,14 +204,22 @@ public actor EbtData {
   /// Defaults to Pali language if not specified
   /// Defaults to default author for language if not specified
   /// Ensures database is loaded before creating EbtSeeker
-  func getSeeker(lang: String = "pli", author: String = "") throws -> EbtSeeker {
+  func getSeeker(lang: String = "pli",
+                 author: String = "") throws -> EbtSeeker
+  {
     // Resolve author to default if empty
     var resolvedAuthor = author
     if resolvedAuthor.isEmpty {
-      if let defaultInfo = EbtData.manifestCache?.defaultAuthorForLanguage(lang) {
+      if let defaultInfo = EbtData.manifestCache?
+        .defaultAuthorForLanguage(lang)
+      {
         resolvedAuthor = defaultInfo.author
       } else {
-        cc.bad1(#line, #function, "no default author found for language \(lang)")
+        cc.bad1(
+          #line,
+          #function,
+          "no default author found for language \(lang)",
+        )
         throw EbtDataError.cannotOpenDatabase(lang: lang, author: "")
       }
     }
@@ -226,7 +234,10 @@ public actor EbtData {
     // Create new seeker and cache it
     try ensureDatabase(lang: lang, author: resolvedAuthor)
     guard let db = databases[key] else {
-      cc.bad1(#line, "getSeeker: database not found for \(lang)/\(resolvedAuthor)")
+      cc.bad1(
+        #line,
+        "getSeeker: database not found for \(lang)/\(resolvedAuthor)",
+      )
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: resolvedAuthor)
     }
 
@@ -641,7 +652,7 @@ public actor EbtData {
       docAuthor: author,
     )
 
-    return SeekerResult(metadata: metadata, results: items, error: searchError)
+    return SeekerResult(metadata: metadata, items: items, error: searchError)
   }
 
   // MARK: - Phrase Search
@@ -662,7 +673,7 @@ public actor EbtData {
     let keywordResult = searchKeywords(refinedResult)
 
     // Filter to only those containing exact phrase
-    refinedResult.results = keywordResult.results.filter { item in
+    refinedResult.items = keywordResult.items.filter { item in
       let suttaRef = item.suttaRef
       let suttaKey = "\(suttaRef.suttaUid)/\(suttaRef.lang)/\(suttaRef.author ?? "")"
       return containsPhrase(
@@ -688,7 +699,7 @@ public actor EbtData {
 
     // Apply maxResults limit to pre-parsed items
     refinedResult
-      .results = Array(refinedResult.results
+      .items = Array(refinedResult.items
         .prefix(refinedResult.metadata.maxDoc))
     refinedResult.metadata
       .elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
@@ -899,7 +910,7 @@ public actor EbtData {
         )
         return SeekerResult(
           metadata: metadata,
-          results: [],
+          items: [],
           error: SearchError(
             message: "search.error.invalid_suttaref".localized,
             detail: "Could not parse '\(query)' as a valid sutta reference",
@@ -934,7 +945,7 @@ public actor EbtData {
       cc.bad1(#line, #function, "ensureDatbase?", docLang, docAuthor)
       return SeekerResult(
         metadata: metadata,
-        results: [],
+        items: [],
         error: SearchError(
           message: "search.error.failed".localized,
           detail: "Failed to initialize database",
@@ -954,7 +965,7 @@ public actor EbtData {
     )
 
     cc.ok1(#line, #function, detectedMethod, query)
-    return SeekerResult(metadata: metadata, results: items)
+    return SeekerResult(metadata: metadata, items: items)
   }
 
   private nonisolated func parseItemsForMethod(
@@ -1052,7 +1063,7 @@ public actor EbtData {
     case .phrase:
       var phraseResult = searchPhrase(result)
       // Fallback to keyword search if phrase returns no results
-      if phraseResult.results.isEmpty {
+      if phraseResult.items.isEmpty {
         cc.ok2(
           #line,
           "Phrase search returned 0 results, falling back to keyword search",
@@ -1063,7 +1074,7 @@ public actor EbtData {
         fallbackMetadata.method = .keyword
         return SeekerResult(
           metadata: fallbackMetadata,
-          results: keywordResult.results,
+          items: keywordResult.items,
         )
       }
       return phraseResult
@@ -1122,7 +1133,7 @@ public actor EbtData {
       maxDoc: maxResults,
     )
 
-    return SeekerResult(metadata: metadata, results: resultItems)
+    return SeekerResult(metadata: metadata, items: resultItems)
   }
 
   // MARK: - Search Handlers
