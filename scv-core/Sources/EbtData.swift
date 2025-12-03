@@ -201,9 +201,22 @@ public actor EbtData {
   }
 
   /// Returns cached EbtSeeker for given language and author, creating if needed
+  /// Defaults to Pali language if not specified
+  /// Defaults to default author for language if not specified
   /// Ensures database is loaded before creating EbtSeeker
-  func getSeeker(lang: String, author: String) throws -> EbtSeeker {
-    let key = "\(lang)/\(author)"
+  func getSeeker(lang: String = "pli", author: String = "") throws -> EbtSeeker {
+    // Resolve author to default if empty
+    var resolvedAuthor = author
+    if resolvedAuthor.isEmpty {
+      if let defaultInfo = EbtData.manifestCache?.defaultAuthorForLanguage(lang) {
+        resolvedAuthor = defaultInfo.author
+      } else {
+        cc.bad1(#line, #function, "no default author found for language \(lang)")
+        throw EbtDataError.cannotOpenDatabase(lang: lang, author: "")
+      }
+    }
+
+    let key = "\(lang)/\(resolvedAuthor)"
 
     // Return cached instance if available
     if let cached = searchCache[key] {
@@ -211,13 +224,13 @@ public actor EbtData {
     }
 
     // Create new seeker and cache it
-    try ensureDatabase(lang: lang, author: author)
+    try ensureDatabase(lang: lang, author: resolvedAuthor)
     guard let db = databases[key] else {
-      cc.bad1(#line, "getSeeker: database not found for \(lang)/\(author)")
-      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+      cc.bad1(#line, "getSeeker: database not found for \(lang)/\(resolvedAuthor)")
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: resolvedAuthor)
     }
 
-    let seeker = EbtSeeker(lang: lang, author: author, db: db)
+    let seeker = EbtSeeker(lang: lang, author: resolvedAuthor, db: db)
     searchCache[key] = seeker
     return seeker
   }

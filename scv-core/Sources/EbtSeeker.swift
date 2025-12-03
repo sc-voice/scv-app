@@ -13,6 +13,7 @@ import SQLite3
 /// Actor providing thread-safe database access for a specific language/author
 /// combination
 public actor EbtSeeker {
+  private let cc = ColorConsole(#file, #function, dbg.EbtSeeker.other)
   private let lang: String
   private let author: String
   private let db: OpaquePointer
@@ -29,23 +30,41 @@ public actor EbtSeeker {
   }
 
   /// Performs unified search with auto-detection or explicit method
+  /// Validates that search results match this seeker's lang/author database
   /// - Parameters:
   ///   - query: Search query string
   ///   - method: Optional explicit search method (auto-detect if nil)
   ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
-  /// - Returns: SeekerResult with metadata and items
+  /// - Returns: SeekerResult with metadata and items, or error if results target different lang/author
   public func search(
     query: String,
     method: SearchMethod? = nil,
     maxResults: Int = Settings.shared.maxDoc,
   ) async -> SeekerResult {
-    await EbtData.shared.search(
+    var result = await EbtData.shared.search(
       query: query,
       docLang: lang,
       docAuthor: author,
       method: method,
       maxResults: maxResults,
     )
+
+    // Validate that all results match this seeker's lang/author
+    for item in result.results {
+      if item.suttaRef.lang != lang || item.suttaRef.author != author {
+        let detail = "Expected \(lang)/\(author) but got \(item.suttaRef.lang)/\(item.suttaRef.author)"
+        result.error = SearchError(
+          message: "Search results target wrong database",
+          detail: detail
+        )
+        result.results = []
+        cc.bad1(#line, #function, detail)
+        return result
+      }
+    }
+
+    cc.ok1(#line, #function, result.results.count, "items")
+    return result
   }
 
   /// Populates segmentCount and headerSegments for search result items
@@ -138,6 +157,19 @@ public enum SearchMethod: String, Sendable, Codable {
 
   /// Regexp search - find using regular expression pattern
   case regexp
+}
+
+// MARK: - EbtSeekerError
+
+/// Errors specific to EbtSeeker operations
+public enum EbtSeekerError: Error, Sendable {
+  /// Query targets wrong database lang/author
+  case wrongDatabase(
+    expectedLang: String,
+    expectedAuthor: String,
+    requestedLang: String,
+    requestedAuthor: String
+  )
 }
 
 // MARK: - SearchError

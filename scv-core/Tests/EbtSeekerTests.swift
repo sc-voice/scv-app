@@ -107,4 +107,73 @@ struct EbtSeekerTests {
     #expect(result.metadata.docLang == "en", "docLang should be en")
     #expect(result.metadata.docAuthor == "soma", "docAuthor should be soma")
   }
+
+  @Test("getSeeker with invalid author throws error")
+  func getSeekerInvalidAuthor() async throws {
+    do {
+      _ = try await EbtData.shared.getSeeker(lang: "en", author: "nonexistent")
+      #expect(Bool(false), "Should have thrown error for invalid author")
+    } catch EbtDataError.databaseNotFound {
+      // Expected error
+    }
+  }
+
+  @Test("getSeeker with invalid lang throws error")
+  func getSeekerInvalidLang() async throws {
+    do {
+      _ = try await EbtData.shared.getSeeker(lang: "xx", author: "sujato")
+      #expect(Bool(false), "Should have thrown error for invalid lang")
+    } catch EbtDataError.databaseNotFound {
+      // Expected error
+    }
+  }
+
+  @Test("getSeeker with defaults uses pli and default author")
+  func getSeekerDefaults() async throws {
+    let seeker = try await EbtData.shared.getSeeker()
+
+    // Verify metadata shows pli and default author
+    let result = await seeker.search(query: "mn1/pli/ms")
+    #expect(result.metadata.docLang == "pli", "docLang should be pli")
+    #expect(!result.metadata.docAuthor.isEmpty, "docAuthor should not be empty")
+  }
+
+  @Test("EbtSeeker.search() with wrong lang/author returns error")
+  func seekerSearchWrongLangAuthor() async throws {
+    // Create seeker for en/soma
+    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "soma")
+
+    // Try to search for a sutta with wrong lang/author combination
+    let wrongLangResult = await seeker.search(query: "mn1/de/sabbamitta")
+    #expect(
+      wrongLangResult.error != nil,
+      "Search with wrong lang should return error"
+    )
+
+    // Try to search for a sutta with valid author (kelly) but not in en/soma database
+    let wrongAuthorResult = await seeker.search(query: "mn1/en/kelly")
+    #expect(
+      wrongAuthorResult.error != nil,
+      "Search with valid author not in database should return error"
+    )
+
+    // Try to search for a sutta with wrong lang code
+    let wrongLangCodeResult = await seeker.search(query: "mn1/xx/soma")
+    #expect(
+      wrongLangCodeResult.error != nil,
+      "Search with invalid lang code should return or error"
+    )
+  }
+
+  @Test("EbtSeeker.search() with correct lang/author returns results")
+  func seekerSearchCorrectLangAuthor() async throws {
+    // Create seeker for en/soma
+    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "soma")
+
+    // Search for mn1/en/soma which should match seeker's database
+    let result = await seeker.search(query: "mn1/en/soma")
+    #expect(!result.results.isEmpty, "Search for mn1/en/soma should find results")
+    #expect(result.results[0].suttaRef.lang == "en", "Result should have lang en")
+    #expect(result.results[0].suttaRef.author == "soma", "Result should have author soma")
+  }
 }
