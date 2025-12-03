@@ -135,14 +135,43 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     cc.ok1(#line, "autocomplete:", query, card.searchQuery)
   }
 
+  private func populateSuttaInfoInBackground(
+    searchResult: SeekerResult,
+    cardManager: Manager,
+    cardId: Card.ID,
+  ) {
+    cc.ok2(
+      #line,
+      "Starting background sutta info population for \(searchResult.items.count) items",
+    )
+
+    Task {
+      var updatedResult = searchResult
+      let success = await updatedResult.addSuttaInfo()
+
+      if success {
+        if let card = cardManager.cardFromId(cardId) {
+          var updatedCard = card
+          updatedCard.searchResult = updatedResult
+          cardManager.saveCard(updatedCard)
+          cc.ok1(#line, "Saved card with populated sutta info")
+        } else {
+          cc.bad1(#line, "Card not found for id:", cardId)
+        }
+      } else {
+        cc.bad1(#line, "Failed to populate sutta info")
+      }
+    }
+  }
+
   private func populateQuotesInBackground(
     searchResult: SeekerResult,
     cardManager: Manager,
     cardId: Card.ID,
   ) {
-    cc.ok1(
+    cc.ok2(
       #line,
-      "Starting background quote population for \(searchResult.items.count) results",
+      "Starting background quote population for \(searchResult.items.count) items",
     )
 
     Task {
@@ -169,6 +198,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         updatedCard.searchResult?.items = updatedResults
         cardManager.saveCard(updatedCard)
         cc.ok1(#line, "Saved card with populated quotes")
+      } else {
+        cc.bad1(#line, "Card not found for id:", cardId)
       }
     }
   }
@@ -264,30 +295,19 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
                 .foregroundColor(themeProvider.theme.textColor)
                 .fontWeight(.semibold)
               Spacer()
-              Button(action: {
-                Task {
-                  let card = await cardManager.suttaCardForRef(
-                    item.suttaRef,
-                    searchQuery: card.searchQuery,
-                  )
-                  cardManager.selectCard(card)
-                  cc.ok1(
-                    #line,
-                    "Selected sutta card for:",
-                    item.suttaRef.toString(),
-                  )
-                }
-              }) {
-                Image(systemName: "book.fill")
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.accentColor)
-              }
               Text(
                 "★ \(String(format: "%.2f", item.score))",
               )
               .font(.caption)
               .foregroundColor(themeProvider.theme.textColor)
               .fontWeight(.semibold)
+              Text(
+                item.segmentCount.map(String.init) ?? "…",
+              )
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.textColor)
+              .fontWeight(.semibold)
+              .frame(minWidth: 30, alignment: .trailing)
             }
             Text(item.suttaRef.suttaUid)
               .font(.body)
@@ -308,6 +328,21 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
             }
           }
           .padding(.vertical, 4)
+          .contentShape(Rectangle())
+          .onTapGesture {
+            Task {
+              let suttaCard = await cardManager.suttaCardForRef(
+                item.suttaRef,
+                searchQuery: card.searchQuery,
+              )
+              cardManager.selectCard(suttaCard)
+              cc.ok1(
+                #line,
+                "Selected sutta card for:",
+                item.suttaRef.toString(),
+              )
+            }
+          }
         }
         #if os(iOS)
         .listStyle(.insetGrouped)
@@ -362,13 +397,18 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           "Search completed with \(searchResult.items.count) results",
         )
 
-        // Trigger background quote population
+        // Trigger background sutta info and quote population
         // Note: We need to spawn this on the main thread context
-        // Create a temporary view instance to call the instance method
+        // Create a temporary view instance to call the instance methods
         DispatchQueue.main.async {
           let view = SearchCardView<Manager.ManagedCard, Manager>(
             card: .constant(card),
             cardManager: cardManager,
+          )
+          view.populateSuttaInfoInBackground(
+            searchResult: searchResult,
+            cardManager: cardManager,
+            cardId: selectedCardId,
           )
           view.populateQuotesInBackground(
             searchResult: searchResult,
