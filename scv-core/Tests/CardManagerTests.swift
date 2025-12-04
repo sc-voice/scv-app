@@ -114,7 +114,7 @@ struct CardManagerTests {
 
   @Test
   @MainActor
-  func deletingLastRemainingCardKeepsSelectionNil() throws {
+  func deletingLastRemainingCardCreatesHelpCard() throws {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try ModelContainer(for: Card.self, configurations: config)
     let context = ModelContext(container)
@@ -127,9 +127,10 @@ struct CardManagerTests {
 
     manager.removeCard(onlyCard)
 
-    // After deleting the only card, selectedCard should be nil
-    #expect(manager.selectedCard == nil)
-    #expect(manager.allCards.isEmpty)
+    // After deleting the only card, a help card should be auto-created
+    #expect(manager.selectedCard != nil)
+    #expect(manager.selectedCard?.cardType == .help)
+    #expect(manager.allCards.count == 1)
   }
 
   @Test

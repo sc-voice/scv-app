@@ -102,13 +102,48 @@ public class CardManager: ICardManager {
 
   /// Returns a binding to a card by its ID, or nil if not found
   public func bindCard(id: Card.ID) -> Binding<Card>? {
-    guard cardFromId(id) != nil else {
+    guard let card = cardFromId(id) else {
+      cc.bad1(#line, "bindCard: card not found for id:", id)
+      return nil
+    }
+
+    // Serialize card to JSON so we can deserialize it later if card is deleted
+    // This avoids holding references to detached SwiftData objects
+    var ghostCardJSON: String?
+    do {
+      let encoder = JSONEncoder()
+      let data = try encoder.encode(card)
+      ghostCardJSON = String(data: data, encoding: .utf8)
+      cc.ok2(#line, "bindCard: created binding for card:", card.name)
+    } catch {
+      cc.bad1(#line, "bindCard: failed to serialize card:", error.localizedDescription)
       return nil
     }
 
     return Binding(
       get: {
-        self.cardFromId(id)!
+        // If card was deleted after binding was created, deserialize from JSON
+        // to get a fresh Card object. The view will be torn down when selectedCardId updates.
+        if let foundCard = self.cardFromId(id) {
+          return foundCard
+        } else {
+          if let jsonData = ghostCardJSON,
+             let data = jsonData.data(using: .utf8) {
+            do {
+              let decoder = JSONDecoder()
+              let ghostCard = try decoder.decode(Card.self, from: data)
+              self.cc.ok1(#line, "bindCard.get: card was deleted, returning happy ghost:", ghostCard.name)
+              return ghostCard
+            } catch {
+              self.cc.bad1(#line, "bindCard.get: failed to deserialize ghost card:", error.localizedDescription)
+              // Return a minimal placeholder card to avoid crashing
+              return Card(cardType: .help, typeId: 0)
+            }
+          } else {
+            self.cc.bad1(#line, "bindCard.get: ghost JSON missing, returning placeholder")
+            return Card(cardType: .help, typeId: 0)
+          }
+        }
       },
       set: { newCard in
         // Update the card's mutable properties
@@ -119,6 +154,20 @@ public class CardManager: ICardManager {
           existingCard.suttaReference = newCard.suttaReference
           existingCard.mlDoc = newCard.mlDoc
           existingCard.searchResults = newCard.searchResults
+        } else {
+          // Extract card name from ghost JSON for logging
+          var ghostCardName = "unknown"
+          if let jsonData = ghostCardJSON,
+             let data = jsonData.data(using: .utf8) {
+            do {
+              let decoder = JSONDecoder()
+              let ghostCard = try decoder.decode(Card.self, from: data)
+              ghostCardName = ghostCard.name
+            } catch {
+              // Silent catch - just use "unknown"
+            }
+          }
+          self.cc.ok1(#line, "bindCard.set: card was deleted, ghost save denied:", ghostCardName)
         }
       },
     )
@@ -217,6 +266,12 @@ public class CardManager: ICardManager {
       // Find the next card to select
       if let nextCard = findNextCard(after: card, in: remainingCards) {
         selectedCardId = nextCard.id
+        cc.ok1(#line, "Selected next card after deletion:", nextCard.name)
+      } else {
+        // No remaining cards, create a help card to maintain invariant
+        let helpCard = addCard(type: .help)
+        selectedCardId = helpCard.id
+        cc.ok1(#line, "No remaining cards, auto-created help card")
       }
     }
 

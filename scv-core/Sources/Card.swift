@@ -13,6 +13,7 @@ import SwiftData
 public enum CardType: String, CaseIterable, Codable {
   case search
   case sutta
+  case help
 }
 
 // MARK: - ICard Protocol
@@ -39,6 +40,8 @@ public extension ICard {
       "magnifyingglass"
     case .sutta:
       "book"
+    case .help:
+      "questionmark.circle"
     }
   }
 
@@ -49,6 +52,8 @@ public extension ICard {
       "card.type.search".localized
     case .sutta:
       "card.type.sutta".localized
+    case .help:
+      "card.type.help".localized
     }
   }
 
@@ -63,6 +68,8 @@ public extension ICard {
         // "uid/lang/author")
         suttaReference.split(separator: "/").first
         .map(String.init) ?? suttaReference
+    case .help:
+      "card.type.help".localized
     }
   }
 }

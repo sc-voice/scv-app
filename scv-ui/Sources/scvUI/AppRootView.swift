@@ -22,6 +22,7 @@ public struct AppRootView<Manager: ICardManager>: View {
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
     .shared)
+  @State private var rootSearchQuery: String = ""
   let searchingIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
@@ -59,12 +60,13 @@ public struct AppRootView<Manager: ICardManager>: View {
         if let selectedCardId = cardManager.selectedCardId,
            let cardBinding = cardManager.bindCard(id: selectedCardId)
         {
-          detailView(for: selectedCardId)
+          detailView(for: selectedCardId, cardBinding: cardBinding)
+            .id(selectedCardId)  // Force complete rebuild when selectedCardId changes
             .onAppear {
               cc.ok1(#line, "Detail view layout complete")
             }
             .searchable(
-              text: cardBinding.searchQuery,
+              text: $rootSearchQuery,
               isPresented: $isSearchFocused,
               placement: {
                 #if os(iOS)
@@ -86,8 +88,10 @@ public struct AppRootView<Manager: ICardManager>: View {
                 newValue,
               )
             }
-            .onChange(of: cardBinding.searchQuery.wrappedValue) { _, newValue in
-              cc.ok1(#line, "searchQuery changed in keyboard to:", newValue)
+            .onChange(of: rootSearchQuery) { _, newValue in
+              cc.ok1(#line, "rootSearchQuery changed in keyboard to:", newValue)
+              // Note: Card updates are handled by SearchCardView.searchSubmitHandler
+              // on search submission, not by onChange here
             }
             .onAppear {
               cc.ok1(
@@ -101,7 +105,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               SearchCardView.searchSubmitHandler(
                 cardManager: cardManager,
                 selectedCardId: selectedCardId,
-                searchQueryBinding: cardBinding.searchQuery,
+                searchQueryBinding: $rootSearchQuery,
               )
               isSearchFocused = false
             }
@@ -178,6 +182,12 @@ public struct AppRootView<Manager: ICardManager>: View {
         let idString = cardManager.selectedCardId
           .map { String(describing: $0) } ?? "nil"
         cc.ok2(#line, "selectedCardId:", idString)
+
+        // Sync rootSearchQuery with new card's searchQuery
+        if let cardId = cardManager.selectedCardId,
+           let card = cardManager.cardFromId(cardId) {
+          rootSearchQuery = card.searchQuery
+        }
       }
       .sheet(isPresented: $showSettings) {
         SettingsView(controller: settingsController)
@@ -187,38 +197,35 @@ public struct AppRootView<Manager: ICardManager>: View {
   }
 
   @ViewBuilder
-  private func detailView(for cardId: Manager.ManagedCard.ID) -> some View {
+  private func detailView(for cardId: Manager.ManagedCard.ID,
+                          cardBinding: Binding<Manager.ManagedCard>?) -> some View
+  {
     if let selectedCard = cardManager.allCards
-      .first(where: { $0.id == cardId })
+      .first(where: { $0.id == cardId }),
+       let cardBinding = cardBinding
     {
       switch selectedCard.cardType {
       case .search:
-        if let binding = cardManager.bindCard(id: cardId) {
-          SearchCardView(
-            card: binding,
-            cardManager: cardManager,
-            searchingIcon: searchingIcon,
-          )
-          .environmentObject(themeProvider)
-          .onAppear {
-            cc.ok1(#line, "SearchCardView appeared on screen")
-          }
-        } else {
-          Text("Card not found")
-            .foregroundStyle(.secondary)
+        SearchCardView(
+          card: cardBinding,
+          cardManager: cardManager,
+          searchingIcon: searchingIcon,
+        )
+        .environmentObject(themeProvider)
+        .onAppear {
+          cc.ok1(#line, "SearchCardView appeared on screen")
         }
 
       case .sutta:
-        if let binding = cardManager.bindCard(id: cardId) {
-          SuttaCardView(
-            card: binding,
-            cardManager: cardManager,
-          )
+        SuttaCardView(
+          card: cardBinding,
+          cardManager: cardManager,
+        )
+        .environmentObject(themeProvider)
+
+      case .help:
+        HelpCardView()
           .environmentObject(themeProvider)
-        } else {
-          Text("Card not found")
-            .foregroundStyle(.secondary)
-        }
       }
     } else {
       Text("Card not found")

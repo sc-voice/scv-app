@@ -176,6 +176,15 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         cc.ok1(#line, "onAppear no mlDoc")
       }
     }
+    .onDisappear {
+      // Stop playback when sutta card is dismissed
+      // This prevents crashes when a playing sutta card is deleted
+      if player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid {
+        player.pause()
+        player.currentSutta = nil
+        cc.ok1(#line, "Stopped playback on sutta card disappear")
+      }
+    }
   }
 
   // MARK: - Private Methods
