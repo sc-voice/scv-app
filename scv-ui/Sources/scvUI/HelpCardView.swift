@@ -27,10 +27,12 @@ public struct HelpCardView: View {
           .font(.headline)
           .foregroundStyle(themeProvider.theme.textColor)
 
-        Text("Create a search card or sutta card using the + button to get started.")
-          .font(.body)
-          .foregroundStyle(themeProvider.theme.secondaryTextColor)
-          .multilineTextAlignment(.center)
+        Text(
+          "Create a search card or sutta card using the + button to get started.",
+        )
+        .font(.body)
+        .foregroundStyle(themeProvider.theme.secondaryTextColor)
+        .multilineTextAlignment(.center)
       }
       .padding(.horizontal)
 

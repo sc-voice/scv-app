@@ -5,7 +5,7 @@
 "card.type.sutta" = "Sutta";
 
 /* Placeholder text for empty search query */
-"card.search.placeholder" = "root of suffering";
+"card.search.placeholder" = "Search...?";
 
 /* Prompt text for Siri shortcut search query request */
-"search.for.what" = "What are you searching for?";
+"search.for.what" = "Search for?";

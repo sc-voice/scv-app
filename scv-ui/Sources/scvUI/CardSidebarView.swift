@@ -37,13 +37,6 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           Image(systemName: card.iconName())
             .foregroundStyle(.secondary)
           VStack(alignment: .leading, spacing: 2) {
-            #if DEBUG
-              if selectedCardId == card.id {
-                Text(card.name)
-                  .font(.caption)
-                  .foregroundStyle(themeProvider.theme.debugForeground)
-              }
-            #endif
             Text(card.sidebarTitle)
               .font(.headline)
               .lineLimit(1)

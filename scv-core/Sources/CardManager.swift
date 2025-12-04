@@ -52,32 +52,40 @@ public class CardManager: ICardManager {
 
   private let modelContext: ModelContext
   public var selectedCardId: Card.ID?
+  public var recentCardId: Card.ID?
 
   // MARK: - Initialization
 
   public init(modelContext: ModelContext) {
     self.modelContext = modelContext
 
+    // Clean up detached cards from previous sessions
+    deleteDetachedCards()
+
     // Ensure at least one card exists
     if allCards.isEmpty {
-      addCard(type: .search)
+      addCard(type: .help)
     }
 
     // Ensure a card is always selected
     if selectedCardId == nil {
-      selectedCardId = allCards.first?.id
+      let first = allCards.first
+      selectedCardId = first?.id
+      recentCardId = first?.id
+      cc.ok1(#line, #function, "selectedCard:", first?.name ?? "nil")
     }
   }
 
   // MARK: - Public Properties
 
   /// Returns all cards sorted by createdAt in descending order (latest first)
+  /// Excludes detached cards to prevent SwiftData fault crashes
   public var allCards: [Card] {
     let fetchDescriptor = FetchDescriptor<Card>(sortBy: [
       SortDescriptor(\.createdAt, order: .reverse),
     ])
     do {
-      return try modelContext.fetch(fetchDescriptor)
+      return try modelContext.fetch(fetchDescriptor).filter { !$0.isDetached }
     } catch {
       cc.bad1(#line, "Failed to fetch cards: \(error)")
       return []
@@ -114,34 +122,36 @@ public class CardManager: ICardManager {
       let encoder = JSONEncoder()
       let data = try encoder.encode(card)
       ghostCardJSON = String(data: data, encoding: .utf8)
-      cc.ok2(#line, "bindCard: created binding for card:", card.name)
+      cc.ok2(#line, #function, card.name)
     } catch {
-      cc.bad1(#line, "bindCard: failed to serialize card:", error.localizedDescription)
+      cc.bad1(#line, #function, error.localizedDescription)
       return nil
     }
 
     return Binding(
       get: {
         // If card was deleted after binding was created, deserialize from JSON
-        // to get a fresh Card object. The view will be torn down when selectedCardId updates.
-        if let foundCard = self.cardFromId(id) {
+        // to get a fresh Card object. The view will be torn down when
+        // selectedCardId updates.
+        if let foundCard = self.cardFromId(id), !foundCard.isDetached {
           return foundCard
         } else {
           if let jsonData = ghostCardJSON,
-             let data = jsonData.data(using: .utf8) {
+             let data = jsonData.data(using: .utf8)
+          {
             do {
               let decoder = JSONDecoder()
               let ghostCard = try decoder.decode(Card.self, from: data)
-              self.cc.ok1(#line, "bindCard.get: card was deleted, returning happy ghost:", ghostCard.name)
+              self.cc.ok1(#line, #function, "ghost:", ghostCard.name)
               return ghostCard
             } catch {
-              self.cc.bad1(#line, "bindCard.get: failed to deserialize ghost card:", error.localizedDescription)
+              self.cc.bad1(#line, #function, error.localizedDescription)
               // Return a minimal placeholder card to avoid crashing
-              return Card(cardType: .help, typeId: 0)
+              return Card(cardType: .help)
             }
           } else {
-            self.cc.bad1(#line, "bindCard.get: ghost JSON missing, returning placeholder")
-            return Card(cardType: .help, typeId: 0)
+            self.cc.bad1(#line, #function, "ghostCardJson?")
+            return Card(cardType: .help)
           }
         }
       },
@@ -158,16 +168,19 @@ public class CardManager: ICardManager {
           // Extract card name from ghost JSON for logging
           var ghostCardName = "unknown"
           if let jsonData = ghostCardJSON,
-             let data = jsonData.data(using: .utf8) {
+             let data = jsonData.data(using: .utf8)
+          {
             do {
               let decoder = JSONDecoder()
               let ghostCard = try decoder.decode(Card.self, from: data)
               ghostCardName = ghostCard.name
+              self.cc.ok1(#line, #function, "existingCard?", ghostCardName)
             } catch {
-              // Silent catch - just use "unknown"
+              self.cc.ok1(#line, #function, "existingCard?", ghostCardName)
             }
+          } else {
+            self.cc.ok1(#line, #function, "existingCard?", ghostCardName)
           }
-          self.cc.ok1(#line, "bindCard.set: card was deleted, ghost save denied:", ghostCardName)
         }
       },
     )
@@ -199,8 +212,9 @@ public class CardManager: ICardManager {
 
     do {
       try modelContext.save()
+      cc.ok1(#line, #function, newCard.name)
     } catch {
-      cc.bad1(#line, "Failed to save card: \(error)")
+      cc.bad1(#line, #function, error)
     }
 
     return newCard
@@ -216,7 +230,7 @@ public class CardManager: ICardManager {
     if let existingCard = allCards.first(where: {
       $0.cardType == .sutta && $0.suttaReference == refString
     }) {
-      cc.ok1(#line, "Reusing existing sutta card for \(refString)")
+      cc.ok1(#line, #function, "existingCard:", existingCard.name, refString)
       return existingCard
     }
 
@@ -226,14 +240,15 @@ public class CardManager: ICardManager {
     if let searchQuery {
       newCard.searchQuery = searchQuery
     }
+    cc.ok2(#line, #function, "getMLDocument...")
     newCard.mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
 
     // Save the updated card properties
     do {
       try modelContext.save()
-      cc.ok1(#line, "Created new sutta card for \(refString)")
+      cc.ok1(#line, #function, refString)
     } catch {
-      cc.bad1(#line, "Failed to save sutta card: \(error)")
+      cc.bad1(#line, #function, error)
     }
 
     return newCard
@@ -242,22 +257,27 @@ public class CardManager: ICardManager {
   /// Selects a card (ensures a card is always selected)
   public func selectCard(_ card: Card) {
     selectedCardId = card.id
+    recentCardId = card.id
+    cc.ok1(#line, #function, "selectedCard:", card.name)
   }
 
   /// Selects a card by ID, or clears selection if nil
   public func selectCardId(_ id: Card.ID?) {
     if let id, let card = cardFromId(id) {
       selectedCardId = card.id
+      recentCardId = card.id
+      cc.ok1(#line, #function, "selectedCard:", card.name)
     } else {
       selectedCardId = nil
+      cc.ok1(#line, #function, "selectedCard:", id ?? "nil")
     }
   }
 
   /// Removes a card and updates selection if necessary
   func removeCard(_ card: Card) {
-    // Force-resolve cardType attribute to avoid SwiftData fault crash
-    // when SwiftUI tries to access deleted card during view update
-    _ = card.cardType
+    // Mark card as detached before deletion to prevent SwiftData fault crashes
+    // when views try to access the card during teardown
+    card.isDetached = true
 
     // If the deleted card was selected, find the next card to select
     if selectedCardId == card.id {
@@ -266,21 +286,29 @@ public class CardManager: ICardManager {
       // Find the next card to select
       if let nextCard = findNextCard(after: card, in: remainingCards) {
         selectedCardId = nextCard.id
-        cc.ok1(#line, "Selected next card after deletion:", nextCard.name)
-      } else {
-        // No remaining cards, create a help card to maintain invariant
-        let helpCard = addCard(type: .help)
-        selectedCardId = helpCard.id
-        cc.ok1(#line, "No remaining cards, auto-created help card")
+        recentCardId = nextCard.id
+        cc.ok2(#line, #function, "selectedCard:", nextCard.name)
       }
     }
 
-    modelContext.delete(card)
+    if totalCount < 1 {
+      // No remaining cards, create a help card to maintain invariant
+      cc.ok2(#line, #function, "No cards")
+      let helpCard = addCard(type: .help)
+      selectedCardId = helpCard.id
+      recentCardId = helpCard.id
+      cc.ok2(#line, #function, "selectedCard:", helpCard.name)
+    }
+
+    // Cards are deleted at launch to prevent SwiftUI race conditions
+    // The following line caused many crashes. 
+    // modelContext.delete(card)
 
     do {
       try modelContext.save()
+      cc.ok1(#line, #function, card.name)
     } catch {
-      cc.bad1(#line, "Failed to delete card: \(error)")
+      cc.bad1(#line, #function, error)
     }
   }
 
@@ -332,6 +360,25 @@ public class CardManager: ICardManager {
       cc.ok1(#line, "Card saved:", card.name)
     } catch {
       cc.bad1(#line, "Failed to save card:", error.localizedDescription)
+    }
+  }
+
+  /// Deletes detached cards from previous sessions
+  /// Called at app launch to clean up orphaned cards
+  private func deleteDetachedCards() {
+    let fetchDescriptor = FetchDescriptor<Card>()
+    do {
+      let allStoredCards = try modelContext.fetch(fetchDescriptor)
+      let detachedCards = allStoredCards.filter(\.isDetached)
+      for card in detachedCards {
+        cc.ok2(#line, #function, card.name)
+        modelContext.delete(card)
+      }
+      if !detachedCards.isEmpty {
+        try modelContext.save()
+      }
+    } catch {
+      cc.bad1(#line, #function, error)
     }
   }
 }

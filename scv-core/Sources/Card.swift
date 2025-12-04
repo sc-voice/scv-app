@@ -61,7 +61,7 @@ public extension ICard {
   var sidebarTitle: String {
     switch cardType {
     case .search:
-      searchQuery.isEmpty ? "search.placeholder".localized : searchQuery
+      searchQuery.isEmpty ? "card.search.placeholder".localized : searchQuery
     case .sutta:
       suttaReference.isEmpty ? "card.type.sutta"
         .localized : // Extract suttaUid from suttaReference (format:
@@ -86,6 +86,7 @@ public final class Card: Codable, ICard {
   private(set) var createdAt: Date
   public private(set) var cardType: CardType
   public private(set) var typeId: Int
+  public var isDetached: Bool = false
 
   // Search card properties
   public var searchQuery: String = ""

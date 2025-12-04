@@ -18,7 +18,7 @@ struct CardManagerTests {
 
     #expect(manager.allCards.count == 1)
     #expect(manager.selectedCard != nil)
-    #expect(manager.selectedCard?.cardType == .search)
+    #expect(manager.selectedCard?.cardType == .help)
   }
 
   @Test
@@ -197,6 +197,44 @@ struct CardManagerTests {
     #expect(foundCard == nil)
   }
 
+  // MARK: - Recent Card ID Tests
+
+  @Test
+  @MainActor
+  func recentCardIdTracksNonNilSelections() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    let manager = CardManager(modelContext: context)
+
+    // Initial recentCardId should match selectedCardId
+    let card1 = manager.allCards.first!
+    #expect(manager.recentCardId == card1.id)
+    #expect(manager.selectedCardId == card1.id)
+
+    // Add second card and select it
+    let card2 = manager.addCard(type: .search)
+    manager.selectCard(card2)
+    #expect(manager.recentCardId == card2.id)
+    #expect(manager.selectedCardId == card2.id)
+
+    // Setting selectedCardId to nil should preserve recentCardId
+    manager.selectCardId(nil)
+    #expect(manager.selectedCardId == nil)
+    #expect(manager.recentCardId == card2.id)
+
+    // Selecting card1 should update recentCardId
+    manager.selectCard(card1)
+    #expect(manager.recentCardId == card1.id)
+    #expect(manager.selectedCardId == card1.id)
+
+    // After removing card1, recentCardId should be card2.id (newly selected)
+    manager.removeCard(card1)
+    #expect(manager.selectedCardId == card2.id)
+    #expect(manager.recentCardId == card2.id)
+  }
+
   // MARK: - Count and State Tests
 
   @Test
@@ -227,15 +265,17 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    let searchCard1 = manager.allCards.first!
+    let helpCard = manager.allCards.first!
     manager.addCard(type: .search)
     manager.addCard(type: .sutta)
 
-    #expect(manager.count(for: .search) == 2)
+    #expect(manager.count(for: .help) == 1)
+    #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 1)
 
-    manager.removeCard(searchCard1)
+    manager.removeCard(helpCard)
 
+    #expect(manager.count(for: .help) == 0)
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 1)
   }
@@ -426,25 +466,27 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    // Create 3 search and 3 sutta cards
-    let searchCard1 = manager.allCards.first!
+    // Create 2 search and 3 sutta cards (first card is .help)
+    let helpCard = manager.allCards.first!
     _ = manager.addCard(type: .search)
-    let searchCard3 = manager.addCard(type: .search)
+    let searchCard2 = manager.addCard(type: .search)
     let suttaCard1 = manager.addCard(type: .sutta)
     _ = manager.addCard(type: .sutta)
     _ = manager.addCard(type: .sutta)
 
-    #expect(manager.count(for: .search) == 3)
+    #expect(manager.count(for: .help) == 1)
+    #expect(manager.count(for: .search) == 2)
     #expect(manager.count(for: .sutta) == 3)
 
     // Delete alternating cards
-    manager.removeCard(searchCard1)
+    manager.removeCard(helpCard)
     manager.removeCard(suttaCard1)
-    manager.removeCard(searchCard3)
+    manager.removeCard(searchCard2)
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
     // Should have 1 search and 2 sutta remaining
+    #expect(manager.count(for: .help) == 0)
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 2)
     #expect(manager.totalCount == 3)

@@ -61,7 +61,8 @@ public struct AppRootView<Manager: ICardManager>: View {
            let cardBinding = cardManager.bindCard(id: selectedCardId)
         {
           detailView(for: selectedCardId, cardBinding: cardBinding)
-            .id(selectedCardId)  // Force complete rebuild when selectedCardId changes
+            .id(selectedCardId) // Force complete rebuild when selectedCardId
+            // changes
             .onAppear {
               cc.ok1(#line, "Detail view layout complete")
             }
@@ -90,7 +91,8 @@ public struct AppRootView<Manager: ICardManager>: View {
             }
             .onChange(of: rootSearchQuery) { _, newValue in
               cc.ok1(#line, "rootSearchQuery changed in keyboard to:", newValue)
-              // Note: Card updates are handled by SearchCardView.searchSubmitHandler
+              // Note: Card updates are handled by
+              // SearchCardView.searchSubmitHandler
               // on search submission, not by onChange here
             }
             .onAppear {
@@ -185,7 +187,8 @@ public struct AppRootView<Manager: ICardManager>: View {
 
         // Sync rootSearchQuery with new card's searchQuery
         if let cardId = cardManager.selectedCardId,
-           let card = cardManager.cardFromId(cardId) {
+           let card = cardManager.cardFromId(cardId)
+        {
           rootSearchQuery = card.searchQuery
         }
       }
@@ -198,13 +201,22 @@ public struct AppRootView<Manager: ICardManager>: View {
 
   @ViewBuilder
   private func detailView(for cardId: Manager.ManagedCard.ID,
-                          cardBinding: Binding<Manager.ManagedCard>?) -> some View
+                          cardBinding: Binding<Manager.ManagedCard>?)
+    -> some View
   {
-    if let selectedCard = cardManager.allCards
-      .first(where: { $0.id == cardId }),
-       let cardBinding = cardBinding
-    {
-      switch selectedCard.cardType {
+    let _ = cc.ok2(
+      #line,
+      #function,
+      "selectedCardId:",
+      cardManager.selectedCardId,
+      "cardId:",
+      cardId,
+    )
+    if let cardBinding {
+      // Use cardBinding.wrappedValue to safely access card (handles ghost
+      // cards)
+      let card = cardBinding.wrappedValue
+      switch card.cardType {
       case .search:
         SearchCardView(
           card: cardBinding,
