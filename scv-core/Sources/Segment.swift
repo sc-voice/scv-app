@@ -7,10 +7,6 @@
 
 import Foundation
 
-// MARK: - Codable Defaults
-
-private let NIL_BOOL_DEFAULT = false
-
 // MARK: - Segment
 
 /// Represents a single segment (verse) within a Buddhist scripture
@@ -30,12 +26,12 @@ public struct Segment: Codable, Equatable, Sendable {
   /// Whether this segment matched the search pattern
   public let matched: Bool
 
-  init(
+  public init(
     scid: String,
     doc: String? = nil,
     ref: String? = nil,
     pli: String? = nil,
-    matched: Bool = NIL_BOOL_DEFAULT,
+    matched: Bool = false,
   ) {
     self.scid = scid
     self.doc = doc
@@ -51,7 +47,7 @@ public struct Segment: Codable, Equatable, Sendable {
     let pli = try container.decodeIfPresent(String.self, forKey: .pli)
     let ref = try container.decodeIfPresent(String.self, forKey: .ref)
     let matched = try container
-      .decodeIfPresent(Bool.self, forKey: .matched) ?? NIL_BOOL_DEFAULT
+      .decodeIfPresent(Bool.self, forKey: .matched) ?? false
 
     // Map language field to doc based on docLang from decoder context
     let docLang = decoder

@@ -85,51 +85,13 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             VStack(alignment: .leading, spacing: 8) {
               ForEach(segments.indices, id: \.self) { index in
                 let (scid, segment) = segments[index]
-                HStack(alignment: .top, spacing: 8) {
-                  Text(scid)
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.secondaryTextColor)
-                    .lineLimit(1)
-
-                  highlightedSegmentView(getSegmentText(segment, field: "doc"))
-                    .font(.body)
-                    .lineLimit(nil)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 4)
-                .background(isSegmentSelected(scid) ? themeProvider.theme
-                  .accentColor
-                  .opacity(0.2) : .clear)
-                .overlay(
-                  RoundedRectangle(cornerRadius: 4)
-                    .stroke(
-                      isSegmentSelected(scid) ? themeProvider.theme
-                        .accentColor : .clear,
-                      style: StrokeStyle(
-                        lineWidth: 2,
-                        lineCap: .butt,
-                        lineJoin: .bevel,
-                        dash: [4, 3],
-                      ),
-                    ),
+                SegmentView(
+                  scid: scid,
+                  segment: segment,
+                  mlDoc: mlDoc,
+                  player: player,
+                  isCurrentlyPlaying: isCurrentlyPlaying,
                 )
-                .id(scid)
-                .onTapGesture {
-                  mlDoc.currentScid = scid
-                  if isCurrentlyPlaying, player.isPlaying {
-                    player.jumpToSegment(scid: scid)
-                  }
-                  // Dismiss keyboard when segment is selected
-                  #if os(iOS)
-                    UIApplication.shared.sendAction(
-                      #selector(UIResponder.resignFirstResponder),
-                      to: nil,
-                      from: nil,
-                      for: nil,
-                    )
-                  #endif
-                  cc.ok1(#line, "Selected segment:", scid)
-                }
               }
             }
             .padding(.vertical)
@@ -191,53 +153,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
 
   private var isCurrentlyPlaying: Bool {
     player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid
-  }
-
-  private func isSegmentSelected(_ scid: String) -> Bool {
-    card.mlDoc?.currentScid == scid
-  }
-
-  private func getSegmentText(_ segment: Segment,
-                              field: String = "doc") -> String
-  {
-    let EMPTY_SET = "∅"
-    let value: String? = switch field.lowercased() {
-    case "doc":
-      segment.doc
-    case "pli":
-      segment.pli
-    case "ref":
-      segment.ref
-    default:
-      nil
-    }
-    return value?.isEmpty ?? true ? EMPTY_SET : value!
-  }
-
-  private func buildAttributedString(_ parseResult: HTMLParseResult)
-    -> AttributedString
-  {
-    var attributedString = AttributedString("")
-
-    for span in parseResult.spans {
-      var spanAttr = AttributedString(span.text)
-      if span.isMatched {
-        spanAttr.foregroundColor = themeProvider.theme.accentColor
-      } else {
-        spanAttr.foregroundColor = themeProvider.theme.textColor
-      }
-      attributedString.append(spanAttr)
-    }
-
-    return attributedString
-  }
-
-  @ViewBuilder
-  private func highlightedSegmentView(_ html: String) -> some View {
-    let parseResult = HTMLParser.parse(htmlString: html)
-    let attributedString = buildAttributedString(parseResult)
-
-    Text(attributedString)
   }
 }
 
