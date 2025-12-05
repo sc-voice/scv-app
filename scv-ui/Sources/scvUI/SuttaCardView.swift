@@ -84,9 +84,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 8) {
               ForEach(segments.indices, id: \.self) { index in
-                let (scid, segment) = segments[index]
+                let (_, segment) = segments[index]
                 SegmentView(
-                  scid: scid,
                   segment: segment,
                   mlDoc: mlDoc,
                   player: player,
@@ -100,15 +99,35 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             if let currentScid = mlDoc.currentScid {
               // Delay scroll to allow segments to load
               DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                scrollProxy.scrollTo(currentScid, anchor: .center)
-                cc.ok1(#line, "Scrolled to segment on appear:", currentScid)
+                withAnimation(.easeInOut(duration: 0.8)) {
+                  // Scroll to two line heights from top
+                  scrollProxy.scrollTo(
+                    currentScid,
+                    anchor: UnitPoint(x: 0.5, y: 0.06),
+                  )
+                  cc.ok1(
+                    #line,
+                    "Scrolled to segment (two line heights from top):",
+                    currentScid,
+                  )
+                }
               }
             }
           }
           .onChange(of: mlDoc.currentScid) { _, newScid in
             if let newScid {
-              scrollProxy.scrollTo(newScid, anchor: .center)
-              cc.ok1(#line, "Scrolled to segment on change:", newScid)
+              withAnimation(.easeInOut(duration: 0.8)) {
+                // Scroll to two line heights from top
+                scrollProxy.scrollTo(
+                  newScid,
+                  anchor: UnitPoint(x: 0.5, y: 0.06),
+                )
+                cc.ok1(
+                  #line,
+                  "Scrolled to segment (two line heights from top):",
+                  newScid,
+                )
+              }
             }
           }
         }

@@ -53,6 +53,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct SegmentView: Sendable {
+    public static let other: Int = 0
+  }
+
   public struct Shortcut: Sendable {
     public static let search: Int = 0
   }

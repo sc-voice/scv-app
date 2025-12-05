@@ -130,4 +130,13 @@ cd scv-core && swift test --filter CardTests
     - Update phraseSearchRootOfSuffering test with actual discovered scores
     - Consider whether phrase matches should score differently than keyword matches
 
+### Refactor MLDocument.segments() to return array instead of key-value pairs
+**Status**: Backlog
+
+01. [ ] Change MLDocument.segments() return type from array of tuples to array of Segments
+    - Current: returns `[(key: String, value: Segment)]` duplicating segment.scid
+    - Proposed: returns `[Segment]` since Segment already contains scid
+    - Update all callsites in SuttaCardView and elsewhere
+    - Simplifies iteration and eliminates tuple destructuring
+
 - rtf means READ THE FILE

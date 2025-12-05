@@ -5,7 +5,7 @@ import SwiftUI
 #endif
 
 struct SegmentView: View {
-  let scid: String
+  let cc = ColorConsole(#file, #function, dbg.SegmentView.other)
   let segment: Segment
   let mlDoc: MLDocument
   let player: SuttaPlayer
@@ -16,7 +16,7 @@ struct SegmentView: View {
 
   var body: some View {
     HStack(alignment: .top, spacing: 8) {
-      Text(scid)
+      Text(segment.scid)
         .font(.caption)
         .foregroundColor(themeProvider.theme.secondaryTextColor)
         .lineLimit(1)
@@ -48,11 +48,11 @@ struct SegmentView: View {
           ),
         ),
     )
-    .id(scid)
+    .id(segment.scid)
     .onTapGesture {
-      mlDoc.currentScid = scid
+      mlDoc.currentScid = segment.scid
       if isCurrentlyPlaying, player.isPlaying {
-        player.jumpToSegment(scid: scid)
+        player.jumpToSegment(scid: segment.scid)
       }
       // Dismiss keyboard when segment is selected
       #if os(iOS)
@@ -63,7 +63,7 @@ struct SegmentView: View {
           for: nil,
         )
       #endif
-      cc.ok1(#line, "Selected segment:", scid)
+      cc.ok1(#line, "Selected segment:", segment.scid)
     }
     .task {
       attributedString = buildAttributedString(getSegmentText())
@@ -71,7 +71,7 @@ struct SegmentView: View {
   }
 
   private var isSegmentSelected: Bool {
-    mlDoc.currentScid == scid
+    mlDoc.currentScid == segment.scid
   }
 
   private func getSegmentText(field: String = "doc") -> String {
@@ -115,7 +115,6 @@ struct SegmentView: View {
   let mockPlayer = SuttaPlayer()
 
   SegmentView(
-    scid: "mn1:0.1",
     segment: Segment(scid: "mn1:0.1", doc: "The Middle Collection"),
     mlDoc: mlDoc,
     player: mockPlayer,
