@@ -116,17 +116,17 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
   @State private var maxIconOffset: CGFloat = -200
-  let searchingIcon: Image
+  let appIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
   public init(
     card: Binding<Card>,
     cardManager: Manager,
-    searchingIcon: Image? = nil,
+    appIcon: Image? = nil,
   ) {
     _card = card
     self.cardManager = cardManager
-    self.searchingIcon = searchingIcon ?? Image(systemName: "app.circle")
+    self.appIcon = appIcon ?? Image(systemName: "app.circle")
   }
 
   // MARK: - Private Methods
@@ -177,7 +177,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       return AnyView(
         GeometryReader { geometry in
           VStack(spacing: 12) {
-            searchingIcon
+            appIcon
               .resizable()
               .scaledToFit()
               .frame(width: 80, height: 80)

@@ -22,7 +22,7 @@ struct IOSView<Manager: ICardManager>: View {
     let appIcon = Bundle.main.appIcon.map { Image(uiImage: $0) }
 
     VStack(spacing: 0) {
-      AppRootView(cardManager: cardManager, searchingIcon: appIcon)
+      AppRootView(cardManager: cardManager, appIcon: appIcon)
         .environmentObject(player)
         .environmentObject(themeProvider)
         .onAppear {

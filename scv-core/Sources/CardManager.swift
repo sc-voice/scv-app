@@ -301,7 +301,7 @@ public class CardManager: ICardManager {
     }
 
     // Cards are deleted at launch to prevent SwiftUI race conditions
-    // The following line caused many crashes. 
+    // The following line caused many crashes.
     // modelContext.delete(card)
 
     do {
