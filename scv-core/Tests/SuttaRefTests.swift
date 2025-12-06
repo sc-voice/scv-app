@@ -329,4 +329,28 @@ import Testing
     #expect(ref4?.lang == "en")
     #expect(ref4?.author == nil)
   }
+
+  @Test(
+    "abbreviation() method returns correct collection abbreviations",
+  ) func abbreviation() {
+    // Standard cases - uppercase with numbers
+    #expect(SuttaRef.create("mn1")?.abbreviation() == "MN1")
+    #expect(SuttaRef.create("an1.1")?.abbreviation() == "AN1.1")
+    #expect(SuttaRef.create("sn22.1")?.abbreviation() == "SN22.1")
+    #expect(SuttaRef.create("dn1")?.abbreviation() == "DN1")
+
+    // Mixed case input - should normalize to lowercase
+    #expect(SuttaRef.create("MN1")?.abbreviation() == "MN1")
+    #expect(SuttaRef.create("An1.1")?.abbreviation() == "AN1.1")
+
+    // Mixed case in mapping (snp -> Snp) - preserves case from mapping
+    #expect(SuttaRef.create("snp1.1")?.abbreviation() == "Snp1.1")
+    #expect(SuttaRef.create("SNP1.1")?.abbreviation() == "Snp1.1")
+
+    // Complex numbers and ranges
+    #expect(SuttaRef.create("an1.1-10")?.abbreviation() == "AN1.1-10")
+
+    // Unknown prefix - fallback to uppercase
+    #expect(SuttaRef.create("xyz123")?.abbreviation() == "XYZ123")
+  }
 }

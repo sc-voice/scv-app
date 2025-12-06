@@ -58,80 +58,84 @@ public struct AppRootView<Manager: ICardManager>: View {
             },
           )
         } detail: {
-          // Detail view based on selected card
-          if let selectedCardId = cardManager.selectedCardId,
-             let cardBinding = cardManager.bindCard(id: selectedCardId)
-          {
-            detailView(for: selectedCardId, cardBinding: cardBinding)
-              .id(selectedCardId) // Force complete rebuild when selectedCardId
-              // changes
-              .onAppear {
-                cc.ok1(#line, "Detail view layout complete")
-              }
-              .searchable(
-                text: $rootSearchQuery,
-                isPresented: $isSearchFocused,
-                placement: {
-                  #if os(iOS)
-                    return .navigationBarDrawer(displayMode: .always)
-                  #else
-                    return .toolbar
-                  #endif
-                }(),
-                prompt: "Search",
-              )
-              .focused($searchFieldIsFocused)
-              .onChange(of: isSearchFocused) { _, newValue in
-                cc.ok1(#line, "isSearchFocused changed to:", newValue)
-              }
-              .onChange(of: searchFieldIsFocused) { _, newValue in
-                cc.ok1(
-                  #line,
-                  "searchFieldIsFocused (TextField actual focus) changed to:",
-                  newValue,
+          ZStack {
+            // Detail view based on selected card
+            if let selectedCardId = cardManager.selectedCardId,
+               let cardBinding = cardManager.bindCard(id: selectedCardId)
+            {
+              detailView(for: selectedCardId, cardBinding: cardBinding)
+                .id(selectedCardId) // Force complete rebuild when
+                // selectedCardId
+                // changes
+                .onAppear {
+                  cc.ok1(#line, "Detail view layout complete")
+                }
+                .searchable(
+                  text: $rootSearchQuery,
+                  isPresented: $isSearchFocused,
+                  placement: {
+                    #if os(iOS)
+                      return .navigationBarDrawer(displayMode: .automatic)
+                    #else
+                      return .toolbar
+                    #endif
+                  }(),
+                  prompt: "Search",
                 )
+                .focused($searchFieldIsFocused)
+                .onChange(of: isSearchFocused) { _, newValue in
+                  cc.ok1(#line, "isSearchFocused changed to:", newValue)
+                }
+                .onChange(of: searchFieldIsFocused) { _, newValue in
+                  cc.ok1(
+                    #line,
+                    "searchFieldIsFocused (TextField actual focus) changed to:",
+                    newValue,
+                  )
+                }
+                .onChange(of: rootSearchQuery) { _, newValue in
+                  cc.ok1(
+                    #line,
+                    "rootSearchQuery changed in keyboard to:",
+                    newValue,
+                  )
+                  // Note: Card updates are handled by
+                  // SearchCardView.searchSubmitHandler
+                  // on search submission, not by onChange here
+                }
+                .onAppear {
+                  cc.ok1(
+                    #line,
+                    "searchable modifier appeared, isSearchFocused:",
+                    isSearchFocused,
+                  )
+                }
+                .onSubmit(of: .search) {
+                  cc.ok1(#line, "Search submitted in keyboard")
+                  SearchCardView.searchSubmitHandler(
+                    cardManager: cardManager,
+                    selectedCardId: selectedCardId,
+                    searchQueryBinding: $rootSearchQuery,
+                  )
+                  isSearchFocused = false
+                }
+            } else {
+              VStack(spacing: 16) {
+                Image(systemName: "square.3.layers.3d")
+                  .font(.system(size: 48))
+                  .foregroundStyle(.secondary)
+                Text("No card selected")
+                  .font(.headline)
+                Text("Select a card from the sidebar")
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
               }
-              .onChange(of: rootSearchQuery) { _, newValue in
-                cc.ok1(
-                  #line,
-                  "rootSearchQuery changed in keyboard to:",
-                  newValue,
-                )
-                // Note: Card updates are handled by
-                // SearchCardView.searchSubmitHandler
-                // on search submission, not by onChange here
-              }
-              .onAppear {
-                cc.ok1(
-                  #line,
-                  "searchable modifier appeared, isSearchFocused:",
-                  isSearchFocused,
-                )
-              }
-              .onSubmit(of: .search) {
-                cc.ok1(#line, "Search submitted in keyboard")
-                SearchCardView.searchSubmitHandler(
-                  cardManager: cardManager,
-                  selectedCardId: selectedCardId,
-                  searchQueryBinding: $rootSearchQuery,
-                )
-                isSearchFocused = false
-              }
-          } else {
-            VStack(spacing: 16) {
-              Image(systemName: "square.3.layers.3d")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-              Text("No card selected")
-                .font(.headline)
-              Text("Select a card from the sidebar")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(themeProvider.theme.cardBackground)
-          }
-        }
+          } // ZStack
+          .environmentObject(themeProvider)
+          .background(themeProvider.theme.cardBackground)
+        } // detail:
         .onAppear {
           cc.ok1(
             #line,
@@ -206,7 +210,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           SettingsView(controller: settingsController)
             .environmentObject(themeProvider)
         }
-      }
+      } // VStack
 
       if !isReady {
         SplashScreenView(appIcon: appIcon)
@@ -214,7 +218,11 @@ public struct AppRootView<Manager: ICardManager>: View {
           .ignoresSafeArea()
           .zIndex(1)
       }
-    }
+    } // ZStack
+    .environmentObject(themeProvider)
+    .background(themeProvider.theme.cardBackground)
+    .ignoresSafeArea()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 
   @ViewBuilder
@@ -240,18 +248,52 @@ public struct AppRootView<Manager: ICardManager>: View {
           card: cardBinding,
           cardManager: cardManager,
           appIcon: appIcon,
+          isSearchFocused: isSearchFocused,
         )
         .environmentObject(themeProvider)
         .onAppear {
           cc.ok1(#line, "SearchCardView appeared on screen")
+        }
+        .toolbar {
+          ToolbarItem(placement: {
+            #if os(iOS)
+              return .navigationBarTrailing
+            #else
+              return .automatic
+            #endif
+          }()) {
+            Button(action: { isSearchFocused.toggle() }) {
+              Image(systemName: "magnifyingglass")
+                .font(.title2)
+            }
+            .buttonStyle(.plain)
+            .help("Toggle search")
+          }
         }
 
       case .sutta:
         SuttaCardView(
           card: cardBinding,
           cardManager: cardManager,
+          isSearchFocused: isSearchFocused,
         )
         .environmentObject(themeProvider)
+        .toolbar {
+          ToolbarItem(placement: {
+            #if os(iOS)
+              return .navigationBarTrailing
+            #else
+              return .automatic
+            #endif
+          }()) {
+            Button(action: { isSearchFocused.toggle() }) {
+              Image(systemName: "magnifyingglass")
+                .font(.title2)
+            }
+            .buttonStyle(.plain)
+            .help("Toggle search")
+          }
+        }
 
       case .help:
         HelpCardView()

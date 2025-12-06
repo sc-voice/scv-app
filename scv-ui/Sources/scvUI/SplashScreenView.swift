@@ -42,7 +42,7 @@ public struct SplashScreenView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       ProgressView()
-        .scaleEffect(4, anchor: .center)
+        .scaleEffect(2.1, anchor: .center)
     }
   }
 }

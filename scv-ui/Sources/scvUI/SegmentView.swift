@@ -14,9 +14,13 @@ struct SegmentView: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var attributedString: AttributedString?
 
+  private var segnum: String? {
+    SuttaRef.create(segment.scid)?.segnum
+  }
+
   var body: some View {
-    HStack(alignment: .top, spacing: 8) {
-      Text(segment.scid)
+    HStack(alignment: .firstTextBaseline, spacing: 8) {
+      Text(segnum ?? segment.scid)
         .font(.caption)
         .foregroundColor(themeProvider.theme.secondaryTextColor)
         .lineLimit(1)
@@ -33,8 +37,7 @@ struct SegmentView: View {
     .padding(.horizontal)
     .padding(.vertical, 4)
     .background(isSegmentSelected ? themeProvider.theme
-      .accentColor
-      .opacity(0.2) : .clear)
+      .backgroundColor : .clear)
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .stroke(

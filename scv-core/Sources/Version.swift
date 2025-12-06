@@ -6,4 +6,4 @@
 //
 
 /// Current app version
-public let appVersion = "0.0.454"
+public let appVersion = "0.0.466"

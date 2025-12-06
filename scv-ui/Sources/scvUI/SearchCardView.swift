@@ -69,7 +69,7 @@ public enum SearchQueryFilter {
     // Allow alphanumerics, parsing punctuation (. : ,), and basic regexp
     // (.*+^$\)
     let allowedCharacters = CharacterSet(
-      charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.: .*+^$\\,",
+      charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.:- .*+^$\\,",
     )
     let lowercased = input.lowercased()
 
@@ -112,6 +112,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
+  let isSearchFocused: Bool
   @State private var debounceTimer: Timer?
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
@@ -123,10 +124,12 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     card: Binding<Card>,
     cardManager: Manager,
     appIcon: Image? = nil,
+    isSearchFocused: Bool = false,
   ) {
     _card = card
     self.cardManager = cardManager
     self.appIcon = appIcon ?? Image(systemName: "app.circle")
+    self.isSearchFocused = isSearchFocused
   }
 
   // MARK: - Private Methods
@@ -221,8 +224,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .background(themeProvider.theme.cardBackground),
+        .padding(),
       )
     }
 
@@ -243,7 +245,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(themeProvider.theme.cardBackground)
         .cornerRadius(8)
 
         // Results list
@@ -388,7 +389,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   public var body: some View {
     resultsView
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(themeProvider.theme.cardBackground)
       .padding(0)
       .onChange(of: card.searchQuery) { _, newValue in
         let filtered = SearchQueryFilter.filter(newValue)

@@ -132,7 +132,7 @@ public enum AppTheme {
         cardBackground: Color(red: 0.133, green: 0.133, blue: 0.133), // #222222
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
-        toolbarColor: COLOR_BROWN, // #795548
+        toolbarColor: Color(red: 0.371, green: 0.071, blue: 0.071),
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
       )

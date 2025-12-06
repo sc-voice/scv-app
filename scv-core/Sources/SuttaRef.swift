@@ -340,6 +340,20 @@ extension SuttaRef: CustomStringConvertible {
   public var description: String {
     toString()
   }
+
+  // MARK: - Abbreviation
+
+  /// Returns the abbreviated suttaUid with expanded collection prefix
+  /// Examples: "mn1" → "MN1", "an1.1-10" → "AN1.1-10", "sn22.1" → "SN22.1"
+  /// Note: This computation may be expensive, consider caching the result
+  public func abbreviation() -> String {
+    let lowerUid = suttaUid.lowercased()
+    let prefixLetters = lowerUid.prefix(while: { $0.isLetter })
+    let suffix = String(lowerUid.dropFirst(prefixLetters.count))
+    let abbrPrefix = SuttaCentralUid
+      .abbrMapping[String(prefixLetters)] ?? String(prefixLetters).uppercased()
+    return abbrPrefix + suffix
+  }
 }
 
 // MARK: - Error Type

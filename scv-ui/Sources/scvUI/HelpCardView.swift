@@ -40,7 +40,6 @@ public struct HelpCardView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding()
-    .background(themeProvider.theme.cardBackground)
   }
 }
 

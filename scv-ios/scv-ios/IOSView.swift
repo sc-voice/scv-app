@@ -36,10 +36,11 @@ struct IOSView<Manager: ICardManager>: View {
       #if os(iOS)
         // iosBottomToolbar
       #endif
-    }
+    } // VStack
     .ignoresSafeArea()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(.green.opacity(0.3))
+    .background(.pink) // Pink reveals dead background not handled in
+    // AppRootView
   }
 
   @ViewBuilder

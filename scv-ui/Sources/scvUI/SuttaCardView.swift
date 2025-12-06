@@ -21,6 +21,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var player: SuttaPlayer
+  let isSearchFocused: Bool
   @State private var segments: [(key: String, value: Segment)] = []
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -28,55 +29,26 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     card: Binding<Card>,
     cardManager: Manager,
     player: SuttaPlayer = .shared,
+    isSearchFocused: Bool = false,
   ) {
     _card = card
     self.cardManager = cardManager
     self.player = player
+    self.isSearchFocused = isSearchFocused
   }
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      // Title Header
-      VStack(alignment: .leading, spacing: 8) {
-        Text(card.mlDoc?.title ?? card.suttaReference)
-          .font(.headline)
-          .foregroundStyle(themeProvider.theme.textColor)
-          .lineLimit(nil)
-
-        if let mlDoc = card.mlDoc {
-          HStack(spacing: 8) {
-            Text(mlDoc.sutta_uid)
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
-
-            HStack(spacing: 4) {
-              Image(systemName: "person.fill")
-                .foregroundColor(themeProvider.theme.textColor)
-              Text(mlDoc.docAuthorName)
-                .foregroundColor(themeProvider.theme.textColor)
-            }
-            .font(.caption)
-
-            Spacer()
-
-            Button(action: {
-              if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
-                player.load(mlDoc)
-              }
-              player.togglePlayback()
-            }) {
-              Image(systemName: isCurrentlyPlaying && player
-                .isPlaying ? "pause.fill" : "play.fill")
-                .font(.title2)
-                .foregroundColor(themeProvider.theme.textColor)
-                .padding()
-            }
-          }
-        }
+      // Title Header - hides when search is focused
+      if !isSearchFocused {
+        SuttaHeaderView(
+          card: card,
+          player: player,
+          isCurrentlyPlaying: isCurrentlyPlaying,
+        )
+        .environmentObject(themeProvider)
+        .transition(.opacity)
       }
-      .padding()
-      .background(themeProvider.theme.cardBackground)
-      .border(themeProvider.theme.borderColor, width: 0.5)
 
       // Segments Content
       if let mlDoc = card.mlDoc {
@@ -131,7 +103,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             }
           }
         }
-        .background(themeProvider.theme.backgroundColor)
       } else {
         VStack(spacing: 12) {
           Image(systemName: "doc.text")
@@ -141,7 +112,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             .foregroundColor(themeProvider.theme.secondaryTextColor)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(themeProvider.theme.cardBackground)
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
