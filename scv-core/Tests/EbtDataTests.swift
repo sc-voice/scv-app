@@ -607,4 +607,39 @@ struct EbtDataTests {
       "en/brahmali should have at least 427 vinaya files, got \(brahmali.files.vinaya)",
     )
   }
+
+  @Test("getMLDocument(dn16) => bilingual MLDocument doc:english/pli")
+  func getMLDocumentdn16() async {
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+    guard let suttaRef = SuttaRef.create("dn16/en/sujato") else {
+      Issue.record("Failed to create SuttaRef for dn16")
+      return
+    }
+
+    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+
+    #expect(mlDoc != nil)
+    guard let mlDoc else { return }
+
+    // Verify MLDocument fields match SuttaRef properties
+    #expect(mlDoc.sutta_uid == "dn16")
+    #expect(mlDoc.docLang == "en")
+    #expect(mlDoc.docAuthor == "sujato")
+    #expect(mlDoc.author == "sujato")
+    #expect(!mlDoc.segMap.isEmpty)
+
+    // Verify segment count (dn16 should have 1664 segments)
+    let segmentCount = mlDoc.segMap.count
+    #expect(segmentCount == 1664)
+
+    // Verify known segment exists (first true segment after header)
+    guard let firstSegment = mlDoc.segMap["dn16:1.1.1"] else {
+      Issue.record("First segment (dn16:1.1.1) not found")
+      return
+    }
+    #expect(firstSegment.pli == "Evaṁ me sutaṁ—")
+    #expect(firstSegment.doc == "So I have heard. ")
+    let msElapsed = Int((CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000)
+    #expect(msElapsed < 100)
+  }
 }

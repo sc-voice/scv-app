@@ -15,13 +15,13 @@ public struct Segment: Codable, Equatable, Sendable {
   public let scid: String
 
   /// Text in MLDocument's language
-  public let doc: String?
+  public var doc: String?
 
   /// Reference language text
-  public let ref: String?
+  public var ref: String?
 
   /// Pali text
-  public let pli: String?
+  public var pli: String?
 
   /// Whether this segment matched the search pattern
   public let matched: Bool
