@@ -25,6 +25,12 @@ and provides a card-based interface where users can create multiple search and s
 
 - ColorConsole logging: See scv-core/Sources/ColorConsole.swift for ok1/ok2/bad1/bad2 usage patterns
 
+## Claude commands
+
+Always read user Claude.md at beginning of chat or whenever existing chat is cleared.
+
+- rtf means READ THE FILE
+
 ## Testing
 
 Run comprehesive tests with:
@@ -83,33 +89,6 @@ cd scv-core && swift test --filter CardTests
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
-### Add WebView wrapper for selected segment
-**Status**: Backlog
-
-01. [ ] Design WebView integration for full HTML rendering of selected segments
-02. [ ] Create WebView wrapper component
-03. [ ] Handle navigation between segments in WebView
-04. [ ] Style WebView content according to theme
-05. [ ] Test WebView interaction and rendering
-
-### Optimize SettingsView rendering performance
-**Status**: Backlog
-
-01. [ ] Profile SettingsView with Instruments to identify bottleneck
-02. [ ] Implement lazy loading for language pickers (See: scv-ui/Sources/scvUI/SettingsView.swift:60+)
-03. [ ] Collapse form sections by default to reduce initial render
-04. [ ] Test performance - target <1s sheet open time
-05. [ ] Document optimization impact
-
-### Add de/sonjabuege German translation
-**Status**: Backlog
-
-01. [ ] Add de/sonjabuege to db-manifest.json
-02. [ ] Decompress and load de/sonjabuege database
-03. [ ] Test Settings can select German language with sonjabuege author
-04. [ ] Verify search works with de/sonjabuege
-05. [ ] All tests pass including SettingsTests initialization
-
 ### Fix Sendability warnings in CardManager and MockCardManager
 **Status**: Backlog
 
@@ -139,4 +118,3 @@ cd scv-core && swift test --filter CardTests
     - Update all callsites in SuttaCardView and elsewhere
     - Simplifies iteration and eliminates tuple destructuring
 
-- rtf means READ THE FILE
