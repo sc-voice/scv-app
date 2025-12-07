@@ -209,6 +209,7 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       )
     } catch {
       // Silently fail, returning nil
+      cc.bad1(#line, #function, error)
       return nil
     }
   }

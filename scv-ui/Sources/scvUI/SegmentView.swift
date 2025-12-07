@@ -36,8 +36,10 @@ struct SegmentView: View {
     }
     .padding(.horizontal)
     .padding(.vertical, 4)
-    .background(isSegmentSelected ? themeProvider.theme
-      .backgroundColor : .clear)
+    .background(
+      isSegmentSelected ? themeProvider.theme
+        .backgroundColor : .clear,
+    )
     .overlay(
       RoundedRectangle(cornerRadius: 4)
         .stroke(

@@ -305,10 +305,11 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
             }
           }
         }
+        .scrollContentBackground(.hidden)
         #if os(iOS)
-        .listStyle(.insetGrouped)
+          .listStyle(.insetGrouped)
         #else
-        .listStyle(.automatic)
+          .listStyle(.automatic)
         #endif
       },
     )
@@ -434,7 +435,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 // MARK: - Preview
 
 #Preview("SearchCardView") {
-  @Previewable @State var selectedCardId: UUID?
+  @Previewable @State var selectedCardId: UUID? = nil
   @Previewable @State var mockCard1 = MockCard(
     cardType: .search,
     typeId: 1,
@@ -448,19 +449,46 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     selectedCardId: card1.id,
   )
 
-  selectedCardId = card1.id
-
-  return NavigationSplitView {
+  NavigationSplitView {
     CardSidebarView(
       cardManager: manager,
       selectedCardId: $selectedCardId,
     )
+    .onAppear {
+      let ref1 = SuttaRef.create("mn119/en/sujato")
+      let ref2 = SuttaRef.create("mn11/en/sujato")
+      if ref1 != nil, ref2 != nil {
+        mockCard1.searchResult = SeekerResult(
+          metadata: SearchMetadata(
+            timestamp: Date(),
+            query: "mindfulness",
+            method: .phrase,
+            elapsedTime: 0.045,
+            docLang: "en",
+            docAuthor: "sujato",
+          ),
+          items: [
+            .init(
+              suttaRef: ref1!,
+              score: 0.95,
+              segmentCount: 42,
+              quote: "Mindfulness is the path to the Deathless...",
+            ),
+            .init(
+              suttaRef: ref2!,
+              score: 0.87,
+              segmentCount: 58,
+              quote: "Through mindfulness, through heedfulness...",
+            ),
+          ],
+        ) // SeekerResult
+      } // if
+    } // onAppear
   } detail: {
-    if selectedCardId == card1.id {
+    ZStack {
       SearchCardView(card: $mockCard1, cardManager: manager)
-    } else {
-      Text("Select a card")
-    }
+    } // ZStack
+    .background(ScvBackgroundsView(.sangha))
   }
   .environmentObject(ThemeProvider())
 }

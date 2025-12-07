@@ -22,6 +22,9 @@ let package = Package(
       dependencies: [
         .product(name: "scvCore", package: "scv-core"),
       ],
+      resources: [
+        .process("Resources"),
+      ],
     ),
     .testTarget(
       name: "scvUITests",

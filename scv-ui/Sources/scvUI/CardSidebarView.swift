@@ -30,110 +30,127 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   }
 
   public var body: some View {
-    // NavigationStack {
-    List(selection: $selectedCardId) {
-      ForEach(cardManager.allCards) { card in
-        HStack(spacing: 12) {
-          Image(systemName: card.iconName())
-            .foregroundStyle(.secondary)
-          VStack(alignment: .leading, spacing: 2) {
-            Text(card.sidebarTitle)
-              .font(.headline)
-              .lineLimit(1)
-              .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
-                .localized || card.sidebarTitle == "card.type.sutta"
-                .localized ? .secondary : .primary)
+    ZStack {
+      List(selection: $selectedCardId) {
+        ForEach(cardManager.allCards) { card in
+          HStack(spacing: 12) {
+            Image(systemName: card.iconName())
+              .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+              Text(card.sidebarTitle)
+                .font(.headline)
+                .lineLimit(1)
+                .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
+                  .localized || card.sidebarTitle == "card.type.sutta"
+                  .localized ? .secondary : .primary)
+            }
+          }
+          .contentShape(Rectangle())
+          .onTapGesture {
+            selectedCardId = card.id
+            cardManager.selectCard(card)
+            cc.ok1(#line, "Selected card:", card.name)
           }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-          selectedCardId = card.id
-          cardManager.selectCard(card)
-          cc.ok1(#line, "Selected card:", card.name)
+        .onDelete { indices in
+          cardManager.removeCards(at: indices)
+          cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
         }
       }
-      .onDelete { indices in
-        cardManager.removeCards(at: indices)
-        cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
-      }
-    }
-    .toolbar {
-      ToolbarItem(placement: .principal) {
-        Text("scVoice")
-          .font(.title2)
-          .foregroundStyle(titleColor ?? themeProvider.theme.accentColor)
-          .opacity(titleOpacity)
-          .scaleEffect(titleScale)
-      }
-      #if os(iOS)
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button(action: addNewCard) {
-            Image(systemName: "plus")
-              .font(.title2)
-          }
-          .buttonStyle(.plain)
-          .help("Add new search card")
+      .scrollContentBackground(.hidden)
+      .background(.black.opacity(0.5))
+      .toolbar {
+        ToolbarItem(placement: .principal) {
+          Text("scVoice")
+            .font(.title2)
+            .foregroundStyle(titleColor ?? themeProvider.theme.accentColor)
+            .opacity(titleOpacity)
+            .scaleEffect(titleScale)
         }
-        if let onSettingsTap {
-          ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: {
-              withAnimation(.easeInOut(duration: 2.0)) {
-                titleColor = themeProvider.theme.accentColor
-              }
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.secondaryTextColor
-                }
-              }
-              onSettingsTap()
-            }) {
-              Image(systemName: "gearshape")
+        #if os(iOS)
+          ToolbarItem(placement: .navigationBarLeading) {
+            Button(action: addNewCard) {
+              Image(systemName: "plus")
                 .font(.title2)
             }
             .buttonStyle(.plain)
-            .help("Settings")
+            .help("Add new search card")
           }
-        }
-      #else
-        // macOS uses different toolbar placement strategy
-        ToolbarItem(placement: .automatic) {
-          Button(action: addNewCard) {
-            Image(systemName: "magnifyingglass")
-              .font(.title2)
+          if let onSettingsTap {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(action: {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.accentColor
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                  withAnimation(.easeInOut(duration: 2.0)) {
+                    titleColor = themeProvider.theme.secondaryTextColor
+                  }
+                }
+                onSettingsTap()
+              }) {
+                Image(systemName: "gearshape")
+                  .font(.title2)
+              }
+              .buttonStyle(.plain)
+              .help("Settings")
+            }
           }
-          .buttonStyle(.plain)
-          .help("Add new search card")
-        }
-        if let onSettingsTap {
+        #else
+          // macOS uses different toolbar placement strategy
           ToolbarItem(placement: .automatic) {
-            Button(action: {
-              withAnimation(.easeInOut(duration: 2.0)) {
-                titleColor = themeProvider.theme.accentColor
-              }
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.secondaryTextColor
-                }
-              }
-              onSettingsTap()
-            }) {
-              Image(systemName: "gearshape")
+            Button(action: addNewCard) {
+              Image(systemName: "magnifyingglass")
                 .font(.title2)
             }
             .buttonStyle(.plain)
-            .help("Settings")
+            .help("Add new search card")
           }
-        }
-      #endif
-    }
-    // .toolbarBackground(themeProvider.theme.toolbarColor, for: .navigationBar)
-    // .toolbarBackground(.visible, for: .navigationBar)
-    .onAppear {
-      if titleColor == nil {
-        titleColor = themeProvider.theme.secondaryTextColor
+          if let onSettingsTap {
+            ToolbarItem(placement: .automatic) {
+              Button(action: {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                  titleColor = themeProvider.theme.accentColor
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                  withAnimation(.easeInOut(duration: 2.0)) {
+                    titleColor = themeProvider.theme.secondaryTextColor
+                  }
+                }
+                onSettingsTap()
+              }) {
+                Image(systemName: "gearshape")
+                  .font(.title2)
+              }
+              .buttonStyle(.plain)
+              .help("Settings")
+            }
+          }
+        #endif
       }
-    }
-    // }
+      // .toolbarBackground(themeProvider.theme.toolbarColor, for:
+      // .navigationBar)
+      // .toolbarBackground(.visible, for: .navigationBar)
+      .onAppear {
+        if titleColor == nil {
+          titleColor = themeProvider.theme.secondaryTextColor
+        }
+      }
+    } // ZStack
+    .background(
+      ScvBackgroundsView(.wilderness)
+        .overlay(
+          LinearGradient(
+            gradient: Gradient(stops: [
+              .init(color: .clear, location: 0),
+              .init(color: .black.opacity(0.3), location: 1),
+            ]),
+            startPoint: .top,
+            endPoint: .bottom,
+          ),
+        ),
+      // .blur(radius: 5)
+    )
   }
 
   private func addNewCard() {

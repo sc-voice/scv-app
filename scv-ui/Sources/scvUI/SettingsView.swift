@@ -51,6 +51,9 @@ public struct SettingsView: View {
 
   public var body: some View {
     ZStack {
+      themeProvider.theme.backgroundColor
+        .opacity(0.5)
+
       VStack(spacing: 0) {
         HStack {
           Text("Settings")
@@ -230,10 +233,10 @@ public struct SettingsView: View {
             }
           }
           .scrollContentBackground(.hidden)
-          .background(themeProvider.theme.backgroundColor)
+          .frame(maxWidth: 500)
+          .padding(.horizontal)
         }
       }
-      .background(themeProvider.theme.backgroundColor)
 
       if isLoading {
         ProgressView()
@@ -241,6 +244,7 @@ public struct SettingsView: View {
           .background(Color.black.opacity(1.0))
       }
     }
+    .background(ScvBackgroundsView(.village))
     .onChange(of: showResetConfirmation) {
       if showResetConfirmation {
         cc.ok2(#line, "alert(Reset All Settings) presenting")
@@ -275,4 +279,5 @@ extension View {
 
 #Preview {
   SettingsView(controller: SettingsModalController(from: Settings.shared))
+    .environmentObject(ThemeProvider())
 }

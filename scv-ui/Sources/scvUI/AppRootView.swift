@@ -27,16 +27,19 @@ public struct AppRootView<Manager: ICardManager>: View {
   let appIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
-  public init(cardManager: Manager, appIcon: Image? = nil) {
+  public init(
+    cardManager: Manager,
+    appIcon: Image? = nil,
+    isReady: Bool = false,
+  ) {
     self.cardManager = cardManager
     self.appIcon = appIcon
+    self.isReady = isReady
   }
 
   public var body: some View {
     ZStack {
       VStack(spacing: 0) {
-        Text("v\(appVersion)")
-          .foregroundStyle(themeProvider.theme.debugForeground)
         NavigationSplitView {
           // Sidebar with card list
           CardSidebarView(
@@ -133,8 +136,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
           } // ZStack
-          .environmentObject(themeProvider)
-          .background(themeProvider.theme.cardBackground)
+          .background(ScvBackgroundsView(.sangha))
         } // detail:
         .onAppear {
           cc.ok1(
@@ -214,16 +216,12 @@ public struct AppRootView<Manager: ICardManager>: View {
 
       if !isReady {
         SplashScreenView(appIcon: appIcon)
-          .background(themeProvider.theme.backgroundColor.opacity(0.5))
-          .ignoresSafeArea()
-          .zIndex(1)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(ScvBackgroundsView(.village))
       }
     } // ZStack
-    .environmentObject(themeProvider)
-    .background(themeProvider.theme.cardBackground)
-    .ignoresSafeArea()
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-  }
+    .background(ScvBackgroundsView(.village))
+  } // body
 
   @ViewBuilder
   private func detailView(for cardId: Manager.ManagedCard.ID,
@@ -322,10 +320,6 @@ public struct AppRootView<Manager: ICardManager>: View {
 
   let themeProvider = ThemeProvider()
 
-  AppRootView(cardManager: manager)
+  AppRootView(cardManager: manager, isReady: true)
     .environmentObject(themeProvider)
-  Text("AppRootView preview")
-    .font(.caption)
-    .foregroundStyle(themeProvider.theme.debugForeground)
-    .ignoresSafeArea()
 }

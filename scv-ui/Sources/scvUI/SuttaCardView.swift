@@ -67,6 +67,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             }
             .padding(.vertical)
           }
+          .scrollContentBackground(.hidden)
+          .background(.clear)
           .onAppear {
             if let currentScid = mlDoc.currentScid {
               // Delay scroll to allow segments to load
@@ -114,7 +116,27 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(
+      Group {
+        if Settings.shared.isDarkModeEnabled {
+          ScvBackgroundsView(.space)
+            .overlay(
+              LinearGradient(
+                gradient: Gradient(stops: [
+                  .init(color: .clear, location: 0),
+                  .init(color: .black.opacity(0.3), location: 0.1),
+                  .init(color: .black.opacity(0.6), location: 1),
+                ]),
+                startPoint: .top,
+                endPoint: .bottom,
+              ),
+            )
+        } else {
+          ScvBackgroundsView(.nothingness)
+            .brightness(0.1)
+        }
+      },
+    )
     .onAppear {
       if let mlDoc = card.mlDoc {
         segments = mlDoc.segments()
