@@ -3,7 +3,7 @@
         clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
 				format mock-response-view scv-demo-ios \
         version-major version-minor version-patch \
-				commit build-zst
+				commit build-zst content
 
 SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
@@ -62,6 +62,8 @@ build-zst: build-build
 	@echo "Regenerating db-manifest.json with schema versions..."
 	@scripts/build-ebt-data --build-manifest
 	@echo "✓ All .zst files rebuilt and manifest regenerated"
+
+content: build-zst
 
 build-build:
 	@echo "=====> build-build..."
@@ -199,7 +201,7 @@ help:
 	@echo "  make build-demo-ios    Build scv-demo-ios app (increments patch version)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-ios-part    Build scv-ios app"
-	@echo "  make build-ebt-data-db Pull latest ebt-data and rebuild all databases from manifest"
+	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-build       Clean scv-build package"

@@ -118,3 +118,14 @@ cd scv-core && swift test --filter CardTests
     - Update all callsites in SuttaCardView and elsewhere
     - Simplifies iteration and eliminates tuple destructuring
 
+### Investigate German search for 'abhängig entstehen' not finding sn6.1
+**Status**: Backlog
+
+01. [ ] Investigate why German (de) search for 'abhängig entstehen' does not find sn6.1
+    - Sutta sn6.1 should contain this phrase
+    - Verify phrase exists in German translation data
+    - Check if search algorithm correctly handles German compound words
+    - Examine FTS (Full Text Search) configuration for German language
+    - Test other German phrases to determine if issue is phrase-specific or systemic
+    - Consider if word stemming or tokenization is affecting German phrase matching
+
