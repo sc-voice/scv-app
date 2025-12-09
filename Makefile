@@ -1,5 +1,5 @@
-.PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration\
-				build build-core build-ui build-build build-demo-ios build-ios build-ios-part\
+.PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
+				build build-core build-ui build-build build-nlp build-demo-ios build-ios build-ios-part\
         clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
 				format mock-response-view scv-demo-ios \
         version-major version-minor version-patch \
@@ -39,6 +39,12 @@ test-ui: build-ui
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
 
+test-nlp: build-nlp
+	@echo "=======> test-nlp..."
+	@cd scv-nlp && swift test --no-parallel 2>&1 \
+	| tee ../local/test-nlp.log \
+	| grep -E $(TEST_ALL_FILTER) || true
+
 test-demo-ios:
 	@echo "=======> test-core-demo-ios..."
 	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION \
@@ -76,6 +82,10 @@ build-core:
 build-ui: build-core
 	@echo "=====> build-ui..."
 	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+
+build-nlp:
+	@echo "=====> build-nlp..."
+	@cd scv-nlp && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
 build-ios: build-core build-ui build-ios-part
 
