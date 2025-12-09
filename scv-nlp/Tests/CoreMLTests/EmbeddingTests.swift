@@ -12,6 +12,19 @@ final class EmbeddingTests: XCTestCase {
     let segmentEmbeddings: [String: [Double]]
   }
 
+  /// Data structure for a single search result
+  struct SearchResultItem: Codable {
+    let scid: String
+    let score: Double
+    let doc: String
+  }
+
+  /// Data structure for search results
+  struct SearchResult: Codable {
+    let searchPhrase: String
+    let results: [SearchResultItem]
+  }
+
   func testDEContextualEmbedding() throws {
     // Create contextual embedding for DE
     guard let embedding = NLContextualEmbedding(language: .german) else {
@@ -194,6 +207,140 @@ final class EmbeddingTests: XCTestCase {
       )
       print("  Vector dimensions: 512 (BERT)")
     }
+  }
+
+  func testDEPhraseSearch() async throws {
+    // Path to results file - if it exists, fixture generation is complete
+    let outputPath = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()
+      .appendingPathComponent("sn12.20-de-abhängige_entstehen.json")
+
+    if FileManager.default.fileExists(atPath: outputPath.path) {
+      return
+    }
+
+    // Load sn12.20 German embeddings fixture
+    let fixturesPath = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()
+      .appendingPathComponent("sn12.20-de-embeddings.json")
+
+    guard FileManager.default.fileExists(atPath: fixturesPath.path) else {
+      XCTFail("sn12.20-de-embeddings.json fixture not found")
+      return
+    }
+
+    let data = try Data(contentsOf: fixturesPath)
+    let embeddingData = try JSONDecoder().decode(
+      MLDocumentEmbeddingData.self,
+      from: data,
+    )
+
+    print(
+      "✓ Loaded embeddings fixture: \(embeddingData.segmentEmbeddings.count) segments",
+    )
+
+    // Create German contextual embedding
+    guard let embedding = NLContextualEmbedding(language: .german) else {
+      throw XCTSkip("NLContextualEmbedding not available for German")
+    }
+
+    try embedding.load()
+
+    // Generate embedding for search phrase
+    let searchPhrase = "abhängige entstehen"
+    guard let result = try? embedding.embeddingResult(
+      for: searchPhrase,
+      language: .german,
+    ) else {
+      throw XCTSkip("Could not generate embedding for search phrase")
+    }
+
+    // Collect token vectors and average
+    var tokenVectors: [[Double]] = []
+    result
+      .enumerateTokenVectors(in: searchPhrase.startIndex ..< searchPhrase
+        .endIndex)
+      { vector, _ in
+        tokenVectors.append(Array(vector))
+        return true
+      }
+
+    let phraseEmbedding = averageVectors(tokenVectors)
+    print("✓ Generated phrase embedding: \(phraseEmbedding.count) dimensions")
+
+    // Calculate similarity with each segment
+    var similarities: [SearchResultItem] = []
+
+    for (scid, segment) in embeddingData.mlDocument.segMap {
+      var score = 0.0
+
+      // Segments with embeddings get similarity score
+      if let segmentVector = embeddingData.segmentEmbeddings[scid] {
+        score = cosineSimilarity(phraseEmbedding, segmentVector)
+      }
+      // Segments without embeddings have zero score by definition
+
+      if score > 0.0 {
+        let docText = segment.doc ?? ""
+        similarities.append(SearchResultItem(
+          scid: scid,
+          score: score,
+          doc: docText,
+        ))
+      }
+    }
+
+    // Sort by score descending
+    similarities.sort { $0.score > $1.score }
+
+    print("✓ Found \(similarities.count) non-zero matches")
+
+    // Create output structure
+    let searchResult = SearchResult(
+      searchPhrase: searchPhrase,
+      results: similarities,
+    )
+
+    // Path to results file
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    let jsonData = try encoder.encode(searchResult)
+    try jsonData.write(to: outputPath)
+    print("✓ Saved results to \(outputPath.lastPathComponent)")
+
+    print("  Phrase: \"\(searchPhrase)\"")
+    print("  Matches: \(similarities.count)")
+
+    // Print top 10 results
+    print("\nTop 10 matches:")
+    for (i, result) in similarities.prefix(10).enumerated() {
+      let truncatedDoc = result.doc.count > 60
+        ? String(result.doc.prefix(57)) + "..."
+        : result.doc
+      print(
+        "  \(i + 1). \(result.scid) (score: \(String(format: "%.4f", result.score))) - \(truncatedDoc)",
+      )
+    }
+  }
+
+  /// Calculates cosine similarity between two vectors
+  private func cosineSimilarity(_ a: [Double], _ b: [Double]) -> Double {
+    guard a.count == b.count, !a.isEmpty else { return 0.0 }
+
+    var dotProduct = 0.0
+    var magnitudeA = 0.0
+    var magnitudeB = 0.0
+
+    for i in 0 ..< a.count {
+      dotProduct += a[i] * b[i]
+      magnitudeA += a[i] * a[i]
+      magnitudeB += b[i] * b[i]
+    }
+
+    let denominator = sqrt(magnitudeA) * sqrt(magnitudeB)
+    guard denominator > 0 else { return 0.0 }
+
+    return dotProduct / denominator
   }
 
   /// Averages multiple vectors into a single vector
