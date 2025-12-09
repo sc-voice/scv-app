@@ -345,8 +345,8 @@ public actor EbtData {
 
     if docLang == "pli" {
       for (scid, var segment) in mlDoc.segMap {
-          segment.pli = segment.doc
-          mlDoc.segMap[scid] = segment
+        segment.pli = segment.doc
+        mlDoc.segMap[scid] = segment
       }
     } else {
       guard let pliRef = SuttaRef.create(suttaRef.suttaUid) else {
