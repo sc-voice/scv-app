@@ -1,4 +1,5 @@
 import Foundation
+import NaturalLanguage
 @testable import scvCore
 import Testing
 

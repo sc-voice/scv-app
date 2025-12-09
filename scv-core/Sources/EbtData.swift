@@ -1150,6 +1150,13 @@ public actor EbtData {
         method: searchMethod,
         maxResults: maxResults,
       )
+    case .lemma:
+      var emptyResult = result
+      emptyResult.error = SearchError(
+        message: "Lemma search not yet implemented",
+        detail: "Use EbtSeeker.searchLemma() directly",
+      )
+      return emptyResult
     }
   }
 
@@ -1173,7 +1180,7 @@ public actor EbtData {
         docAuthor: docAuthor,
         maxResults: maxResults,
       )
-    case .suttaref, .phrase, .keyword:
+    case .suttaref, .phrase, .keyword, .lemma:
       // Should not reach here - handled directly in search()
       []
     }
@@ -1420,6 +1427,10 @@ public actor EbtData {
 
     case .suttaref:
       // No quote for suttaref search (it's just a reference lookup)
+      return nil
+
+    case .lemma:
+      // TODO: implement quote finding for lemma search
       return nil
     }
   }

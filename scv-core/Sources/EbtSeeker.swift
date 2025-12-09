@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NaturalLanguage
 import SQLite3
 
 // MARK: - EbtSeeker Actor
@@ -17,6 +18,7 @@ public actor EbtSeeker {
   private let lang: String
   private let author: String
   private let db: OpaquePointer
+  private lazy var lemmatizer = NLTagger(tagSchemes: [.lemma])
 
   /// Initialize EbtSeeker with database pointer
   /// - Parameters:
@@ -252,6 +254,20 @@ public actor EbtSeeker {
     case .suttaref:
       // No quote for suttaref search (it's just a reference lookup)
       return nil
+
+    case .lemma:
+      guard let regex = lemmaRegexp(query) else { return nil }
+      let nsText = text as NSString
+      if let match = regex.firstMatch(
+        in: text,
+        range: NSRange(location: 0, length: nsText.length),
+      ) {
+        let matchRange = match.range
+        let start = text.index(text.startIndex, offsetBy: matchRange.location)
+        let end = text.index(start, offsetBy: matchRange.length)
+        return start ..< end
+      }
+      return nil
     }
   }
 
@@ -306,6 +322,135 @@ public actor EbtSeeker {
 
     return "\(prefixEllipsis)\(beforeMatch)<span>\(matchedText)</span>\(afterMatch)\(suffixEllipsis)"
   }
+
+  /// Lemmatizes query text using NaturalLanguage framework
+  /// Maps inflected word forms to lemma roots for morphologically-rich
+  /// languages
+  /// - Parameter query: Text to lemmatize
+  /// - Returns: Array of lemmatized words
+  public func lemmatize(_ query: String) -> [String] {
+    var lemmas: [String] = []
+
+    // Normalize input for language-specific character mappings
+    var normalizedQuery = query
+    switch lang {
+    case "de":
+      normalizedQuery = query
+        .replacingOccurrences(of: "ae", with: "ä")
+        .replacingOccurrences(of: "oe", with: "ö")
+        .replacingOccurrences(of: "ue", with: "ü")
+    default:
+      normalizedQuery = query
+    }
+
+    lemmatizer.string = normalizedQuery
+    let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace]
+
+    lemmatizer.enumerateTags(
+      in: normalizedQuery.startIndex ..< normalizedQuery.endIndex,
+      unit: .word,
+      scheme: .lemma,
+      options: options,
+    ) { tag, tokenRange in
+      let lemma = tag?.rawValue ?? String(normalizedQuery[tokenRange])
+      lemmas.append(lemma)
+      return true
+    }
+
+    return lemmas
+  }
+
+  /// Creates NSRegularExpression from lemmatized query
+  /// Lemmatizes query words and joins with ".*" for flexible matching
+  /// Example: "abhängige entstehen" → regex: /abhängig.*entstehen/i
+  /// - Parameter query: Text to lemmatize and convert to regex
+  /// - Returns: Compiled NSRegularExpression or nil if lemmatization fails
+  private func lemmaRegexp(_ query: String) -> NSRegularExpression? {
+    let lemmaWords = lemmatize(query)
+    guard !lemmaWords.isEmpty else { return nil }
+
+    let pattern = lemmaWords.joined(separator: ".*")
+    do {
+      return try NSRegularExpression(
+        pattern: pattern,
+        options: [.caseInsensitive],
+      )
+    } catch {
+      return nil
+    }
+  }
+
+  /// Searches for lemmatized phrase using substring LIKE patterns
+  /// Lemmatizes query words and finds segments containing all lemma forms
+  /// Calculates relevance scores using same formula as keyword search:
+  /// score = match_count + (match_count / total_segments)
+  /// - Parameter query: Phrase to search (e.g., "abhängige entstehen")
+  /// - Returns: SeekerResult with matching suttas ranked by relevance score
+  public func searchLemma(_ query: String) -> SeekerResult {
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+
+    // Lemmatize query
+    let lemmaWords = lemmatize(query)
+
+    // Build LIKE patterns: ["%abhäng%", "%entste%"]
+    let likePatterns = lemmaWords.map { "%\($0)%" }
+
+    // Build WHERE clause: segment_text LIKE '%abhäng%' AND segment_text LIKE
+    // '%entste%'
+    let whereConditions = likePatterns.map { "segment_text LIKE '\($0)'" }
+      .joined(separator: " AND ")
+
+    // Query with scoring: count matching segments and calculate combined score
+    let sqlQuery = """
+    SELECT s.sutta_key, COUNT(seg.rowid) as match_count, s.total_segments,
+           COUNT(seg.rowid) + (CAST(COUNT(seg.rowid) AS FLOAT) / s.total_segments) as combined_score
+    FROM segments seg
+    JOIN suttas s ON seg.sutta_key = s.sutta_key
+    WHERE \(whereConditions)
+    GROUP BY seg.sutta_key, s.total_segments
+    ORDER BY combined_score DESC
+    """
+
+    var itemsWithScores: [(key: String, score: Double)] = []
+
+    var stmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+      let metadata = SearchMetadata(
+        query: query,
+        method: .lemma,
+        elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
+        docLang: lang,
+        docAuthor: author,
+      )
+      return SeekerResult(metadata: metadata, items: [])
+    }
+    defer { sqlite3_finalize(stmt) }
+
+    while sqlite3_step(stmt) == SQLITE_ROW {
+      guard let keyC = sqlite3_column_text(stmt, 0) else { continue }
+      let suttaKey = String(cString: keyC)
+      let score = sqlite3_column_double(stmt, 3)
+      itemsWithScores.append((key: suttaKey, score: score))
+    }
+
+    // Convert to SeekerResultItems (already sorted by SQL ORDER BY)
+    var items: [SeekerResultItem] = []
+    for (suttaKey, score) in itemsWithScores {
+      if let ref = SuttaRef.create(suttaKey) {
+        items.append(SeekerResultItem(suttaRef: ref, score: score))
+      }
+    }
+
+    let metadata = SearchMetadata(
+      query: query,
+      method: .lemma,
+      elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
+      docLang: lang,
+      docAuthor: author,
+    )
+
+    return SeekerResult(metadata: metadata, items: items)
+  }
 }
 
 // MARK: - SearchMethod Enum
@@ -323,6 +468,9 @@ public enum SearchMethod: String, Sendable, Codable {
 
   /// Regexp search - find using regular expression pattern
   case regexp
+
+  /// Lemma search - find lemmatized phrase matches
+  case lemma
 }
 
 // MARK: - EbtSeekerError

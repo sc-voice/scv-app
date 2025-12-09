@@ -119,13 +119,39 @@ cd scv-core && swift test --filter CardTests
     - Simplifies iteration and eliminates tuple destructuring
 
 ### Investigate German search for 'abhängig entstehen' not finding sn6.1
+**Status**: In Progress (using lemma-based search with NLTagger)
+
+01. [x] Implement searchLemma() with NaturalLanguage framework lemmatization
+02. [x] Test lemmatization of German words using NLTagger
+03. [x] Verify substring LIKE matching returns 45+ results
+04. [x] Move searchLemma to EbtSeeker (in EbtSeeker.swift)
+05. [x] Implement lemmaRegexp() helper method
+06. [x] Implement .lemma case in findMatch() for quote finding
+07. [ ] Test via unified search() API
+08. [ ] Run full test suite with lemma search enabled
+
+### Mark matched segments in MLDocument with lemmaRegexp
 **Status**: Backlog
 
-01. [ ] Investigate why German (de) search for 'abhängig entstehen' does not find sn6.1
-    - Sutta sn6.1 should contain this phrase
-    - Verify phrase exists in German translation data
-    - Check if search algorithm correctly handles German compound words
-    - Examine FTS (Full Text Search) configuration for German language
-    - Test other German phrases to determine if issue is phrase-specific or systemic
-    - Consider if word stemming or tokenization is affecting German phrase matching
+01. [ ] Use lemmaRegexp() to set matched: true on Segment objects (See: Segment.swift:27)
+    - Currently matched field is never set to true anywhere
+    - populateSuttaInfo() creates header segments but can't mark matches (no query/method)
+    - populateQuotes() has query/method but doesn't update Segment.matched field
+    - Determine best place to mark matched segments (in populateQuotes or separate method)
+    - Update MLDocument segments to reflect which ones matched the lemma search
+    - This enables UI to highlight matched segments in search results
+
+### Refactor EbtData/EbtSeeker search architecture
+**Status**: Backlog
+
+01. [ ] Clarify responsibility boundary between EbtData and EbtSeeker (See: EbtData.swift, EbtSeeker.swift)
+    - Currently EbtData.search() dispatches to searchKeywords/searchPhrase/searchRegexp
+    - EbtSeeker.search() calls back to EbtData.search() (circular dependency)
+    - searchLemma() added to EbtSeeker but dispatch logic incomplete
+    - Determine: Should search method dispatch live in EbtData or EbtSeeker?
+    - Proposed: Move all dispatch logic to EbtSeeker since it has lang/author context
+    - Refactor EbtData as data access layer, EbtSeeker as search orchestration layer
+02. [ ] Test that all SearchMethod cases work through unified search() API
+03. [ ] Clean up circular references between classes
+04. [ ] Update SEARCH.md with final architecture decision
 
