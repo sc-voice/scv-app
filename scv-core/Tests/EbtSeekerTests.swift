@@ -414,4 +414,115 @@ struct EbtSeekerTests {
       "ASCII umlaut should normalize to ä",
     )
   }
+
+  @Test("parseQuery with single full scid")
+  func parseQuerySingleFullScid() {
+    let (suttaRefs, method) = EbtSeeker.parseQuery(query: "thig1.1/en/soma")
+
+    #expect(method == .suttaref, "Should detect suttaref method")
+    #expect(suttaRefs.count == 1, "Should return 1 sutta ref")
+    #expect(suttaRefs[0].suttaUid == "thig1.1")
+    #expect(suttaRefs[0].lang == "en")
+    #expect(suttaRefs[0].author == "soma")
+  }
+
+  @Test("parseQuery with mixed format scids and defaults")
+  func parseQueryMixedFormatsWithDefaults() {
+    let (suttaRefs, method) = EbtSeeker.parseQuery(
+      query: "thig1.1/en/soma, thig1.1/de, thig1.1",
+    )
+
+    #expect(method == .suttaref, "Should detect suttaref method")
+    #expect(
+      suttaRefs.count == 3,
+      "Should return 3 sutta refs, got \(suttaRefs.count)",
+    )
+
+    // First: full scid
+    #expect(suttaRefs[0].suttaUid == "thig1.1")
+    #expect(suttaRefs[0].lang == "en")
+    #expect(suttaRefs[0].author == "soma")
+
+    // Second: partial scid with lang, should fill in default author for German
+    #expect(suttaRefs[1].suttaUid == "thig1.1")
+    #expect(suttaRefs[1].lang == "de")
+    #expect(
+      suttaRefs[1].author == "sabbamitta",
+      "German should default to sabbamitta, got \(suttaRefs[1].author ?? "nil")",
+    )
+
+    // Third: just sutta uid, should fill in defaults
+    #expect(suttaRefs[2].suttaUid == "thig1.1")
+    #expect(suttaRefs[2].lang == "en")
+    #expect(
+      suttaRefs[2].author == "sujato",
+      "Should default to sujato, got \(suttaRefs[2].author ?? "nil")",
+    )
+  }
+
+  @Test("parseQuery with non-scid query")
+  func parseQueryNonScid() {
+    let (suttaRefs, method) = EbtSeeker.parseQuery(query: "root of suffering")
+
+    #expect(method == .lemma, "Should default to lemma method for text query")
+    #expect(suttaRefs.isEmpty, "Should return empty sutta refs for text query")
+  }
+
+  @Test("parseQuery with mixed valid and invalid entries")
+  func parseQueryMixedValidInvalid() {
+    let (suttaRefs, method) = EbtSeeker.parseQuery(
+      query: "mn1/en/sujato, not a sutta, sn42.11",
+    )
+
+    #expect(
+      method == .suttaref,
+      "Should detect suttaref method when some entries are valid",
+    )
+    #expect(
+      suttaRefs.count == 2,
+      "Should return 2 valid sutta refs (omitting invalid entries), got \(suttaRefs.count)",
+    )
+
+    #expect(suttaRefs[0].suttaUid == "mn1")
+    #expect(suttaRefs[0].lang == "en")
+    #expect(suttaRefs[0].author == "sujato")
+
+    #expect(suttaRefs[1].suttaUid == "sn42.11")
+    // Remaining fields should have reasonable defaults
+  }
+
+  @Test("searchAny with comma-delimited suttarefs")
+  func searchAnySuttarefs() async {
+    let result = await EbtSeeker.searchAny(
+      query: "thig1.1, thig1.1/en/soma, thig1.1/de",
+      settings: Settings.shared,
+    )
+
+    // Should detect suttaref method
+    #expect(
+      result.metadata.method == .suttaref,
+      "Should use suttaref method for comma-delimited references",
+    )
+
+    // Should return results for both references
+    #expect(
+      result.items.count == 3,
+      "Should find 2 results, got \(result.items.count)",
+    )
+
+    // First result: thig1.1 defaults to en/sujato
+    #expect(result.items[0].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[0].suttaRef.lang == "en")
+    #expect(result.items[0].suttaRef.author == "sujato")
+
+    // Second result: explicitly en/soma
+    #expect(result.items[1].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[1].suttaRef.lang == "en")
+    #expect(result.items[1].suttaRef.author == "soma")
+
+    // Third result: defaults to de/sabbamitta
+    #expect(result.items[2].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[2].suttaRef.lang == "de")
+    #expect(result.items[2].suttaRef.author == "sabbamitta")
+  }
 }

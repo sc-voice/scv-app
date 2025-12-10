@@ -566,9 +566,8 @@ struct EbtDataTests {
 
   @Test("Files breakdown: sujato has at least 4167 sutta files")
   func filesBreakdownSujato() throws {
-    guard let manifest = DatabaseManifest.load(),
-          let sujato = manifest.info(language: "en", author: "sujato")
-    else {
+    let manifest = DatabaseManifest.shared
+    guard let sujato = manifest.info(language: "en", author: "sujato") else {
       #expect(Bool(false), "Could not load sujato from manifest")
       return
     }
@@ -581,8 +580,8 @@ struct EbtDataTests {
 
   @Test("Files breakdown: sabbamitta has at least 4055 sutta files")
   func filesBreakdownSabbamitta() throws {
-    guard let manifest = DatabaseManifest.load(),
-          let sabbamitta = manifest.info(language: "de", author: "sabbamitta")
+    let manifest = DatabaseManifest.shared
+    guard let sabbamitta = manifest.info(language: "de", author: "sabbamitta")
     else {
       #expect(Bool(false), "Could not load sabbamitta from manifest")
       return
@@ -596,8 +595,8 @@ struct EbtDataTests {
 
   @Test("Files breakdown: brahmali has at least 427 vinaya files")
   func filesBreakdownBrahmali() throws {
-    guard let manifest = DatabaseManifest.load(),
-          let brahmali = manifest.info(language: "en", author: "brahmali")
+    let manifest = DatabaseManifest.shared
+    guard let brahmali = manifest.info(language: "en", author: "brahmali")
     else {
       #expect(Bool(false), "Could not load brahmali from manifest")
       return

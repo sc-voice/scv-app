@@ -225,8 +225,8 @@ import Testing
     #expect(testStr("thig1.1/en/soma") == "thig1.1/en/soma")
     #expect(testStr("thig1.1") == "thig1.1/pli/ms")
     #expect(testStr("thig1.1:2.3") == "thig1.1:2.3/pli/ms")
-    #expect(testStr("thig1.1", "de") == "thig1.1/de")
-    #expect(testStr("thig1.1:2.3", "de") == "thig1.1:2.3/de")
+    #expect(testStr("thig1.1", "de") == "thig1.1/de/sabbamitta")
+    #expect(testStr("thig1.1:2.3", "de") == "thig1.1:2.3/de/sabbamitta")
   }
 
   @Test("create() invalid reference") func createInvalid() {
@@ -327,7 +327,7 @@ import Testing
       defaultAuthor: nil,
     )
     #expect(ref4?.lang == "en")
-    #expect(ref4?.author == nil)
+    #expect(ref4?.author == "sujato")
   }
 
   @Test(

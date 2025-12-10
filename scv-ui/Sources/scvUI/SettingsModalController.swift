@@ -173,7 +173,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     }
 
     // Set docAuthor to default author for the new docLang
-    if let defaultInfo = DatabaseManifest.load()?
+    if let defaultInfo = DatabaseManifest.shared
       .defaultAuthorForLanguage(docLang.code)
     {
       docAuthor = defaultInfo.author

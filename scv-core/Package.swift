@@ -17,6 +17,7 @@ let package = Package(
   dependencies: [
     .package(path: "../scv-macros"),
     .package(url: "https://github.com/facebook/zstd.git", from: "1.5.5"),
+    .package(path: "Plugins/GenerateManifestPlugin"),
   ],
   targets: [
     .target(
@@ -31,6 +32,12 @@ let package = Package(
       ],
       swiftSettings: [
         .unsafeFlags(["-suppress-warnings"], .when(configuration: .debug)),
+      ],
+      plugins: [
+        .plugin(
+          name: "GenerateManifestPlugin",
+          package: "GenerateManifestPlugin",
+        ),
       ],
     ),
     .testTarget(

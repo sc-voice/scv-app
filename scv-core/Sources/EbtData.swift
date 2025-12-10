@@ -33,8 +33,8 @@ public actor EbtData {
   private nonisolated(unsafe) var searchCache: [String: EbtSeeker] = [:]
 
   // Manifest loaded once at app startup
-  private nonisolated(unsafe) static let manifestCache: DatabaseManifest? =
-    DatabaseManifest.load()
+  private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
+    .shared
 
   private init() {}
 
@@ -42,7 +42,7 @@ public actor EbtData {
 
   /// Returns loaded database manifest
   /// Fast lookup without decompressing databases
-  public nonisolated static func manifest() -> DatabaseManifest? {
+  public nonisolated static func manifest() -> DatabaseManifest {
     manifestCache
   }
 
@@ -50,7 +50,7 @@ public actor EbtData {
   public nonisolated static func availableDatabasesFromManifest()
     -> [DatabaseInfo]
   {
-    manifestCache?.databases ?? []
+    manifestCache.databases
   }
 
   /// Returns authors available for specific language from manifest
@@ -59,7 +59,7 @@ public actor EbtData {
   )
     -> [DatabaseInfo]
   {
-    manifestCache?.authorsForLanguage(language) ?? []
+    manifestCache.authorsForLanguage(language)
   }
 
   // MARK: - Decompression
@@ -210,7 +210,7 @@ public actor EbtData {
     // Resolve author to default if empty
     var resolvedAuthor = author
     if resolvedAuthor.isEmpty {
-      if let defaultInfo = EbtData.manifestCache?
+      if let defaultInfo = EbtData.manifestCache
         .defaultAuthorForLanguage(lang)
       {
         resolvedAuthor = defaultInfo.author
@@ -1562,9 +1562,8 @@ public actor EbtData {
       cachedGitHash = String(cString: hashText)
     }
 
-    guard let manifest = DatabaseManifest.load(),
-          let dbInfo = manifest.info(language: lang, author: author)
-    else {
+    let manifest = DatabaseManifest.shared
+    guard let dbInfo = manifest.info(language: lang, author: author) else {
       return false
     }
 

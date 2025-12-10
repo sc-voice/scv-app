@@ -8,7 +8,7 @@
 import Foundation
 
 /// Files breakdown for a database (sutta/vinaya/abhidhamma/other counts)
-public struct FilesBreakdown: Codable, Sendable {
+public struct FilesBreakdown: Codable, Sendable, Equatable {
   public let sutta: Int
   public let vinaya: Int
   public let abhidhamma: Int
@@ -49,27 +49,12 @@ public struct FilesBreakdown: Codable, Sendable {
 }
 
 /// Database manifest containing metadata for all bundled databases
-/// Loaded from db-manifest.json at app startup
-public struct DatabaseManifest: Codable {
+/// Generated from db-manifest.json at build time
+public struct DatabaseManifest: Codable, Sendable {
   public let databases: [DatabaseInfo]
 
-  /// Load manifest from bundle
-  public static func load() -> DatabaseManifest? {
-    guard let manifestURL = Bundle.module.url(
-      forResource: "db-manifest",
-      withExtension: "json",
-    ) else {
-      return nil
-    }
-
-    do {
-      let data = try Data(contentsOf: manifestURL)
-      let decoder = JSONDecoder()
-      return try decoder.decode(DatabaseManifest.self, from: data)
-    } catch {
-      return nil
-    }
-  }
+  /// Manifest singleton (generated at build time from db-manifest.json)
+  public static let shared = generated
 
   /// Get database info for specific language/author
   public func info(language: String, author: String) -> DatabaseInfo? {
@@ -105,7 +90,7 @@ public struct DatabaseManifest: Codable {
 }
 
 /// Information about a single database
-public struct DatabaseInfo: Codable, Identifiable {
+public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
   public let id: String
   public let language: String
   public let author: String

@@ -191,7 +191,7 @@ public class Settings: Codable {
         docAuthor = decodedAuthor
       } else {
         // Initialize from DatabaseManifest default for docLang
-        if let defaultInfo = DatabaseManifest.load()?
+        if let defaultInfo = DatabaseManifest.shared
           .defaultAuthorForLanguage(docLang.code)
         {
           docAuthor = defaultInfo.author
@@ -208,7 +208,7 @@ public class Settings: Codable {
         refAuthor = decodedRefAuthor
       } else {
         // Initialize from DatabaseManifest default for refLang
-        if let defaultInfo = DatabaseManifest.load()?
+        if let defaultInfo = DatabaseManifest.shared
           .defaultAuthorForLanguage(refLang.code)
         {
           refAuthor = defaultInfo.author
@@ -285,9 +285,7 @@ public class Settings: Codable {
   public func validate() {
     let startTime = CFAbsoluteTimeGetCurrent()
 
-    guard let manifest = DatabaseManifest.load() else {
-      return
-    }
+    let manifest = DatabaseManifest.shared
 
     // Validate and fix docAuthor if it's invalid for docLang
     if docAuthor.isEmpty ||

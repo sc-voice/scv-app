@@ -373,9 +373,8 @@ import Testing
     // initialized
     #expect(Settings.shared.refLang == .english)
     #expect(Settings.shared.refAuthor != nil)
-    if let manifest = DatabaseManifest.load(),
-       let enInfo = manifest.defaultAuthorForLanguage("en")
-    {
+    let manifest = DatabaseManifest.shared
+    if let enInfo = manifest.defaultAuthorForLanguage("en") {
       #expect(Settings.shared.refAuthor == enInfo.author)
     }
   }
@@ -388,7 +387,7 @@ import Testing
     Settings.shared.validate()
 
     // English should have default author from manifest
-    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+    if let enInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
       #expect(Settings.shared.docAuthor == enInfo.author)
     }
   }
@@ -399,7 +398,7 @@ import Testing
     Settings.shared.validate()
 
     // German should have sabbamitta as default author
-    if let deInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("de") {
+    if let deInfo = DatabaseManifest.shared.defaultAuthorForLanguage("de") {
       #expect(Settings.shared.docAuthor == deInfo.author)
     }
   }
@@ -416,7 +415,7 @@ import Testing
     Settings.shared.validate()
 
     // English reference should have default author from manifest
-    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+    if let enInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
       #expect(Settings.shared.refAuthor == enInfo.author)
     }
   }

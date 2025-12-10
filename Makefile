@@ -1,7 +1,7 @@
 .PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
 				build build-core build-ui build-build build-nlp build-demo-ios build-ios build-ios-part\
         clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
-				format mock-response-view scv-demo-ios \
+				format mock-response-view rebuild rebuild-raw scv-demo-ios \
         version-major version-minor version-patch \
 				commit build-zst content
 
@@ -91,16 +91,21 @@ build-ios: build-core build-ui build-ios-part
 
 build: build-core build-ui build-ios-part
 
-rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
+rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
+	@echo "rebuild start... $$(date)" > local/rebuild.log
 	@scripts/version patch
 	@mkdir -p local
 	@echo "Rebuilding..."
-	@$(MAKE) clean build 2>&1 | tee local/test-all.log
-	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/test-all.log
+	@$(MAKE) clean build 2>&1 | tee -a local/rebuild.log
+	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/rebuild.log
 	@$(MAKE) test-core test-ui test-demo-ios 2>&1 | tee -a local/test-all.log 
 	@echo "=========TEST SUMMARY======="
 	@echo "EXPECTED: 1 unhandled resource warning" 
-	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true > local/rebuild.log
+	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true >> local/rebuild.log
+	@echo "✓ rebuild end $$(date)" >> local/rebuild.log
+
+rebuild:
+	time make rebuild-untimed
 
 build-demo-ios:
 	@echo "=====> build-demo-ios..."

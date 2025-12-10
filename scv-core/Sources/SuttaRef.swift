@@ -72,7 +72,7 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   /// - Returns: SuttaRef matching the string, or throws if validation fails
   public static func createFromString(
     _ str: String = "",
-    defaultLang: String = "pli",
+    defaultLang: String? = nil,
     defaultAuthor: String? = nil,
     suids: [String]? = nil,
   ) throws -> SuttaRef {
@@ -100,14 +100,20 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       .map(String.init)
 
     let suttaUid = parts.indices.contains(0) ? parts[0] : ""
-    let lang = parts.indices.contains(1) ? parts[1] : defaultLang
+    let lang = parts.indices.contains(1) ? parts[1] : (defaultLang ?? "pli")
     var author = parts.indices.contains(2) ? parts[2] : nil
 
-    // Special case: default author for Pali, or use provided defaultAuthor
+    if lang == "pli" {
+      author = "ms"
+    }
     if author == nil {
-      author = lang == "pli"
-        ? "ms"
-        : defaultAuthor
+      if lang == defaultLang {
+        author = defaultAuthor
+      }
+      if author == nil {
+        author = DatabaseManifest.shared
+          .defaultAuthorForLanguage(lang)?.author
+      }
     }
 
     // Use provided suids or load default

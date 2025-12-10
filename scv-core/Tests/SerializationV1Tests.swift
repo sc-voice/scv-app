@@ -115,7 +115,7 @@ struct SerializationV1Tests {
     #expect(settings.docAuthor == "sujato")
     // refAuthor initialized from manifest default for refLang during
     // deserialization
-    if let enInfo = DatabaseManifest.load()?.defaultAuthorForLanguage("en") {
+    if let enInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
       #expect(settings.refAuthor == enInfo.author)
     }
     #expect(settings.isDarkModeEnabled == true)
