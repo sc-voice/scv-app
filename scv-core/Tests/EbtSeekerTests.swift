@@ -250,6 +250,48 @@ struct EbtSeekerTests {
     #expect(suttas == ["mn1/pli/ms"])
   }
 
+  @Test("EbtSeeker.searchAny() with custom Settings for EN/sujato")
+  func searchAnyWithCustomSettings() async {
+    // Create test Settings with en/sujato
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "sujato"
+
+    // Search using searchAny with custom settings
+    let result = await EbtSeeker.searchAny(
+      query: "root of suffering",
+      settings: testSettings,
+    )
+
+    // Verify result structure
+    #expect(result.error == nil)
+    #expect(
+      result.items.count == 11,
+      "Lemma search finds all occurrences of lemmas, got \(result.items.count)",
+    )
+    #expect(result.metadata.query == "root of suffering")
+    #expect(result.metadata.method == SearchMethod.lemma)
+    #expect(result.metadata.docLang == "en")
+    #expect(result.metadata.docAuthor == "sujato")
+
+    // Verify phrase search subset is present (lemma finds more)
+    let resultSuttas = Set(result.items.map(\.suttaRef.suttaUid))
+    let phraseSearchSuttas = Set([
+      "sn42.11",
+      "mn105",
+      "mn1",
+      "sn56.21",
+      "mn116",
+      "mn66",
+      "dn16",
+    ])
+    // Lemma search should include all phrase search results
+    #expect(
+      phraseSearchSuttas.isSubset(of: resultSuttas),
+      "Lemma search should include phrase search results",
+    )
+  }
+
   @Test("DE lemma search: abhängige entstehen performance")
   func deLemmaSearchPerformance() async throws {
     // Preload database before timing

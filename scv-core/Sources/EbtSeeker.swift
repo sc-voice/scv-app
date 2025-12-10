@@ -20,6 +20,34 @@ public actor EbtSeeker {
   private let db: OpaquePointer
   private lazy var lemmatizer = NLTagger(tagSchemes: [.lemma])
 
+  public static func searchAny(
+    query: String,
+    settings: Settings = Settings.shared,
+  ) async -> SeekerResult {
+    do {
+      let seeker = try await EbtData.shared.getSeeker(
+        lang: settings.docLang.code,
+        author: settings.docAuthor,
+      )
+      return await seeker.searchLemma(query)
+    } catch {
+      return SeekerResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .lemma,
+          elapsedTime: 0,
+          docLang: settings.docLang.code,
+          docAuthor: settings.docAuthor,
+        ),
+        items: [],
+        error: SearchError(
+          message: "Failed to get seeker",
+          detail: error.localizedDescription,
+        ),
+      )
+    }
+  }
+
   /// Initialize EbtSeeker with database pointer
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")

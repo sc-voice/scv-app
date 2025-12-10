@@ -94,9 +94,12 @@ public class Settings: Codable {
   /// Maximum number of documents to return in search results
   public var maxDoc: Int = MAX_DOC_DEFAULT
 
-  // MARK: - Private Initialization
+  // MARK: - Initialization
 
-  private init() {
+  /// Initialize Settings instance
+  /// - Note: Internal visibility allows tests to create instances with specific
+  /// values
+  init() {
     // Detect system language and set as default if available
     if let preferredLanguage = Locale.preferredLanguages.first,
        let systemLanguage = ScvLanguage.toVoiceLanguage(preferredLanguage)
