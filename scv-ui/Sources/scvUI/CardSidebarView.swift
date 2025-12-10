@@ -35,7 +35,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
         ForEach(cardManager.allCards) { card in
           HStack(spacing: 12) {
             Image(systemName: card.iconName())
-              .foregroundStyle(.secondary)
+              .foregroundStyle(card.id == cardManager.recentCardId ? themeProvider.theme.accentColor : .secondary)
             VStack(alignment: .leading, spacing: 2) {
               Text(card.sidebarTitle)
                 .font(.headline)
@@ -199,19 +199,23 @@ public class MockCardManager: ICardManager {
 
   public var allCards: [MockCard]
   public var selectedCardId: UUID?
+  public var recentCardId: UUID?
 
   public init(cards: [MockCard] = [], selectedCardId: UUID? = nil) {
     allCards = cards
     self.selectedCardId = selectedCardId
+    self.recentCardId = selectedCardId
   }
 
   public func selectCard(_ card: MockCard) {
     selectedCardId = card.id
+    recentCardId = card.id
   }
 
   public func selectCardId(_ id: UUID?) {
     if let id, let card = cardFromId(id) {
       selectedCardId = card.id
+      recentCardId = card.id
     } else {
       selectedCardId = nil
     }

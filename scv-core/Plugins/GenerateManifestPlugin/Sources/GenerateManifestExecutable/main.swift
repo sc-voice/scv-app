@@ -1,7 +1,6 @@
 import Foundation
 
-@main
-struct GenerateManifest {
+enum GenerateManifest {
   static func main() throws {
     let arguments = CommandLine.arguments
     guard arguments.count == 3 else {
@@ -98,4 +97,11 @@ struct GenerateManifest {
       .replacingOccurrences(of: "\t", with: "\\t")
     return "\"\(escaped)\""
   }
+}
+
+do {
+  try GenerateManifest.main()
+} catch {
+  fputs("Error: \(error)\n", stderr)
+  Foundation.exit(1)
 }

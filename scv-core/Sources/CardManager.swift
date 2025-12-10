@@ -18,6 +18,7 @@ public protocol ICardManager: Observable {
 
   var allCards: [ManagedCard] { get }
   var selectedCardId: ManagedCard.ID? { get set }
+  var recentCardId: ManagedCard.ID? { get set }
 
   func selectCard(_ card: ManagedCard)
   func selectCardId(_ id: ManagedCard.ID?)

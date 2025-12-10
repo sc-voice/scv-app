@@ -66,11 +66,12 @@ public enum QuoteHTMLParser {
 public enum SearchQueryFilter {
   public static func filter(_ input: String) -> String {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
-    // Allow alphanumerics, parsing punctuation (. : ,), and basic regexp
-    // (.*+^$\)
-    let allowedCharacters = CharacterSet(
-      charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789.:- .*+^$\\,",
-    )
+    // Allow letters (EN, FR, PT, ES, RU), digits, parsing punctuation (. : ,),
+    // and basic regexp (.*+^$\)
+    var allowedCharacters = CharacterSet.letters
+    allowedCharacters.formUnion(CharacterSet.decimalDigits)
+    let punctuation = CharacterSet(charactersIn: ".:- .*+^$\\,")
+    allowedCharacters.formUnion(punctuation)
     let lowercased = input.lowercased()
 
     // Replace 1+ consecutive invalid characters with single space
@@ -339,12 +340,9 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     // Execute search asynchronously
     Task {
       let settings = Settings.shared
-      let searchResult = await EbtData.shared.search(
+      let searchResult = await EbtSeeker.searchAny(
         query: searchQuery,
-        docLang: settings.docLang.code,
-        docAuthor: settings.docAuthor,
-        refLang: settings.refLang.code,
-        refAuthor: settings.refAuthor,
+        settings: settings,
       )
 
       // Update card with search result
