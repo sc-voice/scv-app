@@ -101,11 +101,12 @@ public class AppController {
     // Set the search query
     newCard.searchQuery = query
 
-    // Execute the search (await because EbtSeeker is an actor)
-    let searchResult = await EbtSeeker.searchAny(
-      query: query,
-      settings: Settings.shared,
-    )
+    // Execute the search
+    let ebtQuery = EbtQuery(query: query)
+    var searchResult = await ebtQuery.search()
+
+    // Populate segment info for each result item
+    _ = await searchResult.populateItems()
 
     // Assign results to the card
     newCard.searchResult = searchResult

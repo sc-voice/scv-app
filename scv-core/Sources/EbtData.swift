@@ -23,14 +23,14 @@ public actor EbtData {
   private nonisolated(unsafe) var databases: [String: OpaquePointer] = [:]
 
   // Safe: EbtSeeker instances are only accessed within actor-isolated methods.
-  // Actor serialization ensures only one task accesses searchCache at a time.
-  // nonisolated(unsafe) is used because searchCache holds references to
+  // Actor serialization ensures only one task accesses seekerCache at a time.
+  // nonisolated(unsafe) is used because seekerCache holds references to
   // EbtSeeker actors,
   // which would otherwise create isolation boundary issues. The actor's
   // serialization
   // ensures thread-safety despite the unsafe annotation.
   // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
-  private nonisolated(unsafe) var searchCache: [String: EbtSeeker] = [:]
+  private nonisolated(unsafe) var seekerCache: [String: EbtSeeker] = [:]
 
   // Manifest loaded once at app startup
   private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
@@ -227,7 +227,7 @@ public actor EbtData {
     let key = "\(lang)/\(resolvedAuthor)"
 
     // Return cached instance if available
-    if let cached = searchCache[key] {
+    if let cached = seekerCache[key] {
       return cached
     }
 
@@ -242,8 +242,15 @@ public actor EbtData {
     }
 
     let seeker = EbtSeeker(lang: lang, author: resolvedAuthor, db: db)
-    searchCache[key] = seeker
+    seekerCache[key] = seeker
     return seeker
+  }
+
+  func getSeeker(suttaRef: SuttaRef) throws -> EbtSeeker {
+    try getSeeker(
+      lang: suttaRef.lang,
+      author: suttaRef.author ?? "",
+    )
   }
 
   deinit {

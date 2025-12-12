@@ -1,5 +1,5 @@
 .PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
-				build build-core build-ui build-build build-nlp build-ios build-ios-part\
+				build build-core build-ui build-build build-nlp build-ios build-ios-app\
         clean clean-core clean-build clean-ui clean-ios\
 				format mock-response-view rebuild rebuild-raw \
         version-major version-minor version-patch \
@@ -79,9 +79,9 @@ build-nlp:
 	@echo "=====> build-nlp..."
 	@cd scv-nlp && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
-build-ios: build-core build-ui build-ios-part
+build-ios: build-core build-ui build-ios-app
 
-build: build-core build-ui build-ios-part
+build: build-ios-app
 
 rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@echo "rebuild start... $$(date)" > local/rebuild.log
@@ -99,14 +99,15 @@ rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
 rebuild:
 	time make rebuild-untimed
 
-build-ios-part:
-	@echo "=====> build-ios-part..."
+build-ios-app:
+	@echo "=====> build-ios-app..."
 	@cd scv-ios && \
 	  xcodebuild build \
 	    -scheme scv-ios \
 	    -configuration Debug \
-	    -destination 'platform=iOS Simulator,name=iPhone 15' \
-	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
+	    -destination 'generic/platform=iOS Simulator' \
+	    2>&1 | \
+			tee ../local/build-ios.log | grep -E $(XCODE_BUILD_FILTER) || true
 
 clean: clean-core clean-build clean-ui clean-ios format
 

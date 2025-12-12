@@ -20,112 +20,6 @@ public actor EbtSeeker {
   private let db: OpaquePointer
   private lazy var lemmatizer = NLTagger(tagSchemes: [.lemma])
 
-  public static func searchAny(
-    query: String,
-    settings: Settings = Settings.shared,
-  ) async -> SeekerResult {
-    let (suttaRefs, method) = parseQuery(query: query, settings: settings)
-
-    if method == .suttaref {
-      // Create separate seeker for each suttaRef since they may have different
-      // lang/author combinations
-      var allItems: [SeekerResultItem] = []
-      var lastError: SearchError?
-      var elapsedTime: TimeInterval = 0
-
-      for suttaRef in suttaRefs {
-        do {
-          let seeker = try await EbtData.shared.getSeeker(
-            lang: suttaRef.lang,
-            author: suttaRef.author ?? settings.docAuthor,
-          )
-          let result = await seeker.search(
-            query: suttaRef.toString(),
-            method: .suttaref,
-          )
-          allItems.append(contentsOf: result.items)
-          elapsedTime += result.metadata.elapsedTime
-          if result.error != nil {
-            lastError = result.error
-          }
-        } catch {
-          lastError = SearchError(
-            message: "Failed to get seeker for \(suttaRef)",
-            detail: error.localizedDescription,
-          )
-        }
-      }
-
-      return SeekerResult(
-        metadata: SearchMetadata(
-          query: query,
-          method: method,
-          elapsedTime: elapsedTime,
-          docLang: settings.docLang.code,
-          docAuthor: settings.docAuthor,
-        ),
-        items: allItems,
-        error: lastError,
-      )
-    } else {
-      // Lemma search uses single seeker with settings defaults
-      do {
-        let seeker = try await EbtData.shared.getSeeker(
-          lang: settings.docLang.code,
-          author: settings.docAuthor,
-        )
-        return await seeker.searchLemma(query)
-      } catch {
-        return SeekerResult(
-          metadata: SearchMetadata(
-            query: query,
-            method: method,
-            elapsedTime: 0,
-            docLang: settings.docLang.code,
-            docAuthor: settings.docAuthor,
-          ),
-          items: [],
-          error: SearchError(
-            message: "Failed to get seeker",
-            detail: error.localizedDescription,
-          ),
-        )
-      }
-    }
-  }
-
-  public static func parseQuery(
-    query: String,
-    method: SearchMethod? = nil,
-    settings: Settings = Settings.shared,
-  ) -> (suttaRefs: [SuttaRef], method: SearchMethod) {
-    let trimmed = query.trimmingCharacters(in: .whitespaces)
-    let entries = trimmed.split(separator: ",")
-      .map { $0.trimmingCharacters(in: .whitespaces) }
-
-    // Try to parse each entry as a SuttaRef with language-specific defaults
-    var suttaRefs: [SuttaRef] = []
-    for entry in entries {
-      // Try parsing with docLang/docAuthor as defaults
-      if let ref = SuttaRef.create(
-        entry,
-        defaultLang: settings.docLang.code,
-        defaultAuthor: settings.docAuthor,
-      ) {
-        suttaRefs.append(ref)
-      }
-    }
-
-    // Determine method based on whether all entries were valid scids
-    let resultMethod: SearchMethod = if !suttaRefs.isEmpty {
-      .suttaref
-    } else {
-      method ?? .lemma
-    }
-
-    return (suttaRefs: suttaRefs, method: resultMethod)
-  }
-
   /// Initialize EbtSeeker with database pointer
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")
@@ -174,141 +68,6 @@ public actor EbtSeeker {
 
     cc.ok1(#line, #function, result.items.count, "items")
     return result
-  }
-
-  /// Populates segmentCount and headerSegments for search result items
-  func populateSuttaInfo(for searchResult: inout SeekerResult) throws -> Bool {
-    for i in 0 ..< searchResult.items.count {
-      let suttaKey = searchResult.items[i].suttaRef.toString()
-
-      // Query total segment count
-      let countQuery = "SELECT total_segments FROM suttas WHERE sutta_key = ?"
-      var countStmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, countQuery, -1, &countStmt, nil) ==
-        SQLITE_OK
-      else {
-        sqlite3_finalize(countStmt)
-        continue
-      }
-
-      defer { sqlite3_finalize(countStmt) }
-
-      sqlite3_bind_text(
-        countStmt,
-        1,
-        (suttaKey as NSString).utf8String,
-        -1,
-        nil,
-      )
-
-      if sqlite3_step(countStmt) == SQLITE_ROW {
-        let segmentCount = Int(sqlite3_column_int(countStmt, 0))
-        searchResult.items[i].segmentCount = segmentCount
-      }
-
-      // Query header segments (segment_id LIKE "%:0%")
-      let headerQuery = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? AND segment_id LIKE ? ORDER BY segment_id"
-      var headerStmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, headerQuery, -1, &headerStmt, nil) ==
-        SQLITE_OK
-      else {
-        sqlite3_finalize(headerStmt)
-        continue
-      }
-
-      defer { sqlite3_finalize(headerStmt) }
-
-      sqlite3_bind_text(
-        headerStmt,
-        1,
-        (suttaKey as NSString).utf8String,
-        -1,
-        nil,
-      )
-      sqlite3_bind_text(headerStmt, 2, ("%:0%" as NSString).utf8String, -1, nil)
-
-      var headerSegments: [Segment] = []
-      while sqlite3_step(headerStmt) == SQLITE_ROW {
-        guard let segIdC = sqlite3_column_text(headerStmt, 0),
-              let segTextC = sqlite3_column_text(headerStmt, 1)
-        else {
-          continue
-        }
-
-        let segId = String(cString: segIdC)
-        let segText = String(cString: segTextC)
-
-        let segment = Segment(scid: segId, doc: segText)
-        headerSegments.append(segment)
-      }
-
-      searchResult.items[i].headerSegments = headerSegments
-    }
-
-    return true
-  }
-
-  /// Populates quote field for search result items based on query and search
-  /// method
-  func populateQuotes(for searchResult: inout SeekerResult) throws -> Bool {
-    for i in 0 ..< searchResult.items.count {
-      let success = populateQuote(
-        item: &searchResult.items[i],
-        query: searchResult.metadata.query,
-        method: searchResult.metadata.method,
-      )
-      if success {
-        cc.ok2(
-          #line,
-          "Populated quote for \(searchResult.items[i].suttaRef.suttaUid)",
-        )
-      }
-    }
-    return true
-  }
-
-  /// Populates quote field for a single search result item
-  private func populateQuote(
-    item: inout SeekerResultItem,
-    query: String,
-    method: SearchMethod,
-  ) -> Bool {
-    // Query segments for this sutta
-    let suttaKey = "\(item.suttaRef.suttaUid)/\(item.suttaRef.lang)/\(item.suttaRef.author ?? "")"
-    let sqlQuery = "SELECT segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
-    var stmt: OpaquePointer?
-
-    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
-      return false
-    }
-    defer { sqlite3_finalize(stmt) }
-
-    sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
-
-    // Find first matching segment
-    while sqlite3_step(stmt) == SQLITE_ROW {
-      guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
-      let segmentText = String(cString: segmentTextC)
-
-      // Check if segment matches based on search method
-      let matchRange = findMatch(
-        in: segmentText,
-        query: query,
-        method: method,
-      )
-      if let matchRange {
-        // Build HTML with span around matched text
-        item.quote = buildQuoteHTML(
-          segmentText: segmentText,
-          matchRange: matchRange,
-        )
-        return true
-      }
-    }
-
-    return false
   }
 
   /// Finds the range of matched text in a segment based on search method
@@ -557,6 +316,124 @@ public actor EbtSeeker {
 
     return SeekerResult(metadata: metadata, items: items)
   }
+
+  /// Query quote (first matching segment) for a sutta based on search query and
+  /// method
+  /// - Parameters:
+  ///   - suttaRef: The sutta reference
+  ///   - query: Search query string
+  ///   - method: Search method to determine how to find matching text
+  /// - Returns: HTML string with matched text wrapped in span, or nil if no
+  /// match found
+  func queryQuote(
+    suttaRef: SuttaRef,
+    query: String,
+    method: SearchMethod,
+  ) throws -> String? {
+    // Query segments for this sutta
+    let suttaKey = suttaRef.toString()
+    let sqlQuery = "SELECT segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+    var stmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+      return nil
+    }
+    defer { sqlite3_finalize(stmt) }
+
+    sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+
+    // Find first matching segment
+    while sqlite3_step(stmt) == SQLITE_ROW {
+      guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
+      let segmentText = String(cString: segmentTextC)
+
+      // Check if segment matches based on search method
+      let matchRange = findMatch(
+        in: segmentText,
+        query: query,
+        method: method,
+      )
+      if let matchRange {
+        // Build HTML with span around matched text
+        return buildQuoteHTML(
+          segmentText: segmentText,
+          matchRange: matchRange,
+        )
+      }
+    }
+
+    return nil
+  }
+
+  /// Query total segment count for this sutta
+  func querySegmentCount(suttaRef: SuttaRef) throws -> Int? {
+    let suttaKey = suttaRef.toString()
+    let countQuery = "SELECT total_segments FROM suttas WHERE sutta_key = ?"
+    var countStmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(db, countQuery, -1, &countStmt, nil) ==
+      SQLITE_OK
+    else {
+      sqlite3_finalize(countStmt)
+      return nil
+    }
+
+    defer { sqlite3_finalize(countStmt) }
+
+    sqlite3_bind_text(
+      countStmt,
+      1,
+      (suttaKey as NSString).utf8String,
+      -1,
+      nil,
+    )
+
+    if sqlite3_step(countStmt) == SQLITE_ROW {
+      return Int(sqlite3_column_int(countStmt, 0))
+    }
+    return nil
+  }
+
+  func queryHeader(suttaRef: SuttaRef) throws -> [Segment] {
+    let suttaKey = suttaRef.toString()
+    let headerQuery = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? AND segment_id LIKE ? ORDER BY segment_id"
+    var headerStmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(db, headerQuery, -1, &headerStmt, nil) ==
+      SQLITE_OK
+    else {
+      sqlite3_finalize(headerStmt)
+      return []
+    }
+
+    defer { sqlite3_finalize(headerStmt) }
+
+    sqlite3_bind_text(
+      headerStmt,
+      1,
+      (suttaKey as NSString).utf8String,
+      -1,
+      nil,
+    )
+    sqlite3_bind_text(headerStmt, 2, ("%:0%" as NSString).utf8String, -1, nil)
+
+    var headerSegments: [Segment] = []
+    while sqlite3_step(headerStmt) == SQLITE_ROW {
+      guard let segIdC = sqlite3_column_text(headerStmt, 0),
+            let segTextC = sqlite3_column_text(headerStmt, 1)
+      else {
+        continue
+      }
+
+      let segId = String(cString: segIdC)
+      let segText = String(cString: segTextC)
+
+      let segment = Segment(scid: segId, doc: segText)
+      headerSegments.append(segment)
+    }
+
+    return headerSegments
+  }
 }
 
 // MARK: - SearchMethod Enum
@@ -640,6 +517,35 @@ public struct SeekerResultItem: Sendable, Codable {
     self.segmentCount = segmentCount
     self.headerSegments = headerSegments
     self.quote = quote
+  }
+
+  /// Populate result item with segment info and quote
+  /// - Parameters:
+  ///   - seeker: The EbtSeeker to use for queries
+  ///   - query: Search query string for quote matching
+  ///   - method: Search method for quote matching
+  mutating func populate(
+    seeker: EbtSeeker,
+    query: String,
+    method: SearchMethod,
+  ) async throws -> Bool {
+    segmentCount = try await seeker.querySegmentCount(suttaRef: suttaRef)
+    headerSegments = try await seeker.queryHeader(suttaRef: suttaRef)
+
+    // For suttaref searches, use last header segment as quote (no text
+    // matching)
+    // For other methods, query for matching text
+    if method == .suttaref {
+      quote = headerSegments.last?.doc
+    } else {
+      quote = try await seeker.queryQuote(
+        suttaRef: suttaRef,
+        query: query,
+        method: method,
+      )
+    }
+
+    return true
   }
 }
 
@@ -727,40 +633,33 @@ public struct SeekerResult: Sendable, Codable {
     self.error = error
   }
 
-  /// Populates segmentCount, headerSegments, and quotes for each item from
-  /// database
-  /// Called on-demand by clients (e.g., SearchCardView) in background thread
-  @discardableResult
-  public mutating func addSuttaInfo() async -> Bool {
-    do {
-      let seeker = try await EbtData.shared.getSeeker(
-        lang: metadata.docLang,
-        author: metadata.docAuthor,
-      )
-
-      // Populate sutta info (segment count and headers)
-      let infoSuccess = try await seeker.populateSuttaInfo(for: &self)
-      if !infoSuccess {
-        cc.bad1(#line, "Failed to populate sutta info")
+  /// Populate segment count, header segments, and quotes for each result item
+  /// Gets the correct seeker for each item based on its suttaRef
+  public mutating func populateItems() async -> Bool {
+    for i in items.indices {
+      do {
+        let seeker = try await EbtData.shared.getSeeker(
+          suttaRef: items[i].suttaRef,
+        )
+        _ = try await items[i].populate(
+          seeker: seeker,
+          query: metadata.query,
+          method: metadata.method,
+        )
+      } catch {
+        cc.bad1(
+          #line,
+          "populateItems failed for \(items[i].suttaRef): \(error)",
+        )
         return false
       }
-
-      // Populate quotes
-      let quotesSuccess = try await seeker.populateQuotes(for: &self)
-      if !quotesSuccess {
-        cc.bad1(#line, "Failed to populate quotes")
-        return false
-      }
-
-      cc.ok1(
-        #line,
-        "addSuttaInfo: populated sutta info and quotes for \(items.count) items",
-      )
-      return true
-    } catch {
-      cc.bad1(#line, "addSuttaInfo failed: \(error)")
-      return false
     }
+
+    cc.ok1(
+      #line,
+      "populateItems: populated segment info and quotes for \(items.count) items",
+    )
+    return true
   }
 
   // MARK: - Codable Conformance (excluding cc)

@@ -151,14 +151,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
     Task {
       var updatedResult = searchResult
-      let success = await updatedResult.addSuttaInfo()
+      let success = await updatedResult.populateItems()
 
       if success {
         if let card = cardManager.cardFromId(cardId) {
           var updatedCard = card
           updatedCard.searchResult = updatedResult
           cardManager.saveCard(updatedCard)
-          cc.ok1(#line, "Saved card with populated sutta info")
+          cc.ok1(#line, "Saved card with populated segment info")
         } else {
           cc.bad1(#line, "Card not found for id:", cardId)
         }
@@ -339,11 +339,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
     // Execute search asynchronously
     Task {
-      let settings = Settings.shared
-      let searchResult = await EbtSeeker.searchAny(
-        query: searchQuery,
-        settings: settings,
-      )
+      let ebtQuery = EbtQuery(query: searchQuery)
+      let searchResult = await ebtQuery.search()
 
       // Update card with search result
       card.searchResult = searchResult
