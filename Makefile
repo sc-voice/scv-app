@@ -1,7 +1,7 @@
 .PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
-				build build-core build-ui build-build build-nlp build-demo-ios build-ios build-ios-part\
-        clean clean-core clean-build clean-ui clean-demo-ios clean-ios\
-				format mock-response-view rebuild rebuild-raw scv-demo-ios \
+				build build-core build-ui build-build build-nlp build-ios build-ios-part\
+        clean clean-core clean-build clean-ui clean-ios\
+				format mock-response-view rebuild rebuild-raw \
         version-major version-minor version-patch \
 				commit build-zst content
 
@@ -16,7 +16,7 @@ scv-core/Sources/Resources/ebt-en-soma.db.zst:
 
 test: test-all
 
-test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst test-core test-ui test-demo-ios
+test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst test-core test-ui 
 	@mkdir -p local
 
 test-core: build-core
@@ -44,14 +44,6 @@ test-nlp: build-nlp
 	@cd scv-nlp && swift test --no-parallel 2>&1 \
 	| tee ../local/test-nlp.log \
 	| grep -E $(TEST_ALL_FILTER) || true
-
-test-demo-ios:
-	@echo "=======> test-core-demo-ios..."
-	@BUILD_NUM=$$(grep CURRENT_PROJECT_VERSION \
-	  scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj | \
-	  head -1 | sed 's/.*= //;s/;$$//'); \
-	echo "✓ scv-demo-ios built successfully (Build $$BUILD_NUM)"
-
 
 # build-macros:
 # 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
@@ -98,7 +90,7 @@ rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@echo "Rebuilding..."
 	@$(MAKE) clean build 2>&1 | tee -a local/rebuild.log
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/rebuild.log
-	@$(MAKE) test-core test-ui test-demo-ios 2>&1 | tee -a local/test-all.log 
+	@$(MAKE) test-core test-ui 2>&1 | tee -a local/test-all.log 
 	@echo "=========TEST SUMMARY======="
 	@echo "EXPECTED: 1 unhandled resource warning" 
 	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true >> local/rebuild.log
@@ -106,15 +98,6 @@ rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
 
 rebuild:
 	time make rebuild-untimed
-
-build-demo-ios:
-	@echo "=====> build-demo-ios..."
-	@cd scv-demo-ios && \
-	  xcodebuild build \
-	    -scheme scv-demo-ios \
-	    -configuration Debug \
-	    -destination 'platform=iOS Simulator,name=iPhone 15' \
-	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
 build-ios-part:
 	@echo "=====> build-ios-part..."
@@ -125,7 +108,7 @@ build-ios-part:
 	    -destination 'platform=iOS Simulator,name=iPhone 15' \
 	    2>&1 | grep -E $(XCODE_BUILD_FILTER) || true
 
-clean: clean-core clean-build clean-ui clean-demo-ios clean-ios format
+clean: clean-core clean-build clean-ui clean-ios format
 
 format:
 	@swiftformat . --exclude Pods
@@ -146,13 +129,6 @@ clean-ui:
 	@echo "=====> clean-ui..."
 	@cd scv-ui && swift package clean 2>/dev/null || true
 
-clean-demo-ios:
-	@echo "=====> clean-demo-ios..."
-	rm -rf scv-demo-iOS/build
-	rm -rf scv-demo-iOS/.swiftpm
-	cd scv-demo-ios && \
-	  xcodebuild clean -scheme scv-demo-ios 2>/dev/null || true
-
 clean-ios:
 	@echo "=====> clean-ios..."
 	rm -rf scv-ios/build
@@ -162,9 +138,6 @@ clean-ios:
 
 mock-response-view:
 	@cd scv-ui && swift run mock-response-view
-
-scv-demo-ios: clean build
-	@open scv-demo-iOS/scv-demo-ios.xcodeproj
 
 version-major:
 	@scripts/version major
@@ -208,12 +181,10 @@ help:
 	@echo "  make test-build        Run scv-build tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
-	@echo "  make test-demo-ios     Validate scv-demo-ios build"
 	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-ui	        Build scv-ui package"
 	@echo "  make build-build       Build scv-build package (build tools)"
-	@echo "  make build-demo-ios    Build scv-demo-ios app (increments patch version)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-ios-part    Build scv-ios app"
 	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
@@ -221,11 +192,9 @@ help:
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-build       Clean scv-build package"
 	@echo "  make clean-ui          Clean scv-ui package"
-	@echo "  make clean-demo-ios    Clean scv-demo-ios app build artifacts"
 	@echo "  make clean-ios         Clean scv-ios app build artifacts"
 	@echo "  make format            Apply SwiftFormat to project"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
-	@echo "  make scv-demo-ios      Clean, build, and open scv-demo-iOS in Xcode"
 	@echo "  make version-major     Increment major version (X.0.0)"
 	@echo "  make version-minor     Increment minor version (X.Y.0)"
 	@echo "  make version-patch     Increment patch version (X.Y.Z)"
