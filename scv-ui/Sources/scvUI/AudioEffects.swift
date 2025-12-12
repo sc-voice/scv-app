@@ -1,0 +1,133 @@
+import AVFoundation
+import Foundation
+
+@MainActor
+public final class AudioEffects: ObservableObject {
+  public static let shared = AudioEffects()
+
+  public enum Sound {
+    case silent
+    case click
+    case bell
+    case alertBell
+    case block
+    case swoosh
+    case pageTurn
+
+    var filename: String {
+      switch self {
+      case .silent:
+        "no_audio"
+      case .click:
+        "click1"
+      case .bell:
+        "simple-bell"
+      case .alertBell:
+        "indian-bell-flemur-sampling-plus-1.0"
+      case .block:
+        "block2"
+      case .swoosh:
+        "577049__nezuai__cartoon-air-swoosh-6"
+      case .pageTurn:
+        "383542__alixgaus__turn-page"
+      }
+    }
+  }
+
+  public enum Event {
+    case play
+    case pause
+    case endSutta
+    case noText
+    case section
+    case segment
+    case alert
+  }
+
+  @Published public var soundEffectVolume: Int = 3 {
+    didSet {
+      UserDefaults.standard.set(soundEffectVolume, forKey: "soundEffectVolume")
+    }
+  }
+
+  private var audioPlayer: AVAudioPlayer?
+  private let cc = ColorConsole(#file, #function, dbg.AudioEffects.other)
+
+  init() {
+    // Load saved volume or use default
+    if UserDefaults.standard.object(forKey: "soundEffectVolume") != nil {
+      soundEffectVolume = UserDefaults.standard.integer(
+        forKey: "soundEffectVolume",
+      )
+    } else {
+      soundEffectVolume = 3
+      UserDefaults.standard.set(3, forKey: "soundEffectVolume")
+    }
+    cc.ok2(#line, "AudioEffects initialized with volume: \(soundEffectVolume)")
+  }
+
+  /// Announce an event which triggers appropriate sound
+  public func announce(_ event: Event) {
+    let sound = eventToSound(event)
+    playSound(sound: sound, msDelay: 0)
+  }
+
+  /// Play a specific sound with optional delay
+  public func playSound(sound: Sound, msDelay: Int = 0) {
+    // Muted when volume is 0
+    guard soundEffectVolume > 0 else { return }
+
+    let delay = Double(msDelay) / 1000.0
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+      self.performPlaySound(sound)
+    }
+  }
+
+  private func performPlaySound(_ sound: Sound) {
+    guard let url = Bundle.module.url(
+      forResource: sound.filename,
+      withExtension: "mp3",
+    ) else {
+      cc.bad1(#line, "Could not find audio file: \(sound.filename).mp3")
+      return
+    }
+
+    do {
+      audioPlayer = try AVAudioPlayer(contentsOf: url)
+      audioPlayer?.volume = volumeToAVAudioVolume(soundEffectVolume)
+      audioPlayer?.play()
+    } catch {
+      cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
+    }
+  }
+
+  private func eventToSound(_ event: Event) -> Sound {
+    switch event {
+    case .play:
+      .block
+    case .pause:
+      .swoosh
+    case .endSutta:
+      .bell
+    case .noText:
+      .click
+    case .section:
+      .click
+    case .segment:
+      .click
+    case .alert:
+      .alertBell
+    }
+  }
+
+  private func volumeToAVAudioVolume(_ level: Int) -> Float {
+    // Map 0-4 to 0.0-1.0 for AVAudioPlayer
+    // 0 = 0.0 (muted, handled above)
+    // 1 = 0.25
+    // 2 = 0.5
+    // 3 = 0.75 (default)
+    // 4 = 1.0
+    Float(level) / 4.0
+  }
+}

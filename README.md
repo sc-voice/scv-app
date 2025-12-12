@@ -53,7 +53,7 @@ Structures for Buddhist scripture search results:
 
 ### Requirements
 - Swift 6.0+
-- iOS 18+ / macOS 15+
+- iOS 26+ / macOS 15+
 - No external package dependencies
 
 ### Run All Tests

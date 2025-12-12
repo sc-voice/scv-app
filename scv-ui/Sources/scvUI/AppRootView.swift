@@ -136,7 +136,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
           } // ZStack
-          .background(ScvBackgroundsView(.sangha))
+          .background(ScvBackgroundsView(.sangha_dark))
         } // detail:
         .onAppear {
           cc.ok1(

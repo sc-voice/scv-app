@@ -172,9 +172,15 @@ public struct SettingsView: View {
               }
             }
 
-            // MARK: - Appearance Section
+            // MARK: - Accessibility Section
 
-            Section("Appearance") {
+            Section("Accessibility") {
+              // MARK: - Vision Group
+
+              Text("Vision")
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
+
               HStack {
                 Image(systemName: controller
                   .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
@@ -186,6 +192,34 @@ public struct SettingsView: View {
                     themeProvider.setTheme(newValue ? .dark : .light)
                   },
                 ))
+              }
+
+              Divider()
+                .padding(.vertical, 12)
+
+              // MARK: - Audio Group
+
+              Text("Audio")
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
+
+              HStack {
+                Image(systemName: "speaker.wave.2")
+                  .foregroundColor(themeProvider.theme.accentColor)
+                VStack(alignment: .leading, spacing: 4) {
+                  Text("Sound Effects Volume")
+                    .font(.body)
+                  Slider(value: Binding(
+                    get: { Double(AudioEffects.shared.soundEffectVolume) },
+                    set: { newValue in
+                      AudioEffects.shared.soundEffectVolume = Int(newValue)
+                    },
+                  ), in: 0 ... 4, step: 1)
+                }
+                Text("\(AudioEffects.shared.soundEffectVolume)")
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.secondaryTextColor)
+                  .frame(width: 20)
               }
             }
 

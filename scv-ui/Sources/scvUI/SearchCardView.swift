@@ -486,7 +486,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     ZStack {
       SearchCardView(card: $mockCard1, cardManager: manager)
     } // ZStack
-    .background(ScvBackgroundsView(.sangha))
+    .background(ScvBackgroundsView(.sangha_dark))
   }
   .environmentObject(ThemeProvider())
 }

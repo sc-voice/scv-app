@@ -10,6 +10,7 @@ import SwiftUI
 public enum ScvBackground {
   case village
   case sangha
+  case sangha_dark
   case wilderness
   case space
   case nothingness
@@ -23,6 +24,10 @@ public enum ScvBackground {
     case .sangha:
       URL(
         string: "https://commons.wikimedia.org/wiki/File:Phutthamonthon_Buddha.JPG",
+      )!
+    case .sangha_dark:
+      URL(
+        string: "https://en.wikipedia.org/wiki/Sangha#/media/File:Bodleian_MS._Burm._a._12_Life_of_the_Buddha_15-18.jpg",
       )!
     case .wilderness:
       URL(
@@ -46,6 +51,10 @@ public enum ScvBackground {
         .aspectRatio(contentMode: .fill)
     case .sangha:
       Image("sangha-background", bundle: .scvUI)
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+    case .sangha_dark:
+      Image("sangha-dark-background", bundle: .scvUI)
         .resizable()
         .aspectRatio(contentMode: .fill)
     case .wilderness:

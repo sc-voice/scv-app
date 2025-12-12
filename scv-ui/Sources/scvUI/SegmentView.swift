@@ -18,6 +18,19 @@ struct SegmentView: View {
     SuttaRef.create(segment.scid)?.segnum
   }
 
+  func bodyFont() -> Font {
+    if segnum == "0.1" {
+      return Font.title
+    }
+    if segnum == "0.2" {
+      return Font.title2
+    }
+
+    return mlDoc.currentScid == segment.scid
+      ? Font.title3
+      : Font.body
+  }
+
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: 8) {
       Text(segnum ?? segment.scid)
@@ -27,7 +40,7 @@ struct SegmentView: View {
 
       if let attributedString {
         Text(attributedString)
-          .font(.body)
+          .font(bodyFont())
           .lineLimit(nil)
       } else {
         ProgressView()

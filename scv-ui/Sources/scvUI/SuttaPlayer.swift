@@ -67,6 +67,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func play() {
     guard currentSutta != nil else { return }
     isPlaying = true
+    AudioEffects.shared.announce(.play)
     #if os(iOS)
       UIApplication.shared.isIdleTimerDisabled = true
     #else
@@ -98,6 +99,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func pause() {
     synthesizer.stopSpeaking(at: .immediate)
     isPlaying = false
+    AudioEffects.shared.announce(.pause)
     #if os(iOS)
       UIApplication.shared.isIdleTimerDisabled = false
     #else
@@ -109,6 +111,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     guard index < segments.count else {
       isPlaying = false
       currentSegmentIndex = 0
+      AudioEffects.shared.announce(.endSutta)
       #if os(iOS)
         UIApplication.shared.isIdleTimerDisabled = false
       #else
@@ -124,11 +127,14 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     guard !text.isEmpty else {
       // Skip segment, advance to next
+      AudioEffects.shared.announce(.noText)
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
         self.playSegmentAt(at: index + 1)
       }
       return
     }
+
+    AudioEffects.shared.announce(.segment)
 
     let utterance = AVSpeechUtterance(string: text)
 
