@@ -1599,6 +1599,37 @@ public actor EbtData {
       cc.ok2(#line, "  Git: \(gitHash), Built: \(meta.buildTimestamp)")
     }
   }
+
+  /// Check if a sutta reference exists in its database
+  /// - Parameter suttaRef: The sutta reference to check
+  /// - Returns: true if sutta exists, false if not or database not found
+  public func querySuttaRefExists(suttaRef: SuttaRef) async -> Bool {
+    do {
+      // Ensure database is loaded
+      let _ = try await getSeeker(suttaRef: suttaRef)
+
+      // Get the database pointer
+      let key = "\(suttaRef.lang)/\(suttaRef.author ?? "")"
+      guard let db = databases[key] else {
+        return false
+      }
+
+      let sqlQuery = "SELECT 1 FROM suttas WHERE sutta_key = ? LIMIT 1"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        return false
+      }
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (suttaRef.toString() as NSString).utf8String, -1, nil)
+
+      let exists = sqlite3_step(stmt) == SQLITE_ROW
+      return exists
+    } catch {
+      return false
+    }
+  }
 }
 
 // MARK: - Metadata Type

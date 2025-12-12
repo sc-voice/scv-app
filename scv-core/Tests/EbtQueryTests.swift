@@ -95,6 +95,28 @@ struct EbtQueryTests {
     #expect(query.query == originalQuery, "Should store original query string")
   }
 
+  @Test("EbtQuery parseQuery detects 'men shaving heads' as lemma query")
+  func parseQueryMenShavingHeads() {
+    let (suttaRefs, method) = EbtQuery.parseQuery(query: "men shaving heads")
+
+    #expect(suttaRefs.isEmpty, "Should not parse as suttarefs")
+    #expect(method == .lemma, "Should detect as lemma method, got \(method)")
+  }
+
+  @Test("EbtSeeker lemmatize 'men shaving heads' in English")
+  func seekerLemmatizeMenShavingHeads() async throws {
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "brahmali",
+    )
+    let lemmas = await seeker.lemmatize("men shaving heads")
+    print("[LEMMATIZE] 'men shaving heads' → \(lemmas)")
+
+    // Should lemmatize to base forms
+    #expect(!lemmas.isEmpty, "Should lemmatize to words")
+    #expect(lemmas.count == 3, "Should have 3 lemmas for 3 words, got \(lemmas.count)")
+  }
+
   @Test("EbtQuery.search() with custom Settings for EN/sujato")
   func searchWithCustomSettings() async {
     // Create test Settings with en/sujato
@@ -169,6 +191,99 @@ struct EbtQueryTests {
     #expect(result.items[2].suttaRef.suttaUid == "thig1.1")
     #expect(result.items[2].suttaRef.lang == "de")
     #expect(result.items[2].suttaRef.author == "sabbamitta")
+  }
+
+  @Test("EbtQuery with pli/ms defaults applies to both items and metadata")
+  func queryWithPliDefaults() async {
+    // Create custom Settings with pli as default
+    let testSettings = Settings()
+    testSettings.docLang = .pli
+    testSettings.docAuthor = "ms"
+
+    // Search for suttaref without lang/author specified
+    // Settings defaults should fill in pli/ms during parsing
+    let ebtQuery = EbtQuery(query: "mn1", settings: testSettings)
+    let result = await ebtQuery.search()
+
+    // Verify metadata uses Settings defaults
+    #expect(result.metadata.docLang == "pli", "metadata docLang should be pli")
+    #expect(result.metadata.docAuthor == "ms", "metadata docAuthor should be ms")
+
+    // Verify parsed suttaref was filled in with Settings defaults
+    #expect(result.items.count == 1, "Should find 1 result")
+    #expect(result.items[0].suttaRef.suttaUid == "mn1")
+    #expect(
+      result.items[0].suttaRef.lang == "pli",
+      "Item lang should default to pli, got \(result.items[0].suttaRef.lang)"
+    )
+    #expect(
+      result.items[0].suttaRef.author == "ms",
+      "Item author should default to ms, got \(result.items[0].suttaRef.author ?? "nil")"
+    )
+  }
+
+  @Test("EbtQuery with invalid lang/author returns zero items and error")
+  func queryInvalidLangAuthorZeroItems() async {
+    let ebtQuery = EbtQuery(query: "thig1.1/fr/sujato")
+    let result = await ebtQuery.search()
+
+    // Result should have zero items for invalid lang/author
+    #expect(result.items.isEmpty, "Items should be empty for invalid fr/sujato")
+    #expect(result.error != nil, "Error should be set for invalid lang/author")
+    #expect(!result.error!.message.isEmpty, "Error message should not be empty")
+  }
+
+  @Test("EbtQuery with en/soma defaults finds correct suttaref")
+  func queryWithEnSomaDefaults() async {
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "soma"
+
+    let ebtQuery = EbtQuery(query: "thig1.1", settings: testSettings)
+    let result = await ebtQuery.search()
+
+    // Should find the suttaref with correct lang/author
+    #expect(!result.items.isEmpty, "Should find results for thig1.1/en/soma")
+    #expect(result.items[0].suttaRef.suttaUid == "thig1.1")
+    #expect(result.items[0].suttaRef.lang == "en")
+    #expect(result.items[0].suttaRef.author == "soma")
+
+    // Verify metadata uses Settings defaults
+    #expect(result.metadata.docLang == "en", "metadata docLang should be en")
+    #expect(result.metadata.docAuthor == "soma", "metadata docAuthor should be soma")
+  }
+
+  @Test("EbtQuery with mn1/en/soma where sutta doesn't exist returns error")
+  func queryMn1EnSomaNotFound() async {
+    let ebtQuery = EbtQuery(query: "mn1/en/soma")
+    let result = await ebtQuery.search()
+
+    // Sutta doesn't exist in en/soma database, should return error and zero items
+    #expect(result.items.isEmpty, "Items should be empty when sutta doesn't exist")
+    #expect(result.error != nil, "Error should be set when sutta not found")
+    #expect(!result.error!.message.isEmpty, "Error message should not be empty")
+  }
+
+  @Test("EbtQuery with 'men shaving heads' uses lemma search not keyword search")
+  func queryMenShavingHeadsLemmaSearch() async {
+    // Create custom Settings for en/brahmali
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "brahmali"
+
+    let ebtQuery = EbtQuery(query: "men shaving heads", settings: testSettings)
+    let result = await ebtQuery.search()
+
+    // EbtQuery converts text queries to lemma method (not keyword)
+    #expect(
+      result.metadata.method == .lemma,
+      "Non-suttaref queries should use lemma method, got \(result.metadata.method)"
+    )
+    // Should find results via lemma search
+    #expect(!result.items.isEmpty, "Lemma search should find results")
+    // Verify metadata uses custom settings
+    #expect(result.metadata.docLang == "en")
+    #expect(result.metadata.docAuthor == "brahmali")
   }
 
   @Test("EbtQuery.search() populates segment data for thig1.1")

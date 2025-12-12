@@ -53,11 +53,23 @@ public class EbtQuery {
 
       for suttaRef in suttaRefs {
         if suttaRef != nil {
-          let item = SeekerResultItem(
-            suttaRef: suttaRef,
-            score: 1.0,
-          )
-          allItems.append(item)
+          let exists = await EbtData.shared.querySuttaRefExists(suttaRef: suttaRef)
+          if exists {
+            let item = SeekerResultItem(
+              suttaRef: suttaRef,
+              score: 1.0,
+            )
+            allItems.append(item)
+          } else {
+            let format = NSLocalizedString("translation.not.found", comment: "")
+            let message = String(format: format, suttaRef.lang, suttaRef.author ?? "unknown")
+            lastError = SearchError(
+              message: message,
+              detail: "Sutta \(suttaRef.suttaUid) not found in \(suttaRef.lang)/\(suttaRef.author ?? "unknown") database",
+            )
+            allItems = []
+            break
+          }
         }
       }
 

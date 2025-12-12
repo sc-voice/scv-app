@@ -12,3 +12,6 @@
 
 /* Prompt text for Siri shortcut search query request */
 "search.for.what" = "Quoi que vous cherchiez ?";
+
+/* Error message when translation not found for language/author combination */
+"translation.not.found" = "Traduction introuvable pour %@ / %@";
