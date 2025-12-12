@@ -43,6 +43,7 @@ public class EbtQuery {
   /// suttarefs
   /// - Returns: SeekerResult with search items or error
   public func search() async -> SeekerResult {
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
     if method == .suttaref {
       // Create separate seeker for each suttaRef since they may have different
       // lang/author combinations
@@ -51,25 +52,12 @@ public class EbtQuery {
       var elapsedTime: TimeInterval = 0
 
       for suttaRef in suttaRefs {
-        do {
-          let seeker = try await EbtData.shared.getSeeker(
-            lang: suttaRef.lang,
-            author: suttaRef.author ?? settings.docAuthor,
+        if suttaRef != nil {
+          let item = SeekerResultItem(
+            suttaRef: suttaRef,
+            score: 1.0,
           )
-          let result = await seeker.search(
-            query: suttaRef.toString(),
-            method: .suttaref,
-          )
-          allItems.append(contentsOf: result.items)
-          elapsedTime += result.metadata.elapsedTime
-          if result.error != nil {
-            lastError = result.error
-          }
-        } catch {
-          lastError = SearchError(
-            message: "Failed to get seeker for \(suttaRef)",
-            detail: error.localizedDescription,
-          )
+          allItems.append(item)
         }
       }
 
@@ -77,7 +65,7 @@ public class EbtQuery {
         metadata: SearchMetadata(
           query: query,
           method: method,
-          elapsedTime: elapsedTime,
+          elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
           docLang: settings.docLang.code,
           docAuthor: settings.docAuthor,
         ),
@@ -88,7 +76,7 @@ public class EbtQuery {
       // Lemma search uses single seeker with settings defaults
       do {
         let seeker = try await EbtData.shared.getSeeker(
-          lang: settings.docLang.code,
+          lang: settings.docLang.rawValue,
           author: settings.docAuthor,
         )
         return await seeker.searchLemma(query)
