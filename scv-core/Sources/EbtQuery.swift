@@ -10,6 +10,7 @@ import Foundation
 /// Represents a parsed Buddhist text search query
 /// Encapsulates the original query, detected search method, and any parsed
 /// sutta references
+/// Calls on EbtSeeker to handle specific lang/author queries
 public class EbtQuery {
   /// Original query string provided by user
   public let query: String
