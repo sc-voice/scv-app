@@ -12,6 +12,8 @@ import Foundation
 /// information
 /// Examples: "an1.1-10", "an1.1-10/en/sujato", "an1.1:1.1/en"
 public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
+  static let cc = ColorConsole(#file, #function, dbg.SuttaRef.other)
+
   /// The sutta document identifier (e.g., "an1.1-10")
   public let suttaUid: String
 
@@ -215,7 +217,7 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       )
     } catch {
       // Silently fail, returning nil
-      cc.bad1(#line, #function, error)
+      Self.cc.bad1(#line, "create", error)
       return nil
     }
   }

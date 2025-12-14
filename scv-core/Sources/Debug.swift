@@ -33,6 +33,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct EbtQuery: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct EbtSeeker: Sendable {
     public static let other: Int = 2
   }
@@ -74,6 +78,10 @@ public struct dbg: Sendable {
   }
 
   public struct scvUITests: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct SuttaRef: Sendable {
     public static let other: Int = 2
   }
 

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import NaturalLanguage
 import SQLite3
 
 // MARK: - EbtSeeker Actor
@@ -17,18 +16,18 @@ public actor EbtSeeker {
   private let cc = ColorConsole(#file, #function, dbg.EbtSeeker.other)
   private let lang: String
   private let author: String
-  private let db: OpaquePointer
-  private lazy var lemmatizer = NLTagger(tagSchemes: [.lemma])
+  private let lemmatizer: Lemmatizer
 
-  /// Initialize EbtSeeker with database pointer
+  /// Initialize EbtSeeker with language, author and lemmatizer
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
-  ///   - db: Open SQLite database pointer
-  init(lang: String, author: String, db: OpaquePointer) {
+  ///   - lemmatizer: Lemmatizer instance for the language
+  init(lang: String, author: String, lemmatizer: Lemmatizer)
+  {
     self.lang = lang
     self.author = author
-    self.db = db
+    self.lemmatizer = lemmatizer
   }
 
   /// Performs unified search with auto-detection or explicit method
@@ -191,38 +190,13 @@ public actor EbtSeeker {
   /// Lemmatizes query text using NaturalLanguage framework
   /// Maps inflected word forms to lemma roots for morphologically-rich
   /// languages
+  /// Returns lowercase lemmas to match database storage format
+  /// Uses cached Lemmatizer instance for the language
   /// - Parameter query: Text to lemmatize
-  /// - Returns: Array of lemmatized words
+  /// - Returns: Array of lowercase lemmatized words
   public func lemmatize(_ query: String) -> [String] {
-    var lemmas: [String] = []
-
-    // Normalize input for language-specific character mappings
-    var normalizedQuery = query
-    switch lang {
-    case "de":
-      normalizedQuery = query
-        .replacingOccurrences(of: "ae", with: "ä")
-        .replacingOccurrences(of: "oe", with: "ö")
-        .replacingOccurrences(of: "ue", with: "ü")
-    default:
-      normalizedQuery = query
-    }
-
-    lemmatizer.string = normalizedQuery
-    let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace]
-
-    lemmatizer.enumerateTags(
-      in: normalizedQuery.startIndex ..< normalizedQuery.endIndex,
-      unit: .word,
-      scheme: .lemma,
-      options: options,
-    ) { tag, tokenRange in
-      let lemma = tag?.rawValue ?? String(normalizedQuery[tokenRange])
-      lemmas.append(lemma)
-      return true
-    }
-
-    return lemmas
+    var mutableLemmatizer = lemmatizer
+    return mutableLemmatizer.lemmatize(query)
   }
 
   /// Creates NSRegularExpression from lemmatized query
@@ -251,70 +225,29 @@ public actor EbtSeeker {
   /// score = match_count + (match_count / total_segments)
   /// - Parameter query: Phrase to search (e.g., "abhängige entstehen")
   /// - Returns: SeekerResult with matching suttas ranked by relevance score
-  public func searchLemma(_ query: String) -> SeekerResult {
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-
+  public func searchLemma(_ query: String) async -> SeekerResult {
     // Lemmatize query
     let lemmaWords = lemmatize(query)
-
-    // Build LIKE patterns: ["%abhäng%", "%entste%"]
-    let likePatterns = lemmaWords.map { "%\($0)%" }
-
-    // Build WHERE clause: segment_text LIKE '%abhäng%' AND segment_text LIKE
-    // '%entste%'
-    let whereConditions = likePatterns.map { "segment_text LIKE '\($0)'" }
-      .joined(separator: " AND ")
-
-    // Query with scoring: count matching segments and calculate combined score
-    let sqlQuery = """
-    SELECT s.sutta_key, COUNT(seg.rowid) as match_count, s.total_segments,
-           COUNT(seg.rowid) + (CAST(COUNT(seg.rowid) AS FLOAT) / s.total_segments) as combined_score
-    FROM segments seg
-    JOIN suttas s ON seg.sutta_key = s.sutta_key
-    WHERE \(whereConditions)
-    GROUP BY seg.sutta_key, s.total_segments
-    ORDER BY combined_score DESC
-    """
-
-    var itemsWithScores: [(key: String, score: Double)] = []
-
-    var stmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
-      let metadata = SearchMetadata(
-        query: query,
-        method: .lemma,
-        elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
-        docLang: lang,
-        docAuthor: author,
+    guard !lemmaWords.isEmpty else {
+      return SeekerResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .lemma,
+          elapsedTime: 0,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        items: [],
       )
-      return SeekerResult(metadata: metadata, items: [])
-    }
-    defer { sqlite3_finalize(stmt) }
-
-    while sqlite3_step(stmt) == SQLITE_ROW {
-      guard let keyC = sqlite3_column_text(stmt, 0) else { continue }
-      let suttaKey = String(cString: keyC)
-      let score = sqlite3_column_double(stmt, 3)
-      itemsWithScores.append((key: suttaKey, score: score))
     }
 
-    // Convert to SeekerResultItems (already sorted by SQL ORDER BY)
-    var items: [SeekerResultItem] = []
-    for (suttaKey, score) in itemsWithScores {
-      if let ref = SuttaRef.create(suttaKey) {
-        items.append(SeekerResultItem(suttaRef: ref, score: score))
-      }
-    }
-
-    let metadata = SearchMetadata(
-      query: query,
-      method: .lemma,
-      elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
-      docLang: lang,
-      docAuthor: author,
+    // Delegate SQL execution to EbtData (includes LIKE pattern building)
+    return await EbtData.shared.searchLemma(
+      lang: lang,
+      author: author,
+      lemmaWords: lemmaWords,
+      query: query
     )
-
-    return SeekerResult(metadata: metadata, items: items)
   }
 
   /// Query quote (first matching segment) for a sutta based on search query and
@@ -329,23 +262,13 @@ public actor EbtSeeker {
     suttaRef: SuttaRef,
     query: String,
     method: SearchMethod,
-  ) throws -> String? {
-    // Query segments for this sutta
-    let suttaKey = suttaRef.toString()
-    let sqlQuery = "SELECT segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
-    var stmt: OpaquePointer?
-
-    guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
-      return nil
-    }
-    defer { sqlite3_finalize(stmt) }
-
-    sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
+  ) async throws -> String? {
+    // Get all segments for this sutta from data layer
+    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
 
     // Find first matching segment
-    while sqlite3_step(stmt) == SQLITE_ROW {
-      guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
-      let segmentText = String(cString: segmentTextC)
+    for segment in segments {
+      guard let segmentText = segment.doc else { continue }
 
       // Check if segment matches based on search method
       let matchRange = findMatch(
@@ -366,73 +289,20 @@ public actor EbtSeeker {
   }
 
   /// Query total segment count for this sutta
-  func querySegmentCount(suttaRef: SuttaRef) throws -> Int? {
-    let suttaKey = suttaRef.toString()
-    let countQuery = "SELECT total_segments FROM suttas WHERE sutta_key = ?"
-    var countStmt: OpaquePointer?
-
-    guard sqlite3_prepare_v2(db, countQuery, -1, &countStmt, nil) ==
-      SQLITE_OK
-    else {
-      sqlite3_finalize(countStmt)
-      return nil
-    }
-
-    defer { sqlite3_finalize(countStmt) }
-
-    sqlite3_bind_text(
-      countStmt,
-      1,
-      (suttaKey as NSString).utf8String,
-      -1,
-      nil,
-    )
-
-    if sqlite3_step(countStmt) == SQLITE_ROW {
-      return Int(sqlite3_column_int(countStmt, 0))
-    }
-    return nil
+  func querySegmentCount(suttaRef: SuttaRef) async throws -> Int? {
+    // Get all segments and count them
+    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
+    return segments.isEmpty ? nil : segments.count
   }
 
-  func queryHeader(suttaRef: SuttaRef) throws -> [Segment] {
-    let suttaKey = suttaRef.toString()
-    let headerQuery = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? AND segment_id LIKE ? ORDER BY segment_id"
-    var headerStmt: OpaquePointer?
+  func queryHeader(suttaRef: SuttaRef) async throws -> [Segment] {
+    // Get all segments for this sutta
+    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
 
-    guard sqlite3_prepare_v2(db, headerQuery, -1, &headerStmt, nil) ==
-      SQLITE_OK
-    else {
-      sqlite3_finalize(headerStmt)
-      return []
+    // Filter for header segments (scid LIKE "%:0%")
+    return segments.filter { segment in
+      segment.scid.contains(":0")
     }
-
-    defer { sqlite3_finalize(headerStmt) }
-
-    sqlite3_bind_text(
-      headerStmt,
-      1,
-      (suttaKey as NSString).utf8String,
-      -1,
-      nil,
-    )
-    sqlite3_bind_text(headerStmt, 2, ("%:0%" as NSString).utf8String, -1, nil)
-
-    var headerSegments: [Segment] = []
-    while sqlite3_step(headerStmt) == SQLITE_ROW {
-      guard let segIdC = sqlite3_column_text(headerStmt, 0),
-            let segTextC = sqlite3_column_text(headerStmt, 1)
-      else {
-        continue
-      }
-
-      let segId = String(cString: segIdC)
-      let segText = String(cString: segTextC)
-
-      let segment = Segment(scid: segId, doc: segText)
-      headerSegments.append(segment)
-    }
-
-    return headerSegments
   }
 }
 

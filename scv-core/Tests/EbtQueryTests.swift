@@ -10,6 +10,8 @@ import Testing
 
 @Suite("EbtQuery Tests")
 struct EbtQueryTests {
+  let cc = ColorConsole(#file, #function,  dbg.EbtQuery.other)
+
   @Test("EbtQuery with single full scid")
   func querySingleFullScid() {
     let query = EbtQuery(query: "thig1.1/en/soma")
@@ -23,7 +25,11 @@ struct EbtQueryTests {
 
   @Test("EbtQuery with mixed format scids and defaults")
   func queryMixedFormatsWithDefaults() {
-    let query = EbtQuery(query: "thig1.1/en/soma, thig1.1/de, thig1.1")
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "sujato"
+
+    let query = EbtQuery(query: "thig1.1/en/soma, thig1.1/de, thig1.1", settings: testSettings)
 
     #expect(query.method == .suttaref, "Should detect suttaref method")
     #expect(
@@ -114,7 +120,48 @@ struct EbtQueryTests {
 
     // Should lemmatize to base forms
     #expect(!lemmas.isEmpty, "Should lemmatize to words")
-    #expect(lemmas.count == 3, "Should have 3 lemmas for 3 words, got \(lemmas.count)")
+    #expect(
+      lemmas.count == 3,
+      "Should have 3 lemmas for 3 words, got \(lemmas.count)",
+    )
+  }
+
+  @Test("EbtSeeker lemmatize mn1:171.4 segment text")
+  func seekerLemmatizeMn1Segment() async throws {
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "sujato",
+    )
+    let segmentText = "Because he has understood that approval is the root of suffering"
+    let lemmas = await seeker.lemmatize(segmentText)
+    print("[LEMMATIZE] '\(segmentText)' → \(lemmas)")
+
+    // Should lemmatize to base forms
+    #expect(!lemmas.isEmpty, "Should lemmatize to words")
+    #expect(lemmas.contains("root"), "Should contain 'root'")
+    #expect(
+      lemmas.contains("suffer"),
+      "Should contain 'suffer' (not 'suffering')",
+    )
+  }
+
+  @Test("EbtSeeker lemmatize dn16:2.3.9 segment text")
+  func seekerLemmatizeDn16Segment() async throws {
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "sujato",
+    )
+    let segmentText = "The root of suffering is cut off, "
+    let lemmas = await seeker.lemmatize(segmentText)
+    print("[LEMMATIZE] '\(segmentText)' → \(lemmas)")
+
+    // Should lemmatize to base forms
+    #expect(!lemmas.isEmpty, "Should lemmatize to words")
+    #expect(lemmas.contains("root"), "Should contain 'root'")
+    #expect(
+      lemmas.contains("suffer"),
+      "Should contain 'suffer' (not 'suffering')",
+    )
   }
 
   @Test("EbtQuery.search() with custom Settings for EN/sujato")
@@ -130,18 +177,14 @@ struct EbtQueryTests {
 
     // Verify result structure
     #expect(result.error == nil)
-    #expect(
-      result.items.count == 11,
-      "Lemma search finds all occurrences of lemmas, got \(result.items.count)",
-    )
     #expect(result.metadata.query == "root of suffering")
     #expect(result.metadata.method == SearchMethod.lemma)
     #expect(result.metadata.docLang == "en")
     #expect(result.metadata.docAuthor == "sujato")
 
-    // Verify phrase search subset is present (lemma finds more)
+    // Verify all 7 expected suttas are present
     let resultSuttas = Set(result.items.map(\.suttaRef.suttaUid))
-    let phraseSearchSuttas = Set([
+    let expectedSuttas = Set([
       "sn42.11",
       "mn105",
       "mn1",
@@ -150,19 +193,28 @@ struct EbtQueryTests {
       "mn66",
       "dn16",
     ])
-    // Lemma search should include all phrase search results
     #expect(
-      phraseSearchSuttas.isSubset(of: resultSuttas),
-      "Lemma search should include phrase search results",
+      resultSuttas == expectedSuttas,
+      "Should find exactly 7 suttas with 'root of suffering', got \(resultSuttas)",
     )
   }
 
   @Test("EbtQuery.search() with comma-delimited suttarefs")
   func searchWithSuttarefs() async {
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "sujato"
+
     let ebtQuery = EbtQuery(
       query: "thig1.1, thig1.1/en/soma, thig1.1/de",
-      settings: Settings.shared,
+      settings: testSettings,
     )
+
+    // Debug: print what was parsed
+    for (idx, ref) in ebtQuery.suttaRefs.enumerated() {
+      cc.ok2(#line, "Parsed suttaref[\(idx)]: \(ref.toString())")
+    }
+
     let result = await ebtQuery.search()
 
     // Should detect suttaref method
@@ -207,18 +259,21 @@ struct EbtQueryTests {
 
     // Verify metadata uses Settings defaults
     #expect(result.metadata.docLang == "pli", "metadata docLang should be pli")
-    #expect(result.metadata.docAuthor == "ms", "metadata docAuthor should be ms")
+    #expect(
+      result.metadata.docAuthor == "ms",
+      "metadata docAuthor should be ms",
+    )
 
     // Verify parsed suttaref was filled in with Settings defaults
     #expect(result.items.count == 1, "Should find 1 result")
     #expect(result.items[0].suttaRef.suttaUid == "mn1")
     #expect(
       result.items[0].suttaRef.lang == "pli",
-      "Item lang should default to pli, got \(result.items[0].suttaRef.lang)"
+      "Item lang should default to pli, got \(result.items[0].suttaRef.lang)",
     )
     #expect(
       result.items[0].suttaRef.author == "ms",
-      "Item author should default to ms, got \(result.items[0].suttaRef.author ?? "nil")"
+      "Item author should default to ms, got \(result.items[0].suttaRef.author ?? "nil")",
     )
   }
 
@@ -250,7 +305,10 @@ struct EbtQueryTests {
 
     // Verify metadata uses Settings defaults
     #expect(result.metadata.docLang == "en", "metadata docLang should be en")
-    #expect(result.metadata.docAuthor == "soma", "metadata docAuthor should be soma")
+    #expect(
+      result.metadata.docAuthor == "soma",
+      "metadata docAuthor should be soma",
+    )
   }
 
   @Test("EbtQuery with mn1/en/soma where sutta doesn't exist returns error")
@@ -258,28 +316,35 @@ struct EbtQueryTests {
     let ebtQuery = EbtQuery(query: "mn1/en/soma")
     let result = await ebtQuery.search()
 
-    // Sutta doesn't exist in en/soma database, should return error and zero items
-    #expect(result.items.isEmpty, "Items should be empty when sutta doesn't exist")
+    // Sutta doesn't exist in en/soma database, should return error and zero
+    // items
+    #expect(
+      result.items.isEmpty,
+      "Items should be empty when sutta doesn't exist",
+    )
     #expect(result.error != nil, "Error should be set when sutta not found")
     #expect(!result.error!.message.isEmpty, "Error message should not be empty")
   }
 
-  @Test("EbtQuery with 'men shaving heads' uses lemma search not keyword search")
-  func queryMenShavingHeadsLemmaSearch() async {
+  @Test(
+    "EbtQuery with 'men shaving their heads' uses lemma search not keyword search",
+  )
+  func queryMenShavingTheirHeadsLemmaSearch() async {
     // Create custom Settings for en/brahmali
     let testSettings = Settings()
     testSettings.docLang = .english
     testSettings.docAuthor = "brahmali"
 
-    let ebtQuery = EbtQuery(query: "men shaving heads", settings: testSettings)
+    let ebtQuery = EbtQuery(query: "men shaving their heads", settings: testSettings)
     let result = await ebtQuery.search()
 
     // EbtQuery converts text queries to lemma method (not keyword)
     #expect(
       result.metadata.method == .lemma,
-      "Non-suttaref queries should use lemma method, got \(result.metadata.method)"
+      "Non-suttaref queries should use lemma method, got \(result.metadata.method)",
     )
     // Should find results via lemma search
+    // Example: pli-tv-kd20:27.1.1 contains "men shave their head"
     #expect(!result.items.isEmpty, "Lemma search should find results")
     // Verify metadata uses custom settings
     #expect(result.metadata.docLang == "en")

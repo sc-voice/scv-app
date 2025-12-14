@@ -10,6 +10,8 @@ class EbtDBBuilder {
   let translationDir: String
   let authorInfoImporter: AuthorInfoImporter
   let gitHash: String?
+  private let cc = ColorConsole(#file, #function, dbg.EbtData.other)
+  private var lemmatizer: Lemmatizer?
 
   init(
     language: String,
@@ -30,10 +32,14 @@ class EbtDBBuilder {
   }
 
   func build() throws -> (suttas: Int, segments: Int) {
+    let startTime = Date()
     let dbPath = "\(buildDir)/ebt-\(language)-\(author).db"
     try? FileManager.default.removeItem(atPath: dbPath)
 
-    print("  Building ebt-\(language)-\(author).db...")
+    cc.ok1(#line, #function, "Building ebt-\(language)-\(author).db...")
+
+    // Initialize lemmatizer for this language
+    lemmatizer = Lemmatizer(lang: language, cacheDir: resourcesDir)
 
     var db: OpaquePointer?
     guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
@@ -66,8 +72,16 @@ class EbtDBBuilder {
 
     let (suttas, segments) = try importFiles(db: db, importer: importer)
 
+    // Save lemmatizer cache after importing all segments
+    if var lemmatizer {
+      lemmatizer.saveCache()
+    }
+
     // Compress database
     try compressDatabase(dbPath: dbPath)
+
+    let elapsed = Date().timeIntervalSince(startTime)
+    cc.ok1(#line, #function, "Elapsed: \(String(format: "%.2f", elapsed))s")
 
     return (suttas: suttas, segments: segments)
   }
@@ -88,20 +102,15 @@ class EbtDBBuilder {
     );
 
     CREATE TABLE suttas (
-      sutta_key TEXT PRIMARY KEY,
+      suttaUid TEXT PRIMARY KEY,
       total_segments INTEGER
     );
 
     CREATE TABLE segments (
-      sutta_key TEXT,
-      segment_id TEXT,
-      segment_text TEXT
-    );
-
-    CREATE VIRTUAL TABLE segments_fts USING fts5(
-      sutta_key UNINDEXED,
-      segment_id UNINDEXED,
-      segment_text
+      suttaUid TEXT,
+      scid TEXT,
+      text TEXT,
+      lemmas TEXT
     );
     """
 
@@ -169,8 +178,8 @@ class EbtDBBuilder {
   ) throws -> (suttas: Int, segments: Int) {
     let files = try importer.findTranslationFiles()
 
-    let insertSuttaStatement = "INSERT OR IGNORE INTO suttas (sutta_key, total_segments) VALUES (?, ?)"
-    let insertSegmentStatement = "INSERT INTO segments (sutta_key, segment_id, segment_text) VALUES (?, ?, ?)"
+    let insertSuttaStatement = "INSERT OR IGNORE INTO suttas (suttaUid, total_segments) VALUES (?, ?)"
+    let insertSegmentStatement = "INSERT INTO segments (suttaUid, scid, text, lemmas) VALUES (?, ?, ?, ?)"
 
     var suttaStmt: OpaquePointer?
     var segmentStmt: OpaquePointer?
@@ -222,40 +231,41 @@ class EbtDBBuilder {
       let textType = classifyTextType(filePath: filePath)
       fileCounts[textType, default: 0] += 1
 
-      // New format: suttaId/language/author
-      let suttaKey = "\(scid)/\(language)/\(author)"
+      // suttaUid is just the scid (language/author stored separately in
+      // database path)
+      let suttaUid = scid
       let segmentCount = segments.count
 
       // Insert sutta
       sqlite3_bind_text(
         suttaStmt,
         1,
-        (suttaKey as NSString).utf8String,
+        (suttaUid as NSString).utf8String,
         -1,
         nil,
       )
       sqlite3_bind_int(suttaStmt, 2, Int32(segmentCount))
 
       if sqlite3_step(suttaStmt) != SQLITE_DONE {
-        print("  ERROR: Insert failed for sutta \(suttaKey)")
+        cc.bad1(#line, #function, "Insert failed for sutta \(suttaUid)")
         continue
       }
       sqlite3_reset(suttaStmt)
       totalSuttas += 1
 
       // Insert segments
-      for (segmentId, segmentText) in segments.sorted(by: { $0.key < $1.key }) {
+      for (scidVal, segmentText) in segments.sorted(by: { $0.key < $1.key }) {
         sqlite3_bind_text(
           segmentStmt,
           1,
-          (suttaKey as NSString).utf8String,
+          (suttaUid as NSString).utf8String,
           -1,
           nil,
         )
         sqlite3_bind_text(
           segmentStmt,
           2,
-          (segmentId as NSString).utf8String,
+          (scidVal as NSString).utf8String,
           -1,
           nil,
         )
@@ -263,6 +273,15 @@ class EbtDBBuilder {
           segmentStmt,
           3,
           (segmentText as NSString).utf8String,
+          -1,
+          nil,
+        )
+        // lemmas column with space-padded lemmatized tokens
+        let lemmas = lemmatizeSegment(segmentText)
+        sqlite3_bind_text(
+          segmentStmt,
+          4,
+          (lemmas as NSString).utf8String,
           -1,
           nil,
         )
@@ -279,24 +298,16 @@ class EbtDBBuilder {
     let filesJson = encodeFileCounts(fileCounts, total: files.count)
     try updateMetadataFiles(db: db, filesJson: filesJson)
 
-    // Populate FTS table from segments in one batch
-    let ftsFillQuery = "INSERT INTO segments_fts(sutta_key, segment_id, segment_text) SELECT sutta_key, segment_id, segment_text FROM segments"
-    var ftsStmt: OpaquePointer?
-    if sqlite3_prepare_v2(db, ftsFillQuery, -1, &ftsStmt, nil) == SQLITE_OK {
-      if sqlite3_step(ftsStmt) == SQLITE_DONE {
-        // FTS table populated successfully
-      }
-      sqlite3_finalize(ftsStmt)
-    }
-
     let dbSize = try? FileManager.default
       .attributesOfItem(atPath: "\(buildDir)/ebt-\(language)-\(author).db")[
         .size,
       ] as? Int ??
       0
     let dbSizeMB = Double(dbSize ?? 0) / 1_000_000
-    print(
-      "    ✓ \(totalSuttas) suttas, \(totalSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)",
+    cc.ok1(
+      #line,
+      #function,
+      "\(totalSuttas) suttas, \(totalSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)",
     )
 
     return (suttas: totalSuttas, segments: totalSegments)
@@ -384,14 +395,31 @@ class EbtDBBuilder {
           .attributesOfItem(atPath: dbPath)[.size] as? Int
         {
           let ratio = (Double(dbSize) - Double(zstSize)) / Double(dbSize) * 100
-          print(
-            "    ✓ Compressed to \(String(format: "%.1f", zstSizeMB)) MB (\(String(format: "%.0f", ratio))% reduction)",
+          cc.ok1(
+            #line,
+            #function,
+            "Compressed to \(String(format: "%.1f", zstSizeMB)) MB (\(String(format: "%.0f", ratio))% reduction)",
           )
         }
       }
     } else {
       throw BuildError.compressionFailed
     }
+  }
+
+  /// Lemmatizes text and returns space-padded lowercase lemma tokens
+  /// Example: "men shaving their heads" → " man shave their head "
+  /// Uses shared Lemmatizer instance for the language
+  /// - Parameter text: Text to lemmatize
+  /// - Returns: Space-padded string of lowercase lemmatized words
+  private func lemmatizeSegment(_ text: String) -> String {
+    guard var lemm = lemmatizer else {
+      // Fallback if lemmatizer not initialized
+      return " " + text + " "
+    }
+    let result = lemm.lemmatizeForSqlData(text)
+    lemmatizer = lemm // Persist cache mutations back to property
+    return result
   }
 }
 

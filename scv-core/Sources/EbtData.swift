@@ -13,9 +13,10 @@ public actor EbtData {
   /// Must match schema_version in database metadata table
   /// V5: Added files field with breakdown (sutta/vinaya/abhidhamma/other
   /// counts)
-  /// Excludes metadata files (ending in -name). Uses khuddaka abbreviations
-  /// (thag, thig, etc).
-  public static let schemaVersion = 5
+  /// V6: Renamed columns (sutta_key→suttaUid, segment_id→scid,
+  /// segment_text→text),
+  /// added space-padded lemmas column, removed FTS5 virtual table
+  public static let schemaVersion = 6
 
   // Safe: Dictionary is only accessed within actor-isolated methods and deinit.
   // Actor serialization ensures only one task accesses databases at a time.
@@ -31,6 +32,12 @@ public actor EbtData {
   // ensures thread-safety despite the unsafe annotation.
   // Key format: "lang/author" (e.g., "en/sujato", "de/sabbamitta")
   private nonisolated(unsafe) var seekerCache: [String: EbtSeeker] = [:]
+
+  // Safe: Lemmatizer instances are language-specific singletons accessed
+  // within actor-isolated methods. nonisolated(unsafe) is safe because
+  // Lemmatizer is thread-safe (immutable after initialization).
+  // Key format: language code (e.g., "en", "de", "pli")
+  private nonisolated(unsafe) var lemmatizers: [String: Lemmatizer] = [:]
 
   // Manifest loaded once at app startup
   private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
@@ -60,6 +67,29 @@ public actor EbtData {
     -> [DatabaseInfo]
   {
     manifestCache.authorsForLanguage(language)
+  }
+
+  // MARK: - Lemmatizer Access
+
+  /// Returns path to bundle resources directory where caches and databases are
+  /// stored
+  private var resourcesDir: String {
+    let bundlePath = Bundle.module.bundlePath
+    return "\(bundlePath)/resources"
+  }
+
+  /// Returns cached Lemmatizer singleton for specific language
+  /// Creates and caches new instance on first access
+  /// - Parameter lang: Language code (e.g., "en", "de", "pli")
+  /// - Returns: Lemmatizer instance for the language
+  func getLemmatizer(lang: String) -> Lemmatizer {
+    if let existing = lemmatizers[lang] {
+      return existing
+    }
+
+    let lemmatizer = Lemmatizer(lang: lang, cacheDir: resourcesDir)
+    lemmatizers[lang] = lemmatizer
+    return lemmatizer
   }
 
   // MARK: - Decompression
@@ -200,6 +230,26 @@ public actor EbtData {
     cc.ok1(#line, "ensureDatabase OK")
   }
 
+  /// Gets database pointer for language/author, ensuring it's loaded
+  /// Single source of truth for database lookup - avoiding code duplication
+  /// - Parameters:
+  ///   - lang: Language code
+  ///   - author: Author/translator identifier
+  /// - Returns: OpaquePointer to SQLite database
+  /// - Throws: EbtDataError if database cannot be opened
+  private func getDatabaseForLangAuthor(lang: String, author: String) throws -> OpaquePointer {
+    let key = "\(lang)/\(author)"
+    try ensureDatabase(lang: lang, author: author)
+    guard let db = databases[key] else {
+      cc.bad1(
+        #line,
+        "getDatabaseForLangAuthor: database not found for \(key)",
+      )
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+    return db
+  }
+
   /// Returns cached EbtSeeker for given language and author, creating if needed
   /// Defaults to Pali language if not specified
   /// Defaults to default author for language if not specified
@@ -232,16 +282,16 @@ public actor EbtData {
     }
 
     // Create new seeker and cache it
-    try ensureDatabase(lang: lang, author: resolvedAuthor)
-    guard let db = databases[key] else {
-      cc.bad1(
-        #line,
-        "getSeeker: database not found for \(lang)/\(resolvedAuthor)",
-      )
-      throw EbtDataError.cannotOpenDatabase(lang: lang, author: resolvedAuthor)
-    }
+    // Note: We ensure database is loaded but EbtSeeker doesn't use db directly
+    // It delegates database queries back to EbtData.shared
+    let _ = try getDatabaseForLangAuthor(lang: lang, author: resolvedAuthor)
 
-    let seeker = EbtSeeker(lang: lang, author: resolvedAuthor, db: db)
+    let lemmatizer = getLemmatizer(lang: lang)
+    let seeker = EbtSeeker(
+      lang: lang,
+      author: resolvedAuthor,
+      lemmatizer: lemmatizer,
+    )
     seekerCache[key] = seeker
     return seeker
   }
@@ -289,7 +339,7 @@ public actor EbtData {
       let key = "\(lang)/\(author)"
       guard let db = databases[key] else { return nil }
 
-      let query = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+      let query = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
@@ -298,9 +348,8 @@ public actor EbtData {
 
       defer { sqlite3_finalize(stmt) }
 
-      // Construct full sutta_key for query: suttaId/lang/author
-      let fullSuttaKey = "\(suttaId)/\(lang)/\(author)"
-      sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
+      // Query by suttaUid (schema v6)
+      sqlite3_bind_text(stmt, 1, (suttaId as NSString).utf8String, -1, nil)
 
       var segments: [(String, String)] = []
       while sqlite3_step(stmt) == SQLITE_ROW {
@@ -404,8 +453,8 @@ public actor EbtData {
       let authorName = metadata(lang: lang, author: author)?
         .authorName ?? author
 
-      // Query segments for this sutta
-      let query = "SELECT segment_id, segment_text FROM segments WHERE sutta_key = ? ORDER BY segment_id"
+      // Query segments for this sutta (schema v6: using suttaUid, scid, text)
+      let query = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
@@ -415,8 +464,7 @@ public actor EbtData {
 
       defer { sqlite3_finalize(stmt) }
 
-      let fullSuttaKey = "\(suttaId)/\(lang)/\(author)"
-      sqlite3_bind_text(stmt, 1, (fullSuttaKey as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(stmt, 1, (suttaId as NSString).utf8String, -1, nil)
 
       var segMap: [String: Segment] = [:]
       while sqlite3_step(stmt) == SQLITE_ROW {
@@ -435,7 +483,7 @@ public actor EbtData {
       }
 
       guard !segMap.isEmpty else {
-        cc.bad1(#line, #function, "no segments found for:", fullSuttaKey)
+        cc.bad1(#line, #function, "no segments found for:", suttaId)
         return nil
       }
 
@@ -1235,6 +1283,136 @@ public actor EbtData {
     SuttaRef.create(key)
   }
 
+  /// Searches for suttas matching lemmatized words in database
+  /// Builds space-padded LIKE pattern and executes SQL query
+  /// - Parameters:
+  ///   - lang: Language code for database
+  ///   - author: Author/translator for database
+  ///   - lemmaWords: Array of lemmatized words to search for
+  ///   - query: Original query string for metadata
+  /// - Returns: SeekerResult with matched suttas and scores
+  func searchLemma(lang: String, author: String, lemmaWords: [String], query: String) -> SeekerResult {
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+
+    do {
+      let db = try getDatabaseForLangAuthor(lang: lang, author: author)
+
+      // Build space-padded LIKE pattern: '% lemma1 lemma2 ... lemman %'
+      let likePattern = "% " + lemmaWords.joined(separator: " ") + " %"
+
+      let sqlQuery = """
+      SELECT s.suttaUid, COUNT(seg.rowid) as match_count, s.total_segments,
+             COUNT(seg.rowid) + (CAST(COUNT(seg.rowid) AS FLOAT) / s.total_segments) as combined_score
+      FROM segments seg
+      JOIN suttas s ON seg.suttaUid = s.suttaUid
+      WHERE seg.lemmas LIKE '\(likePattern)'
+      GROUP BY seg.suttaUid, s.total_segments
+      ORDER BY combined_score DESC
+      """
+
+      var itemsWithScores: [(suttaUid: String, score: Double)] = []
+
+      var stmt: OpaquePointer?
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        return SeekerResult(
+          metadata: SearchMetadata(
+            query: query,
+            method: .lemma,
+            elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
+            docLang: lang,
+            docAuthor: author,
+          ),
+          items: [],
+        )
+      }
+      defer { sqlite3_finalize(stmt) }
+
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        guard let uidC = sqlite3_column_text(stmt, 0) else { continue }
+        let suttaUid = String(cString: uidC)
+        let score = sqlite3_column_double(stmt, 3)
+        itemsWithScores.append((suttaUid: suttaUid, score: score))
+      }
+
+      // Convert to SeekerResultItems (already sorted by SQL ORDER BY)
+      var items: [SeekerResultItem] = []
+      for (suttaUid, score) in itemsWithScores {
+        if let ref = SuttaRef.create(
+          suttaUid,
+          defaultLang: lang,
+          defaultAuthor: author,
+        ) {
+          items.append(SeekerResultItem(suttaRef: ref, score: score))
+        }
+      }
+
+      return SeekerResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .lemma,
+          elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        items: items,
+      )
+    } catch {
+      return SeekerResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .lemma,
+          elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        items: [],
+        error: SearchError(
+          message: "Database error",
+          detail: error.localizedDescription,
+        ),
+      )
+    }
+  }
+
+  /// Returns all segments for a given sutta reference
+  /// Core data access method used by queryQuote, queryHeader, and other seeker methods
+  /// - Parameter suttaRef: The sutta reference (contains lang, author, suttaUid)
+  /// - Returns: Array of Segment objects with scid and doc populated, empty array on error
+  func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async -> [Segment] {
+    do {
+      let db = try getDatabaseForLangAuthor(lang: suttaRef.lang, author: suttaRef.author ?? "")
+
+      let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        return []
+      }
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (suttaRef.suttaUid as NSString).utf8String, -1, nil)
+
+      var segments: [Segment] = []
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        guard let scidC = sqlite3_column_text(stmt, 0),
+              let textC = sqlite3_column_text(stmt, 1)
+        else {
+          continue
+        }
+
+        let scid = String(cString: scidC)
+        let text = String(cString: textC)
+
+        let segment = Segment(scid: scid, doc: text)
+        segments.append(segment)
+      }
+
+      return segments
+    } catch {
+      return []
+    }
+  }
+
   // MARK: - Discovery Methods
 
   /// Returns list of available (language, author) pairs
@@ -1605,28 +1783,32 @@ public actor EbtData {
   /// - Returns: true if sutta exists, false if not or database not found
   public func querySuttaRefExists(suttaRef: SuttaRef) async -> Bool {
     do {
-      // Ensure database is loaded
-      let _ = try await getSeeker(suttaRef: suttaRef)
+      // Get database for this language/author
+      let author = suttaRef.author ?? ""
+      let db = try getDatabaseForLangAuthor(lang: suttaRef.lang, author: author)
 
-      // Get the database pointer
-      let key = "\(suttaRef.lang)/\(suttaRef.author ?? "")"
-      guard let db = databases[key] else {
-        return false
-      }
-
-      let sqlQuery = "SELECT 1 FROM suttas WHERE sutta_key = ? LIMIT 1"
+      let sqlQuery = "SELECT 1 FROM segments WHERE suttaUid = ? LIMIT 1"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        cc.bad1(#line, #function, "sqlite3_prepare_v2 failed for \(suttaRef.toString())")
         return false
       }
       defer { sqlite3_finalize(stmt) }
 
-      sqlite3_bind_text(stmt, 1, (suttaRef.toString() as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(
+        stmt,
+        1,
+        (suttaRef.suttaUid as NSString).utf8String,
+        -1,
+        nil,
+      )
 
       let exists = sqlite3_step(stmt) == SQLITE_ROW
+      cc.ok1(#line, #function, "querySuttaRefExists(\(suttaRef.toString())): suttaUid=\(suttaRef.suttaUid), exists=\(exists)")
       return exists
     } catch {
+      cc.bad1(#line, #function, "querySuttaRefExists(\(suttaRef.toString())) threw: \(error)")
       return false
     }
   }

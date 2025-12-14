@@ -53,13 +53,13 @@ test-nlp: build-nlp
 
 # Rebuild all .zst files from latest ebt-data content and regenerate manifest
 build-zst: build-build
-	@echo "Pulling latest ebt-data..."
+	@echo "Pulling latest ebt-data..." > local/build-zst.log
 	@(cd local/ebt-data && git pull)
-	@echo "Rebuilding all databases from latest content..."
-	@scripts/build-ebt-data --rebuild-from-manifest
-	@echo "Regenerating db-manifest.json with schema versions..."
-	@scripts/build-ebt-data --build-manifest
-	@echo "✓ All .zst files rebuilt and manifest regenerated"
+	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a local/build-zst.log
+	@scripts/build-ebt-data --rebuild-from-manifest 2>&1 | tee -a local/build-zst.log
+	@echo "Regenerating db-manifest.json with schema versions..." 2>&1 | tee -a local/build-zst.log
+	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a local/build-zst.log
+	@echo "✓ All .zst files rebuilt and manifest regenerated" 2>&1 | tee -a local/build-zst.log
 
 content: build-zst
 
