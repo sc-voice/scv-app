@@ -72,7 +72,7 @@ public class EbtQuery {
             cc.bad1(#line, #function, detail)
             lastError = SearchError(
               message: message,
-              detail: detail
+              detail: detail,
             )
             allItems = []
             break

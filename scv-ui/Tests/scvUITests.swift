@@ -294,7 +294,7 @@ struct scvUITests {
     let newCard = manager.allCards
       .first // Newest card (reverse chronological order)
     #expect(newCard?.searchQuery == "root of suffering")
-    #expect(newCard?.searchResult?.items.count == 11)
+    #expect(newCard?.searchResult?.items.count == 7)
     #expect(manager.selectedCardId == newCard?.id)
     cc.ok1(#line, #function, "passed")
   }

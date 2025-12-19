@@ -52,7 +52,7 @@ test-nlp: build-nlp
 # Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
 
 # Rebuild all .zst files from latest ebt-data content and regenerate manifest
-build-zst: build-build
+build-zst: clean-db-cache build-build 
 	@echo "Pulling latest ebt-data..." > local/build-zst.log
 	@(cd local/ebt-data && git pull)
 	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a local/build-zst.log
@@ -108,6 +108,11 @@ build-ios-app:
 	    -destination 'generic/platform=iOS Simulator' \
 	    2>&1 | \
 			tee ../local/build-ios.log | grep -E $(XCODE_BUILD_FILTER) || true
+
+clean-db-cache:
+	@echo "=====> clean-db-cache..."
+	@rm -f ~/Library/Caches/ebt-*.db 2>/dev/null || true
+	@echo "Cleared database caches from ~/Library/Caches"
 
 clean: clean-core clean-build clean-ui clean-ios format
 

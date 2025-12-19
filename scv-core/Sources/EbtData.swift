@@ -237,7 +237,9 @@ public actor EbtData {
   ///   - author: Author/translator identifier
   /// - Returns: OpaquePointer to SQLite database
   /// - Throws: EbtDataError if database cannot be opened
-  private func getDatabaseForLangAuthor(lang: String, author: String) throws -> OpaquePointer {
+  private func getDatabaseForLangAuthor(lang: String,
+                                        author: String) throws -> OpaquePointer
+  {
     let key = "\(lang)/\(author)"
     try ensureDatabase(lang: lang, author: author)
     guard let db = databases[key] else {
@@ -518,254 +520,20 @@ public actor EbtData {
     let author = result.metadata.docAuthor
     let query = result.metadata.query
 
-    cc.ok2(
-      #line,
-      "searchKeywords START: query='\(query)' lang=\(lang) author=\(author)",
-    )
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-    var items: [SeekerResultItem] = []
-    var refinedResult = result
-    var searchError: SearchError? = nil
-
-    let key = "\(lang)/\(author)"
-    let db = databases[key]!
-
-    do {
-      let limit = Settings.shared.maxDoc
-
-      let sqlQuery = """
-      SELECT s.sutta_key, COUNT(sf.rowid) as match_count, s.total_segments,
-             CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments as relevance_pct,
-             COUNT(sf.rowid) + (CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments) as combined_score
-      FROM segments_fts sf
-      JOIN suttas s ON sf.sutta_key = s.sutta_key
-      WHERE sf.segment_text MATCH ?
-      GROUP BY sf.sutta_key
-      ORDER BY combined_score DESC
-      LIMIT ?
-      """
-
-      var stmt: OpaquePointer?
-      let prepareResult = sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil)
-      guard prepareResult == SQLITE_OK else {
-        let errMsg = String(cString: sqlite3_errmsg(db))
-        cc.bad1(#line, "sqlite3_prepare_v2 failed:", errMsg)
-        throw NSError()
-      }
-      defer { sqlite3_finalize(stmt) }
-
-      sqlite3_bind_text(stmt, 1, (query as NSString).utf8String, -1, nil)
-      sqlite3_bind_int(stmt, 2, Int32(limit))
-
-      // Check if segments_fts table exists and has data
-      let tableCheckQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name='segments_fts'"
-      var tableStmt: OpaquePointer?
-      if sqlite3_prepare_v2(db, tableCheckQuery, -1, &tableStmt, nil) ==
-        SQLITE_OK
-      {
-        defer { sqlite3_finalize(tableStmt) }
-        let tableExists = sqlite3_step(tableStmt) == SQLITE_ROW
-        if tableExists {
-          cc.ok1(#line, "segments_fts table exists in cached database")
-          // Also check if table has any rows
-          let countQuery = "SELECT COUNT(*) FROM segments_fts"
-          var countStmt: OpaquePointer?
-          if sqlite3_prepare_v2(db, countQuery, -1, &countStmt, nil) ==
-            SQLITE_OK
-          {
-            defer { sqlite3_finalize(countStmt) }
-            if sqlite3_step(countStmt) == SQLITE_ROW {
-              let rowCount = sqlite3_column_int64(countStmt, 0)
-              cc.ok2(#line, "FTS table has \(rowCount) rows")
-            }
-          }
-        } else {
-          cc.bad1(#line, "segments_fts table NOT FOUND in cached database")
-        }
-      } else {
-        cc.bad1(#line, "Could not check for segments_fts table in database")
-      }
-
-      cc.ok2(#line, "Executing FTS MATCH query: '\(query)' with limit \(limit)")
-
-      var resultCount = 0
-      while sqlite3_step(stmt) == SQLITE_ROW {
-        if let cString = sqlite3_column_text(stmt, 0) {
-          let key = String(cString: cString)
-          let score = sqlite3_column_double(stmt, 4)
-          if let suttaRef = createSuttaRefFromKey(key) {
-            items.append(SeekerResultItem(suttaRef: suttaRef, score: score))
-            resultCount += 1
-          }
-        }
-      }
-
-      // Diagnostic: if no results, try a simpler query
-      if resultCount == 0 {
-        cc.ok2(#line, "FTS MATCH returned 0 results, running diagnostics")
-
-        // Check FTS table schema
-        let schemaQuery = "PRAGMA table_info(segments_fts)"
-        var schemaStmt: OpaquePointer?
-        if sqlite3_prepare_v2(db, schemaQuery, -1, &schemaStmt, nil) ==
-          SQLITE_OK
-        {
-          defer { sqlite3_finalize(schemaStmt) }
-          var schemaInfo = ""
-          while sqlite3_step(schemaStmt) == SQLITE_ROW {
-            if let colName = sqlite3_column_text(schemaStmt, 1) {
-              let name = String(cString: colName)
-              schemaInfo += "\(name);"
-            }
-          }
-          cc.ok2(#line, "FTS schema columns: \(schemaInfo)")
-        }
-
-        // Try a simple unqualified MATCH on the FTS table
-        let simpleMatch = "SELECT COUNT(*) FROM segments_fts WHERE segments_fts MATCH ?"
-        var simpleStmt: OpaquePointer?
-        if sqlite3_prepare_v2(db, simpleMatch, -1, &simpleStmt, nil) ==
-          SQLITE_OK
-        {
-          defer { sqlite3_finalize(simpleStmt) }
-          sqlite3_bind_text(
-            simpleStmt,
-            1,
-            ("root" as NSString).utf8String,
-            -1,
-            nil,
-          )
-          if sqlite3_step(simpleStmt) == SQLITE_ROW {
-            let simpleCount = sqlite3_column_int64(simpleStmt, 0)
-            cc.ok2(#line, "Simple FTS MATCH count for 'root': \(simpleCount)")
-          }
-        }
-
-        // Check if any rows can be retrieved without MATCH
-        let plainQuery = "SELECT sutta_key FROM segments_fts LIMIT 1"
-        var plainStmt: OpaquePointer?
-        if sqlite3_prepare_v2(db, plainQuery, -1, &plainStmt, nil) ==
-          SQLITE_OK
-        {
-          defer { sqlite3_finalize(plainStmt) }
-          if sqlite3_step(plainStmt) == SQLITE_ROW {
-            if let key = sqlite3_column_text(plainStmt, 0) {
-              cc.ok2(#line, "Sample FTS row: \(String(cString: key))")
-            }
-          }
-        }
-
-        // Check if suttas table exists
-        let suttasCheckQuery =
-          "SELECT name FROM sqlite_master WHERE type='table' AND name='suttas'"
-        var suttasCheckStmt: OpaquePointer?
-        if sqlite3_prepare_v2(
-          db,
-          suttasCheckQuery,
-          -1,
-          &suttasCheckStmt,
-          nil,
-        ) ==
-          SQLITE_OK
-        {
-          defer { sqlite3_finalize(suttasCheckStmt) }
-          let suttasExists = sqlite3_step(suttasCheckStmt) == SQLITE_ROW
-          if suttasExists {
-            cc.ok2(#line, "suttas table EXISTS")
-
-            // Check row count in suttas
-            let suttaCountQuery = "SELECT COUNT(*) FROM suttas"
-            var suttaCountStmt: OpaquePointer?
-            if sqlite3_prepare_v2(
-              db,
-              suttaCountQuery,
-              -1,
-              &suttaCountStmt,
-              nil,
-            ) ==
-              SQLITE_OK
-            {
-              defer { sqlite3_finalize(suttaCountStmt) }
-              if sqlite3_step(suttaCountStmt) == SQLITE_ROW {
-                let suttaCount = sqlite3_column_int64(suttaCountStmt, 0)
-                cc.ok2(#line, "suttas table has \(suttaCount) rows")
-              }
-            }
-
-            // Check schema
-            let suttaSchemaQuery = "PRAGMA table_info(suttas)"
-            var suttaSchemaStmt: OpaquePointer?
-            if sqlite3_prepare_v2(
-              db,
-              suttaSchemaQuery,
-              -1,
-              &suttaSchemaStmt,
-              nil,
-            ) ==
-              SQLITE_OK
-            {
-              defer { sqlite3_finalize(suttaSchemaStmt) }
-              var suttaSchemaInfo = ""
-              while sqlite3_step(suttaSchemaStmt) == SQLITE_ROW {
-                if let colName = sqlite3_column_text(suttaSchemaStmt, 1) {
-                  let name = String(cString: colName)
-                  suttaSchemaInfo += "\(name);"
-                }
-              }
-              cc.ok2(#line, "suttas schema: \(suttaSchemaInfo)")
-            }
-
-            // Try the join
-            let joinQuery =
-              "SELECT COUNT(*) FROM segments_fts sf JOIN suttas s ON sf.sutta_key = s.sutta_key WHERE sf.segment_text MATCH ? LIMIT 1"
-            var joinStmt: OpaquePointer?
-            if sqlite3_prepare_v2(db, joinQuery, -1, &joinStmt, nil) ==
-              SQLITE_OK
-            {
-              defer { sqlite3_finalize(joinStmt) }
-              sqlite3_bind_text(
-                joinStmt,
-                1,
-                ("root" as NSString).utf8String,
-                -1,
-                nil,
-              )
-              if sqlite3_step(joinStmt) == SQLITE_ROW {
-                let joinCount = sqlite3_column_int64(joinStmt, 0)
-                cc.ok2(#line, "JOIN result count for 'root': \(joinCount)")
-              }
-            }
-          } else {
-            cc.bad1(
-              #line,
-              "suttas table DOES NOT EXIST - database is missing critical table!",
-            )
-          }
-        }
-      }
-    } catch {
-      searchError = SearchError(
-        message: "search.error.failed".localized,
-        detail: error.localizedDescription,
-      )
-      cc.bad1(#line, "Search failed:", error.localizedDescription)
-    }
-
-    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
-    cc.ok1(
-      #line,
-      "Found \(items.count) results in \(String(format: "%.3f", elapsedTime))s",
-    )
-
     let metadata = SearchMetadata(
       query: query,
       method: .keyword,
-      elapsedTime: elapsedTime,
+      elapsedTime: 0,
       docLang: lang,
       docAuthor: author,
     )
 
-    return SeekerResult(metadata: metadata, items: items, error: searchError)
+    let searchError = SearchError(
+      message: "not.implemented".localized,
+      detail: "See .lemma_words",
+    )
+
+    return SeekerResult(metadata: metadata, items: [], error: searchError)
   }
 
   // MARK: - Phrase Search
@@ -1291,7 +1059,12 @@ public actor EbtData {
   ///   - lemmaWords: Array of lemmatized words to search for
   ///   - query: Original query string for metadata
   /// - Returns: SeekerResult with matched suttas and scores
-  func searchLemma(lang: String, author: String, lemmaWords: [String], query: String) -> SeekerResult {
+  func searchLemma(
+    lang: String,
+    author: String,
+    lemmaWords: [String],
+    query: String,
+  ) -> SeekerResult {
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
 
     do {
@@ -1375,12 +1148,18 @@ public actor EbtData {
   }
 
   /// Returns all segments for a given sutta reference
-  /// Core data access method used by queryQuote, queryHeader, and other seeker methods
-  /// - Parameter suttaRef: The sutta reference (contains lang, author, suttaUid)
-  /// - Returns: Array of Segment objects with scid and doc populated, empty array on error
+  /// Core data access method used by queryQuote, queryHeader, and other seeker
+  /// methods
+  /// - Parameter suttaRef: The sutta reference (contains lang, author,
+  /// suttaUid)
+  /// - Returns: Array of Segment objects with scid and doc populated, empty
+  /// array on error
   func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async -> [Segment] {
     do {
-      let db = try getDatabaseForLangAuthor(lang: suttaRef.lang, author: suttaRef.author ?? "")
+      let db = try getDatabaseForLangAuthor(
+        lang: suttaRef.lang,
+        author: suttaRef.author ?? "",
+      )
 
       let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
       var stmt: OpaquePointer?
@@ -1390,7 +1169,13 @@ public actor EbtData {
       }
       defer { sqlite3_finalize(stmt) }
 
-      sqlite3_bind_text(stmt, 1, (suttaRef.suttaUid as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(
+        stmt,
+        1,
+        (suttaRef.suttaUid as NSString).utf8String,
+        -1,
+        nil,
+      )
 
       var segments: [Segment] = []
       while sqlite3_step(stmt) == SQLITE_ROW {
@@ -1791,7 +1576,11 @@ public actor EbtData {
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
-        cc.bad1(#line, #function, "sqlite3_prepare_v2 failed for \(suttaRef.toString())")
+        cc.bad1(
+          #line,
+          #function,
+          "sqlite3_prepare_v2 failed for \(suttaRef.toString())",
+        )
         return false
       }
       defer { sqlite3_finalize(stmt) }
@@ -1805,10 +1594,18 @@ public actor EbtData {
       )
 
       let exists = sqlite3_step(stmt) == SQLITE_ROW
-      cc.ok1(#line, #function, "querySuttaRefExists(\(suttaRef.toString())): suttaUid=\(suttaRef.suttaUid), exists=\(exists)")
+      cc.ok1(
+        #line,
+        #function,
+        "querySuttaRefExists(\(suttaRef.toString())): suttaUid=\(suttaRef.suttaUid), exists=\(exists)",
+      )
       return exists
     } catch {
-      cc.bad1(#line, #function, "querySuttaRefExists(\(suttaRef.toString())) threw: \(error)")
+      cc.bad1(
+        #line,
+        #function,
+        "querySuttaRefExists(\(suttaRef.toString())) threw: \(error)",
+      )
       return false
     }
   }

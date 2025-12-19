@@ -1,122 +1,122 @@
 {
   "databases" : [
     {
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "language" : "de",
-      "buildTimestamp" : "2025-12-13T15:53:53Z",
-      "authorName" : "Sabbamitta",
-      "author" : "sabbamitta",
-      "json" : "{\"name\":\"Sabbamitta\",\"type\":\"translator\"}",
-      "schemaVersion" : "6",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
       "files" : {
-        "sutta" : 4057,
-        "total" : 4057
-      }
+        "total" : 4057,
+        "sutta" : 4057
+      },
+      "schemaVersion" : "6",
+      "authorName" : "Sabbamitta",
+      "json" : "{\"type\":\"translator\",\"name\":\"Sabbamitta\"}",
+      "author" : "sabbamitta",
+      "buildTimestamp" : "2025-12-19T04:10:35Z"
     },
     {
-      "buildTimestamp" : "2025-12-13T15:55:17Z",
-      "schemaVersion" : "6",
-      "json" : "{\"name\":\"Sonja Büge\",\"type\":\"translator\"}",
-      "authorName" : "Sonja Büge",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
-      "language" : "de",
       "files" : {
         "total" : 18,
         "sutta" : 18
       },
-      "author" : "sonjabuege"
+      "author" : "sonjabuege",
+      "language" : "de",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "schemaVersion" : "6",
+      "json" : "{\"name\":\"Sonja Büge\",\"type\":\"translator\"}",
+      "authorName" : "Sonja Büge",
+      "buildTimestamp" : "2025-12-19T04:11:58Z"
     },
     {
-      "json" : "{\"name\":\"Bhikkhu Brahmali\",\"type\":\"translator\"}",
+      "author" : "brahmali",
+      "buildTimestamp" : "2025-12-19T04:11:58Z",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "files" : {
-        "vinaya" : 427,
-        "total" : 427
+        "total" : 427,
+        "vinaya" : 427
       },
-      "buildTimestamp" : "2025-12-13T15:55:17Z",
-      "schemaVersion" : "6",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
       "language" : "en",
       "authorName" : "Bhikkhu Brahmali",
-      "author" : "brahmali"
+      "schemaVersion" : "6",
+      "json" : "{\"name\":\"Bhikkhu Brahmali\",\"type\":\"translator\"}"
     },
     {
-      "json" : "{\"type\":\"translator\",\"name\":\"John Kelly\"}",
-      "author" : "kelly",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
-      "schemaVersion" : "6",
-      "files" : {
-        "sutta" : 97,
-        "total" : 97
-      },
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "authorName" : "John Kelly",
-      "buildTimestamp" : "2025-12-13T15:56:03Z",
+      "author" : "kelly",
+      "buildTimestamp" : "2025-12-19T04:13:05Z",
+      "files" : {
+        "total" : 97,
+        "sutta" : 97
+      },
+      "json" : "{\"name\":\"John Kelly\",\"type\":\"translator\"}",
+      "schemaVersion" : "6",
       "language" : "en"
     },
     {
-      "author" : "soma",
+      "buildTimestamp" : "2025-12-19T04:13:06Z",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "authorName" : "Ayya Soma",
-      "language" : "en",
       "schemaVersion" : "6",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
+      "files" : {
+        "total" : 73,
+        "sutta" : 73
+      },
+      "language" : "en",
       "json" : "{\"name\":\"Ayya Soma\",\"type\":\"translator\"}",
-      "files" : {
-        "sutta" : 73,
-        "total" : 73
-      },
-      "buildTimestamp" : "2025-12-13T15:56:04Z"
+      "author" : "soma"
     },
     {
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
-      "files" : {
-        "total" : 4167,
-        "sutta" : 4167
-      },
-      "authorName" : "Bhikkhu Sujato",
       "language" : "en",
-      "author" : "sujato",
-      "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Sujato\"}",
-      "buildTimestamp" : "2025-12-13T15:56:05Z",
-      "schemaVersion" : "6"
-    },
-    {
-      "json" : "{\"type\":\"translator\",\"name\":\"Noé Ismet\"}",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
-      "files" : {
-        "total" : 53,
-        "sutta" : 53
-      },
-      "buildTimestamp" : "2025-12-13T15:57:51Z",
       "schemaVersion" : "6",
-      "language" : "fr",
-      "authorName" : "Noé Ismet",
-      "author" : "noeismet"
+      "authorName" : "Bhikkhu Sujato",
+      "files" : {
+        "sutta" : 4167,
+        "total" : 4167
+      },
+      "author" : "sujato",
+      "buildTimestamp" : "2025-12-19T04:13:06Z",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Sujato\"}"
     },
     {
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b",
-      "language" : "pli",
-      "buildTimestamp" : "2025-12-13T15:57:53Z",
-      "author" : "ms",
-      "json" : "{\"type\":\"root\",\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\"}",
+      "language" : "fr",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "authorName" : "Noé Ismet",
+      "json" : "{\"type\":\"translator\",\"name\":\"Noé Ismet\"}",
+      "schemaVersion" : "6",
+      "author" : "noeismet",
       "files" : {
-        "vinaya" : 427,
+        "sutta" : 53,
+        "total" : 53
+      },
+      "buildTimestamp" : "2025-12-19T04:14:43Z"
+    },
+    {
+      "language" : "pli",
+      "schemaVersion" : "6",
+      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+      "buildTimestamp" : "2025-12-19T04:14:46Z",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "author" : "ms",
+      "files" : {
         "sutta" : 5764,
+        "vinaya" : 427,
         "total" : 6191
       },
-      "schemaVersion" : "6",
-      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500"
+      "json" : "{\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\",\"type\":\"root\"}"
     },
     {
-      "buildTimestamp" : "2025-12-13T16:00:50Z",
+      "buildTimestamp" : "2025-12-19T04:18:28Z",
+      "language" : "ru",
+      "schemaVersion" : "6",
+      "json" : "{\"name\":\"SV theravada.ru\",\"type\":\"translator\"}",
+      "authorName" : "SV theravada.ru",
+      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "author" : "sv",
       "files" : {
         "total" : 904,
         "sutta" : 904
-      },
-      "json" : "{\"type\":\"translator\",\"name\":\"SV theravada.ru\"}",
-      "schemaVersion" : "6",
-      "authorName" : "SV theravada.ru",
-      "language" : "ru",
-      "author" : "sv",
-      "gitHash" : "3e43931c7a10e8ee769e01134e6c159a2e815f3b"
+      }
     }
   ]
 }

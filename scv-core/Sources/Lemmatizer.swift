@@ -21,10 +21,19 @@ import NaturalLanguage
 /// - Multiple EbtSeekers (actors) can safely share one Lemmatizer per language
 /// - Each actor serializes its own access to shared Lemmatizer methods
 public struct Lemmatizer: Sendable {
+  // Unicode punctuation constants for text cleaning and testing
+  public static let DOUBLE_LOW_QUOTATION_MARK = "\u{201E}" // „
+  public static let RIGHT_DOUBLE_QUOTATION_MARK = "\u{201D}" // "
+  public static let LEFT_SINGLE_QUOTATION_MARK = "\u{2018}" // '
+  public static let RIGHT_SINGLE_QUOTATION_MARK = "\u{2019}" // '
+  public static let EN_DASH = "\u{2013}" // –
+  public static let EM_DASH = "\u{2014}" // —
+
   private nonisolated(unsafe) let tagger = NLTagger(tagSchemes: [.lemma])
   private let lang: String
   private nonisolated(unsafe) var wordLemmaCache: [String: String] = [:]
   private let cacheFilePath: String
+  private let cachingEnabled: Bool
 
   /// Compute cache file path for a language
   /// - Parameters:
@@ -36,18 +45,22 @@ public struct Lemmatizer: Sendable {
   }
 
   /// Initialize lemmatizer for a specific language
-  /// Loads cached lemmas from JSONL file if it exists
+  /// Optionally loads cached lemmas from JSONL file if caching is enabled
   /// - Parameters:
   ///   - lang: Language code (e.g., "en", "de", "pli")
   ///   - cacheDir: Directory for cache files
-  public init(lang: String, cacheDir: String) {
+  ///   - cachingEnabled: Whether to load and save cache (default: false)
+  public init(lang: String, cacheDir: String, cachingEnabled: Bool = false) {
     self.lang = lang
+    self.cachingEnabled = cachingEnabled
     cacheFilePath = Self.cacheFilePath(lang: lang, cacheDir: cacheDir)
 
-    // Load existing cache from file
-    var mutableSelf = self
-    mutableSelf.loadCache()
-    wordLemmaCache = mutableSelf.wordLemmaCache
+    // Load existing cache from file (only if caching enabled)
+    if cachingEnabled {
+      var mutableSelf = self
+      mutableSelf.loadCache()
+      wordLemmaCache = mutableSelf.wordLemmaCache
+    }
   }
 
   /// Load cache from JSONL file
@@ -78,9 +91,11 @@ public struct Lemmatizer: Sendable {
     }
   }
 
-  /// Save cache to JSONL file
+  /// Save cache to JSONL file (only if caching is enabled)
   /// Writes entire cache as individual JSON objects, one per line
   public mutating func saveCache() {
+    guard cachingEnabled else { return }
+
     do {
       let fileURL = URL(fileURLWithPath: cacheFilePath)
 
@@ -111,16 +126,21 @@ public struct Lemmatizer: Sendable {
     }
   }
 
-  /// Remove punctuation from text and lowercase, keeping only alphanumeric and
-  /// spaces
+  /// Remove punctuation from text and lowercase, keeping Unicode letters,
+  /// digits, and spaces (preserves diacriticals like ä, ö, ü, ā, ī, ṅ, etc.)
   /// - Parameter text: Text to clean
-  /// - Returns: Cleaned lowercase text with punctuation removed and whitespace
-  /// trimmed
+  /// - Returns: Cleaned lowercase text with punctuation converted to spaces,
+  /// multiple spaces collapsed to single space, and trimmed
   public func clean(_ text: String) -> String {
     text.lowercased()
       .replacingOccurrences(
-        of: "[^a-z0-9\\s]",
-        with: "",
+        of: "[^\\p{L}0-9\\s]+",
+        with: " ",
+        options: .regularExpression,
+      )
+      .replacingOccurrences(
+        of: "\\s+",
+        with: " ",
         options: .regularExpression,
       )
       .trimmingCharacters(in: .whitespaces)
@@ -161,8 +181,8 @@ public struct Lemmatizer: Sendable {
     ) { tokenRange, _ in
       let word = String(normalizedText[tokenRange])
 
-      // Check cache first
-      if let cachedLemma = wordLemmaCache[word] {
+      // Check cache first (only if caching enabled)
+      if cachingEnabled, let cachedLemma = wordLemmaCache[word] {
         lemmas.append(cachedLemma)
         return true
       }
@@ -187,8 +207,13 @@ public struct Lemmatizer: Sendable {
         return true
       }
 
-      // Cache and append
-      wordLemmaCache[word] = lemma
+      // Lowercase lemma for consistency
+      lemma = lemma.lowercased()
+
+      // Cache if enabled, then append
+      if cachingEnabled {
+        wordLemmaCache[word] = lemma
+      }
       lemmas.append(lemma)
       return true
     }

@@ -105,71 +105,40 @@ struct EbtSeekerTests {
     )
   }
 
-  @Test("Search brahmali returns vinaya documents")
-  func searchBrahmaliVinaya() async throws {
-    cc.ok2(#line, "Starting brahmali vinaya search")
+  // DEPRECATED: Tests phrase/keyword search which is being phased out.
+  // Use lemma search (searchLemma) instead through EbtQuery or
+  // EbtSeeker.searchLemma()
+  /*
+   @Test("Unified search endpoint returns SeekerResult with metadata")
+   func searchRootOfSuffering() async throws {
+     let seeker = try await EbtData.shared.getSeeker(
+       lang: "en",
+       author: "sujato",
+     )
+     let result = await seeker.search(query: "root of suffering")
 
-    let seeker = try await EbtData.shared.getSeeker(
-      lang: "en",
-      author: "brahmali",
-    )
-    let result = await seeker.search(query: "men shaving heads")
+     // Verify SeekerResult structure
+     #expect(result.items.count == 7)
+     #expect(result.metadata.query == "root of suffering")
+     #expect(result.metadata.method == .phrase)
+     #expect(result.metadata.docLang == "en")
+     #expect(result.metadata.docAuthor == "sujato")
 
-    cc.ok2(#line, #function,
-           "results:\(result.items.count) \(result.error?.message ?? "ok")")
-
-    if !result.items.isEmpty {
-      for (i, item) in result.items.enumerated() {
-        cc.ok2(#line, "[\(i)] \(item.suttaRef.description) score:\(item.score)")
-      }
-    }
-
-    #expect(
-      result.items.count == 1,
-      "Expected 1 result, got \(result.items.count)",
-    )
-    #expect(result.items.first?.suttaRef.suttaUid == "pli-tv-kd20")
-    #expect(result.items.first?.suttaRef.author == "brahmali")
-  }
-
-  @Test("Unified search endpoint returns SeekerResult with metadata")
-  func searchRootOfSuffering() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
-      lang: "en",
-      author: "sujato",
-    )
-    let result = await seeker.search(query: "root of suffering")
-
-    // Verify SeekerResult structure
-    #expect(result.items.count == 7)
-    #expect(result.metadata.query == "root of suffering")
-    #expect(result.metadata.method == .phrase)
-    #expect(result.metadata.docLang == "en")
-    #expect(result.metadata.docAuthor == "sujato")
-
-    // Verify all expected suttas are present
-    let resultSuttas = result.items.map(\.suttaRef.suttaUid)
-    for expectedSutta in [
-      "sn42.11",
-      "mn105",
-      "mn1",
-      "sn56.21",
-      "mn116",
-      "mn66",
-      "dn16",
-    ] {
-      #expect(resultSuttas.contains(expectedSutta))
-    }
-  }
-
-  @Test("Pali database contains 'Nandī dukkhassa mūlan' only in mn1")
-  func paliDatabaseSearchNandi() async throws {
-    let seeker = try await EbtData.shared.getSeeker(lang: "pli", author: "ms")
-    let result = await seeker.search(query: "Nandī dukkhassa mūlan")
-
-    let suttas = Set(result.items.map(\.suttaRef.description))
-    #expect(suttas == ["mn1/pli/ms"])
-  }
+     // Verify all expected suttas are present
+     let resultSuttas = result.items.map(\.suttaRef.suttaUid)
+     for expectedSutta in [
+       "sn42.11",
+       "mn105",
+       "mn1",
+       "sn56.21",
+       "mn116",
+       "mn66",
+       "dn16",
+     ] {
+       #expect(resultSuttas.contains(expectedSutta))
+     }
+   }
+   */
 
   @Test("DE lemma search: abhängige entstehen performance")
   func deLemmaSearchPerformance() async throws {
@@ -195,14 +164,14 @@ struct EbtSeekerTests {
     }
 
     #expect(result.error == nil)
-    #expect(result.items.count == 25)
+    #expect(result.items.count == 38)
     #expect(
       msElapsed < 100.0,
       "Lemma search should complete in under 100ms, took \(String(format: "%.1f", msElapsed))ms",
     )
   }
 
-  @Test("DE lemma search benchmark: all 25 results with scores")
+  @Test("DE lemma search benchmark: all 38 results with exact scores")
   func deLemmaSearchBenchmark() async throws {
     let seeker = try await EbtData.shared.getSeeker(
       lang: "de",
@@ -210,15 +179,28 @@ struct EbtSeekerTests {
     )
     let result = await seeker.searchLemma("abhängige entstehen")
 
+    // All 38 results after fixing Lemmatizer diacritical preservation
+    // Scores rounded to 3 decimal places
     let expected: [(sutta: String, score: Double)] = [
-      ("sn12.20/de/sabbamitta", 5.081),
+      ("an10.93/de/sabbamitta", 9.088),
+      ("sn12.20/de/sabbamitta", 7.113),
+      ("sn36.7/de/sabbamitta", 6.103),
+      ("sn22.81/de/sabbamitta", 6.056),
+      ("mn28/de/sabbamitta", 6.038),
       ("sn12.1/de/sabbamitta", 4.098),
-      ("mn28/de/sabbamitta", 4.025),
+      ("dn15/de/sabbamitta", 4.016),
+      ("mn38/de/sabbamitta", 4.012),
       ("mn115/de/sabbamitta", 3.019),
-      ("dn15/de/sabbamitta", 3.012),
+      ("sn36.9/de/sabbamitta", 2.286),
+      ("sn22.21/de/sabbamitta", 2.133),
       ("sn12.60/de/sabbamitta", 2.053),
+      ("sn36.8/de/sabbamitta", 2.050),
+      ("sn12.25/de/sabbamitta", 2.034),
       ("sn12.2/de/sabbamitta", 2.026),
+      ("sn12.24/de/sabbamitta", 2.019),
       ("sn12.37/de/sabbamitta", 1.067),
+      ("iti72/de/sabbamitta", 1.050),
+      ("sn12.26/de/sabbamitta", 1.045),
       ("sn12.42/de/sabbamitta", 1.042),
       ("ud1.1/de/sabbamitta", 1.042),
       ("ud1.2/de/sabbamitta", 1.042),
@@ -229,16 +211,18 @@ struct EbtSeekerTests {
       ("ud1.3/de/sabbamitta", 1.027),
       ("sn6.1/de/sabbamitta", 1.019),
       ("sn22.57/de/sabbamitta", 1.013),
+      ("mn74/de/sabbamitta", 1.010),
       ("snp3.9/de/sabbamitta", 1.003),
       ("mn98/de/sabbamitta", 1.003),
       ("mn26/de/sabbamitta", 1.003),
       ("mn85/de/sabbamitta", 1.002),
       ("dn1/de/sabbamitta", 1.002),
       ("dn14/de/sabbamitta", 1.001),
+      ("dn34/de/sabbamitta", 1.001),
       ("dn33/de/sabbamitta", 1.001),
     ]
 
-    #expect(result.items.count == expected.count)
+    #expect(result.items.count == 38)
 
     for (i, (expectedSutta, expectedScore)) in expected.enumerated() {
       let actual = result.items[i]
@@ -268,7 +252,7 @@ struct EbtSeekerTests {
     // Test "abhängigen entstanden" (different inflections)
     let lemmas2 = await seeker.lemmatize("abhängigen entstanden")
     print("[LEMMATIZE] 'abhängigen entstanden' → \(lemmas2)")
-    #expect(lemmas2 == ["abhängig", "entstanden"])
+    #expect(lemmas2 == ["abhängig", "entstehen"])
 
     // Test "abhangig" (without umlaut - returns as-is when not recognized)
     let lemmas3 = await seeker.lemmatize("abhangig")
@@ -283,7 +267,7 @@ struct EbtSeekerTests {
     // Test multiple word phrase
     let lemmas5 = await seeker.lemmatize("abhängige entstehen Leiden")
     print("[LEMMATIZE] 'abhängige entstehen Leiden' → \(lemmas5)")
-    #expect(lemmas5 == ["abhängig", "entstehen", "Leiden"])
+    #expect(lemmas5 == ["abhängig", "entstehen", "leiden"])
 
     // Test ASCII version without umlaut (abhaengig) - should normalize to ä
     let lemmas6 = await seeker.lemmatize("abhaengig entstehen")

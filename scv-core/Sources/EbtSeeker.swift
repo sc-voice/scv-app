@@ -23,8 +23,7 @@ public actor EbtSeeker {
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
   ///   - lemmatizer: Lemmatizer instance for the language
-  init(lang: String, author: String, lemmatizer: Lemmatizer)
-  {
+  init(lang: String, author: String, lemmatizer: Lemmatizer) {
     self.lang = lang
     self.author = author
     self.lemmatizer = lemmatizer
@@ -228,7 +227,10 @@ public actor EbtSeeker {
   public func searchLemma(_ query: String) async -> SeekerResult {
     // Lemmatize query
     let lemmaWords = lemmatize(query)
+    cc.ok1(#line, #function, lemmaWords.joined(separator: ", "))
+
     guard !lemmaWords.isEmpty else {
+      cc.ok1(#line, #function, "lemmaWords[]?")
       return SeekerResult(
         metadata: SearchMetadata(
           query: query,
@@ -242,12 +244,15 @@ public actor EbtSeeker {
     }
 
     // Delegate SQL execution to EbtData (includes LIKE pattern building)
-    return await EbtData.shared.searchLemma(
+    let result = await EbtData.shared.searchLemma(
       lang: lang,
       author: author,
       lemmaWords: lemmaWords,
-      query: query
+      query: query,
     )
+
+    cc.ok1(#line, #function, result.items.count)
+    return result
   }
 
   /// Query quote (first matching segment) for a sutta based on search query and

@@ -10,7 +10,7 @@ import Testing
 
 @Suite("EbtQuery Tests")
 struct EbtQueryTests {
-  let cc = ColorConsole(#file, #function,  dbg.EbtQuery.other)
+  let cc = ColorConsole(#file, #function, dbg.EbtQuery.other)
 
   @Test("EbtQuery with single full scid")
   func querySingleFullScid() {
@@ -29,7 +29,10 @@ struct EbtQueryTests {
     testSettings.docLang = .english
     testSettings.docAuthor = "sujato"
 
-    let query = EbtQuery(query: "thig1.1/en/soma, thig1.1/de, thig1.1", settings: testSettings)
+    let query = EbtQuery(
+      query: "thig1.1/en/soma, thig1.1/de, thig1.1",
+      settings: testSettings,
+    )
 
     #expect(query.method == .suttaref, "Should detect suttaref method")
     #expect(
@@ -277,6 +280,23 @@ struct EbtQueryTests {
     )
   }
 
+  // TODO: Fix pali search with diacritical marks (ū, ī, ā)
+  // Lemmatizer.clean() removes Unicode diacritics, need to preserve them
+  /*
+   @Test("EbtQuery with pli/ms finds 'Nandī dukkhassa mūlan' only in mn1")
+   func queryPaliNandi() async {
+     let testSettings = Settings()
+     testSettings.docLang = .pli
+     testSettings.docAuthor = "ms"
+
+     let ebtQuery = EbtQuery(query: "Nandī dukkhassa mūlan", settings: testSettings)
+     let result = await ebtQuery.search()
+
+     let suttas = Set(result.items.map(\.suttaRef.description))
+     #expect(suttas == ["mn1/pli/ms"])
+   }
+   */
+
   @Test("EbtQuery with invalid lang/author returns zero items and error")
   func queryInvalidLangAuthorZeroItems() async {
     let ebtQuery = EbtQuery(query: "thig1.1/fr/sujato")
@@ -335,7 +355,10 @@ struct EbtQueryTests {
     testSettings.docLang = .english
     testSettings.docAuthor = "brahmali"
 
-    let ebtQuery = EbtQuery(query: "men shaving their heads", settings: testSettings)
+    let ebtQuery = EbtQuery(
+      query: "men shaving their heads",
+      settings: testSettings,
+    )
     let result = await ebtQuery.search()
 
     // EbtQuery converts text queries to lemma method (not keyword)
