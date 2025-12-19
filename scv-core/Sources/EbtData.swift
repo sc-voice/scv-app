@@ -903,6 +903,7 @@ public actor EbtData {
 
   // MARK: - Unified Search
 
+  /// DEPRECATED: See EbtQuery()
   /// Performs unified search with auto-detection or explicit method
   /// - Parameters:
   ///   - query: Search query string

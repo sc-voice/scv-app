@@ -118,18 +118,6 @@ cd scv-core && swift test --filter CardTests
     - Update all callsites in SuttaCardView and elsewhere
     - Simplifies iteration and eliminates tuple destructuring
 
-### Investigate German search for 'abhängig entstehen' not finding sn6.1
-**Status**: In Progress (using lemma-based search with NLTagger)
-
-01. [x] Implement searchLemma() with NaturalLanguage framework lemmatization
-02. [x] Test lemmatization of German words using NLTagger
-03. [x] Verify substring LIKE matching returns 45+ results
-04. [x] Move searchLemma to EbtSeeker (in EbtSeeker.swift)
-05. [x] Implement lemmaRegexp() helper method
-06. [x] Implement .lemma case in findMatch() for quote finding
-07. [ ] Test via unified search() API
-08. [ ] Run full test suite with lemma search enabled
-
 ### Mark matched segments in MLDocument with lemmaRegexp
 **Status**: Backlog
 
