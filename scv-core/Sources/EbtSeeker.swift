@@ -18,7 +18,7 @@ public actor EbtSeeker {
   private let author: String
   private let lemmatizer: Lemmatizer
 
-  /// Initialize EbtSeeker with language, author and lemmatizer
+  /// Initialize EbtSeeker with language, author, and lemmatizer
   /// - Parameters:
   ///   - lang: Document language (e.g., "en")
   ///   - author: Document author (e.g., "sujato")
@@ -29,45 +29,6 @@ public actor EbtSeeker {
     self.lemmatizer = lemmatizer
   }
 
-  /// Performs unified search with auto-detection or explicit method
-  /// Validates that search results match this seeker's lang/author database
-  /// - Parameters:
-  ///   - query: Search query string
-  ///   - method: Optional explicit search method (auto-detect if nil)
-  ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
-  /// - Returns: SeekerResult with metadata and items, or error if results
-  /// target different lang/author
-  public func search(
-    query: String,
-    method: SearchMethod? = nil,
-    maxResults: Int = Settings.shared.maxDoc,
-  ) async -> SeekerResult {
-    var result = await EbtData.shared.search(
-      query: query,
-      docLang: lang,
-      docAuthor: author,
-      method: method,
-      maxResults: maxResults,
-    )
-
-    // Validate that all items match this seeker's lang/author
-    for item in result.items {
-      if item.suttaRef.lang != lang || item.suttaRef.author != author {
-        let detail = "Expected \(lang)/\(author) but got \(item.suttaRef.lang)/\(item.suttaRef.author)"
-        result.error = SearchError(
-          message: "Search items target wrong database",
-          detail: detail,
-        )
-        result.items = []
-        cc.bad1(#line, #function, detail)
-        return result
-      }
-    }
-
-    cc.ok1(#line, #function, result.items.count, "items")
-    return result
-  }
-
   /// Finds the range of matched text in a segment based on search method
   private func findMatch(
     in text: String,
@@ -75,45 +36,6 @@ public actor EbtSeeker {
     method: SearchMethod,
   ) -> Range<String.Index>? {
     switch method {
-    case .keyword, .phrase:
-      // Case-insensitive substring search
-      let lowercased = text.lowercased()
-      let lowerQuery = query.lowercased()
-      if let range = lowercased.range(of: lowerQuery) {
-        // Convert lowercased range to original text range
-        let startDistance = lowercased.distance(
-          from: lowercased.startIndex,
-          to: range.lowerBound,
-        )
-        let start = text.index(text.startIndex, offsetBy: startDistance)
-        let end = text.index(start, offsetBy: lowerQuery.count)
-        return start ..< end
-      }
-      return nil
-
-    case .regexp:
-      // Regex search
-      do {
-        let regex = try NSRegularExpression(
-          pattern: query,
-          options: [.caseInsensitive],
-        )
-        let nsText = text as NSString
-        if let match = regex.firstMatch(
-          in: text,
-          range: NSRange(location: 0, length: nsText.length),
-        ) {
-          let matchRange = match.range
-          let start = text.index(text.startIndex, offsetBy: matchRange.location)
-          let end = text.index(start, offsetBy: matchRange.length)
-          return start ..< end
-        }
-      } catch {
-        // Invalid regex, return nil
-        return nil
-      }
-      return nil
-
     case .suttaref:
       // No quote for suttaref search (it's just a reference lookup)
       return nil
@@ -222,9 +144,14 @@ public actor EbtSeeker {
   /// Lemmatizes query words and finds segments containing all lemma forms
   /// Calculates relevance scores using same formula as keyword search:
   /// score = match_count + (match_count / total_segments)
-  /// - Parameter query: Phrase to search (e.g., "abhängige entstehen")
+  /// - Parameters:
+  ///   - query: Phrase to search (e.g., "abhängige entstehen")
+  ///   - maxDoc: Maximum results limit (defaults to MAX_DOC_DEFAULT)
   /// - Returns: SeekerResult with matching suttas ranked by relevance score
-  public func searchLemma(_ query: String) async -> SeekerResult {
+  public func searchLemma(
+    _ query: String,
+    maxDoc: Int = Settings.shared.maxDoc,
+  ) async -> SeekerResult {
     // Lemmatize query
     let lemmaWords = lemmatize(query)
     cc.ok1(#line, #function, lemmaWords.joined(separator: ", "))
@@ -249,6 +176,7 @@ public actor EbtSeeker {
       author: author,
       lemmaWords: lemmaWords,
       query: query,
+      maxDoc: maxDoc,
     )
 
     cc.ok1(#line, #function, result.items.count)
@@ -317,15 +245,6 @@ public actor EbtSeeker {
 public enum SearchMethod: String, Sendable, Codable {
   /// Search by SuttaRef - parse comma-delimited list and lookup each reference
   case suttaref
-
-  /// Phrase search - find exact phrase matches
-  case phrase
-
-  /// Keyword search - find documents matching any/all keywords
-  case keyword
-
-  /// Regexp search - find using regular expression pattern
-  case regexp
 
   /// Lemma search - find lemmatized phrase matches
   case lemma

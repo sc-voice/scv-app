@@ -129,17 +129,3 @@ cd scv-core && swift test --filter CardTests
     - Update MLDocument segments to reflect which ones matched the lemma search
     - This enables UI to highlight matched segments in search results
 
-### Refactor EbtData/EbtSeeker search architecture
-**Status**: Backlog
-
-01. [ ] Clarify responsibility boundary between EbtData and EbtSeeker (See: EbtData.swift, EbtSeeker.swift)
-    - Currently EbtData.search() dispatches to searchKeywords/searchPhrase/searchRegexp
-    - EbtSeeker.search() calls back to EbtData.search() (circular dependency)
-    - searchLemma() added to EbtSeeker but dispatch logic incomplete
-    - Determine: Should search method dispatch live in EbtData or EbtSeeker?
-    - Proposed: Move all dispatch logic to EbtSeeker since it has lang/author context
-    - Refactor EbtData as data access layer, EbtSeeker as search orchestration layer
-02. [ ] Test that all SearchMethod cases work through unified search() API
-03. [ ] Clean up circular references between classes
-04. [ ] Update SEARCH.md with final architecture decision
-

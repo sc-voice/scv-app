@@ -31,7 +31,9 @@ struct EbtQueryTests {
 
     let query = EbtQuery(
       query: "thig1.1/en/soma, thig1.1/de, thig1.1",
-      settings: testSettings,
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
     )
 
     #expect(query.method == .suttaref, "Should detect suttaref method")
@@ -175,7 +177,12 @@ struct EbtQueryTests {
     testSettings.docAuthor = "sujato"
 
     // Search using EbtQuery with custom settings
-    let ebtQuery = EbtQuery(query: "root of suffering", settings: testSettings)
+    let ebtQuery = EbtQuery(
+      query: "root of suffering",
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
+    )
     let result = await ebtQuery.search()
 
     // Verify result structure
@@ -210,7 +217,9 @@ struct EbtQueryTests {
 
     let ebtQuery = EbtQuery(
       query: "thig1.1, thig1.1/en/soma, thig1.1/de",
-      settings: testSettings,
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
     )
 
     // Debug: print what was parsed
@@ -257,7 +266,12 @@ struct EbtQueryTests {
 
     // Search for suttaref without lang/author specified
     // Settings defaults should fill in pli/ms during parsing
-    let ebtQuery = EbtQuery(query: "mn1", settings: testSettings)
+    let ebtQuery = EbtQuery(
+      query: "mn1",
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
+    )
     let result = await ebtQuery.search()
 
     // Verify metadata uses Settings defaults
@@ -289,7 +303,7 @@ struct EbtQueryTests {
      testSettings.docLang = .pli
      testSettings.docAuthor = "ms"
 
-     let ebtQuery = EbtQuery(query: "Nandī dukkhassa mūlan", settings: testSettings)
+     let ebtQuery = EbtQuery(query: "Nandī dukkhassa mūlan", docLang: testSettings.docLang.code, docAuthor: testSettings.docAuthor, maxDoc: testSettings.maxDoc)
      let result = await ebtQuery.search()
 
      let suttas = Set(result.items.map(\.suttaRef.description))
@@ -314,7 +328,12 @@ struct EbtQueryTests {
     testSettings.docLang = .english
     testSettings.docAuthor = "soma"
 
-    let ebtQuery = EbtQuery(query: "thig1.1", settings: testSettings)
+    let ebtQuery = EbtQuery(
+      query: "thig1.1",
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
+    )
     let result = await ebtQuery.search()
 
     // Should find the suttaref with correct lang/author
@@ -357,7 +376,9 @@ struct EbtQueryTests {
 
     let ebtQuery = EbtQuery(
       query: "men shaving their heads",
-      settings: testSettings,
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
     )
     let result = await ebtQuery.search()
 
@@ -381,7 +402,12 @@ struct EbtQueryTests {
     testSettings.docLang = .german
     testSettings.docAuthor = "sabbamitta"
 
-    let ebtQuery = EbtQuery(query: "thig1.1/en/soma", settings: testSettings)
+    let ebtQuery = EbtQuery(
+      query: "thig1.1/en/soma",
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
+    )
     let result = await ebtQuery.search()
 
     // Verify search returned the expected result
@@ -467,6 +493,45 @@ struct EbtQueryTests {
     #expect(
       item0.quote == headerSegments.last?.doc,
       "Quote should match last header segment text",
+    )
+  }
+
+  @Test(
+    "EbtQuery with maxDoc 5 limits 'root of suffering' to exactly 5 specific suttas",
+  )
+  func queryRootOfSufferingWithMaxDoc5() async {
+    let testSettings = Settings()
+    testSettings.docLang = .english
+    testSettings.docAuthor = "sujato"
+    testSettings.maxDoc = 5 // Limit to 5 results
+
+    let ebtQuery = EbtQuery(
+      query: "root of suffering",
+      docLang: testSettings.docLang.code,
+      docAuthor: testSettings.docAuthor,
+      maxDoc: testSettings.maxDoc,
+    )
+    let result = await ebtQuery.search()
+
+    // Should detect lemma method
+    #expect(result.metadata.method == .lemma, "Should use lemma method")
+
+    // Should be limited to exactly 5 results
+    #expect(
+      result.items.count == 5,
+      "Should return exactly 5 results with maxDoc 5, got \(result.items.count)",
+    )
+
+    // Verify metadata reflects the limit
+    #expect(result.metadata.maxDoc == 5, "metadata.maxDoc should be 5")
+    #expect(result.error == nil, "Should not have error")
+
+    // Verify all 5 returned suttas match expected (first 5 of the 7 total)
+    let resultSuttas = result.items.map(\.suttaRef.suttaUid)
+    let expectedSuttas = ["sn42.11", "mn105", "mn1", "sn56.21", "mn116"]
+    #expect(
+      resultSuttas == expectedSuttas,
+      "Should return exactly these 5 suttas in order, got \(resultSuttas)",
     )
   }
 }

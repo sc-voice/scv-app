@@ -196,6 +196,12 @@ struct LemmatizerTests {
     let lemmas5 = l8r.lemmatize(text5)
     print("[LEMMATIZE DE: abhängige entstanden] \(lemmas5)")
     #expect(lemmas5 == ["abhängig", "entstehen"])
+
+    // German adjective: unfruitful (comparative/superlative forms)
+    let text6 = "unfruchtbar"
+    let lemmas6 = l8r.lemmatize(text6)
+    print("[LEMMATIZE DE: unfruchtbar] \(lemmas6)")
+    #expect(lemmas6 == ["unfruchtbar"])
   }
 
   @Test("Lemmatizer lemmatizes EN test texts with test cache dir")

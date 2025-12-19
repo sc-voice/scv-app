@@ -96,9 +96,8 @@ import SwiftUI
       errorMessage = nil
 
       Task {
-        let searchResult = await EbtData.shared.search(
-          query: testQuery,
-        )
+        let query = EbtQuery(query: testQuery)
+        let searchResult = await query.search()
 
         await MainActor.run {
           searchResults = searchResult.items.map(\.suttaRef.suttaUid)

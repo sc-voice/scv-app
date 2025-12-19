@@ -12,6 +12,8 @@ import Foundation
 /// sutta references
 /// Calls on EbtSeeker to handle specific lang/author queries
 public class EbtQuery {
+  private let cc = ColorConsole(#file, #function, dbg.EbtQuery.other)
+
   /// Original query string provided by user
   public let query: String
 
@@ -22,18 +24,37 @@ public class EbtQuery {
   /// otherwise)
   public let suttaRefs: [SuttaRef]
 
-  /// Settings used for search (lang/author defaults)
-  private let settings: Settings
+  /// Document language for search results
+  public let docLang: String
+
+  /// Document author for search results
+  public let docAuthor: String
+
+  /// Maximum number of results to return
+  public let maxDoc: Int
 
   /// Initialize by parsing a query string
   /// - Parameters:
   ///   - query: The search query to parse
-  ///   - settings: Settings providing default language and author (defaults to
-  /// Settings.shared)
-  public init(query: String, settings: Settings = Settings.shared) {
+  ///   - docLang: Document language code (defaults to
+  /// Settings.shared.docLang.code)
+  ///   - docAuthor: Document author (defaults to Settings.shared.docAuthor)
+  ///   - maxDoc: Maximum results (defaults to Settings.shared.maxDoc)
+  public init(
+    query: String,
+    docLang: String? = nil,
+    docAuthor: String? = nil,
+    maxDoc: Int? = nil,
+  ) {
     self.query = query
-    self.settings = settings
-    let (refs, method) = Self.parseQuery(query: query, settings: settings)
+    self.docLang = docLang ?? Settings.shared.docLang.code
+    self.docAuthor = docAuthor ?? Settings.shared.docAuthor
+    self.maxDoc = maxDoc ?? Settings.shared.maxDoc
+    let (refs, method) = Self.parseQuery(
+      query: query,
+      docLang: self.docLang,
+      docAuthor: self.docAuthor,
+    )
     suttaRefs = refs
     self.method = method
   }
@@ -85,28 +106,29 @@ public class EbtQuery {
           query: query,
           method: method,
           elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
-          docLang: settings.docLang.code,
-          docAuthor: settings.docAuthor,
+          docLang: docLang,
+          docAuthor: docAuthor,
         ),
         items: allItems,
         error: lastError,
       )
     } else {
-      // Lemma search uses single seeker with settings defaults
+      // Lemma search uses single seeker
       do {
         let seeker = try await EbtData.shared.getSeeker(
-          lang: settings.docLang.rawValue,
-          author: settings.docAuthor,
+          lang: docLang,
+          author: docAuthor,
         )
-        return await seeker.searchLemma(query)
+        return await seeker.searchLemma(query, maxDoc: maxDoc)
       } catch {
         return SeekerResult(
           metadata: SearchMetadata(
             query: query,
             method: method,
             elapsedTime: 0,
-            docLang: settings.docLang.code,
-            docAuthor: settings.docAuthor,
+            docLang: docLang,
+            docAuthor: docAuthor,
+            maxDoc: maxDoc,
           ),
           items: [],
           error: SearchError(
@@ -122,12 +144,14 @@ public class EbtQuery {
   /// - Parameters:
   ///   - query: The search query to parse
   ///   - method: Optional explicit search method (auto-detect if nil)
-  ///   - settings: Settings providing default language and author
+  ///   - docLang: Default document language code for sutta reference parsing
+  ///   - docAuthor: Default document author for sutta reference parsing
   /// - Returns: Tuple of (suttaRefs, detectedMethod)
   static func parseQuery(
     query: String,
     method: SearchMethod? = nil,
-    settings: Settings = Settings.shared,
+    docLang: String = Settings.shared.docLang.code,
+    docAuthor: String = Settings.shared.docAuthor,
   ) -> (suttaRefs: [SuttaRef], method: SearchMethod) {
     let trimmed = query.trimmingCharacters(in: .whitespaces)
     let entries = trimmed.split(separator: ",")
@@ -139,8 +163,8 @@ public class EbtQuery {
       // Try parsing with docLang/docAuthor as defaults
       if let ref = SuttaRef.create(
         entry,
-        defaultLang: settings.docLang.code,
-        defaultAuthor: settings.docAuthor,
+        defaultLang: docLang,
+        defaultAuthor: docAuthor,
       ) {
         suttaRefs.append(ref)
       }

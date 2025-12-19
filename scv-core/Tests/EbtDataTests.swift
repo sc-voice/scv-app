@@ -22,87 +22,6 @@ struct EbtDataTests {
     #expect(json == nil)
   }
 
-  #if false
-    @Test("Keyword search with nonexistent term returns empty")
-    func keywordSearchNoMatches() async {
-      let result = await EbtData.shared.initSeekerResult(
-        "xyzabc123notaword",
-        docLang: "en",
-        docAuthor: "sujato",
-        refLang: "pli",
-        refAuthor: "ms",
-        maxResults: 10,
-        method: .keyword,
-      )
-      let searchResult = await EbtData.shared.searchKeywords(result)
-
-      #expect(searchResult.items.isEmpty)
-      #expect(searchResult.error == nil)
-    }
-  #endif
-
-  #if false
-    @Test("Regexp search finds matching translations")
-    func regexpSearchMatches() async {
-      let results = await EbtData.shared.searchRegexp(
-        lang: "en",
-        author: "sujato",
-        pattern: "suffering.*root",
-      )
-
-      #expect(!results.isEmpty)
-    }
-
-    @Test("Regexp search returns valid SuttaRef objects")
-    func regexpSearchKeyFormat() async {
-      let results = await EbtData.shared.searchRegexp(
-        lang: "en",
-        author: "sujato",
-        pattern: "buddha|mendicant",
-      )
-
-      for ref in results {
-        #expect(ref.lang == "en")
-        #expect(ref.author == "sujato")
-        #expect(!ref.suttaUid.isEmpty)
-      }
-    }
-
-    @Test("Regexp search with invalid pattern returns empty")
-    func regexpSearchInvalidPattern() async {
-      let results = await EbtData.shared.searchRegexp(
-        lang: "en",
-        author: "sujato",
-        pattern: "[invalid(pattern",
-      )
-
-      #expect(results.isEmpty)
-    }
-  #endif
-
-  #if false
-    @Test("Search results respect Settings.maxDoc limit")
-    func searchResultsRespectLimit() async {
-      let originalMaxDoc = Settings.shared.maxDoc
-      defer { Settings.shared.maxDoc = originalMaxDoc }
-
-      Settings.shared.maxDoc = 5
-      let result = await EbtData.shared.initSeekerResult(
-        "the",
-        docLang: "en",
-        docAuthor: "sujato",
-        refLang: "pli",
-        refAuthor: "ms",
-        maxResults: 5,
-        method: .keyword,
-      )
-      let searchResult = await EbtData.shared.searchKeywords(result)
-
-      #expect(searchResult.items.count <= 5)
-      #expect(searchResult.metadata.maxDoc == 5)
-    }
-  #endif
-
   @Test("Key lookup for known translation succeeds")
   func knownTranslationRetrieval() async {
     let key = "thig1.1/en/soma"
@@ -112,83 +31,6 @@ struct EbtDataTests {
     // Verify it contains expected JSON structure
     #expect(json?.contains("\"") ?? false)
   }
-
-  #if false
-    @Test(
-      "Phrase search 2 returns exactly 7 results for 'root of suffering' with correct scores",
-    )
-    func phraseSearch2RootOfSuffering() async {
-      await EbtData.shared.clearDatabaseCache()
-      let initResult = await EbtData.shared.initSeekerResult(
-        "root of suffering",
-        docLang: "en",
-        docAuthor: "sujato",
-        refLang: "pli",
-        refAuthor: "ms",
-        maxResults: 10,
-        method: .phrase,
-      )
-      let result = await EbtData.shared.searchPhrase(initResult)
-
-      let expectedResults: [(key: String, score: Double)] = [
-        ("sn42.11/en/sujato", 5.09),
-        ("mn105/en/sujato", 3.02),
-        ("mn1/en/sujato", 2.01),
-        ("sn56.21/en/sujato", 1.05),
-        ("mn116/en/sujato", 1.01),
-        ("mn66/en/sujato", 1.00),
-        ("dn16/en/sujato", 1.00),
-      ]
-
-      // Validate count
-      #expect(result.items.count == 7)
-
-      // Validate exact ordering and scores (with 0.01 tolerance)
-      for (i, expected) in expectedResults.enumerated() {
-        #expect(
-          i < result.items.count,
-          "Result count \(result.items.count) less than expected \(expectedResults.count)",
-        )
-        let actual = result.items[i]
-        let resultKey = "\(actual.suttaRef)"
-        #expect(
-          resultKey == expected.key,
-          "Result at index \(i): got '\(resultKey)' expected '\(expected.key)'",
-        )
-        #expect(
-          abs(actual.score - expected.score) < 0.01,
-          "Score at index \(i) for \(expected.key): got \(actual.score) expected \(expected.score)",
-        )
-      }
-
-      // Verify metadata
-      #expect(result.metadata.method == .phrase)
-      #expect(result.metadata.query == "root of suffering")
-      #expect(result.error == nil)
-
-      // Verify no false positives (an4.257 and mn9 excluded)
-      let resultKeys = result.items.map { "\($0.suttaRef)" }
-      #expect(!resultKeys.contains("an4.257/en/sujato"))
-      #expect(!resultKeys.contains("mn9/en/sujato"))
-    }
-
-    @Test("Phrase search 2 with nonexistent phrase returns empty")
-    func phraseSearch2NoMatches() async {
-      let initResult = await EbtData.shared.initSeekerResult(
-        "xyzabc123notaword phraseneverexists",
-        docLang: "en",
-        docAuthor: "sujato",
-        refLang: "pli",
-        refAuthor: "ms",
-        maxResults: 10,
-        method: .phrase,
-      )
-      let result = await EbtData.shared.searchPhrase(initResult)
-
-      #expect(result.items.isEmpty)
-      #expect(result.error == nil)
-    }
-  #endif
 
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
@@ -525,29 +367,6 @@ struct EbtDataTests {
 
       #expect(!success)
       #expect(item.quote == nil)
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() works with phrase search")
-    func populateQuotePhraseSearch() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "sleep with ease",
-        method: .phrase,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(success)
-      #expect(item.quote != nil)
-      #expect(item.quote?.contains("<span>") ?? false)
     }
   #endif
 

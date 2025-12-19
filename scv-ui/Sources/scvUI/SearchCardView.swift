@@ -457,7 +457,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           metadata: SearchMetadata(
             timestamp: Date(),
             query: "mindfulness",
-            method: .phrase,
+            method: .lemma,
             elapsedTime: 0.045,
             docLang: "en",
             docAuthor: "sujato",

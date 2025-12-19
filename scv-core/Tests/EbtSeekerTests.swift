@@ -13,25 +13,6 @@ import Testing
 struct EbtSeekerTests {
   let cc = ColorConsole(#file, #function, dbg.EbtSeeker.other)
 
-  @Test("EbtSeeker.search() returns result for thig1.1")
-  func seekerSearchThig11() async throws {
-    // Get seeker for en/soma
-    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "soma")
-
-    // Call search on seeker with suttaref query
-    let result = await seeker.search(query: "thig1.1/en/soma")
-
-    // Verify search returned the expected result
-    #expect(result.items.count == 1, "Expected 1 result for thig1.1")
-    #expect(result.items[0].suttaRef.suttaUid == "thig1.1")
-    #expect(result.items[0].suttaRef.lang == "en")
-    #expect(result.items[0].suttaRef.author == "soma")
-
-    // Verify metadata
-    #expect(result.metadata.docLang == "en", "docLang should be en")
-    #expect(result.metadata.docAuthor == "soma", "docAuthor should be soma")
-  }
-
   @Test("getSeeker with invalid author throws error")
   func getSeekerInvalidAuthor() async throws {
     do {
@@ -51,94 +32,6 @@ struct EbtSeekerTests {
       // Expected error
     }
   }
-
-  @Test("getSeeker with defaults uses pli and default author")
-  func getSeekerDefaults() async throws {
-    let seeker = try await EbtData.shared.getSeeker()
-
-    // Verify metadata shows pli and default author
-    let result = await seeker.search(query: "mn1/pli/ms")
-    #expect(result.metadata.docLang == "pli", "docLang should be pli")
-    #expect(!result.metadata.docAuthor.isEmpty, "docAuthor should not be empty")
-  }
-
-  @Test("EbtSeeker.search() with wrong lang/author returns error")
-  func seekerSearchWrongLangAuthor() async throws {
-    // Create seeker for en/soma
-    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "soma")
-
-    // Try to search for a sutta with wrong lang/author combination
-    let wrongLangResult = await seeker.search(query: "mn1/de/sabbamitta")
-    #expect(
-      wrongLangResult.error != nil,
-      "Search with wrong lang should return error",
-    )
-
-    // Try to search for a sutta with valid author (kelly) but not in en/soma
-    // database
-    let wrongAuthorResult = await seeker.search(query: "mn1/en/kelly")
-    #expect(
-      wrongAuthorResult.error != nil,
-      "Search with valid author not in database should return error",
-    )
-
-    // Try to search for a sutta with wrong lang code
-    let wrongLangCodeResult = await seeker.search(query: "mn1/xx/soma")
-    #expect(
-      wrongLangCodeResult.error != nil,
-      "Search with invalid lang code should return or error",
-    )
-  }
-
-  @Test("EbtSeeker.search() with correct lang/author returns results")
-  func seekerSearchCorrectLangAuthor() async throws {
-    // Create seeker for en/soma
-    let seeker = try await EbtData.shared.getSeeker(lang: "en", author: "soma")
-
-    // Search for mn1/en/soma which should match seeker's database
-    let result = await seeker.search(query: "mn1/en/soma")
-    #expect(!result.items.isEmpty, "Search for mn1/en/soma should find results")
-    #expect(result.items[0].suttaRef.lang == "en", "Result should have lang en")
-    #expect(
-      result.items[0].suttaRef.author == "soma",
-      "Result should have author soma",
-    )
-  }
-
-  // DEPRECATED: Tests phrase/keyword search which is being phased out.
-  // Use lemma search (searchLemma) instead through EbtQuery or
-  // EbtSeeker.searchLemma()
-  /*
-   @Test("Unified search endpoint returns SeekerResult with metadata")
-   func searchRootOfSuffering() async throws {
-     let seeker = try await EbtData.shared.getSeeker(
-       lang: "en",
-       author: "sujato",
-     )
-     let result = await seeker.search(query: "root of suffering")
-
-     // Verify SeekerResult structure
-     #expect(result.items.count == 7)
-     #expect(result.metadata.query == "root of suffering")
-     #expect(result.metadata.method == .phrase)
-     #expect(result.metadata.docLang == "en")
-     #expect(result.metadata.docAuthor == "sujato")
-
-     // Verify all expected suttas are present
-     let resultSuttas = result.items.map(\.suttaRef.suttaUid)
-     for expectedSutta in [
-       "sn42.11",
-       "mn105",
-       "mn1",
-       "sn56.21",
-       "mn116",
-       "mn66",
-       "dn16",
-     ] {
-       #expect(resultSuttas.contains(expectedSutta))
-     }
-   }
-   */
 
   @Test("DE lemma search: abhängige entstehen performance")
   func deLemmaSearchPerformance() async throws {

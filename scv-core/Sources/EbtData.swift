@@ -508,70 +508,6 @@ public actor EbtData {
     }
   }
 
-  /// Keyword search returning SeekerResult with metadata and timing
-  /// Returns complete search result with metadata and performance metrics
-  /// - Parameters:
-  ///   - lang: Document language (e.g., "en")
-  ///   - author: Document author (e.g., "sujato")
-  ///   - query: Keyword query string
-  /// - Returns: SeekerResult with metadata, scored items, and timing
-  func searchKeywords(_ result: SeekerResult) -> SeekerResult {
-    let lang = result.metadata.docLang
-    let author = result.metadata.docAuthor
-    let query = result.metadata.query
-
-    let metadata = SearchMetadata(
-      query: query,
-      method: .keyword,
-      elapsedTime: 0,
-      docLang: lang,
-      docAuthor: author,
-    )
-
-    let searchError = SearchError(
-      message: "not.implemented".localized,
-      detail: "See .lemma_words",
-    )
-
-    return SeekerResult(metadata: metadata, items: [], error: searchError)
-  }
-
-  // MARK: - Phrase Search
-
-  /// Returns complete search result for exact phrase matches
-  /// Filters keyword search results to only those containing exact phrase
-  /// Preserves scores from keyword search
-  /// - Parameters:
-  ///   - lang: Document language (e.g., "en")
-  ///   - author: Document author (e.g., "sujato")
-  ///   - phrase: Phrase query string
-  /// - Returns: SeekerResult with metadata and scored items
-  func searchPhrase(_ result: SeekerResult) -> SeekerResult {
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-    var refinedResult = result
-
-    // Get keyword search results as starting point
-    let keywordResult = searchKeywords(refinedResult)
-
-    // Filter to only those containing exact phrase
-    refinedResult.items = keywordResult.items.filter { item in
-      let suttaRef = item.suttaRef
-      let suttaKey = "\(suttaRef.suttaUid)/\(suttaRef.lang)/\(suttaRef.author ?? "")"
-      return containsPhrase(
-        lang: refinedResult.metadata.docLang,
-        author: refinedResult.metadata.docAuthor,
-        suttaKey: suttaKey,
-        phrase: refinedResult.metadata.query,
-      )
-    }
-
-    // Update elapsed time
-    refinedResult.metadata
-      .elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
-
-    return refinedResult
-  }
-
   /// Search for a specific sutta by reference (e.g., "mn1", "sn42.11")
   /// Returns SeekerResult with .suttaref method
   func searchSuttaRef(_ result: SeekerResult) -> SeekerResult {
@@ -588,155 +524,16 @@ public actor EbtData {
     return refinedResult
   }
 
-  /// Helper: Check if sutta contains exact phrase in any segment
-  private func containsPhrase(
-    lang: String,
-    author: String,
-    suttaKey: String,
-    phrase: String,
-  ) -> Bool {
-    do {
-      try ensureDatabase(lang: lang, author: author)
-      let key = "\(lang)/\(author)"
-      guard let db = databases[key] else { return false }
-
-      // Query all segments for this sutta
-      let query = "SELECT segment_text FROM segments WHERE sutta_key = ?"
-      var stmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
-        return false
-      }
-
-      defer { sqlite3_finalize(stmt) }
-
-      sqlite3_bind_text(stmt, 1, (suttaKey as NSString).utf8String, -1, nil)
-
-      while sqlite3_step(stmt) == SQLITE_ROW {
-        guard let segmentTextC = sqlite3_column_text(stmt, 0) else { continue }
-        let segmentText = String(cString: segmentTextC)
-
-        // Case-insensitive phrase search
-        if segmentText.lowercased().contains(phrase.lowercased()) {
-          return true
-        }
-      }
-
-      return false
-    } catch {
-      return false
-    }
-  }
-
-  // MARK: - Regexp Search
-
-  /// Returns sutta keys ranked by relevance percentage (matching_segments /
-  /// total_segments)
-  /// using regexp pattern matching on segment text
-  /// Respects Settings.maxDoc limit
-  func searchRegexp(lang: String, author: String,
-                    pattern: String) -> [SuttaRef]
-  {
-    do {
-      try ensureDatabase(lang: lang, author: author)
-      let key = "\(lang)/\(author)"
-      guard let db = databases[key] else { return [] }
-
-      // Compile regex
-      let regex = try NSRegularExpression(pattern: pattern, options: [])
-
-      // Query all segments
-      let query = "SELECT DISTINCT sf.sutta_key, sf.segment_text FROM segments_fts sf"
-      var stmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
-        return []
-      }
-
-      defer { sqlite3_finalize(stmt) }
-
-      var matchesBySutta: [String: Int] = [:] // sutta_key -> match count
-      var totalSegmentsBySutta: [String: Int] =
-        [:] // sutta_key -> total segment count
-
-      while sqlite3_step(stmt) == SQLITE_ROW {
-        guard let sutlaKeyC = sqlite3_column_text(stmt, 0),
-              let segmentTextC = sqlite3_column_text(stmt, 1)
-        else {
-          continue
-        }
-
-        let suttaKey = String(cString: sutlaKeyC)
-        let segmentText = String(cString: segmentTextC)
-
-        let range = NSRange(segmentText.startIndex..., in: segmentText)
-        if regex.firstMatch(in: segmentText, options: [], range: range) != nil {
-          matchesBySutta[suttaKey, default: 0] += 1
-        }
-      }
-
-      // Query total segments per sutta
-      let totalQuery = "SELECT sutta_key, total_segments FROM suttas"
-      var totalStmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, totalQuery, -1, &totalStmt, nil) ==
-        SQLITE_OK
-      else {
-        return []
-      }
-
-      defer { sqlite3_finalize(totalStmt) }
-
-      while sqlite3_step(totalStmt) == SQLITE_ROW {
-        guard let keyC = sqlite3_column_text(totalStmt, 0) else { continue }
-        let suttaKey = String(cString: keyC)
-        let totalSegments = Int(sqlite3_column_int(totalStmt, 1))
-        totalSegmentsBySutta[suttaKey] = totalSegments
-      }
-
-      // Calculate combined score = match_count + relevance_percentage
-      var resultsWithScore: [(key: String, score: Double)] = []
-      let limit = Settings.shared.maxDoc
-
-      for (suttaKey, matchCount) in matchesBySutta {
-        if let totalSegments = totalSegmentsBySutta[suttaKey],
-           totalSegments > 0
-        {
-          let relevancePct = Double(matchCount) / Double(totalSegments)
-          let combinedScore = Double(matchCount) + relevancePct
-          resultsWithScore.append((key: suttaKey, score: combinedScore))
-        }
-      }
-
-      return resultsWithScore
-        .sorted { $0.score > $1.score }
-        .prefix(limit)
-        .compactMap { createSuttaRefFromKey($0.key) }
-    } catch {
-      return []
-    }
-  }
-
   // MARK: - Unified Search
 
   /// Auto-detects search method based on query string content
   /// Attempts to parse as comma-delimited SuttaRef list first
-  /// Falls back to regexp if metacharacters detected
-  /// Defaults to phrase search for natural text
+  /// Defaults to lemma search for natural text
   /// - Parameters:
   ///   - query: Search query string
   ///   - docLang: Document language for SuttaRef parsing
   ///   - docAuthor: Document author for SuttaRef parsing
   /// - Returns: SearchMethodDetection with method and pre-parsed items
-  /// Checks if string contains basic regexp metacharacters (. + * ^ $)
-  private nonisolated func containsRegexpMetacharacters(_ str: String)
-    -> Bool
-  {
-    let regexpChars = CharacterSet(
-      charactersIn: ".*+^$",
-    )
-    return str.unicodeScalars.contains { regexpChars.contains($0) }
-  }
 
   /// Initializes SeekerResult with auto-detected or explicit method and
   /// pre-parsed items (if suttaref)
@@ -872,11 +669,11 @@ public actor EbtData {
 
   private nonisolated func autoDetectMethodAndParseItems(
     entries: [String],
-    trimmed: String,
+    trimmed _: String,
     docLang: String,
     docAuthor: String,
   ) -> (method: SearchMethod, items: [SeekerResultItem]) {
-    guard !entries.isEmpty else { return (.phrase, []) }
+    guard !entries.isEmpty else { return (.lemma, []) }
 
     var items: [SeekerResultItem] = []
     for entry in entries {
@@ -894,158 +691,10 @@ public actor EbtData {
       return (.suttaref, items)
     }
 
-    if containsRegexpMetacharacters(trimmed) {
-      return (.regexp, [])
-    }
-
-    return (.phrase, [])
+    return (.lemma, [])
   }
 
-  // MARK: - Unified Search
-
-  /// DEPRECATED: See EbtQuery()
-  /// Performs unified search with auto-detection or explicit method
-  /// - Parameters:
-  ///   - query: Search query string
-  ///   - docLang: Document language (default from Settings)
-  ///   - docAuthor: Document author (default from Settings)
-  ///   - method: Optional explicit search method (auto-detect if nil)
-  ///   - maxResults: Maximum results limit (default from Settings.maxDoc)
-  /// - Returns: SeekerResult with metadata and items
-  public func search(
-    query: String,
-    docLang: String = Settings.shared.docLang.code,
-    docAuthor: String = Settings.shared.docAuthor,
-    refLang: String = Settings.shared.refLang.code,
-    refAuthor: String? = Settings.shared.refAuthor,
-    method: SearchMethod? = nil,
-    maxResults: Int = Settings.shared.maxDoc,
-  ) -> SeekerResult {
-    cc.ok2(#line, "search:\(query)|\(docLang)/'\(docAuthor)'")
-
-    // Auto-detect method if not provided
-    let result = initSeekerResult(
-      query,
-      docLang: docLang,
-      docAuthor: docAuthor,
-      refLang: refLang,
-      refAuthor: refAuthor,
-      maxResults: maxResults,
-    )
-
-    // Return early if initialization failed
-    if result.error != nil {
-      return result
-    }
-
-    let searchMethod = method ?? result.metadata.method
-
-    // Handle phrase and keyword searches directly
-    switch searchMethod {
-    case .phrase:
-      var phraseResult = searchPhrase(result)
-      // Fallback to keyword search if phrase returns no results
-      if phraseResult.items.isEmpty {
-        cc.ok2(
-          #line,
-          "Phrase search returned 0 results, falling back to keyword search",
-        )
-        let keywordResult = searchKeywords(result)
-        // Update metadata to reflect keyword method was used
-        var fallbackMetadata = keywordResult.metadata
-        fallbackMetadata.method = .keyword
-        return SeekerResult(
-          metadata: fallbackMetadata,
-          items: keywordResult.items,
-        )
-      }
-      return phraseResult
-    case .keyword:
-      return searchKeywords(result)
-    case .suttaref:
-      return searchSuttaRef(result)
-    case .regexp:
-      return searchOld(
-        query: query,
-        docLang: docLang,
-        docAuthor: docAuthor,
-        refLang: refLang,
-        refAuthor: refAuthor,
-        method: searchMethod,
-        maxResults: maxResults,
-      )
-    case .lemma:
-      var emptyResult = result
-      emptyResult.error = SearchError(
-        message: "Lemma search not yet implemented",
-        detail: "Use EbtSeeker.searchLemma() directly",
-      )
-      return emptyResult
-    }
-  }
-
-  private func searchOld(
-    query: String,
-    docLang: String,
-    docAuthor: String,
-    refLang: String,
-    refAuthor: String?,
-    method: SearchMethod,
-    maxResults: Int,
-  ) -> SeekerResult {
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-
-    // Execute search based on method
-    let resultItems: [SeekerResultItem] = switch method {
-    case .regexp:
-      performRegexpSearch(
-        query,
-        docLang: docLang,
-        docAuthor: docAuthor,
-        maxResults: maxResults,
-      )
-    case .suttaref, .phrase, .keyword, .lemma:
-      // Should not reach here - handled directly in search()
-      []
-    }
-
-    let elapsedTime = CFAbsoluteTimeGetCurrent() - elapsedAtStart
-
-    let metadata = SearchMetadata(
-      query: query,
-      method: method,
-      elapsedTime: elapsedTime,
-      docLang: docLang,
-      docAuthor: docAuthor,
-      refLang: refLang,
-      refAuthor: refAuthor,
-      maxDoc: maxResults,
-    )
-
-    return SeekerResult(metadata: metadata, items: resultItems)
-  }
-
-  // MARK: - Search Handlers
-
-  /// Handles .regexp search
-  private func performRegexpSearch(
-    _ pattern: String,
-    docLang: String,
-    docAuthor: String,
-    maxResults: Int,
-  ) -> [SeekerResultItem] {
-    let regexpKeys = searchRegexp(
-      lang: docLang,
-      author: docAuthor,
-      pattern: pattern,
-    )
-
-    return regexpKeys
-      .prefix(maxResults)
-      .map { key in
-        SeekerResultItem(suttaRef: key, score: 1.0)
-      }
-  }
+  // MARK: - SuttaRef Utilities
 
   /// Creates SuttaRef from sutta key format (e.g., "mn1/en/sujato")
   private func createSuttaRefFromKey(_ key: String) -> SuttaRef? {
@@ -1065,6 +714,7 @@ public actor EbtData {
     author: String,
     lemmaWords: [String],
     query: String,
+    maxDoc: Int = MAX_DOC_DEFAULT,
   ) -> SeekerResult {
     let elapsedAtStart = CFAbsoluteTimeGetCurrent()
 
@@ -1082,6 +732,7 @@ public actor EbtData {
       WHERE seg.lemmas LIKE '\(likePattern)'
       GROUP BY seg.suttaUid, s.total_segments
       ORDER BY combined_score DESC
+      LIMIT ?
       """
 
       var itemsWithScores: [(suttaUid: String, score: Double)] = []
@@ -1095,11 +746,14 @@ public actor EbtData {
             elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
             docLang: lang,
             docAuthor: author,
+            maxDoc: maxDoc,
           ),
           items: [],
         )
       }
       defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_int(stmt, 1, Int32(maxDoc))
 
       while sqlite3_step(stmt) == SQLITE_ROW {
         guard let uidC = sqlite3_column_text(stmt, 0) else { continue }
@@ -1108,7 +762,8 @@ public actor EbtData {
         itemsWithScores.append((suttaUid: suttaUid, score: score))
       }
 
-      // Convert to SeekerResultItems (already sorted by SQL ORDER BY)
+      // Convert to SeekerResultItems (already sorted by SQL ORDER BY and
+      // limited by LIMIT)
       var items: [SeekerResultItem] = []
       for (suttaUid, score) in itemsWithScores {
         if let ref = SuttaRef.create(
@@ -1127,6 +782,7 @@ public actor EbtData {
           elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
           docLang: lang,
           docAuthor: author,
+          maxDoc: maxDoc,
         ),
         items: items,
       )
@@ -1138,6 +794,7 @@ public actor EbtData {
           elapsedTime: CFAbsoluteTimeGetCurrent() - elapsedAtStart,
           docLang: lang,
           docAuthor: author,
+          maxDoc: maxDoc,
         ),
         items: [],
         error: SearchError(
@@ -1352,57 +1009,18 @@ public actor EbtData {
 
   /// Finds the range of matched text in a segment based on search method
   private func findMatch(
-    in text: String,
-    query: String,
+    in _: String,
+    query _: String,
     method: SearchMethod,
   ) -> Range<String.Index>? {
     switch method {
-    case .keyword, .phrase:
-      // Case-insensitive substring search
-      let lowercased = text.lowercased()
-      let lowerQuery = query.lowercased()
-      if let range = lowercased.range(of: lowerQuery) {
-        // Convert lowercased range to original text range
-        let startDistance = lowercased.distance(
-          from: lowercased.startIndex,
-          to: range.lowerBound,
-        )
-        let start = text.index(text.startIndex, offsetBy: startDistance)
-        let end = text.index(start, offsetBy: lowerQuery.count)
-        return start ..< end
-      }
-      return nil
-
-    case .regexp:
-      // Regex search
-      do {
-        let regex = try NSRegularExpression(
-          pattern: query,
-          options: [.caseInsensitive],
-        )
-        let nsText = text as NSString
-        if let match = regex.firstMatch(
-          in: text,
-          range: NSRange(location: 0, length: nsText.length),
-        ) {
-          let matchRange = match.range
-          let start = text.index(text.startIndex, offsetBy: matchRange.location)
-          let end = text.index(start, offsetBy: matchRange.length)
-          return start ..< end
-        }
-      } catch {
-        // Invalid regex, return nil
-        return nil
-      }
-      return nil
-
     case .suttaref:
       // No quote for suttaref search (it's just a reference lookup)
-      return nil
+      nil
 
     case .lemma:
       // TODO: implement quote finding for lemma search
-      return nil
+      nil
     }
   }
 
