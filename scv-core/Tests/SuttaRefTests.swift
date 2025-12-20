@@ -353,4 +353,120 @@ import Testing
     // Unknown prefix - fallback to uppercase
     #expect(SuttaRef.create("xyz123")?.abbreviation() == "XYZ123")
   }
+
+  @Test("SuttaRef rejects invalid lang with path traversal")
+  func invalidLangPathTraversal() {
+    // Path traversal attempts
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "../", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "..\\", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "test/../../etc", author: "test")
+    }
+  }
+
+  @Test("SuttaRef rejects invalid lang with special characters")
+  func invalidLangSpecialChars() {
+    // Special characters not allowed
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en!", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en@test", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en#", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en$", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en%", author: "test")
+    }
+  }
+
+  @Test("SuttaRef rejects invalid author with path traversal")
+  func invalidAuthorPathTraversal() {
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "../")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "..\\")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "test/../../../etc")
+    }
+  }
+
+  @Test("SuttaRef rejects invalid author with special characters")
+  func invalidAuthorSpecialChars() {
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "soma!")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "suju@to")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "soma#")
+    }
+  }
+
+  @Test("SuttaRef accepts valid lang and author formats")
+  func validLangAuthorFormats() {
+    // Lowercase alphanumeric
+    let ref1 = try? SuttaRef(suttaUid: "mn1", lang: "en", author: "soma")
+    #expect(ref1?.lang == "en")
+    #expect(ref1?.author == "soma")
+
+    // With hyphens
+    let ref2 = try? SuttaRef(suttaUid: "mn1", lang: "pt-pt", author: "test-author")
+    #expect(ref2?.lang == "pt-pt")
+    #expect(ref2?.author == "test-author")
+
+    // With underscores
+    let ref3 = try? SuttaRef(suttaUid: "mn1", lang: "en_gb", author: "test_author")
+    #expect(ref3?.lang == "en_gb")
+    #expect(ref3?.author == "test_author")
+
+    // Mixed numbers and letters
+    let ref4 = try? SuttaRef(suttaUid: "mn1", lang: "en123", author: "author456")
+    #expect(ref4?.lang == "en123")
+    #expect(ref4?.author == "author456")
+
+    // Nil author (optional)
+    let ref5 = try? SuttaRef(suttaUid: "mn1", lang: "pli", author: nil)
+    #expect(ref5?.lang == "pli")
+    #expect(ref5?.author == nil)
+  }
+
+  @Test("SuttaRef rejects uppercase in lang and author")
+  func rejectsUppercaseLangAuthor() {
+    // Lang must be lowercase
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "EN", author: "test")
+    }
+
+    // Author must be lowercase
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "Soma")
+    }
+
+    // Mixed case in author
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "SoJa")
+    }
+  }
+
+  @Test("SuttaRef rejects spaces in lang and author")
+  func rejectsSpacesLangAuthor() {
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en us", author: "test")
+    }
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "soma test")
+    }
+  }
 }

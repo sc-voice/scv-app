@@ -729,7 +729,7 @@ public actor EbtData {
              COUNT(seg.rowid) + (CAST(COUNT(seg.rowid) AS FLOAT) / s.total_segments) as combined_score
       FROM segments seg
       JOIN suttas s ON seg.suttaUid = s.suttaUid
-      WHERE seg.lemmas LIKE '\(likePattern)'
+      WHERE seg.lemmas LIKE ?
       GROUP BY seg.suttaUid, s.total_segments
       ORDER BY combined_score DESC
       LIMIT ?
@@ -753,7 +753,8 @@ public actor EbtData {
       }
       defer { sqlite3_finalize(stmt) }
 
-      sqlite3_bind_int(stmt, 1, Int32(maxDoc))
+      sqlite3_bind_text(stmt, 1, (likePattern as NSString).utf8String, -1, nil)
+      sqlite3_bind_int(stmt, 2, Int32(maxDoc))
 
       while sqlite3_step(stmt) == SQLITE_ROW {
         guard let uidC = sqlite3_column_text(stmt, 0) else { continue }

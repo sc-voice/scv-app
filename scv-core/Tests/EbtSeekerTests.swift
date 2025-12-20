@@ -170,4 +170,35 @@ struct EbtSeekerTests {
       "ASCII umlaut should normalize to ä",
     )
   }
+
+  @Test("searchLemma with LIKE special characters (SQL injection protection)")
+  func lemmaSearchSQLInjectionProtection() async throws {
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "de",
+      author: "sabbamitta",
+    )
+
+    // Test that LIKE wildcards and special chars in LIKE pattern don't cause SQL errors
+    // Parameterized binding should safely escape these as literals, not SQL operators
+    let result1 = await seeker.searchLemma("abhängig%")
+    #expect(result1.error == nil, "Search with % should not error: \(result1.error?.message ?? "")")
+
+    let result2 = await seeker.searchLemma("abhängig_")
+    #expect(result2.error == nil, "Search with _ should not error: \(result2.error?.message ?? "")")
+
+    let result3 = await seeker.searchLemma("abhängig'")
+    #expect(result3.error == nil, "Search with single quote should not error: \(result3.error?.message ?? "")")
+
+    let result4 = await seeker.searchLemma("abhängig\\")
+    #expect(result4.error == nil, "Search with backslash should not error: \(result4.error?.message ?? "")")
+
+    // Combined special characters
+    let result5 = await seeker.searchLemma("%_'\\")
+    #expect(result5.error == nil, "Search with multiple special chars should not error")
+
+    // Normal known search should still work and return results
+    let result6 = await seeker.searchLemma("abhängig entstehen")
+    #expect(result6.error == nil, "Normal search should work")
+    #expect(result6.items.count > 0, "Normal search 'abhängig entstehen' should return results")
+  }
 }

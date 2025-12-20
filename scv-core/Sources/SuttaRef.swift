@@ -49,6 +49,18 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       throw SuttaRefError.invalidSuttaUid("use SuttaRef.create(\(suttaUid))")
     }
 
+    // Validate lang: alphanumeric, hyphen, underscore only (prevent path traversal)
+    guard lang.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil else {
+      throw SuttaRefError.invalidLang("lang must be alphanumeric with hyphen/underscore: '\(lang)'")
+    }
+
+    // Validate author: alphanumeric, hyphen, underscore only (prevent path traversal)
+    if let auth = author {
+      guard auth.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil else {
+        throw SuttaRefError.invalidAuthor("author must be alphanumeric with hyphen/underscore: '\(auth)'")
+      }
+    }
+
     self.suttaUid = suttaUid
     self.lang = lang
     self.author = author
@@ -371,6 +383,8 @@ public enum SuttaRefError: LocalizedError {
   case invalidSuttaUid(String)
   case invalidInput(String)
   case suttaNotFound(String)
+  case invalidLang(String)
+  case invalidAuthor(String)
 
   public var errorDescription: String? {
     switch self {
@@ -379,6 +393,10 @@ public enum SuttaRefError: LocalizedError {
     case let .invalidInput(msg):
       msg
     case let .suttaNotFound(msg):
+      msg
+    case let .invalidLang(msg):
+      msg
+    case let .invalidAuthor(msg):
       msg
     }
   }
