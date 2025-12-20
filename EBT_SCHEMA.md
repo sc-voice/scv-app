@@ -22,7 +22,9 @@ CREATE TABLE metadata (
   git_hash TEXT,
   build_timestamp TEXT,
   files INTEGER,
+  files_breakdown TEXT,
   json TEXT,
+  schema_version TEXT,
   PRIMARY KEY (language, author)
 );
 ```
@@ -34,13 +36,15 @@ CREATE TABLE metadata (
 - `git_hash`: Git commit hash of ebt-data repository (nullable)
 - `build_timestamp`: ISO 8601 timestamp when database was built
 - `files`: Count of source translation files included in this database
+- `files_breakdown`: JSON string with file count breakdown by type (sutta, vinaya, abhidhamma, other)
 - `json`: Optional JSON metadata about the author (nullable)
+- `schema_version`: Database schema version number (e.g., "6")
 
 **Example:**
 ```
-language  | author  | author_name | git_hash | build_timestamp | files | json
-----------|---------|-------------|----------|-----------------|-------|------
-en        | sujato  | Bhikkhu S.  | abc123   | 2024-11-20...   | 150   | {...}
+language  | author  | author_name | git_hash | build_timestamp | files | files_breakdown | schema_version | json
+----------|---------|-------------|----------|-----------------|-------|-----------------|----------------|------
+en        | sujato  | Bhikkhu S.  | abc123   | 2024-11-20...   | 150   | {"total":150... | 6              | {...}
 ```
 
 ---
@@ -50,83 +54,57 @@ Index of all suttas (scripture documents) in the database.
 
 ```sql
 CREATE TABLE suttas (
-  sutta_key TEXT PRIMARY KEY,
+  suttaUid TEXT PRIMARY KEY,
   total_segments INTEGER
 );
 ```
 
 **Columns:**
-- `sutta_key`: Unique identifier in format `scid/language/author`
-  - Example: `mn1/en/sujato` (Majjhima Nikaya discourse 1)
+- `suttaUid`: Unique sutta identifier in format `scid` (language and author stored separately in database path)
+  - Example: `mn1`, `an1.1`, `dn1`
 - `total_segments`: Number of segments in this sutta
 
 **Example:**
 ```
-sutta_key          | total_segments
--------------------|----------------
-mn1/en/sujato      | 47
-an1.1/en/sujato    | 3
-dn1/en/sujato      | 152
+suttaUid | total_segments
+---------|----------------
+mn1      | 47
+an1.1    | 3
+dn1      | 152
 ```
+
+**Note:** Language and author are implicit in the database file path (e.g., `ebt-en-sujato.db` contains English translations by Bhikkhu Sujato).
 
 ---
 
 ### 3. segments table
-Individual text segments of suttas, enabling paragraph-level search and retrieval.
+Individual text segments of suttas, with lemmatized forms for advanced search.
 
 ```sql
 CREATE TABLE segments (
-  sutta_key TEXT,
-  segment_id TEXT,
-  segment_text TEXT
+  suttaUid TEXT,
+  scid TEXT,
+  text TEXT,
+  lemmas TEXT
 );
 ```
 
 **Columns:**
-- `sutta_key`: Reference to sutta (e.g., `an1.2/en/sujato`)
-- `segment_id`: Unique segment identifier within sutta (e.g., `an1.2:1.0`, `an1.2:1.1`)
+- `suttaUid`: Reference to sutta (e.g., `an1.2`) - matches suttas.suttaUid
+- `scid`: Unique segment identifier within sutta (e.g., `an1.2:1.0`, `an1.2:1.1`)
   - Format: `scid:section.subsegment`
   - `:0.0` and `:0.1` are headers; `:1.1`, `:1.2`, etc. are content
-- `segment_text`: The actual text content of the segment
+- `text`: The actual text content of the segment
+- `lemmas`: Space-padded lemmatized forms of words, used for lemma-based search
+  - Example: "men shaving their heads" → " man shave their head "
 
 **Example:**
 ```
-sutta_key       | segment_id   | segment_text
------------------|--------------|-------------------------------------------
-an1.2/en/sujato | an1.2:1.0    | 2
-an1.2/en/sujato | an1.2:1.1    | Mendicants, I do not see a single...
-an1.2/en/sujato | an1.2:1.2    | The sound of a woman occupies...
-```
-
----
-
-### 4. segments_fts table
-Virtual FTS5 (Full-Text Search) index for fast keyword queries.
-
-```sql
-CREATE VIRTUAL TABLE segments_fts USING fts5(
-  sutta_key UNINDEXED,
-  segment_id UNINDEXED,
-  segment_text
-);
-```
-
-**Purpose**: Enables fast keyword search via `MATCH` operator
-- `sutta_key` and `segment_id` marked `UNINDEXED` (not searchable but available in results)
-- `segment_text` is indexed for full-text search
-
-**Auto-population**: `segments_ai` trigger automatically inserts rows when segments are added
-
----
-
-### 5. segments_ai trigger
-Maintains FTS index when segments are inserted.
-
-```sql
-CREATE TRIGGER segments_ai AFTER INSERT ON segments BEGIN
-  INSERT INTO segments_fts(sutta_key, segment_id, segment_text)
-  VALUES (new.sutta_key, new.segment_id, new.segment_text);
-END;
+suttaUid | scid       | text                              | lemmas
+---------|------------|-----------------------------------|-----------------------------------
+an1.2    | an1.2:1.0  | 2                                 |  2
+an1.2    | an1.2:1.1  | Mendicants, I do not see a...     |  mendicant i do not see a...
+an1.2    | an1.2:1.2  | The sound of a woman occupies...  |  the sound of a woman occupy...
 ```
 
 ---
@@ -181,14 +159,15 @@ Each JSON file represents a sutta with segments as key-value pairs:
 ### Build Steps
 
 1. **Parse arguments**: Extract `lang:author` pairs from command line
-2. **Create schema**: Create metadata, suttas, segments tables and FTS index
-3. **Insert metadata**: Store translation metadata from `_author.json`
+2. **Create schema**: Create metadata, suttas, and segments tables
+3. **Insert metadata**: Store translation metadata with schema version number
 4. **Process JSON files**: For each translation file:
    - Extract SCID from filename (e.g., `mn1` from `mn1_translation-en-sujato.json`)
    - Parse JSON to extract segments
+   - Lemmatize each segment text using language-specific Lemmatizer
    - Insert sutta into `suttas` table with segment count
-   - Insert each segment into `segments` table (FTS automatically updated)
-5. **Compress**: Compress database with zstd to reduce bundle size (~60-70% reduction)
+   - Insert each segment into `segments` table with original text and lemmatized forms
+5. **Compress**: Compress database with zstd to reduce bundle size (~82% reduction)
 6. **Generate manifest**: Create `db-manifest.json` for app to discover available databases
 
 ### Build Example
@@ -216,48 +195,18 @@ SUCCESS: Built 2 author databases
 
 ## Database Access Patterns
 
-### 1. Retrieve Sutta by Key
+### 1. Lemma Search
 
 ```swift
-let translation = EbtData.shared.getTranslation(lang: "en", author: "sujato", suttaId: "an1.2")
-// Returns JSON: {"an1.2:1.0": "2", "an1.2:1.1": "Mendicants...", "an1.2:1.2": "The sound..."}
+let result = await EbtData.shared.searchLemma(
+  lang: "en",
+  author: "sujato",
+  query: "suffering"
+)
+// Returns: SeekerResult with matching suttas and segments
 ```
 
-### 2. Keyword Search (FTS)
-
-```swift
-let results = EbtData.shared.searchKeywords(lang: "en", author: "sujato", query: "suffering")
-// Returns: ["dn1/en/sujato", "mn1/en/sujato", ...]  (sorted by relevance)
-```
-
-**SQL Query Used:**
-```sql
-SELECT s.sutta_key, COUNT(sf.rowid) as match_count, s.total_segments,
-       CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments as relevance_pct,
-       COUNT(sf.rowid) + (CAST(COUNT(sf.rowid) AS FLOAT) / s.total_segments) as combined_score
-FROM segments_fts sf
-JOIN suttas s ON sf.sutta_key = s.sutta_key
-WHERE sf.segment_text MATCH ?
-GROUP BY sf.sutta_key
-ORDER BY combined_score DESC
-LIMIT ?
-```
-
-**Scoring:** `combined_score = match_count + (match_count / total_segments)`
-
-### 3. Phrase Search
-
-```swift
-let results = EbtData.shared.searchPhrase(lang: "en", author: "sujato", phrase: "noble eightfold path")
-// Returns: Keyword search results filtered to exact phrase matches
-```
-
-### 4. Regex Search
-
-```swift
-let results = EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern: "suffer.*mind")
-// Returns: Sutta keys matching regex pattern
-```
+Searches lemmas column for lemmatized word forms, enabling search for word variations (e.g., "suffer", "suffering", "suffered"). Lemmatized forms are space-padded lowercase tokens stored in the lemmas column during database build.
 
 ---
 
@@ -281,9 +230,17 @@ let results = EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern:
 - **Decompressed in RAM**: Database operations are fast once decompressed
 
 ### Search Performance
-- **Keyword search**: <500ms for typical queries (FTS5 indexed)
-- **Phrase search**: ~1-2s (keyword search + content filtering)
-- **Regex search**: 1-5s (regex evaluated on all segments)
+
+Lemma searches scan the lemmas column (space-padded lowercase lemmatized forms) and score suttas based on match frequency.
+
+**Benchmarks (test harness, isolated runs):**
+
+| Query | Language | Author | Results | Time |
+|-------|----------|--------|---------|------|
+| "abhängige entstehen" | German | Sabbamitta | 38 | 86.8ms |
+| "root of suffering" | English | Sujato | 7 | 237.6ms |
+
+Performance varies by query, language, and database. Specific factors affecting search speed are not yet characterized.
 
 ### Actor Model
 - Thread-safe via Swift actor isolation
@@ -294,7 +251,9 @@ let results = EbtData.shared.searchRegexp(lang: "en", author: "sujato", pattern:
 
 ## Manifest Format (db-manifest.json)
 
-The manifest file (`scv-core/Sources/Resources/db-manifest.json`) contains metadata about all available databases:
+The manifest file (`scv-core/Sources/Resources/db-manifest.json`) contains metadata about all available databases. Generated at build time and used by the app to discover available translations.
+
+**Structure:**
 
 ```json
 {
@@ -303,26 +262,53 @@ The manifest file (`scv-core/Sources/Resources/db-manifest.json`) contains metad
       "language": "en",
       "author": "sujato",
       "authorName": "Bhikkhu Sujato",
-      "buildTimestamp": "2024-11-20T10:30:00Z",
-      "files": 150,
-      "gitHash": "abc123def456..."
+      "schemaVersion": "6",
+      "buildTimestamp": "2025-12-19T04:13:06Z",
+      "gitHash": "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "files": {
+        "total": 4167,
+        "sutta": 4167
+      },
+      "json": "{\"type\":\"translator\",\"name\":\"Bhikkhu Sujato\"}"
     },
     {
       "language": "en",
       "author": "brahmali",
       "authorName": "Bhikkhu Brahmali",
-      "buildTimestamp": "2024-11-20T10:32:00Z",
-      "files": 140
-    },
-    ...
+      "schemaVersion": "6",
+      "buildTimestamp": "2025-12-19T04:11:58Z",
+      "gitHash": "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "files": {
+        "total": 427,
+        "vinaya": 427
+      },
+      "json": "{\"name\":\"Bhikkhu Brahmali\",\"type\":\"translator\"}"
+    }
   ]
 }
 ```
 
-Generated by:
-```bash
-./scripts/build-ebt-data build-manifest
-```
+**Fields:**
+- `language`: Language code (e.g., "en", "de", "pli")
+- `author`: Author identifier (e.g., "sujato", "sabbamitta")
+- `authorName`: Human-readable author name
+- `schemaVersion`: Database schema version (e.g., "6")
+- `buildTimestamp`: ISO 8601 timestamp when database was built
+- `gitHash`: Git commit hash of ebt-data repository source
+- `files`: Object with file count breakdown
+  - `total`: Total files in translation
+  - `sutta`: Number of sutta files (optional, omitted if 0)
+  - `vinaya`: Number of vinaya files (optional, omitted if 0)
+  - `abhidhamma`: Number of abhidhamma files (optional, omitted if 0)
+  - `other`: Number of other files (optional, omitted if 0)
+- `json`: JSON string containing author metadata (name, type, etc.)
+
+**Usage in Code:**
+
+See: Manifest.swift - `DatabaseManifest` singleton provides methods to:
+- Query by language/author: `info(language:author:)`
+- List authors for language: `authorsForLanguage(_:)`
+- Get default (most comprehensive) author: `defaultAuthorForLanguage(_:)`
 
 ---
 

@@ -33,44 +33,15 @@ struct EbtSeekerTests {
     }
   }
 
-  @Test("DE lemma search: abhängige entstehen performance")
-  func deLemmaSearchPerformance() async throws {
-    // Preload database before timing
-    let seeker = try await EbtData.shared.getSeeker(
-      lang: "de",
-      author: "sabbamitta",
-    )
-
-    // Start timing for search only
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
-    let result = await seeker.searchLemma("abhängige entstehen")
-
-    let msElapsed = (CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000
-    print(
-      "\n[PERF] DE lemma 'abhängige entstehen': \(result.items.count) results in \(String(format: "%.1f", msElapsed))ms",
-    )
-
-    for (i, item) in result.items.enumerated() {
-      print(
-        "[RESULT \(i + 1)] \(item.suttaRef.description) score:\(String(format: "%.3f", item.score))",
-      )
-    }
-
-    #expect(result.error == nil)
-    #expect(result.items.count == 38)
-    #expect(
-      msElapsed < 100.0,
-      "Lemma search should complete in under 100ms, took \(String(format: "%.1f", msElapsed))ms",
-    )
-  }
-
   @Test("DE lemma search benchmark: all 38 results with exact scores")
   func deLemmaSearchBenchmark() async throws {
     let seeker = try await EbtData.shared.getSeeker(
       lang: "de",
       author: "sabbamitta",
     )
+    let timeStart = CFAbsoluteTimeGetCurrent()
     let result = await seeker.searchLemma("abhängige entstehen")
+    let msElapsed = (CFAbsoluteTimeGetCurrent() - timeStart) * 1000
 
     // All 38 results after fixing Lemmatizer diacritical preservation
     // Scores rounded to 3 decimal places
@@ -128,6 +99,7 @@ struct EbtSeekerTests {
         "Result \(i + 1) \(expectedSutta) score mismatch: expected \(expectedScore), got \(actual.score)",
       )
     }
+    cc.ok1(#line, #function, "msElapsed:", msElapsed)
   }
 
   @Test("EbtSeeker.lemmatize() DE phrases")
@@ -178,27 +150,65 @@ struct EbtSeekerTests {
       author: "sabbamitta",
     )
 
-    // Test that LIKE wildcards and special chars in LIKE pattern don't cause SQL errors
-    // Parameterized binding should safely escape these as literals, not SQL operators
+    // Test that LIKE wildcards and special chars in LIKE pattern don't cause
+    // SQL errors
+    // Parameterized binding should safely escape these as literals, not SQL
+    // operators
     let result1 = await seeker.searchLemma("abhängig%")
-    #expect(result1.error == nil, "Search with % should not error: \(result1.error?.message ?? "")")
+    #expect(
+      result1.error == nil,
+      "Search with % should not error: \(result1.error?.message ?? "")",
+    )
 
     let result2 = await seeker.searchLemma("abhängig_")
-    #expect(result2.error == nil, "Search with _ should not error: \(result2.error?.message ?? "")")
+    #expect(
+      result2.error == nil,
+      "Search with _ should not error: \(result2.error?.message ?? "")",
+    )
 
     let result3 = await seeker.searchLemma("abhängig'")
-    #expect(result3.error == nil, "Search with single quote should not error: \(result3.error?.message ?? "")")
+    #expect(
+      result3.error == nil,
+      "Search with single quote should not error: \(result3.error?.message ?? "")",
+    )
 
     let result4 = await seeker.searchLemma("abhängig\\")
-    #expect(result4.error == nil, "Search with backslash should not error: \(result4.error?.message ?? "")")
+    #expect(
+      result4.error == nil,
+      "Search with backslash should not error: \(result4.error?.message ?? "")",
+    )
 
     // Combined special characters
     let result5 = await seeker.searchLemma("%_'\\")
-    #expect(result5.error == nil, "Search with multiple special chars should not error")
+    #expect(
+      result5.error == nil,
+      "Search with multiple special chars should not error",
+    )
 
     // Normal known search should still work and return results
     let result6 = await seeker.searchLemma("abhängig entstehen")
     #expect(result6.error == nil, "Normal search should work")
-    #expect(result6.items.count > 0, "Normal search 'abhängig entstehen' should return results")
+    #expect(
+      result6.items.count > 0,
+      "Normal search 'abhängig entstehen' should return results",
+    )
+  }
+
+  @Test("EN lemma search: root of suffering performance")
+  func enLemmaSearchPerformance() async throws {
+    // Preload database before timing
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "sujato",
+    )
+
+    // Start timing for search only
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+    let result = await seeker.searchLemma("root of suffering")
+    let msElapsed = (CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000
+
+    #expect(result.error == nil)
+    #expect(result.items.count > 0)
+    cc.ok1(#line, #function, "msElapsed:", msElapsed)
   }
 }

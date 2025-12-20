@@ -1,3 +1,4 @@
+import CoreFoundation
 import Foundation
 import NaturalLanguage
 @testable import scvCore
@@ -5,32 +6,7 @@ import Testing
 
 @Suite("EbtData Tests")
 struct EbtDataTests {
-  @Test("Get translation by key returns JSON string")
-  func getTranslationByKey() async {
-    let key = "thig1.1/en/soma"
-    let json = await EbtData.shared.getTranslation(suttaKey: key)
-
-    #expect(json != nil)
-    #expect(json?.contains("thig1.1") ?? false)
-  }
-
-  @Test("Get translation with invalid key returns nil")
-  func getTranslationInvalidKey() async {
-    let json = await EbtData.shared
-      .getTranslation(suttaKey: "invalid999999/en/soma")
-
-    #expect(json == nil)
-  }
-
-  @Test("Key lookup for known translation succeeds")
-  func knownTranslationRetrieval() async {
-    let key = "thig1.1/en/soma"
-    let json = await EbtData.shared.getTranslation(suttaKey: key)
-
-    #expect(json != nil)
-    // Verify it contains expected JSON structure
-    #expect(json?.contains("\"") ?? false)
-  }
+  let cc = ColorConsole(#file, #function, dbg.EbtData.other)
 
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
@@ -225,174 +201,6 @@ struct EbtDataTests {
     #expect(segment.doc!.contains(expectedTextFragment))
   }
 
-  #if false
-    @Test("populateQuote() finds first matching segment for keyword search")
-    func populateQuoteKeywordSearch() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("mn1/en/sujato")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "suffering",
-        method: .keyword,
-        lang: "en",
-        author: "sujato",
-      )
-
-      #expect(success)
-      #expect(item.quote != nil)
-      #expect(item.quote?.contains("<span>") ?? false)
-      #expect(item.quote?.contains("</span>") ?? false)
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() matched text is exactly between span tags")
-    func populateQuoteExactMatch() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "sleep",
-        method: .keyword,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(success)
-      guard let quote = item.quote else {
-        #expect(Bool(false), "Quote should not be nil")
-        return
-      }
-
-      // Verify exact HTML quote output
-      // The JSON source has curly quote (U+201C LEFT DOUBLE QUOTATION MARK),
-      // not
-      // ASCII quote
-      let expectedQuote = "\u{201C}<span>Sleep</span> with ease, Elder, "
-      #expect(quote == expectedQuote)
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() HTML escapes special characters")
-    func populateQuoteHTMLEscaping() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "i",
-        method: .keyword,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(success)
-      if let quote = item.quote {
-        // The quote itself shouldn't contain unescaped HTML entities
-        // (unless they're inside the tags)
-        let beforeSpan = quote.components(separatedBy: "<span>")[0]
-        let afterSpan = quote.components(separatedBy: "</span>").last ?? ""
-
-        // Check that special chars in non-span parts are escaped
-        // & should be &amp;, < should be &lt;, etc. (if they appear in text)
-        #expect(!beforeSpan.contains("<") || beforeSpan.contains("&lt;"))
-        #expect(!afterSpan.contains("<") || afterSpan.contains("&lt;"))
-      }
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() adds ellipsis when context is truncated")
-    func populateQuoteEllipsis() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "i",
-        method: .keyword,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(success)
-      guard let quote = item.quote else {
-        #expect(Bool(false), "Quote should not be nil")
-        return
-      }
-
-      // If the text is long enough, ellipsis should be present
-      // (contextLength = 50 chars before/after)
-      // We can't guarantee it will be there for this specific sutta,
-      // but we can verify the format: if ellipsis is present, it should be
-      // "..."
-      if quote.contains("...") {
-        #expect(quote.hasPrefix("...") || quote.contains("...<span>") || quote
-          .contains("</span>...") || quote.hasSuffix("..."))
-      }
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() returns false for non-matching search")
-    func populateQuoteNoMatch() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "xyzabc123notaword",
-        method: .keyword,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(!success)
-      #expect(item.quote == nil)
-    }
-  #endif
-
-  #if false
-    @Test("populateQuote() works with regexp search")
-    func populateQuoteRegexpSearch() async {
-      var item = SeekerResultItem(
-        suttaRef: SuttaRef.create("thig1.1/en/soma")!,
-        score: 1.0,
-        quote: nil,
-      )
-
-      let success = await EbtData.shared.populateQuote(
-        item: &item,
-        query: "sleep.*ease",
-        method: .regexp,
-        lang: "en",
-        author: "soma",
-      )
-
-      #expect(success)
-      #expect(item.quote != nil)
-      #expect(item.quote?.contains("<span>") ?? false)
-    }
-  #endif
-
   @Test("Database schema_version matches EbtData.schemaVersion")
   func databaseSchemaVersionMatch() async throws {
     let expectedVersion = String(EbtData.schemaVersion)
@@ -486,5 +294,31 @@ struct EbtDataTests {
     #expect(firstSegment.doc == "So I have heard. ")
     let msElapsed = Int((CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000)
     #expect(msElapsed < 100)
+  }
+
+  @Test("EN lemma search: root of suffering performance")
+  func enLemmaSearchPerformance() async throws {
+    // Get seeker to access lemmatization
+    let seeker = try await EbtData.shared.getSeeker(
+      lang: "en",
+      author: "sujato",
+    )
+
+    // Lemmatize the query
+    let lemmaWords = await seeker.lemmatize("root of suffering")
+
+    // Time the EbtData search directly
+    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
+    let result = await EbtData.shared.searchLemma(
+      lang: "en",
+      author: "sujato",
+      lemmaWords: lemmaWords,
+      query: "root of suffering",
+    )
+    let msElapsed = (CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000
+
+    #expect(result.error == nil)
+    #expect(result.items.count > 0)
+    cc.ok1(#line, #function, "msElapsed:", msElapsed)
   }
 }

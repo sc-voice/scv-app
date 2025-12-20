@@ -422,17 +422,29 @@ import Testing
     #expect(ref1?.author == "soma")
 
     // With hyphens
-    let ref2 = try? SuttaRef(suttaUid: "mn1", lang: "pt-pt", author: "test-author")
+    let ref2 = try? SuttaRef(
+      suttaUid: "mn1",
+      lang: "pt-pt",
+      author: "test-author",
+    )
     #expect(ref2?.lang == "pt-pt")
     #expect(ref2?.author == "test-author")
 
     // With underscores
-    let ref3 = try? SuttaRef(suttaUid: "mn1", lang: "en_gb", author: "test_author")
+    let ref3 = try? SuttaRef(
+      suttaUid: "mn1",
+      lang: "en_gb",
+      author: "test_author",
+    )
     #expect(ref3?.lang == "en_gb")
     #expect(ref3?.author == "test_author")
 
     // Mixed numbers and letters
-    let ref4 = try? SuttaRef(suttaUid: "mn1", lang: "en123", author: "author456")
+    let ref4 = try? SuttaRef(
+      suttaUid: "mn1",
+      lang: "en123",
+      author: "author456",
+    )
     #expect(ref4?.lang == "en123")
     #expect(ref4?.author == "author456")
 

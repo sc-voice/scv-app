@@ -129,3 +129,24 @@ cd scv-core && swift test --filter CardTests
     - Update MLDocument segments to reflect which ones matched the lemma search
     - This enables UI to highlight matched segments in search results
 
+### Redesign Lemmatizer cache for performance
+**Status**: Backlog
+
+01. [ ] Profile and redesign lemmatizer caching strategy (See: EbtSeeker.swift:152-194)
+    - Current bottleneck: lemmatization takes 192ms for "root of suffering" → "root, of, suffer"
+    - SQL query execution only takes 28ms (7x faster than lemmatization)
+    - Investigate current lemmatizer cache implementation
+    - Evaluate caching strategies: pre-build common queries, use trie-based cache, parallel lemmatization
+    - Benchmark different approaches to reduce lemmatization overhead
+    - Target: reduce lemmatization time below SQL execution time
+
+### Create debug logging macro for conditional cc.ok calls
+**Status**: Backlog
+
+01. [ ] Create Swift macro to replace verbose if-statements for debug logging (See: scv-core/Sources/EbtSeeker.swift:158-189)
+    - Current: 3 lines per conditional debug log (`if dbgSearch > 1 { cc.ok2(...) }`)
+    - Goal: 1-line macro like `@debugLog(dbgSearch > 1) { cc.ok2(...) }`
+    - Define macro in scv-core/Sources
+    - Apply to all debug logging calls in EbtSeeker and EbtData
+    - Reduces boilerplate while maintaining intent
+

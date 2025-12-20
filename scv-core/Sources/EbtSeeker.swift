@@ -17,6 +17,7 @@ public actor EbtSeeker {
   private let lang: String
   private let author: String
   private let lemmatizer: Lemmatizer
+  private let dbgSearch = dbg.EbtSeeker.search
 
   /// Initialize EbtSeeker with language, author, and lemmatizer
   /// - Parameters:
@@ -153,11 +154,18 @@ public actor EbtSeeker {
     maxDoc: Int = Settings.shared.maxDoc,
   ) async -> SeekerResult {
     // Lemmatize query
+    if dbgSearch > 1 {
+      cc.ok2(#line, #function, "lemmatize", query)
+    }
     let lemmaWords = lemmatize(query)
-    cc.ok1(#line, #function, lemmaWords.joined(separator: ", "))
+    if dbgSearch > 1 {
+      cc.ok2(#line, #function, lemmaWords.joined(separator: ", "))
+    }
 
     guard !lemmaWords.isEmpty else {
-      cc.ok1(#line, #function, "lemmaWords[]?")
+      if dbgSearch > 1 {
+        cc.ok2(#line, #function, "lemmaWords[]?")
+      }
       return SeekerResult(
         metadata: SearchMetadata(
           query: query,
@@ -179,7 +187,9 @@ public actor EbtSeeker {
       maxDoc: maxDoc,
     )
 
-    cc.ok1(#line, #function, result.items.count)
+    if dbgSearch != 0 {
+      cc.ok1(#line, #function, result.items.count)
+    }
     return result
   }
 

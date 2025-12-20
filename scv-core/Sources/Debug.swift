@@ -39,6 +39,7 @@ public struct dbg: Sendable {
 
   public struct EbtSeeker: Sendable {
     public static let other: Int = 2
+    public static let search: Int = 2
   }
 
   public struct SearchCardView: Sendable {

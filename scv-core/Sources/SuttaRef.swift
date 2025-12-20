@@ -49,15 +49,25 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       throw SuttaRefError.invalidSuttaUid("use SuttaRef.create(\(suttaUid))")
     }
 
-    // Validate lang: alphanumeric, hyphen, underscore only (prevent path traversal)
-    guard lang.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil else {
-      throw SuttaRefError.invalidLang("lang must be alphanumeric with hyphen/underscore: '\(lang)'")
+    // Validate lang: alphanumeric, hyphen, underscore only (prevent path
+    // traversal)
+    guard lang.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil
+    else {
+      throw SuttaRefError
+        .invalidLang(
+          "lang must be alphanumeric with hyphen/underscore: '\(lang)'",
+        )
     }
 
-    // Validate author: alphanumeric, hyphen, underscore only (prevent path traversal)
+    // Validate author: alphanumeric, hyphen, underscore only (prevent path
+    // traversal)
     if let auth = author {
-      guard auth.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil else {
-        throw SuttaRefError.invalidAuthor("author must be alphanumeric with hyphen/underscore: '\(auth)'")
+      guard auth.range(of: "^[a-z0-9_-]+$", options: .regularExpression) != nil
+      else {
+        throw SuttaRefError
+          .invalidAuthor(
+            "author must be alphanumeric with hyphen/underscore: '\(auth)'",
+          )
       }
     }
 
