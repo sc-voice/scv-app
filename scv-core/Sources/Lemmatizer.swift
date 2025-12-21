@@ -21,6 +21,8 @@ import NaturalLanguage
 /// - Multiple EbtSeekers (actors) can safely share one Lemmatizer per language
 /// - Each actor serializes its own access to shared Lemmatizer methods
 public struct Lemmatizer: Sendable {
+  let cc = ColorConsole(#file, #function, dbg.Lemmatizer.other)
+
   // Unicode punctuation constants for text cleaning and testing
   public static let DOUBLE_LOW_QUOTATION_MARK = "\u{201E}" // „
   public static let RIGHT_DOUBLE_QUOTATION_MARK = "\u{201D}" // "
@@ -49,8 +51,8 @@ public struct Lemmatizer: Sendable {
   /// - Parameters:
   ///   - lang: Language code (e.g., "en", "de", "pli")
   ///   - cacheDir: Directory for cache files
-  ///   - cachingEnabled: Whether to load and save cache (default: false)
-  public init(lang: String, cacheDir: String, cachingEnabled: Bool = false) {
+  ///   - cachingEnabled: Whether to load and save cache (default: true)
+  public init(lang: String, cacheDir: String, cachingEnabled: Bool = true) {
     self.lang = lang
     self.cachingEnabled = cachingEnabled
     cacheFilePath = Self.cacheFilePath(lang: lang, cacheDir: cacheDir)
@@ -107,13 +109,24 @@ public struct Lemmatizer: Sendable {
       )
 
       // Write cache as JSONL: one {"word":"lemma"} per line
+      // Skip identity mappings (word == lemma) to reduce file size
       var lines: [String] = []
       for (word, lemma) in wordLemmaCache.sorted(by: { $0.key < $1.key }) {
+        // Skip identity mappings - they add no value since NLTagger returns
+        // them anyway
+        guard word != lemma else { continue }
+
         let jsonData = try JSONSerialization.data(withJSONObject: [word: lemma])
         if let jsonString = String(data: jsonData, encoding: .utf8) {
           lines.append(jsonString)
         }
       }
+
+      cc.ok2(
+        #line,
+        #function,
+        "Saved \(lines.count) non-identity lemmas (skipped \(wordLemmaCache.count - lines.count) identities)",
+      )
 
       let content = lines.joined(separator: "\n")
       try content.write(
@@ -144,6 +157,28 @@ public struct Lemmatizer: Sendable {
         options: .regularExpression,
       )
       .trimmingCharacters(in: .whitespaces)
+  }
+
+  /// Map language code to NLLanguage enum value
+  /// - Parameter langCode: Language code (e.g., "en", "de", "fr", "it", "pli")
+  /// - Returns: NLLanguage enum value, or nil if unsupported
+  private func nlLanguage(for langCode: String) -> NLLanguage? {
+    switch langCode {
+    case "en":
+      .english
+    case "de":
+      .german
+    case "fr":
+      .french
+    case "it":
+      .italian
+    case "ru":
+      .russian
+    case "pli":
+      nil // Pali not directly supported by NLTagger
+    default:
+      nil
+    }
   }
 
   /// Lemmatize text into array of base word forms
@@ -190,6 +225,11 @@ public struct Lemmatizer: Sendable {
       // Lemmatize word alone (no context)
       var lemma = word // Default
       tagger.string = word
+
+      // Set language for NLTagger to ensure correct lemmatization
+      if let nlLang = nlLanguage(for: lang) {
+        tagger.setLanguage(nlLang, range: word.startIndex ..< word.endIndex)
+      }
 
       tagger.enumerateTags(
         in: word.startIndex ..< word.endIndex,

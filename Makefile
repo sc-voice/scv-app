@@ -1,9 +1,9 @@
 .PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
 				build build-core build-ui build-build build-nlp build-ios build-ios-app\
-        clean clean-core clean-build clean-ui clean-ios\
+        clean clean-core clean-build clean-ui clean-ios clean-db-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw \
         version-major version-minor version-patch \
-				commit build-zst content
+				commit build-zst content build-db clean-db
 
 SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
@@ -52,18 +52,27 @@ test-nlp: build-nlp
 # Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
 
 # Rebuild all .zst files from latest ebt-data content and regenerate manifest
-build-zst: clean-db-cache build-build 
-	@echo "Pulling latest ebt-data..." > local/build-zst.log
+build-content: build-build 
+	@echo "Pulling latest ebt-data..." > local/build-content.log
 	@(cd local/ebt-data && git pull)
-	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a local/build-zst.log
-	@scripts/build-ebt-data --rebuild-from-manifest 2>&1 | tee -a local/build-zst.log
-	@echo "Regenerating db-manifest.json with schema versions..." 2>&1 | tee -a local/build-zst.log
-	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a local/build-zst.log
-	@echo "✓ All .zst files rebuilt and manifest regenerated" 2>&1 | tee -a local/build-zst.log
+	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a local/build-content.log
+	@scripts/build-ebt-data --rebuild-from-manifest 2>&1 | tee -a local/build-content.log
+	@echo "Regenerating db-manifest.json with schema versions..." 2>&1 | tee -a local/build-content.log
+	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a local/build-content.log
+	@echo "✓ All .zst files rebuilt and manifest regenerated" 2>&1 | tee -a local/build-content.log
 
-content: build-zst
+content: clean-build build-content
 
-build-build:
+build-db:
+	@if [ -z "$(DB)" ]; then \
+		echo "Usage: make build-db DB=lang:author"; \
+		echo "Example: make build-db DB=en:sujato"; \
+		exit 1; \
+	fi
+	@echo "Building database: $(DB)..."
+	@scripts/build-ebt-data $(DB)
+
+build-build: build-core
 	@echo "=====> build-build..."
 	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
 
@@ -114,7 +123,28 @@ clean-db-cache:
 	@rm -f ~/Library/Caches/ebt-*.db 2>/dev/null || true
 	@echo "Cleared database caches from ~/Library/Caches"
 
-clean: clean-core clean-build clean-ui clean-ios format
+clean-lemmatizer:
+	@echo "=====> clean-lemmatizer..."
+	@find scv-core/Sources/Resources -name "*-lemmas.json" -delete 2>/dev/null || true
+	@find scv-core/.build -name "*-lemmas.json" -delete 2>/dev/null || true
+	@find scv-build/.build -name "*-lemmas.json" -delete 2>/dev/null || true
+	@find scv-ui/.build -name "*-lemmas.json" -delete 2>/dev/null || true
+	@echo "Cleared lemmatizer cache files"
+
+clean-db:
+	@if [ -z "$(DB)" ]; then \
+		echo "Usage: make clean-db DB=lang:author"; \
+		echo "Example: make clean-db DB=en:sujato"; \
+		exit 1; \
+	fi
+	@echo "Cleaning database: $(DB)..."
+	@rm -f ~/Library/Caches/ebt-$(subst :,-,$(DB)).db 2>/dev/null || true
+	@rm -f local/build/ebt-$(subst :,-,$(DB)).db 2>/dev/null || true
+	@rm -f scv-core/Sources/Resources/ebt-$(subst :,-,$(DB)).db 2>/dev/null || true
+	@rm -f scv-core/Sources/Resources/ebt-$(subst :,-,$(DB)).db.zst 2>/dev/null || true
+	@echo "Cleaned database files for $(DB)"
+
+clean: clean-core clean-ui clean-ios format
 
 format:
 	@swiftformat . --exclude Pods
@@ -126,10 +156,13 @@ clean-core:
 	@echo "=====> clean-core..."
 	@cd scv-core && swift package clean 2>/dev/null || true
 
-clean-build:
+clean-build: clean-lemmatizer clean-db-cache
 	@echo "=====> clean-build..."
+	@rm -f scv-core/Sources/Resources/*.db.zst 2>/dev/null || true
+	@echo "Cleared .zst database resource files"
+	@rm -f scv-core/Sources/Resources/*.db 2>/dev/null || true
+	@echo "Cleared .db database resource files"
 	@cd scv-build && swift package clean 2>/dev/null || true
-	@rm -f ~/Library/Caches/ebt-*.db 2>/dev/null || true
 
 clean-ui:
 	@echo "=====> clean-ui..."
@@ -193,12 +226,16 @@ help:
 	@echo "  make build-build       Build scv-build package (build tools)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-ios-part    Build scv-ios app"
+	@echo "  make build-db DB=lang:author    Build single database (e.g. make build-db DB=en:sujato)"
 	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
 	@echo "  make clean-build       Clean scv-build package"
 	@echo "  make clean-ui          Clean scv-ui package"
 	@echo "  make clean-ios         Clean scv-ios app build artifacts"
+	@echo "  make clean-db DB=lang:author    Clean database caches (e.g. make clean-db DB=en:sujato)"
+	@echo "  make clean-db-cache    Clean all database caches from ~/Library/Caches"
+	@echo "  make clean-lemmatizer  Clean all lemmatizer cache files"
 	@echo "  make format            Apply SwiftFormat to project"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
 	@echo "  make version-major     Increment major version (X.0.0)"

@@ -958,6 +958,103 @@ public actor EbtData {
     return true
   }
 
+  /// Verify that a cached database matches the expected DatabaseInfo
+  /// Compares gitHash from database metadata to expected value
+  /// - Parameter info: DatabaseInfo to verify against
+  /// - Returns: true if gitHashes match, false if different or database not
+  /// found
+  public func verifyDatabaseInfo(_ info: DatabaseInfo) -> Bool {
+    let fileName = "ebt-\(info.language)-\(info.author).db"
+    let cacheURL = FileManager.default.urls(
+      for: .cachesDirectory,
+      in: .userDomainMask,
+    )[0].appendingPathComponent(fileName)
+
+    // Check if cached database exists
+    guard FileManager.default.fileExists(atPath: cacheURL.path) else {
+      cc.bad1(#line, #function, "fileExists?", cacheURL.path)
+      return false
+    }
+
+    var db: OpaquePointer?
+    let openResult = sqlite3_open_v2(
+      cacheURL.path,
+      &db,
+      SQLITE_OPEN_READONLY,
+      nil,
+    )
+
+    guard openResult == SQLITE_OK, let database = db else {
+      cc.bad1(#line, #function, "SQLite?", cacheURL.path)
+      return false
+    }
+
+    defer { sqlite3_close(database) }
+
+    // Query git_hash from metadata
+    let query = "SELECT git_hash FROM metadata WHERE language = ? AND author = ? LIMIT 1"
+    var stmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
+    else {
+      cc.bad1(#line, #function, "sqlite3_prepare_v2?", query)
+      return false
+    }
+
+    defer { sqlite3_finalize(stmt) }
+
+    sqlite3_bind_text(stmt, 1, (info.language as NSString).utf8String, -1, nil)
+    sqlite3_bind_text(stmt, 2, (info.author as NSString).utf8String, -1, nil)
+
+    guard sqlite3_step(stmt) == SQLITE_ROW else {
+      cc.bad1(#line, #function, "sqlite3_step?", query)
+      return false
+    }
+
+    // Compare git hash
+    var cachedGitHash = ""
+    if let hashText = sqlite3_column_text(stmt, 0) {
+      cachedGitHash = String(cString: hashText)
+    }
+
+    guard cachedGitHash == info.gitHash else {
+      cc.bad1(
+        #line,
+        #function,
+        "Content mismatch for \(info.language)/\(info.author):",
+        "cached:", cachedGitHash,
+        "expected:", info.gitHash ?? "nil",
+      )
+      return false
+    }
+
+    cc.ok1(#line, #function, "\(info.language)/\(info.author) OK")
+    return true
+  }
+
+  /// Verify all cached databases match manifest
+  /// Returns array of DatabaseInfo that have outdated or mismatched content
+  /// - Returns: Array of DatabaseInfo entries that need cache refresh
+  public func verifyCachedDBManifests() -> [DatabaseInfo] {
+    let manifest = DatabaseManifest.shared
+    var mismatchedDatabases: [DatabaseInfo] = []
+
+    for dbInfo in manifest.databases {
+      if !verifyDatabaseInfo(dbInfo) {
+        mismatchedDatabases.append(dbInfo)
+      }
+    }
+
+    if !mismatchedDatabases.isEmpty {
+      cc.ok2(
+        #line,
+        "Found \(mismatchedDatabases.count) mismatched database(s)",
+      )
+    }
+
+    return mismatchedDatabases
+  }
+
   private func logDatabaseMetadata(lang: String, author: String) {
     guard let meta = metadata(lang: lang, author: author) else {
       cc.ok1(#line, "Database loaded: \(lang):\(author)")

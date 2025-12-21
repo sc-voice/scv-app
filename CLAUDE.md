@@ -31,6 +31,19 @@ Always read user Claude.md at beginning of chat or whenever existing chat is cle
 
 - rtf means READ THE FILE
 
+## Directory Context (CRITICAL)
+
+Claude must be explicit and intentional about working directory for EVERY command:
+
+1. BEFORE running any command, explicitly determine which directory it must run in
+2. Use absolute paths or `-C` flag to run commands from correct directory
+3. NEVER assume current working directory is correct
+4. Especially critical for: make, git, swift build, swift test, and scripts
+5. Examples:
+   - `make -C /Users/visakha/dev/scv-app clean-build` (correct)
+   - `cd /Users/visakha/dev/scv-app/scv-core && swift test --filter LemmatizerTests` (correct)
+   - `swift test` without specifying directory (WRONG - violates this rule)
+
 ## Testing
 
 Run comprehesive tests with:
@@ -46,6 +59,17 @@ cd scv-core && swift test --filter CardTests
 ```
 
 ## Backlog
+
+### Verify cached content on launch
+**Status**: Backlog
+
+01. [ ] Call verifyCachedDBManifests() during app initialization to detect when database content changes
+    - Implement in appropriate app launch/initialization code
+    - Log warnings if mismatches detected
+    - Consider whether to prevent app launch if critical databases are mismatched
+    - Test behavior when database content changes between app versions
+    - See: scv-core/Sources/EbtData.swift:verifyDatabaseInfo() and verifyCachedDBManifests()
+    - See: scv-core/Sources/Resources/db-manifest.json for current database manifest
 
 ### Review CardSidebarView toolbar iOS/macOS design
 **Status**: Backlog

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NaturalLanguage
 @testable import scvCore
 import Testing
 
@@ -61,17 +62,20 @@ struct LemmatizerTests {
     // From mn1/en/sujato - contractions are split after clean() removes
     // apostrophe
     // "They've" → clean → "they ve" → lemmatize → ["they", "ve"]
+    // Note: "seen" → "see", "ones" → "one" (correct English lemmatization)
     let text1 = "They've not seen the noble ones."
     let lemmas1 = l8r.lemmatize(text1)
     print("[LEMMATIZE EN: They've not seen...] \(lemmas1)")
-    #expect(lemmas1 == ["they", "ve", "not", "seen", "the", "noble", "ones"])
+    #expect(lemmas1 == ["they", "ve", "not", "see", "the", "noble", "one"])
 
     // From mn1/en/sujato - quoted phrase
-    // Single quotes removed by clean(), "is" lemmatized to "is" (not "be")
+    // Single quotes removed by clean()
+    // Note: "is" lemmatizes to "be" (verb lemma), "mine" lemmatizes to "i"
+    // (pronoun lemma)
     let text2 = "they conceive that 'earth is mine'"
     let lemmas2 = l8r.lemmatize(text2)
     print("[LEMMATIZE EN: they conceive that 'earth is mine'] \(lemmas2)")
-    #expect(lemmas2 == ["they", "conceive", "that", "earth", "is", "mine"])
+    #expect(lemmas2 == ["they", "conceive", "that", "earth", "be", "i"])
 
     // From mn1/en/sujato - "It's" contraction
     // "It's" → clean → "it s" → lemmatize → ["it", "s"]
@@ -141,7 +145,8 @@ struct LemmatizerTests {
       .RIGHT_DOUBLE_QUOTATION_MARK
     let lemmas1 = l8r.lemmatize(text1)
     print("[LEMMATIZE DE: Mönche und Nonnen] \(lemmas1)")
-    #expect(lemmas1 == ["mönche", "und", "nonnen"])
+    // Note: German lemmatizer produces singular forms (mönch, nonne)
+    #expect(lemmas1 == ["mönch", "und", "nonne"])
 
     let text2 = "Ehrwürdiger Herr, antworteten sie."
     let lemmas2 = l8r.lemmatize(text2)
@@ -173,6 +178,8 @@ struct LemmatizerTests {
     let segmentText = "Da untersucht ein Mönch anhand der Elemente, der Sinnesfelder und des abhängigen Entstehens."
     let lemmasSegment = l8r.lemmatize(segmentText)
     print("[LEMMATIZE DE: sn22.57:18.2 segment] \(lemmasSegment)")
+    // Note: "Elemente" → "element" (singular), "des" included, "der" (not
+    // "des")
     #expect(lemmasSegment == [
       "da",
       "untersuchen",
@@ -180,11 +187,11 @@ struct LemmatizerTests {
       "mönch",
       "anhand",
       "der",
-      "elemente",
+      "element",
       "der",
       "sinnesfelder",
       "und",
-      "des",
+      "der",
       "abhängig",
       "entstehen",
     ])
@@ -211,7 +218,8 @@ struct LemmatizerTests {
     // Text 1: "For desire is the root of suffering."
     let lemmas1 = l8r.lemmatize(sn42112_11)
     print("[LEMMATIZE TEXT 1] \(lemmas1)")
-    #expect(lemmas1 == ["for", "desire", "is", "the", "root", "of", "suffer"])
+    // Note: "is" lemmatizes to "be" (verb lemma)
+    #expect(lemmas1 == ["for", "desire", "be", "the", "root", "of", "suffer"])
 
     // Text 2: "For desire is the root of suffering.\'\""
     let lemmas2 = l8r.lemmatize(sn42112_13)
@@ -222,6 +230,7 @@ struct LemmatizerTests {
     // the root of suffering,"
     let lemmas3 = l8r.lemmatize(mn66_17_1)
     print("[LEMMATIZE TEXT 3] \(lemmas3)")
+    // Note: "is" lemmatizes to "be" (verb lemma)
     #expect(lemmas3 == [
       "take",
       "another",
@@ -230,7 +239,7 @@ struct LemmatizerTests {
       "understand",
       "that",
       "attachment",
-      "is",
+      "be",
       "the",
       "root",
       "of",
@@ -240,7 +249,8 @@ struct LemmatizerTests {
     // Text 4: "The root of suffering is cut off,"
     let lemmas4 = l8r.lemmatize("The root of suffering is cut off,")
     print("[LEMMATIZE TEXT 4] \(lemmas4)")
-    #expect(lemmas4 == ["the", "root", "of", "suffer", "is", "cut", "off"])
+    // Note: "is" lemmatizes to "be" (verb lemma)
+    #expect(lemmas4 == ["the", "root", "of", "suffer", "be", "cut", "off"])
   }
 
   @Test("Lemmatizer handles sn42.11:2.11-17")
@@ -250,7 +260,8 @@ struct LemmatizerTests {
     let lemmas13 = l8r.lemmatize(sn42112_13)
     let lemmas17 = l8r.lemmatize(sn42112_17)
 
-    #expect(lemmas11 == ["for", "desire", "is", "the", "root", "of", "suffer"])
+    // Note: "is" lemmatizes to "be" (verb lemma)
+    #expect(lemmas11 == ["for", "desire", "be", "the", "root", "of", "suffer"])
     #expect(lemmas11 == lemmas13)
     #expect(lemmas11 == lemmas17)
   }
@@ -260,6 +271,7 @@ struct LemmatizerTests {
     var l8r = Lemmatizer(lang: "en", cacheDir: testCacheDir)
     let lemmas = l8r.lemmatize(mn66_17_1)
 
+    // Note: "is" lemmatizes to "be" (verb lemma)
     #expect(lemmas == [
       "take",
       "another",
@@ -268,7 +280,7 @@ struct LemmatizerTests {
       "understand",
       "that",
       "attachment",
-      "is",
+      "be",
       "the",
       "root",
       "of",
@@ -281,23 +293,24 @@ struct LemmatizerTests {
     var l8r = Lemmatizer(lang: "en", cacheDir: testCacheDir)
     let lemmas = l8r.lemmatize(mn105_29_9)
 
+    // Note: "is" → "be", "are" → "be", "attachments" → "attachment" (singular)
     #expect(lemmas == [
       "understand",
       "that",
       "attachment",
-      "is",
+      "be",
       "the",
       "root",
       "of",
       "suffer",
       "they",
-      "are",
+      "be",
       "free",
       "with",
       "the",
       "end",
       "of",
-      "attachments",
+      "attachment",
       "it",
       "s",
       "not",
@@ -369,4 +382,78 @@ struct LemmatizerTests {
      print("[LEMMATIZE DE sn22.57:18.2 NO CACHE] \(lemmas)")
    }
    */
+
+  @Test("NLTagger lemmatizes English words correctly without cache")
+  func enNLTaggerTest() {
+    let tagger = NLTagger(tagSchemes: [.lemma])
+    let options: NLTagger.Options = [.omitPunctuation, .omitWhitespace]
+
+    // Test cases: (input word, expected lemma)
+    let testCases: [(String, String)] = [
+      ("accumulate", "accumulate"),
+      ("abdicate", "abdicate"),
+      ("desire", "desire"),
+      ("suffering", "suffer"),
+      ("attachment", "attachment"),
+      ("understanding", "understand"),
+      ("root", "root"),
+      ("cut", "cut"),
+      ("off", "off"),
+      ("freed", "free"),
+      ("apply", "apply"),
+      ("interest", "interest"),
+    ]
+
+    for (word, expectedLemma) in testCases {
+      var actualLemma = word
+      tagger.string = word
+      tagger.setLanguage(.english, range: word.startIndex ..< word.endIndex)
+
+      tagger.enumerateTags(
+        in: word.startIndex ..< word.endIndex,
+        unit: .word,
+        scheme: .lemma,
+        options: options,
+      ) { tag, _ in
+        if let tag {
+          actualLemma = tag.rawValue
+        } else {
+          actualLemma = word
+        }
+        return true
+      }
+
+      actualLemma = actualLemma.lowercased()
+      print("[NLTagger EN: \(word)] → \(actualLemma)")
+      #expect(actualLemma == expectedLemma)
+    }
+  }
+
+  @Test("Lemmatizer lemmatizes English words with same test cases as NLTagger")
+  func enLemmatizerTest() {
+    var l8r = Lemmatizer(lang: "en", cacheDir: testCacheDir)
+
+    // Test cases: (input word, expected lemma)
+    let testCases: [(String, String)] = [
+      ("accumulate", "accumulate"),
+      ("abdicate", "abdicate"),
+      ("desire", "desire"),
+      ("suffering", "suffer"),
+      ("attachment", "attachment"),
+      ("understanding", "understand"),
+      ("root", "root"),
+      ("cut", "cut"),
+      ("off", "off"),
+      ("freed", "free"),
+      ("apply", "apply"),
+      ("interest", "interest"),
+    ]
+
+    for (word, expectedLemma) in testCases {
+      let lemmas = l8r.lemmatize(word)
+      let actualLemma = lemmas.first ?? word
+      print("[Lemmatizer EN: \(word)] → \(actualLemma)")
+      #expect(actualLemma == expectedLemma)
+    }
+  }
 }

@@ -1,122 +1,122 @@
 {
   "databases" : [
     {
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "authorName" : "Sabbamitta",
       "language" : "de",
       "files" : {
-        "total" : 4057,
-        "sutta" : 4057
+        "sutta" : 4058,
+        "total" : 4058
       },
-      "schemaVersion" : "6",
-      "authorName" : "Sabbamitta",
-      "json" : "{\"type\":\"translator\",\"name\":\"Sabbamitta\"}",
       "author" : "sabbamitta",
-      "buildTimestamp" : "2025-12-19T04:10:35Z"
+      "json" : "{\"name\":\"Sabbamitta\",\"type\":\"translator\"}",
+      "schemaVersion" : "6",
+      "buildTimestamp" : "2025-12-21T00:19:48Z"
     },
     {
+      "language" : "de",
+      "authorName" : "Sonja Büge",
+      "buildTimestamp" : "2025-12-21T00:21:03Z",
+      "json" : "{\"name\":\"Sonja Büge\",\"type\":\"translator\"}",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "author" : "sonjabuege",
+      "schemaVersion" : "6",
       "files" : {
         "total" : 18,
         "sutta" : 18
-      },
-      "author" : "sonjabuege",
-      "language" : "de",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
-      "schemaVersion" : "6",
-      "json" : "{\"name\":\"Sonja Büge\",\"type\":\"translator\"}",
-      "authorName" : "Sonja Büge",
-      "buildTimestamp" : "2025-12-19T04:11:58Z"
+      }
     },
     {
-      "author" : "brahmali",
-      "buildTimestamp" : "2025-12-19T04:11:58Z",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "schemaVersion" : "6",
       "files" : {
-        "total" : 427,
-        "vinaya" : 427
+        "vinaya" : 427,
+        "total" : 427
       },
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "buildTimestamp" : "2025-12-21T00:21:03Z",
       "language" : "en",
       "authorName" : "Bhikkhu Brahmali",
-      "schemaVersion" : "6",
-      "json" : "{\"name\":\"Bhikkhu Brahmali\",\"type\":\"translator\"}"
+      "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Brahmali\"}",
+      "author" : "brahmali"
     },
     {
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
-      "authorName" : "John Kelly",
       "author" : "kelly",
-      "buildTimestamp" : "2025-12-19T04:13:05Z",
-      "files" : {
-        "total" : 97,
-        "sutta" : 97
-      },
-      "json" : "{\"name\":\"John Kelly\",\"type\":\"translator\"}",
+      "json" : "{\"type\":\"translator\",\"name\":\"John Kelly\"}",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
       "schemaVersion" : "6",
-      "language" : "en"
+      "buildTimestamp" : "2025-12-21T00:21:46Z",
+      "authorName" : "John Kelly",
+      "language" : "en",
+      "files" : {
+        "sutta" : 97,
+        "total" : 97
+      }
     },
     {
-      "buildTimestamp" : "2025-12-19T04:13:06Z",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "authorName" : "Ayya Soma",
-      "schemaVersion" : "6",
       "files" : {
         "total" : 73,
         "sutta" : 73
       },
       "language" : "en",
+      "author" : "soma",
+      "buildTimestamp" : "2025-12-21T00:21:47Z",
       "json" : "{\"name\":\"Ayya Soma\",\"type\":\"translator\"}",
-      "author" : "soma"
+      "schemaVersion" : "6",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647"
     },
     {
-      "language" : "en",
-      "schemaVersion" : "6",
-      "authorName" : "Bhikkhu Sujato",
       "files" : {
-        "sutta" : 4167,
-        "total" : 4167
+        "total" : 4167,
+        "sutta" : 4167
       },
+      "authorName" : "Bhikkhu Sujato",
+      "schemaVersion" : "6",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "language" : "en",
       "author" : "sujato",
-      "buildTimestamp" : "2025-12-19T04:13:06Z",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
+      "buildTimestamp" : "2025-12-21T00:21:49Z",
       "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Sujato\"}"
     },
     {
-      "language" : "fr",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
-      "authorName" : "Noé Ismet",
-      "json" : "{\"type\":\"translator\",\"name\":\"Noé Ismet\"}",
-      "schemaVersion" : "6",
       "author" : "noeismet",
+      "language" : "fr",
       "files" : {
-        "sutta" : 53,
-        "total" : 53
+        "total" : 53,
+        "sutta" : 53
       },
-      "buildTimestamp" : "2025-12-19T04:14:43Z"
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "schemaVersion" : "6",
+      "buildTimestamp" : "2025-12-21T00:23:23Z",
+      "json" : "{\"name\":\"Noé Ismet\",\"type\":\"translator\"}",
+      "authorName" : "Noé Ismet"
     },
     {
-      "language" : "pli",
-      "schemaVersion" : "6",
-      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
-      "buildTimestamp" : "2025-12-19T04:14:46Z",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
       "author" : "ms",
       "files" : {
+        "total" : 6191,
         "sutta" : 5764,
-        "vinaya" : 427,
-        "total" : 6191
+        "vinaya" : 427
       },
-      "json" : "{\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\",\"type\":\"root\"}"
+      "buildTimestamp" : "2025-12-21T00:23:25Z",
+      "language" : "pli",
+      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
+      "json" : "{\"type\":\"root\",\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\"}",
+      "schemaVersion" : "6"
     },
     {
-      "buildTimestamp" : "2025-12-19T04:18:28Z",
+      "gitHash" : "ca732ce766eb78e95aac4b784115fbb92e41c647",
       "language" : "ru",
-      "schemaVersion" : "6",
-      "json" : "{\"name\":\"SV theravada.ru\",\"type\":\"translator\"}",
       "authorName" : "SV theravada.ru",
-      "gitHash" : "e698ed7a40cd12509f88e1ddc222bdd6fb7c632d",
-      "author" : "sv",
       "files" : {
         "total" : 904,
         "sutta" : 904
-      }
+      },
+      "buildTimestamp" : "2025-12-21T00:27:24Z",
+      "schemaVersion" : "6",
+      "author" : "sv",
+      "json" : "{\"name\":\"SV theravada.ru\",\"type\":\"translator\"}"
     }
   ]
 }
