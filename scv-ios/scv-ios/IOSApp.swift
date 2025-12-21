@@ -57,6 +57,20 @@ struct SCVApp: App {
     // Initialize app controller for URL scheme handling
     AppController.shared.initialize(cardManager: cardManager)
     cc.ok1(#line, "init OK")
+
+    // Verify cached databases match manifest on app launch
+    // If mismatches detected, stale caches are automatically cleared
+    // Fresh copies will be decompressed from bundle on next access
+    let cc = cc
+    Task {
+      let mismatched = await EbtData.shared.verifyCachedDBs()
+      if !mismatched.isEmpty {
+        cc.ok1(
+          #line,
+          "Cleared \(mismatched.count) stale database(s) on app launch",
+        )
+      }
+    }
   }
 
   var body: some Scene {

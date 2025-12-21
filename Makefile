@@ -1,5 +1,5 @@
 .PHONY: test test-all test-core test-core-verbose test-ui test-build test-zstd-integration test-nlp\
-				build build-core build-ui build-build build-nlp build-ios build-ios-app\
+				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before\
         clean clean-core clean-build clean-ui clean-ios clean-db-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw \
         version-major version-minor version-patch \
@@ -8,6 +8,11 @@
 SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(✘|Suite.*after|error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled)'
+LOG_DIR = $(CURDIR)/local/build/logs
+
+# Build prerequisites - create required directories
+build-before:
+	@mkdir -p $(LOG_DIR)
 
 # Build test database if it doesn't exist
 scv-core/Sources/Resources/ebt-en-soma.db.zst:
@@ -21,29 +26,29 @@ test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst test-core test-ui
 
 test-core: build-core
 	@echo "=======> test-core..."
-	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 \
-	| tee ../local/test-core.log \
-	| grep -E $(TEST_ALL_FILTER) || true
+	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests > $(LOG_DIR)/test-core.log 2>&1
+	@grep -E $(TEST_ALL_FILTER) $(LOG_DIR)/test-core.log || true
 
 test-core-verbose: build-core
 	@cd scv-core && swift test --no-parallel --verbose
 
 test-build: build-build
 	@echo "=======> test-build..."
-	@cd scv-build && swift test --no-parallel 2>&1 | grep -v "started\."
+	@cd scv-build && swift test --no-parallel > $(LOG_DIR)/test-build.log 2>&1
+	@grep -v "started\." $(LOG_DIR)/test-build.log || true
 
 test-ui: build-ui
 	@echo "=======> test-ui..."
-	@cd scv-ui && swift test --no-parallel 2>&1 | grep -E $(TEST_ALL_FILTER) || true
+	@cd scv-ui && swift test --no-parallel > $(LOG_DIR)/test-ui.log 2>&1
+	@grep -E $(TEST_ALL_FILTER) $(LOG_DIR)/test-ui.log || true
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-nlp: build-nlp
 	@echo "=======> test-nlp..."
-	@cd scv-nlp && swift test --no-parallel 2>&1 \
-	| tee ../local/test-nlp.log \
-	| grep -E $(TEST_ALL_FILTER) || true
+	@cd scv-nlp && swift test --no-parallel > $(LOG_DIR)/test-nlp.log 2>&1
+	@grep -E $(TEST_ALL_FILTER) $(LOG_DIR)/test-nlp.log || true
 
 # build-macros:
 # 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
@@ -52,14 +57,14 @@ test-nlp: build-nlp
 # Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
 
 # Rebuild all .zst files from latest ebt-data content and regenerate manifest
-build-content: build-build 
-	@echo "Pulling latest ebt-data..." > local/build-content.log
+build-content: build-before build-build
+	@echo "Pulling latest ebt-data..." > $(LOG_DIR)/build-content.log
 	@(cd local/ebt-data && git pull)
-	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a local/build-content.log
-	@scripts/build-ebt-data --rebuild-from-manifest 2>&1 | tee -a local/build-content.log
-	@echo "Regenerating db-manifest.json with schema versions..." 2>&1 | tee -a local/build-content.log
-	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a local/build-content.log
-	@echo "✓ All .zst files rebuilt and manifest regenerated" 2>&1 | tee -a local/build-content.log
+	@echo "Rebuilding all databases from latest content..." 2>&1 | tee -a $(LOG_DIR)/build-content.log
+	@scripts/build-ebt-data --rebuild-from-manifest 2>&1 | tee -a $(LOG_DIR)/build-content.log
+	@echo "Regenerating db-manifest.json with schema versions..." 2>&1 | tee -a $(LOG_DIR)/build-content.log
+	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a $(LOG_DIR)/build-content.log
+	@echo "✓ All .zst files rebuilt and manifest regenerated" 2>&1 | tee -a $(LOG_DIR)/build-content.log
 
 content: clean-build build-content
 
@@ -72,51 +77,58 @@ build-db:
 	@echo "Building database: $(DB)..."
 	@scripts/build-ebt-data $(DB)
 
-build-build: build-core
+build-build: build-before build-core
 	@echo "=====> build-build..."
-	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+	@cd scv-build && swift build > $(LOG_DIR)/build-build.log 2>&1
+	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_DIR)/build-build.log || true
 
-build-core:
+build-core: build-before
 	@echo "=====> build-core..."
-	@cd scv-core && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+	@cd scv-core && swift build > $(LOG_DIR)/build-core.log 2>&1
+	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_DIR)/build-core.log || true
 
-build-ui: build-core
+build-ui: build-before build-core
 	@echo "=====> build-ui..."
-	@cd scv-build && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+	@cd scv-ui && swift build > $(LOG_DIR)/build-ui.log 2>&1
+	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_DIR)/build-ui.log || true
 
-build-nlp:
+build-nlp: build-before
 	@echo "=====> build-nlp..."
-	@cd scv-nlp && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
+	@cd scv-nlp && swift build > $(LOG_DIR)/build-nlp.log 2>&1
+	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_DIR)/build-nlp.log || true
 
 build-ios: build-core build-ui build-ios-app
 
 build: build-ios-app
 
-rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst
-	@echo "rebuild start... $$(date)" > local/rebuild.log
+rebuild-untimed: scv-core/Sources/Resources/ebt-en-soma.db.zst build-before
+	@echo "rebuild start... $$(date)" > $(LOG_DIR)/rebuild.log
 	@scripts/version patch
-	@mkdir -p local
 	@echo "Rebuilding..."
-	@$(MAKE) clean build 2>&1 | tee -a local/rebuild.log
-	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a local/rebuild.log
-	@$(MAKE) test-core test-ui 2>&1 | tee -a local/test-all.log 
+	@$(MAKE) clean build > $(LOG_DIR)/build.log 2>&1; \
+	if [ $$? -ne 0 ]; then cat $(LOG_DIR)/build.log >> $(LOG_DIR)/rebuild.log; echo "BUILD FAILED" >> $(LOG_DIR)/rebuild.log; exit 1; fi
+	@cat $(LOG_DIR)/build.log >> $(LOG_DIR)/rebuild.log
+	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" >> $(LOG_DIR)/rebuild.log
+	@$(MAKE) test-core test-ui > $(LOG_DIR)/test.log 2>&1; \
+	if [ $$? -ne 0 ]; then cat $(LOG_DIR)/test.log >> $(LOG_DIR)/rebuild.log; echo "TEST FAILED" >> $(LOG_DIR)/rebuild.log; exit 1; fi
+	@cat $(LOG_DIR)/test.log >> $(LOG_DIR)/rebuild.log
 	@echo "=========TEST SUMMARY======="
-	@echo "EXPECTED: 1 unhandled resource warning" 
-	cat local/test-all.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true >> local/rebuild.log
-	@echo "✓ rebuild end $$(date)" >> local/rebuild.log
+	@echo "EXPECTED: 1 unhandled resource warning"
+	cat $(LOG_DIR)/test.log | grep -v "macro 'Z" | grep -E $(TEST_ALL_FILTER) || true >> $(LOG_DIR)/rebuild.log
+	@echo "✓ rebuild end $$(date)" >> $(LOG_DIR)/rebuild.log
 
 rebuild:
 	time make rebuild-untimed
 
-build-ios-app:
+build-ios-app: build-before
 	@echo "=====> build-ios-app..."
 	@cd scv-ios && \
 	  xcodebuild build \
 	    -scheme scv-ios \
 	    -configuration Debug \
 	    -destination 'generic/platform=iOS Simulator' \
-	    2>&1 | \
-			tee ../local/build-ios.log | grep -E $(XCODE_BUILD_FILTER) || true
+	    > $(LOG_DIR)/build-ios.log 2>&1
+	@grep -E $(XCODE_BUILD_FILTER) $(LOG_DIR)/build-ios.log || true
 
 clean-db-cache:
 	@echo "=====> clean-db-cache..."

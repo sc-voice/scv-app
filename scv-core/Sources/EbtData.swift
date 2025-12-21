@@ -972,8 +972,8 @@ public actor EbtData {
 
     // Check if cached database exists
     guard FileManager.default.fileExists(atPath: cacheURL.path) else {
-      cc.bad1(#line, #function, "fileExists?", cacheURL.path)
-      return false
+      cc.ok1(#line, #function, "Not cached yet:", cacheURL.path)
+      return true
     }
 
     var db: OpaquePointer?
@@ -1033,11 +1033,25 @@ public actor EbtData {
   }
 
   /// Verify all cached databases match manifest
-  /// Returns array of DatabaseInfo that have outdated or mismatched content
-  /// - Returns: Array of DatabaseInfo entries that need cache refresh
-  public func verifyCachedDBManifests() -> [DatabaseInfo] {
+  /// Optionally repair by clearing mismatched cached database files
+  /// - Parameters:
+  ///   - repair: If true, delete cached .db files for any mismatched databases
+  /// (default: true)
+  /// - Returns: Array of DatabaseInfo entries that were mismatched
+  public func verifyCachedDBs(repair: Bool = true) -> [DatabaseInfo] {
     let manifest = DatabaseManifest.shared
     var mismatchedDatabases: [DatabaseInfo] = []
+
+    // Close and remove any cached database references
+    // This ensures no stale pointers remain after we delete files
+    for dbInfo in manifest.databases {
+      let key = "\(dbInfo.language)/\(dbInfo.author)"
+      if let db = databases[key] {
+        sqlite3_close(db)
+        databases.removeValue(forKey: key)
+        cc.ok2(#line, "Closed cached database:", key)
+      }
+    }
 
     for dbInfo in manifest.databases {
       if !verifyDatabaseInfo(dbInfo) {
@@ -1050,6 +1064,26 @@ public actor EbtData {
         #line,
         "Found \(mismatchedDatabases.count) mismatched database(s)",
       )
+
+      if repair {
+        // Clear cached .db files for mismatched databases
+        for dbInfo in mismatchedDatabases {
+          let fileName = "ebt-\(dbInfo.language)-\(dbInfo.author).db"
+          let cacheURL = FileManager.default.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask,
+          )[0].appendingPathComponent(fileName)
+
+          if FileManager.default.fileExists(atPath: cacheURL.path) {
+            try? FileManager.default.removeItem(at: cacheURL)
+            cc.ok1(
+              #line,
+              "Cleared stale cache:",
+              "\(dbInfo.language)/\(dbInfo.author)",
+            )
+          }
+        }
+      }
     }
 
     return mismatchedDatabases
