@@ -51,7 +51,7 @@ public struct SettingsView: View {
 
       VStack(spacing: 0) {
         HStack {
-          Text("Settings")
+          Text("settings.title".localized)
             .font(.headline)
             .foregroundStyle(themeProvider.theme.textColor)
           Spacer()
@@ -77,9 +77,9 @@ public struct SettingsView: View {
           Form {
             // MARK: - Languages Section
 
-            Section("Languages") {
+            Section("settings.languages".localized) {
               HStack {
-                Text("Document Language")
+                Text("settings.document.language".localized)
                 Spacer()
                 Button(action: { showDocLangPicker = true }) {
                   Text(controller.docLang.displayName)
@@ -87,7 +87,10 @@ public struct SettingsView: View {
                 }
               }
               .sheet(isPresented: $showDocLangPicker) {
-                Picker("Document Language", selection: $controller.docLang) {
+                Picker(
+                  "settings.document.language".localized,
+                  selection: $controller.docLang,
+                ) {
                   ForEach(sortedLanguages, id: \.self) { lang in
                     Text(lang.displayName).tag(lang)
                   }
@@ -101,7 +104,7 @@ public struct SettingsView: View {
               }
 
               HStack {
-                Text("Document Author")
+                Text("settings.document.author".localized)
                 Spacer()
                 Button(action: { showDocAuthorPicker = true }) {
                   Text(docAuthorName)
@@ -109,7 +112,10 @@ public struct SettingsView: View {
                 }
               }
               .sheet(isPresented: $showDocAuthorPicker) {
-                Picker("Document Author", selection: $controller.docAuthor) {
+                Picker(
+                  "settings.document.author".localized,
+                  selection: $controller.docAuthor,
+                ) {
                   ForEach(availableDocAuthors, id: \.author) { info in
                     Text(info.authorName).tag(info.author)
                   }
@@ -124,7 +130,7 @@ public struct SettingsView: View {
 
               #if TODO_REFERENCE_LANGUAGE
                 HStack {
-                  Text("Reference Language")
+                  Text("settings.reference.language".localized)
                   Spacer()
                   Button(action: { showRefLangPicker = true }) {
                     Text(controller.refLang.displayName)
@@ -132,7 +138,10 @@ public struct SettingsView: View {
                   }
                 }
                 .sheet(isPresented: $showRefLangPicker) {
-                  Picker("Reference Language", selection: $controller.refLang) {
+                  Picker(
+                    "settings.reference.language".localized,
+                    selection: $controller.refLang,
+                  ) {
                     ForEach(sortedLanguages, id: \.self) { lang in
                       Text(lang.displayName).tag(lang)
                     }
@@ -149,10 +158,10 @@ public struct SettingsView: View {
 
             // MARK: - Accessibility Section
 
-            Section("Accessibility") {
+            Section("settings.accessibility".localized) {
               // MARK: - Vision Group
 
-              Text("Vision")
+              Text("settings.vision".localized)
                 .font(.caption)
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
 
@@ -174,7 +183,7 @@ public struct SettingsView: View {
 
               // MARK: - Audio Group
 
-              Text("Audio")
+              Text("settings.audio".localized)
                 .font(.caption)
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
 
@@ -182,7 +191,7 @@ public struct SettingsView: View {
                 Image(systemName: "speaker.wave.2")
                   .foregroundColor(themeProvider.theme.accentColor)
                 VStack(alignment: .leading, spacing: 4) {
-                  Text("Sound Effects Volume")
+                  Text("settings.sound.effects.volume".localized)
                     .font(.body)
                   Slider(value: Binding(
                     get: { Double(AudioEffects.shared.soundEffectVolume) },
@@ -195,6 +204,50 @@ public struct SettingsView: View {
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
                   .frame(width: 20)
+              }
+
+              Divider()
+                .padding(.vertical, 12)
+
+              HStack {
+                Image(systemName: "waveform")
+                  .foregroundColor(themeProvider.theme.accentColor)
+                VStack(alignment: .leading, spacing: 4) {
+                  Text("settings.segment.pause".localized)
+                    .font(.body)
+                  Slider(value: Binding(
+                    get: { controller.segmentPause },
+                    set: { newValue in
+                      controller.segmentPause = newValue
+                    },
+                  ), in: 0.0 ... 0.5, step: 0.05)
+                }
+                Text("\(String(format: "%.2f", controller.segmentPause))s")
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.secondaryTextColor)
+                  .frame(width: 35)
+              }
+
+              Divider()
+                .padding(.vertical, 12)
+
+              HStack {
+                Image(systemName: "book")
+                  .foregroundColor(themeProvider.theme.accentColor)
+                Toggle(
+                  "settings.play.pali".localized,
+                  isOn: $controller.playPali,
+                )
+                .disabled(true)
+              }
+
+              HStack {
+                Image(systemName: "doc.text")
+                  .foregroundColor(themeProvider.theme.accentColor)
+                Toggle(
+                  "settings.play.document".localized,
+                  isOn: $controller.playDoc,
+                )
               }
             }
 
@@ -226,7 +279,7 @@ public struct SettingsView: View {
 
             Section {
               HStack {
-                Text("Build")
+                Text("settings.build".localized)
                 Spacer()
                 Text(buildNumber)
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
@@ -236,7 +289,10 @@ public struct SettingsView: View {
             // MARK: - Reset Button Section
 
             Section {
-              Button("Reset Settings", role: .destructive) {
+              Button(
+                "settings.reset.button".localized,
+                role: .destructive,
+              ) {
                 showResetConfirmation = true
               }
             }
@@ -259,14 +315,23 @@ public struct SettingsView: View {
         cc.ok2(#line, "alert(Reset All Settings) presenting")
       }
     }
-    .alert("Reset All Settings?", isPresented: $showResetConfirmation) {
-      Button("Reset", role: .destructive) {
+    .alert(
+      "settings.reset.alert.title".localized,
+      isPresented: $showResetConfirmation,
+    ) {
+      Button(
+        "alert.reset".localized,
+        role: .destructive,
+      ) {
         controller.resetToDefaults()
         themeProvider.setTheme(.dark)
       }
-      Button("Cancel", role: .cancel) {}
+      Button(
+        "alert.cancel".localized,
+        role: .cancel,
+      ) {}
     } message: {
-      Text("This will restore all settings to their default values.")
+      Text("settings.reset.alert.message".localized)
     }
     .onAppear {
       cc.ok1(#line, #function)

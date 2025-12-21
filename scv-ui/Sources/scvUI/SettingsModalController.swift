@@ -52,6 +52,18 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var segmentPause: Double {
+    didSet { autosave() }
+  }
+
+  @Published var playPali: Bool {
+    didSet { autosave() }
+  }
+
+  @Published var playDoc: Bool {
+    didSet { autosave() }
+  }
+
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
   private let originalIsDarkModeEnabled: Bool
@@ -61,6 +73,7 @@ public class SettingsModalController: NSObject, ObservableObject {
   private let originalPaliRate: Float
   private let originalDocPitch: Float
   private let originalDocRate: Float
+  private let originalSegmentPause: Double
 
   private var pendingSave = false
   private var saveTimer: Timer?
@@ -76,6 +89,9 @@ public class SettingsModalController: NSObject, ObservableObject {
     docPitch = settings.docSpeech.pitch
     docRate = settings.docSpeech.rate
     docAuthor = settings.docAuthor
+    segmentPause = settings.segmentPause
+    playPali = settings.playPali
+    playDoc = settings.playDoc
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
@@ -86,6 +102,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     originalPaliRate = settings.paliSpeech.rate
     originalDocPitch = settings.docSpeech.pitch
     originalDocRate = settings.docSpeech.rate
+    originalSegmentPause = settings.segmentPause
   }
 
   private func autosave() {
@@ -102,6 +119,9 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.docSpeech.pitch = docPitch
     Settings.shared.docSpeech.rate = docRate
     Settings.shared.docAuthor = docAuthor
+    Settings.shared.segmentPause = segmentPause
+    Settings.shared.playPali = playPali
+    Settings.shared.playDoc = playDoc
 
     // If language changed, validate to ensure docAuthor/refAuthor are valid for
     // the new language
@@ -181,5 +201,8 @@ public class SettingsModalController: NSObject, ObservableObject {
     paliRate = 1.0
     docPitch = 1.0
     docRate = 1.0
+    segmentPause = SEGMENT_PAUSE_DEFAULT
+    playPali = false
+    playDoc = true
   }
 }

@@ -128,9 +128,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     guard !text.isEmpty else {
       // Skip segment, advance to next
       AudioEffects.shared.announce(.noText)
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        self.playSegmentAt(at: index + 1)
-      }
+      playSegmentAt(at: index + 1)
       return
     }
 
@@ -156,6 +154,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // docSpeech.rate is 0.1-2.0 multiplier, so scale it: 1.0 -> 0.5 (normal)
     utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docSpeech.rate
     utterance.pitchMultiplier = docSpeech.pitch
+    let segmentPause = Settings.shared.segmentPause
+    utterance.preUtteranceDelay = segmentPause
+    utterance.postUtteranceDelay = segmentPause
 
     nextIndexToPlay = index + 1
     synthesizer.speak(utterance)
@@ -163,18 +164,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   private func getSegmentText(_ segment: Segment) -> String {
     // Query settings at point of need
-    let playPali = UserDefaults.standard.bool(forKey: "playPali")
-    let playEnglish = UserDefaults.standard.bool(forKey: "playEnglish")
+    let playPali = Settings.shared.playPali
+    let playDoc = Settings.shared.playDoc
 
     if playPali, !(segment.pli?.isEmpty ?? true) {
       return segment.pli!
     }
-    if playEnglish, !(segment.doc?.isEmpty ?? true) {
+    if playDoc, !(segment.doc?.isEmpty ?? true) {
       return segment.doc!
     }
 
-    // Fallback to doc, then pli
-    return (segment.doc?.isEmpty ?? true) ? (segment.pli ?? "") : segment.doc!
+    // No text to play - return empty string (will trigger .noText effect)
+    return ""
   }
 
   // MARK: - AVSpeechSynthesizerDelegate

@@ -11,6 +11,7 @@ import Foundation
 // MARK: - Constants
 
 let MAX_DOC_DEFAULT = 50
+public let SEGMENT_PAUSE_DEFAULT = 0.1
 
 // MARK: - SpeechConfig
 
@@ -85,6 +86,15 @@ public class Settings: Codable {
   /// Whether dark mode is enabled
   public var isDarkModeEnabled: Bool = true
 
+  /// Pause between segments during playback (in seconds)
+  public var segmentPause: Double = SEGMENT_PAUSE_DEFAULT
+
+  /// Whether to play Pali text during narration
+  public var playPali: Bool = false
+
+  /// Whether to play document (translation) text during narration
+  public var playDoc: Bool = true
+
   /// Application version when last run
   public var lastApplicationVersion: String = ""
 
@@ -124,6 +134,9 @@ public class Settings: Codable {
     case paliSpeech
     case docSpeech
     case isDarkModeEnabled
+    case segmentPause
+    case playPali
+    case playDoc
     case lastApplicationVersion
     case maxDoc
   }
@@ -140,6 +153,9 @@ public class Settings: Codable {
     try container.encode(paliSpeech, forKey: .paliSpeech)
     try container.encode(docSpeech, forKey: .docSpeech)
     try container.encode(isDarkModeEnabled, forKey: .isDarkModeEnabled)
+    try container.encode(segmentPause, forKey: .segmentPause)
+    try container.encode(playPali, forKey: .playPali)
+    try container.encode(playDoc, forKey: .playDoc)
     try container.encode(
       lastApplicationVersion,
       forKey: .lastApplicationVersion,
@@ -219,6 +235,18 @@ public class Settings: Codable {
         Bool.self,
         forKey: .isDarkModeEnabled,
       ) ?? false
+      segmentPause = try container.decodeIfPresent(
+        Double.self,
+        forKey: .segmentPause,
+      ) ?? SEGMENT_PAUSE_DEFAULT
+      playPali = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .playPali,
+      ) ?? false
+      playDoc = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .playDoc,
+      ) ?? true
       lastApplicationVersion = try container.decodeIfPresent(
         String.self,
         forKey: .lastApplicationVersion,
@@ -365,6 +393,9 @@ public class Settings: Codable {
     paliSpeech = SpeechConfig(language: .default)
     docSpeech = SpeechConfig(language: .default)
     isDarkModeEnabled = false
+    segmentPause = SEGMENT_PAUSE_DEFAULT
+    playPali = false
+    playDoc = true
     lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT
     UserDefaults.standard.removeObject(forKey: "com.scv.settings")

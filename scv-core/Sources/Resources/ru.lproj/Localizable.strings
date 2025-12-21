@@ -15,3 +15,57 @@
 
 /* Error message when translation not found for language/author combination */
 "translation.not.found" = "Перевод не найден для %@ / %@";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Пауза между сегментами";
+
+/* Settings view title */
+"settings.title" = "Настройки";
+
+/* Settings section header for language selection */
+"settings.languages" = "Языки";
+
+/* Settings label for document language */
+"settings.document.language" = "Язык документа";
+
+/* Settings label for document author */
+"settings.document.author" = "Автор документа";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Справочный язык";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Специальные возможности";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Зрение";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Аудио";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Громкость звуковых эффектов";
+
+/* Settings section header for build information */
+"settings.build" = "Сборка";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Сбросить настройки";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "Сбросить все настройки?";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Это восстановит все настройки по умолчанию.";
+
+/* Alert button label for confirming reset */
+"alert.reset" = "Сбросить";
+
+/* Alert button label for canceling action */
+"alert.cancel" = "Отмена";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Воспроизводить текст на языке пали";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Воспроизводить текст документа";

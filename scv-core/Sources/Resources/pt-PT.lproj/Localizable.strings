@@ -15,3 +15,57 @@
 
 /* Error message when translation not found for language/author combination */
 "translation.not.found" = "Tradução não encontrada para %@ / %@";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Pausa de segmento";
+
+/* Settings view title */
+"settings.title" = "Configurações";
+
+/* Settings section header for language selection */
+"settings.languages" = "Idiomas";
+
+/* Settings label for document language */
+"settings.document.language" = "Idioma do documento";
+
+/* Settings label for document author */
+"settings.document.author" = "Autor do documento";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Idioma de referência";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Acessibilidade";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Visão";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Áudio";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Volume dos efeitos sonoros";
+
+/* Settings section header for build information */
+"settings.build" = "Compilação";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Redefinir configurações";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "Redefinir todas as configurações?";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Isso restaurará todas as configurações para seus valores padrão.";
+
+/* Alert button label for confirming reset */
+"alert.reset" = "Redefinir";
+
+/* Alert button label for canceling action */
+"alert.cancel" = "Cancelar";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Reproduzir texto em Pali";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Reproduzir texto do documento";
