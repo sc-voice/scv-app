@@ -21,7 +21,6 @@ public struct SettingsView: View {
   @State private var showDocLangPicker = false
   @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
-  @State private var showUILangPicker = false
 
   public init(controller: SettingsModalController) {
     _controller = ObservedObject(wrappedValue: controller)
@@ -43,10 +42,6 @@ public struct SettingsView: View {
 
   var sortedLanguages: [ScvLanguage] {
     ScvLanguage.allCases.sorted { $0.code < $1.code }
-  }
-
-  var sortedUILanguages: [ScvLanguage] {
-    ScvLanguage.uiLanguages.sorted { $0.code < $1.code }
   }
 
   public var body: some View {
@@ -127,49 +122,29 @@ public struct SettingsView: View {
                 #endif
               }
 
-              HStack {
-                Text("Reference Language")
-                Spacer()
-                Button(action: { showRefLangPicker = true }) {
-                  Text(controller.refLang.displayName)
-                    .foregroundColor(themeProvider.theme.valueColor)
-                }
-              }
-              .sheet(isPresented: $showRefLangPicker) {
-                Picker("Reference Language", selection: $controller.refLang) {
-                  ForEach(sortedLanguages, id: \.self) { lang in
-                    Text(lang.displayName).tag(lang)
+              #if TODO_REFERENCE_LANGUAGE
+                HStack {
+                  Text("Reference Language")
+                  Spacer()
+                  Button(action: { showRefLangPicker = true }) {
+                    Text(controller.refLang.displayName)
+                      .foregroundColor(themeProvider.theme.valueColor)
                   }
                 }
-                #if os(iOS)
-                .pickerStyle(.wheel)
-                .presentationDetents([.medium])
-                #else
-                .pickerStyle(.menu)
-                #endif
-              }
-
-              HStack {
-                Text("UI Language")
-                Spacer()
-                Button(action: { showUILangPicker = true }) {
-                  Text(controller.uiLang.displayName)
-                    .foregroundColor(themeProvider.theme.valueColor)
-                }
-              }
-              .sheet(isPresented: $showUILangPicker) {
-                Picker("UI Language", selection: $controller.uiLang) {
-                  ForEach(sortedUILanguages, id: \.self) { lang in
-                    Text(lang.displayName).tag(lang)
+                .sheet(isPresented: $showRefLangPicker) {
+                  Picker("Reference Language", selection: $controller.refLang) {
+                    ForEach(sortedLanguages, id: \.self) { lang in
+                      Text(lang.displayName).tag(lang)
+                    }
                   }
+                  #if os(iOS)
+                  .pickerStyle(.wheel)
+                  .presentationDetents([.medium])
+                  #else
+                  .pickerStyle(.menu)
+                  #endif
                 }
-                #if os(iOS)
-                .pickerStyle(.wheel)
-                .presentationDetents([.medium])
-                #else
-                .pickerStyle(.menu)
-                #endif
-              }
+              #endif
             }
 
             // MARK: - Accessibility Section

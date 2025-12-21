@@ -26,7 +26,6 @@ import Testing
   @Test func resetRestoresDefaults() {
     Settings.shared.docLang = .german
     Settings.shared.refLang = .french
-    Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
     Settings.shared.maxDoc = 10
@@ -35,7 +34,6 @@ import Testing
 
     #expect(Settings.shared.docLang == .english)
     #expect(Settings.shared.refLang == .english)
-    #expect(Settings.shared.uiLang == .english)
     #expect(Settings.shared.isDarkModeEnabled == false)
     #expect(Settings.shared.lastApplicationVersion == "")
     #expect(Settings.shared.maxDoc == MAX_DOC_DEFAULT)
@@ -55,13 +53,6 @@ import Testing
     Settings.shared.refLang = .spanish
 
     #expect(Settings.shared.refLang == .spanish)
-  }
-
-  @Test func modifyUiLang() {
-    Settings.shared.reset()
-    Settings.shared.uiLang = .german
-
-    #expect(Settings.shared.uiLang == .german)
   }
 
   @Test func toggleDarkMode() {
@@ -109,7 +100,6 @@ import Testing
     Settings.shared.reset()
     Settings.shared.docLang = .german
     Settings.shared.refLang = .french
-    Settings.shared.uiLang = .italian
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "2.0.0"
     Settings.shared.maxDoc = 75
@@ -120,7 +110,6 @@ import Testing
 
     #expect(json?["docLang"] as? String == "de")
     #expect(json?["refLang"] as? String == "fr")
-    #expect(json?["uiLang"] as? String == "it")
     #expect(json?["isDarkModeEnabled"] as? Bool == true)
     #expect(json?["lastApplicationVersion"] as? String == "2.0.0")
     #expect(json?["maxDoc"] as? Int == 75)
@@ -131,7 +120,6 @@ import Testing
     {
       "docLang": "pt",
       "refLang": "es",
-      "uiLang": "fr",
       "isDarkModeEnabled": false,
       "lastApplicationVersion": "1.5.0",
       "maxDoc": 25
@@ -143,7 +131,6 @@ import Testing
 
     #expect(settings.docLang == .portuguese)
     #expect(settings.refLang == .spanish)
-    #expect(settings.uiLang == .french)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "1.5.0")
     #expect(settings.maxDoc == 25)
@@ -161,7 +148,6 @@ import Testing
 
     #expect(settings.docLang == .german)
     #expect(settings.refLang == .english)
-    #expect(settings.uiLang == .english)
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "")
     #expect(settings.maxDoc == MAX_DOC_DEFAULT)
@@ -180,7 +166,6 @@ import Testing
 
     #expect(settings.docLang == .english)
     #expect(settings.refLang == .english)
-    #expect(settings.uiLang == .english)
   }
 
   // MARK: - Persistence Tests
@@ -190,7 +175,6 @@ import Testing
 
     Settings.shared.docLang = .german
     Settings.shared.refLang = .french
-    Settings.shared.uiLang = .spanish
     Settings.shared.isDarkModeEnabled = true
     Settings.shared.lastApplicationVersion = "1.0.0"
     Settings.shared.maxDoc = 35
@@ -206,7 +190,6 @@ import Testing
 
     #expect(loadedSettings.docLang == .german)
     #expect(loadedSettings.refLang == .french)
-    #expect(loadedSettings.uiLang == .spanish)
     #expect(loadedSettings.isDarkModeEnabled == true)
     #expect(loadedSettings.lastApplicationVersion == "1.0.0")
     #expect(loadedSettings.maxDoc == 35)
@@ -217,11 +200,9 @@ import Testing
 
     Settings.shared.docLang = .english
     Settings.shared.refLang = .french
-    Settings.shared.uiLang = .spanish
 
     #expect(Settings.shared.docLang == .english)
     #expect(Settings.shared.refLang == .french)
-    #expect(Settings.shared.uiLang == .spanish)
   }
 
   // MARK: - Versioning Tests
@@ -253,7 +234,6 @@ import Testing
       "version": 1,
       "docLang": "de",
       "refLang": "fr",
-      "uiLang": "es",
       "isDarkModeEnabled": true,
       "lastApplicationVersion": "1.5.0"
     }
@@ -265,7 +245,6 @@ import Testing
     #expect(settings.version == 1)
     #expect(settings.docLang == .german)
     #expect(settings.refLang == .french)
-    #expect(settings.uiLang == .spanish)
     #expect(settings.isDarkModeEnabled == true)
   }
 
@@ -293,8 +272,7 @@ import Testing
     {
       "version": 999,
       "docLang": "de",
-      "refLang": "fr",
-      "uiLang": "es"
+      "refLang": "fr"
     }
     """.data(using: .utf8)!
 
@@ -304,7 +282,6 @@ import Testing
     #expect(settings.version == 999)
     #expect(settings.docLang == .english)
     #expect(settings.refLang == .english)
-    #expect(settings.uiLang == .english)
     #expect(settings.isDarkModeEnabled == false)
   }
 
@@ -462,7 +439,6 @@ import Testing
       "version": 1,
       "docLang": "en",
       "refLang": "en",
-      "uiLang": "en",
       "docAuthor": "sujato",
       "refAuthor": "sujato"
     }

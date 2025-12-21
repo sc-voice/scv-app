@@ -20,10 +20,6 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
-  @Published var uiLang: ScvLanguage {
-    didSet { autosave() }
-  }
-
   @Published var isDarkModeEnabled: Bool {
     didSet { autosave() }
   }
@@ -58,7 +54,6 @@ public class SettingsModalController: NSObject, ObservableObject {
 
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
-  private let originalUiLang: ScvLanguage
   private let originalIsDarkModeEnabled: Bool
   private let originalPaliVoiceId: String
   private let originalDocVoiceId: String
@@ -73,7 +68,6 @@ public class SettingsModalController: NSObject, ObservableObject {
   public init(from settings: scvCore.Settings) {
     docLang = settings.docLang
     refLang = settings.refLang
-    uiLang = settings.uiLang
     isDarkModeEnabled = settings.isDarkModeEnabled
     paliVoiceId = settings.paliSpeech.voiceId
     docVoiceId = settings.docSpeech.voiceId
@@ -85,7 +79,6 @@ public class SettingsModalController: NSObject, ObservableObject {
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
-    originalUiLang = settings.uiLang
     originalIsDarkModeEnabled = settings.isDarkModeEnabled
     originalPaliVoiceId = settings.paliSpeech.voiceId
     originalDocVoiceId = settings.docSpeech.voiceId
@@ -101,7 +94,6 @@ public class SettingsModalController: NSObject, ObservableObject {
       || Settings.shared.refLang != refLang
     Settings.shared.docLang = docLang
     Settings.shared.refLang = refLang
-    Settings.shared.uiLang = uiLang
     Settings.shared.isDarkModeEnabled = isDarkModeEnabled
     Settings.shared.paliSpeech.voiceId = paliVoiceId
     Settings.shared.docSpeech.voiceId = docVoiceId
@@ -182,7 +174,6 @@ public class SettingsModalController: NSObject, ObservableObject {
     }
 
     refLang = .default
-    uiLang = .default
     isDarkModeEnabled = true
     paliVoiceId = ""
     docVoiceId = ""

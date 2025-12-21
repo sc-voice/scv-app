@@ -70,9 +70,6 @@ public class Settings: Codable {
   /// Currently selected voice reference language
   public var refLang: ScvLanguage = .default
 
-  /// Currently selected voice ui language
-  public var uiLang: ScvLanguage = .default
-
   /// Document author (translator) for docLang search results
   public var docAuthor: String = ""
 
@@ -122,7 +119,6 @@ public class Settings: Codable {
     case version
     case docLang
     case refLang
-    case uiLang
     case docAuthor
     case refAuthor
     case paliSpeech
@@ -137,7 +133,6 @@ public class Settings: Codable {
     try container.encode(version, forKey: .version)
     try container.encode(docLang, forKey: .docLang)
     try container.encode(refLang, forKey: .refLang)
-    try container.encode(uiLang, forKey: .uiLang)
     try container.encode(docAuthor, forKey: .docAuthor)
     if let refAuthor {
       try container.encode(refAuthor, forKey: .refAuthor)
@@ -177,11 +172,6 @@ public class Settings: Codable {
         forKey: .refLang,
       ) ?? "en"
       refLang = ScvLanguage(code: refLangCode) ?? .default
-      let uiLangCode = try container.decodeIfPresent(
-        String.self,
-        forKey: .uiLang,
-      ) ?? "en"
-      uiLang = ScvLanguage(code: uiLangCode) ?? .default
 
       // Decode or initialize docAuthor from manifest
       if let decodedAuthor = try container.decodeIfPresent(
@@ -239,7 +229,6 @@ public class Settings: Codable {
       // Unknown version: reset to defaults (will be validated later)
       docLang = .default
       refLang = .default
-      uiLang = .default
       docAuthor = ""
       refAuthor = nil
       paliSpeech = SpeechConfig(language: .default)
@@ -357,7 +346,6 @@ public class Settings: Codable {
       version = decoded.version
       docLang = decoded.docLang
       refLang = decoded.refLang
-      uiLang = decoded.uiLang
       docAuthor = decoded.docAuthor
       refAuthor = decoded.refAuthor
       paliSpeech = decoded.paliSpeech
@@ -372,7 +360,6 @@ public class Settings: Codable {
     version = 1
     docLang = .default
     refLang = .default
-    uiLang = .default
     docAuthor = ""
     refAuthor = nil
     paliSpeech = SpeechConfig(language: .default)

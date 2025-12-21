@@ -110,7 +110,6 @@ struct SerializationV1Tests {
     #expect(settings.version == 1)
     #expect(settings.docLang == ScvLanguage.english)
     #expect(settings.refLang == ScvLanguage.english)
-    #expect(settings.uiLang == ScvLanguage.english)
     // Fixture contains hardcoded docAuthor - should be preserved exactly
     #expect(settings.docAuthor == "sujato")
     // refAuthor initialized from manifest default for refLang during
