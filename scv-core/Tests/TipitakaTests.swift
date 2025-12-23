@@ -1,0 +1,182 @@
+import Foundation
+@testable import scvCore
+import Testing
+
+struct TipitakaTests {
+  @Test func emptyDocumentsList() {
+    let flatDocs: [TipitakaRef] = []
+    let tree = Tipitaka.buildTree(from: flatDocs)
+    #expect(tree.isEmpty)
+  }
+
+  @Test func singleRootDocument() {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    #expect(tree.count == 1)
+    #expect(tree[0].id == "/sutta")
+    #expect(tree[0].name == "Suttas")
+    #expect(tree[0].children == nil)
+  }
+
+  @Test func sn53RealHierarchy() {
+    // Real SN 53 hierarchy from en/sujato
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/sn/sn53", name: "The Bodhisattva"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.1-12", name: "Suttas 1-12"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.13-22", name: "Suttas 13-22"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.23-34", name: "Suttas 23-34"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.35-44", name: "Suttas 35-44"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.45-54", name: "Suttas 45-54"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    // Root should have 1 item: /sutta
+    #expect(tree.count == 1)
+    #expect(tree[0].id == "/sutta")
+
+    // /sutta should have /sn as child
+    let suttaRoot = tree[0]
+    #expect(suttaRoot.children?.count == 1)
+    #expect(suttaRoot.children?.first?.id == "/sutta/sn")
+
+    // /sn should have /sn53 as child
+    let snRoot = suttaRoot.children?[0]
+    #expect(snRoot?.children?.count == 1)
+    #expect(snRoot?.children?.first?.id == "/sutta/sn/sn53")
+
+    // /sn53 should have 5 children (sn53.1-12 through sn53.45-54)
+    let sn53Root = snRoot?.children?[0]
+    #expect(sn53Root?.children?.count == 5)
+
+    let sn53Children = sn53Root?.children?.map(\.id) ?? []
+    #expect(sn53Children == [
+      "/sutta/sn/sn53/sn53.1-12",
+      "/sutta/sn/sn53/sn53.13-22",
+      "/sutta/sn/sn53/sn53.23-34",
+      "/sutta/sn/sn53/sn53.35-44",
+      "/sutta/sn/sn53/sn53.45-54",
+    ])
+  }
+
+  @Test func findRefInSn53() {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/sn/sn53", name: "The Bodhisattva"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.1-12", name: "Suttas 1-12"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.13-22", name: "Suttas 13-22"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    let found = Tipitaka.findRef(byId: "/sutta/sn/sn53/sn53.13-22", in: tree)
+    #expect(found != nil)
+    #expect(found?.name == "Suttas 13-22")
+  }
+
+  @Test func findRefMissing() {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/sn/sn53", name: "The Bodhisattva"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    let found = Tipitaka.findRef(byId: "/sutta/sn/sn99", in: tree)
+    #expect(found == nil)
+  }
+
+  @Test func multipleRoots() {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/vinaya", name: "Monastic Code"),
+      TipitakaRef(id: "/vinaya/pti", name: "Patimokkha"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    #expect(tree.count == 2)
+    #expect(tree[0].id == "/sutta")
+    #expect(tree[1].id == "/vinaya")
+    #expect(tree[0].children?.count == 1)
+    #expect(tree[1].children?.count == 1)
+  }
+
+  @Test func childrenSortedByPath() {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/dn", name: "Long Discourses"),
+      TipitakaRef(id: "/sutta/mn", name: "Middle Discourses"),
+      TipitakaRef(id: "/sutta/an", name: "Numbered Discourses"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    let suttaRoot = tree.first { $0.id == "/sutta" }
+    let childPaths = suttaRoot?.children?.map(\.id) ?? []
+
+    #expect(childPaths == ["/sutta/an", "/sutta/dn", "/sutta/mn", "/sutta/sn"])
+  }
+
+  @Test func encodeTreeToJSON() throws {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/sn/sn53", name: "The Bodhisattva"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.1-12", name: "Suttas 1-12"),
+    ]
+    let tree = Tipitaka.buildTree(from: flatDocs)
+
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(tree)
+    let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
+
+    #expect(jsonString.contains("\"id\""))
+    #expect(jsonString.contains("/sutta"))
+    #expect(jsonString.contains("Suttas"))
+    #expect(jsonString.contains("children"))
+  }
+
+  @Test func decodeJSONToTree() throws {
+    let flatDocs = [
+      TipitakaRef(id: "/sutta", name: "Suttas"),
+      TipitakaRef(id: "/sutta/sn", name: "Connected Discourses"),
+      TipitakaRef(id: "/sutta/sn/sn53", name: "The Bodhisattva"),
+      TipitakaRef(id: "/sutta/sn/sn53/sn53.1-12", name: "Suttas 1-12"),
+    ]
+    let originalTree = Tipitaka.buildTree(from: flatDocs)
+
+    // Encode to JSON
+    let encoder = JSONEncoder()
+    let jsonData = try encoder.encode(originalTree)
+
+    // Decode from JSON
+    let decoder = JSONDecoder()
+    let decodedTree = try decoder.decode([TipitakaRef].self, from: jsonData)
+
+    // Verify structure matches
+    #expect(decodedTree.count == 1)
+    #expect(decodedTree[0].id == "/sutta")
+    #expect(decodedTree[0].name == "Suttas")
+    #expect(decodedTree[0].children?.count == 1)
+
+    let snNode: TipitakaRef? = decodedTree[0].children?[0]
+    #expect(snNode?.id == "/sutta/sn")
+    #expect(snNode?.name == "Connected Discourses")
+    #expect(snNode?.children?.count == 1)
+
+    let sn53Node: TipitakaRef? = snNode?.children?[0]
+    #expect(sn53Node?.id == "/sutta/sn/sn53")
+    #expect(sn53Node?.name == "The Bodhisattva")
+    #expect(sn53Node?.children?.count == 1)
+
+    let leaf: TipitakaRef? = sn53Node?.children?[0]
+    #expect(leaf?.id == "/sutta/sn/sn53/sn53.1-12")
+    #expect(leaf?.name == "Suttas 1-12")
+    #expect(leaf?.children == nil)
+  }
+}

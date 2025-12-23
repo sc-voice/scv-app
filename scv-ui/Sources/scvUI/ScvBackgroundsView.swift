@@ -79,7 +79,10 @@ public enum ScvBackground {
         Image("palm-leaf", bundle: .scvUI)
           .resizable()
           .aspectRatio(contentMode: .fill)
-          .frame(width: geometry.size.width * 1.2, height: geometry.size.height * 1.2)
+          .frame(
+            width: geometry.size.width * 1.2,
+            height: geometry.size.height * 1.2,
+          )
           .clipped()
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
           .offset(y: -geometry.size.height * 0.1)
