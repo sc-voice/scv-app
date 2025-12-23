@@ -8,5 +8,9 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "license" : "CC0 / Creative Commons",
+    "credit" : "Phutthamonthon Buddha statue, Nakhon Pathom, Thailand"
   }
 }

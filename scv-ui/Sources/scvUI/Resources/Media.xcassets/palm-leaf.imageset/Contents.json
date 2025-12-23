@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "wilderness-background.jpg",
+      "filename" : "palm-leaf.jpg",
       "idiom" : "universal"
     }
   ],
@@ -10,7 +10,7 @@
     "version" : 1
   },
   "properties" : {
-    "license" : "Rawpixel License / CC0",
-    "credit" : "Summer forest landscape"
+    "license" : "CC BY 4.0",
+    "credit" : "Singhalese Manuscript 143, Wellcome Collection"
   }
 }

@@ -8,5 +8,9 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "license" : "Public Domain",
+    "credit" : "Bodleian MS. Burm. a. 12, Life of the Buddha. Bodleian Library, University of Oxford"
   }
 }

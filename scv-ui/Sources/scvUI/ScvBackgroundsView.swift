@@ -14,6 +14,7 @@ public enum ScvBackground {
   case wilderness
   case space
   case nothingness
+  case palm_leaf
 
   public var source: URL {
     switch self {
@@ -38,6 +39,10 @@ public enum ScvBackground {
     case .nothingness:
       URL(
         string: "https://www.publicdomainpictures.net/en/view-image.php?image=20131&picture=white-sands-5",
+      )!
+    case .palm_leaf:
+      URL(
+        string: "https://wellcomecollection.org/collections",
       )!
     }
   }
@@ -69,6 +74,17 @@ public enum ScvBackground {
       Image("nothingness-background", bundle: .scvUI)
         .resizable()
         .aspectRatio(contentMode: .fill)
+    case .palm_leaf:
+      GeometryReader { geometry in
+        Image("palm-leaf", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+          .frame(width: geometry.size.width * 1.2, height: geometry.size.height * 1.2)
+          .clipped()
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+          .offset(y: -geometry.size.height * 0.1)
+          .background(Material.thin)
+      }
     }
   }
 }
