@@ -114,6 +114,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
   @State private var maxIconOffset: CGFloat = -200
+  @State private var tipitakaRefs: [TipitakaRef] = []
+  @State private var tipitakaLoading: Bool = false
   let appIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -172,34 +174,82 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     }
   }
 
+  private func loadTipitaka() {
+    cc.ok1(
+      #line,
+      "loadTipitaka: starting load for lang:",
+      Settings.shared.docLang.code,
+      "author:",
+      Settings.shared.docAuthor,
+    )
+    tipitakaLoading = true
+
+    Task {
+      let root = await Tipitaka.authorTipitaka(
+        lang: Settings.shared.docLang.code,
+        author: Settings.shared.docAuthor,
+      )
+      tipitakaRefs = root.children ?? []
+      tipitakaLoading = false
+      cc.ok1(#line, "loadTipitaka: loaded \(tipitakaRefs.count) root refs")
+    }
+  }
+
   private var resultsView: some View {
-    guard let searchResult = card.searchResult else {
+    // Check if no search results (either nil or empty items)
+    let hasNoResults = card.searchResult == nil ||
+      (card.searchResult?.items.isEmpty ?? true)
+
+    if hasNoResults {
       return AnyView(
-        GeometryReader { geometry in
-          VStack(spacing: 12) {
-            appIcon
-              .resizable()
-              .scaledToFit()
-              .frame(width: 80, height: 80)
-              .opacity(iconOpacity)
-              .offset(y: iconOffset)
-              .onAppear {
-                // Calculate offset: move icon to 16pt below top of its
-                // container
-                let targetY = 16.0
-                let iconCenterY = geometry.size.height / 2
-                let calculated = -(iconCenterY - targetY)
-                maxIconOffset = calculated
-                cc.ok2(#line, "maxOffset calculated: \(calculated)")
+        ZStack {
+          // Show TipitakaView if loaded, otherwise show loading/icon
+          if !tipitakaRefs.isEmpty {
+            TipitakaView(tipitakaRefs: tipitakaRefs, cardManager: cardManager)
+          } else if tipitakaLoading {
+            VStack(spacing: 12) {
+              ProgressView()
+                .scaleEffect(1.5)
+              Text("Loading Tipiṭaka...")
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          } else {
+            // Fallback: show app icon
+            GeometryReader { geometry in
+              VStack(spacing: 12) {
+                appIcon
+                  .resizable()
+                  .scaledToFit()
+                  .frame(width: 80, height: 80)
+                  .opacity(iconOpacity)
+                  .offset(y: iconOffset)
+                  .onAppear {
+                    // Calculate offset: move icon to 16pt below top
+                    let targetY = 16.0
+                    let iconCenterY = geometry.size.height / 2
+                    let calculated = -(iconCenterY - targetY)
+                    maxIconOffset = calculated
+                    cc.ok2(#line, "maxOffset calculated: \(calculated)")
+                  }
               }
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .padding()
+            }
           }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .padding()
+        }
+        .onAppear {
+          loadTipitaka()
         },
       )
     }
 
     // Check for error
+    guard let searchResult = card.searchResult else {
+      return AnyView(EmptyView())
+    }
+
     if let error = searchResult.error {
       return AnyView(
         VStack(spacing: 12) {

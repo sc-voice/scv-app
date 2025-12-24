@@ -11,12 +11,56 @@ import SwiftUI
 // MARK: - TipitakaView
 
 /// Displays hierarchical Tipiṭaka document tree using OutlineGroup
-public struct TipitakaView: View {
+public struct TipitakaView<Manager: ICardManager>: View {
   let tipitakaRefs: [TipitakaRef]
+  let cardManager: Manager?
   @EnvironmentObject var themeProvider: ThemeProvider
+  let cc = ColorConsole(#file, #function, dbg.TipitakaView.other)
 
-  public init(tipitakaRefs: [TipitakaRef]) {
+  public init(tipitakaRefs: [TipitakaRef], cardManager: Manager? = nil) {
     self.tipitakaRefs = tipitakaRefs
+    self.cardManager = cardManager
+  }
+
+  // MARK: - Private Methods
+
+  /// Extracts the suttaUid from a TipitakaRef path
+  /// Example: "/sutta/mn/mn1" → "mn1"
+  private func suttaUidFromPath(_ path: String) -> String? {
+    let components = path.split(separator: "/").map(String.init)
+    return components.last
+  }
+
+  /// Handles tapping on a leaf node to create and select a sutta card
+  private func handleLeafTap(_ ref: TipitakaRef) {
+    guard let suttaUid = suttaUidFromPath(ref.id) else {
+      cc.bad1(#line, "Could not extract suttaUid from path:", ref.id)
+      return
+    }
+
+    cc.ok1(#line, "Tapped leaf:", ref.name, "suttaUid:", suttaUid)
+
+    // Create SuttaRef using current Settings lang/author
+    guard let suttaRef = SuttaRef.create(
+      suttaUid,
+      defaultLang: Settings.shared.docLang.code,
+      defaultAuthor: Settings.shared.docAuthor,
+    ) else {
+      cc.bad1(#line, "Failed to create SuttaRef for:", suttaUid)
+      return
+    }
+
+    // Create and select sutta card
+    guard let cardManager else {
+      cc.bad1(#line, "No cardManager available")
+      return
+    }
+
+    Task {
+      let suttaCard = await cardManager.suttaCardForRef(suttaRef)
+      cardManager.selectCard(suttaCard)
+      cc.ok1(#line, "Selected sutta card for:", suttaRef.toString())
+    }
   }
 
   public var body: some View {
@@ -40,7 +84,7 @@ public struct TipitakaView: View {
         .contentShape(Rectangle())
         .onTapGesture {
           if ref.children == nil || ref.children?.isEmpty == true {
-            print("Tapped leaf: \(ref.name)")
+            handleLeafTap(ref)
           }
         }
       }
@@ -71,7 +115,11 @@ private struct TipitakaViewPreview: View {
           tipitakaRefs = [root]
         }
     } else {
-      TipitakaView(tipitakaRefs: tipitakaRefs[0].children ?? [])
+      // Use MockCardManager for preview (cardManager is optional)
+      TipitakaView<MockCardManager>(
+        tipitakaRefs: tipitakaRefs[0].children ?? [],
+        cardManager: nil,
+      )
     }
   }
 }
