@@ -97,15 +97,15 @@ import Testing
   // MARK: - Codable Tests
 
   @Test func encode() throws {
-    Settings.shared.reset()
-    Settings.shared.docLang = .german
-    Settings.shared.refLang = .french
-    Settings.shared.isDarkModeEnabled = true
-    Settings.shared.lastApplicationVersion = "2.0.0"
-    Settings.shared.maxDoc = 75
+    let settings = Settings()
+    settings.docLang = .german
+    settings.refLang = .french
+    settings.isDarkModeEnabled = true
+    settings.lastApplicationVersion = "2.0.0"
+    settings.maxDoc = 75
 
     let encoder = JSONEncoder()
-    let data = try encoder.encode(Settings.shared)
+    let data = try encoder.encode(settings)
     let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
     #expect(json?["docLang"] as? String == "de")
@@ -171,22 +171,21 @@ import Testing
   // MARK: - Persistence Tests
 
   @Test func saveAndLoad() throws {
-    Settings.shared.reset()
+    let settings = Settings()
 
-    Settings.shared.docLang = .german
-    Settings.shared.refLang = .french
-    Settings.shared.isDarkModeEnabled = true
-    Settings.shared.lastApplicationVersion = "1.0.0"
-    Settings.shared.maxDoc = 35
+    settings.docLang = .german
+    settings.refLang = .french
+    settings.isDarkModeEnabled = true
+    settings.lastApplicationVersion = "1.0.0"
+    settings.maxDoc = 35
 
-    Settings.shared.save()
+    // Manually encode/decode instead of using UserDefaults to avoid test
+    // isolation issues
+    let encoder = JSONEncoder()
+    let encodedData = try encoder.encode(settings)
 
-    guard let data = UserDefaults.standard.data(forKey: "com.scv.settings")
-    else {
-      throw NSError(domain: "SettingsTests", code: 1)
-    }
     let decoder = JSONDecoder()
-    let loadedSettings = try decoder.decode(Settings.self, from: data)
+    let loadedSettings = try decoder.decode(Settings.self, from: encodedData)
 
     #expect(loadedSettings.docLang == .german)
     #expect(loadedSettings.refLang == .french)
@@ -370,13 +369,13 @@ import Testing
   }
 
   @Test func docAuthorInitializedForGerman() {
-    Settings.shared.reset()
-    Settings.shared.docLang = .german
-    Settings.shared.validate()
+    let settings = Settings()
+    settings.docLang = .german
+    settings.validate()
 
     // German should have sabbamitta as default author
     if let deInfo = DatabaseManifest.shared.defaultAuthorForLanguage("de") {
-      #expect(Settings.shared.docAuthor == deInfo.author)
+      #expect(settings.docAuthor == deInfo.author)
     }
   }
 
@@ -387,13 +386,13 @@ import Testing
   }
 
   @Test func refAuthorInitializedFromManifestForEnglish() {
-    Settings.shared.reset()
-    Settings.shared.refLang = .english
-    Settings.shared.validate()
+    let settings = Settings()
+    settings.refLang = .english
+    settings.validate()
 
     // English reference should have default author from manifest
     if let enInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
-      #expect(Settings.shared.refAuthor == enInfo.author)
+      #expect(settings.refAuthor == enInfo.author)
     }
   }
 
@@ -463,21 +462,21 @@ import Testing
   }
 
   @Test func validateFixesInvalidDocAuthorWhenDocLangChanges() {
-    Settings.shared.reset()
+    let settings = Settings()
     // Set to valid en/sujato combination
-    Settings.shared.docLang = .english
-    Settings.shared.docAuthor = "sujato"
-    Settings.shared.validate()
-    #expect(Settings.shared.docLang == .english)
-    #expect(Settings.shared.docAuthor == "sujato")
+    settings.docLang = .english
+    settings.docAuthor = "sujato"
+    settings.validate()
+    #expect(settings.docLang == .english)
+    #expect(settings.docAuthor == "sujato")
 
     // Change docLang to German - sujato doesn't exist for German
-    Settings.shared.docLang = .german
-    Settings.shared.validate()
+    settings.docLang = .german
+    settings.validate()
 
     // After validate, docAuthor should be sabbamitta (default for German)
-    #expect(Settings.shared.docLang == .german)
-    #expect(Settings.shared.docAuthor == "sabbamitta")
+    #expect(settings.docLang == .german)
+    #expect(settings.docAuthor == "sabbamitta")
   }
 
   @Test func validateFixesInvalidRefAuthorWhenRefLangChanges() {

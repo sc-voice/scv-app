@@ -80,7 +80,11 @@ struct EbtQueryTests {
 
   @Test("EbtQuery with mixed valid and invalid entries")
   func queryMixedValidInvalid() {
-    let query = EbtQuery(query: "mn1/en/sujato, not a sutta, sn42.11")
+    let query = EbtQuery(
+      query: "mn1/en/sujato, not a sutta, sn42.11",
+      docLang: "en",
+      docAuthor: "sujato",
+    )
 
     #expect(
       query.method == .suttaref,

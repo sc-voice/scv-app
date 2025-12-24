@@ -22,8 +22,8 @@ public struct TipitakaView: View {
   public var body: some View {
     List {
       Text("Tipiṭaka")
-      .font(.caption)
-      .listRowSeparator(.hidden)
+        .font(.caption)
+        .listRowSeparator(.hidden)
       OutlineGroup(tipitakaRefs, children: \.children) { ref in
         HStack {
           VStack(alignment: .leading, spacing: 2) {

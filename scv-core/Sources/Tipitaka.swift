@@ -8429,7 +8429,7 @@ public struct Tipitaka {
       // For leaf nodes (suttaUids), use abbreviation followed by Pali document
       // name; otherwise use path component
       let name: String
-      let caption: String 
+      let caption: String
       if let suttaUid = pathToSuttaUid[path],
          let suttaRef = SuttaRef.create(suttaUid)
       {
@@ -8440,7 +8440,7 @@ public struct Tipitaka {
         name = Tipitaka.tipitakaName(id: pathPart)
         caption = ""
       }
-      nodesByPath[path] = TipitakaRef(id: path, name: name, caption:caption)
+      nodesByPath[path] = TipitakaRef(id: path, name: name, caption: caption)
     }
 
     // Build parent-child relationships (similar to buildTree)

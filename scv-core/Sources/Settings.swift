@@ -310,12 +310,14 @@ public class Settings: Codable {
     {
       if let defaultInfo = manifest.defaultAuthorForLanguage(docLang.code) {
         docAuthor = defaultInfo.author
+        cc.ok2(#line, #function, "docAuthor <=", docAuthor)
       }
     }
 
     // Set refLang to .english if not properly initialized
     if refLang == .default {
       refLang = .english
+      cc.ok2(#line, #function, "refLang <=", refLang)
     }
 
     // Validate and fix refAuthor if it's invalid for refLang
@@ -324,6 +326,7 @@ public class Settings: Codable {
     {
       if let defaultInfo = manifest.defaultAuthorForLanguage(refLang.code) {
         refAuthor = defaultInfo.author
+        cc.ok2(#line, #function, "refAuthor <=", refAuthor)
       }
     }
 
@@ -337,18 +340,17 @@ public class Settings: Codable {
         newConfig.voiceId = voice.identifier
         newConfig.voiceName = voice.name
         docSpeech = newConfig
-        cc.ok1(#line, "validate: docSpeech updated with voice")
+        cc.ok2(#line, #function, "docSpeech <=", docSpeech.voiceName)
       } else {
         // No voice available for docLang, fallback to English
-        cc.ok2(#line, "validate: no voice found, falling back to English")
         docLang = .english
+        cc.ok2(#line, #function, "docLang <=", docLang)
         validate() // Revalidate with new docLang
-        cc.ok1(#line, "validate: revalidation complete after fallback")
       }
     }
 
     let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-    cc.ok1(#line, "validate() elapsed: \(String(format: "%.2f", elapsed)) ms")
+    cc.ok1(#line, #function, "elapsed: \(String(format: "%.2f", elapsed)) ms")
   }
 
   // MARK: - Persistence
@@ -379,7 +381,11 @@ public class Settings: Codable {
       paliSpeech = decoded.paliSpeech
       docSpeech = decoded.docSpeech
       isDarkModeEnabled = decoded.isDarkModeEnabled
+      segmentPause = decoded.segmentPause
+      playPali = decoded.playPali
+      playDoc = decoded.playDoc
       lastApplicationVersion = decoded.lastApplicationVersion
+      maxDoc = decoded.maxDoc
     }
   }
 

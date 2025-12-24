@@ -240,9 +240,9 @@ struct TipitakaTests {
         author: "ms",
       )
       let abbr = suttaRef.abbreviation()
+      #expect(thig1_1.name == abbr)
       let paliName = Tipitaka.tipitakaName(suttaRef: suttaRef)
-      let expectedName = "\(abbr) \(paliName)"
-      #expect(thig1_1.name == expectedName)
+      #expect(thig1_1.caption == paliName)
     }
 
     // Serialize to JSON
