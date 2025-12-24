@@ -109,7 +109,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  let isSearchFocused: Bool
+  let isSearchPresented: Bool
   @State private var debounceTimer: Timer?
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
@@ -121,12 +121,12 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     card: Binding<Card>,
     cardManager: Manager,
     appIcon: Image? = nil,
-    isSearchFocused: Bool = false,
+    isSearchPresented: Bool = false,
   ) {
     _card = card
     self.cardManager = cardManager
     self.appIcon = appIcon ?? Image(systemName: "app.circle")
-    self.isSearchFocused = isSearchFocused
+    self.isSearchPresented = isSearchPresented
   }
 
   // MARK: - Private Methods

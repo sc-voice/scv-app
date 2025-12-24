@@ -17,7 +17,7 @@ import SwiftUI
 public struct AppRootView<Manager: ICardManager>: View {
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var isSearchFocused: Bool = false
+  @State private var isSearchPresented: Bool = false
   @FocusState private var searchFieldIsFocused: Bool
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
@@ -75,19 +75,19 @@ public struct AppRootView<Manager: ICardManager>: View {
                 }
                 .searchable(
                   text: $rootSearchQuery,
-                  isPresented: $isSearchFocused,
-                  placement: {
-                    #if os(iOS)
-                      return .navigationBarDrawer(displayMode: .automatic)
-                    #else
-                      return .toolbar
-                    #endif
-                  }(),
+                  isPresented: $isSearchPresented,
+                  // placement: {
+                  // #if os(iOS)
+                  // return .navigationBarDrawer(displayMode: .automatic)
+                  // #else
+                  // return .toolbar
+                  // #endif
+                  // }(),
                   prompt: "Search",
                 )
                 .focused($searchFieldIsFocused)
-                .onChange(of: isSearchFocused) { _, newValue in
-                  cc.ok1(#line, "isSearchFocused changed to:", newValue)
+                .onChange(of: isSearchPresented) { _, newValue in
+                  cc.ok1(#line, "isSearchPresented changed to:", newValue)
                 }
                 .onChange(of: searchFieldIsFocused) { _, newValue in
                   cc.ok1(
@@ -109,8 +109,8 @@ public struct AppRootView<Manager: ICardManager>: View {
                 .onAppear {
                   cc.ok1(
                     #line,
-                    "searchable modifier appeared, isSearchFocused:",
-                    isSearchFocused,
+                    "searchable modifier appeared, isSearchPresented:",
+                    isSearchPresented,
                   )
                 }
                 .onSubmit(of: .search) {
@@ -120,7 +120,7 @@ public struct AppRootView<Manager: ICardManager>: View {
                     selectedCardId: selectedCardId,
                     searchQueryBinding: $rootSearchQuery,
                   )
-                  isSearchFocused = false
+                  isSearchPresented = false
                 }
             } else {
               VStack(spacing: 16) {
@@ -193,7 +193,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           // Delay search focus to allow view hierarchy to stabilize
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             cc.ok1(#line, "Enabling search focus after delay")
-            isSearchFocused = true
+            isSearchPresented = true
           }
         }
         .onChange(of: cardManager.selectedCardId) {
@@ -246,7 +246,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           card: cardBinding,
           cardManager: cardManager,
           appIcon: appIcon,
-          isSearchFocused: isSearchFocused,
+          isSearchPresented: isSearchPresented,
         )
         .environmentObject(themeProvider)
         .onAppear {
@@ -260,7 +260,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               return .automatic
             #endif
           }()) {
-            Button(action: { isSearchFocused.toggle() }) {
+            Button(action: { isSearchPresented.toggle() }) {
               Image(systemName: "magnifyingglass")
                 .font(.title2)
             }
@@ -273,7 +273,7 @@ public struct AppRootView<Manager: ICardManager>: View {
         SuttaCardView(
           card: cardBinding,
           cardManager: cardManager,
-          isSearchFocused: isSearchFocused,
+          isSearchPresented: isSearchPresented,
         )
         .environmentObject(themeProvider)
         .toolbar {
@@ -284,7 +284,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               return .automatic
             #endif
           }()) {
-            Button(action: { isSearchFocused.toggle() }) {
+            Button(action: { isSearchPresented.toggle() }) {
               Image(systemName: "magnifyingglass")
                 .font(.title2)
             }

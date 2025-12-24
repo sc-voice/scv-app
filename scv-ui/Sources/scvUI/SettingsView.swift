@@ -75,86 +75,14 @@ public struct SettingsView: View {
             .background(themeProvider.theme.backgroundColor)
         } else {
           Form {
-            // MARK: - Languages Section
-
-            Section("settings.languages".localized) {
-              HStack {
-                Text("settings.document.language".localized)
-                Spacer()
-                Button(action: { showDocLangPicker = true }) {
-                  Text(controller.docLang.displayName)
-                    .foregroundColor(themeProvider.theme.valueColor)
-                }
-              }
-              .sheet(isPresented: $showDocLangPicker) {
-                Picker(
-                  "settings.document.language".localized,
-                  selection: $controller.docLang,
-                ) {
-                  ForEach(sortedLanguages, id: \.self) { lang in
-                    Text(lang.displayName).tag(lang)
-                  }
-                }
-                #if os(iOS)
-                .pickerStyle(.wheel)
-                .presentationDetents([.medium])
-                #else
-                .pickerStyle(.menu)
-                #endif
-              }
-
-              HStack {
-                Text("settings.document.author".localized)
-                Spacer()
-                Button(action: { showDocAuthorPicker = true }) {
-                  Text(docAuthorName)
-                    .foregroundColor(themeProvider.theme.valueColor)
-                }
-              }
-              .sheet(isPresented: $showDocAuthorPicker) {
-                Picker(
-                  "settings.document.author".localized,
-                  selection: $controller.docAuthor,
-                ) {
-                  ForEach(availableDocAuthors, id: \.author) { info in
-                    Text(info.authorName).tag(info.author)
-                  }
-                }
-                #if os(iOS)
-                .pickerStyle(.wheel)
-                .presentationDetents([.medium])
-                #else
-                .pickerStyle(.menu)
-                #endif
-              }
-
-              #if TODO_REFERENCE_LANGUAGE
-                HStack {
-                  Text("settings.reference.language".localized)
-                  Spacer()
-                  Button(action: { showRefLangPicker = true }) {
-                    Text(controller.refLang.displayName)
-                      .foregroundColor(themeProvider.theme.valueColor)
-                  }
-                }
-                .sheet(isPresented: $showRefLangPicker) {
-                  Picker(
-                    "settings.reference.language".localized,
-                    selection: $controller.refLang,
-                  ) {
-                    ForEach(sortedLanguages, id: \.self) { lang in
-                      Text(lang.displayName).tag(lang)
-                    }
-                  }
-                  #if os(iOS)
-                  .pickerStyle(.wheel)
-                  .presentationDetents([.medium])
-                  #else
-                  .pickerStyle(.menu)
-                  #endif
-                }
-              #endif
-            }
+            LanguagesSection(
+              controller: controller,
+              themeProvider: themeProvider,
+              sortedLanguages: sortedLanguages,
+              showDocLangPicker: $showDocLangPicker,
+              showDocAuthorPicker: $showDocAuthorPicker,
+              showRefLangPicker: $showRefLangPicker,
+            )
 
             // MARK: - Accessibility Section
 
@@ -337,6 +265,108 @@ public struct SettingsView: View {
       cc.ok1(#line, #function)
       cc.ok2(#line, "isLoading: \(isLoading)")
       isLoading = false
+    }
+  }
+}
+
+// MARK: - Languages Section
+
+struct LanguagesSection: View {
+  @ObservedObject var controller: SettingsModalController
+  let themeProvider: ThemeProvider
+  let sortedLanguages: [ScvLanguage]
+  @Binding var showDocLangPicker: Bool
+  @Binding var showDocAuthorPicker: Bool
+  @Binding var showRefLangPicker: Bool
+
+  var availableDocAuthors: [DatabaseInfo] {
+    EbtData.authorsForLanguageFromManifest(controller.docLang.code)
+      .sorted { $0.files.total > $1.files.total }
+  }
+
+  var docAuthorName: String {
+    availableDocAuthors.first { $0.author == controller.docAuthor }?.authorName
+      ?? controller.docAuthor
+  }
+
+  var body: some View {
+    Section("settings.languages".localized) {
+      HStack {
+        Text("settings.document.language".localized)
+        Spacer()
+        Button(action: { showDocLangPicker = true }) {
+          Text(controller.docLang.displayName)
+            .foregroundColor(themeProvider.theme.valueColor)
+        }
+      }
+      .sheet(isPresented: $showDocLangPicker) {
+        Picker(
+          "settings.document.language".localized,
+          selection: $controller.docLang,
+        ) {
+          ForEach(sortedLanguages, id: \.self) { lang in
+            Text(lang.displayName).tag(lang)
+          }
+        }
+        #if os(iOS)
+        .pickerStyle(.wheel)
+        .presentationDetents([.medium])
+        #else
+        .pickerStyle(.menu)
+        #endif
+      }
+
+      HStack {
+        Text("settings.document.author".localized)
+        Spacer()
+        Button(action: { showDocAuthorPicker = true }) {
+          Text(docAuthorName)
+            .foregroundColor(themeProvider.theme.valueColor)
+        }
+      }
+      .sheet(isPresented: $showDocAuthorPicker) {
+        Picker(
+          "settings.document.author".localized,
+          selection: $controller.docAuthor,
+        ) {
+          ForEach(availableDocAuthors, id: \.author) { info in
+            Text(info.authorName).tag(info.author)
+          }
+        }
+        #if os(iOS)
+        .pickerStyle(.wheel)
+        .presentationDetents([.medium])
+        #else
+        .pickerStyle(.menu)
+        #endif
+      }
+
+      #if TODO_REFERENCE_LANGUAGE
+        HStack {
+          Text("settings.reference.language".localized)
+          Spacer()
+          Button(action: { showRefLangPicker = true }) {
+            Text(controller.refLang.displayName)
+              .foregroundColor(themeProvider.theme.valueColor)
+          }
+        }
+        .sheet(isPresented: $showRefLangPicker) {
+          Picker(
+            "settings.reference.language".localized,
+            selection: $controller.refLang,
+          ) {
+            ForEach(sortedLanguages, id: \.self) { lang in
+              Text(lang.displayName).tag(lang)
+            }
+          }
+          #if os(iOS)
+          .pickerStyle(.wheel)
+          .presentationDetents([.medium])
+          #else
+          .pickerStyle(.menu)
+          #endif
+        }
+      #endif
     }
   }
 }

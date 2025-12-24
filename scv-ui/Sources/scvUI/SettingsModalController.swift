@@ -77,6 +77,7 @@ public class SettingsModalController: NSObject, ObservableObject {
 
   private var pendingSave = false
   private var saveTimer: Timer?
+  private var isAutoSaving = false
 
   public init(from settings: scvCore.Settings) {
     docLang = settings.docLang
@@ -106,6 +107,10 @@ public class SettingsModalController: NSObject, ObservableObject {
   }
 
   private func autosave() {
+    guard !isAutoSaving else { return }
+    isAutoSaving = true
+    defer { isAutoSaving = false }
+
     // Always update in-memory settings for live player reads
     let langChanged = Settings.shared.docLang != docLang
       || Settings.shared.refLang != refLang
