@@ -33,17 +33,22 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     ZStack {
       List(selection: $selectedCardId) {
         ForEach(cardManager.allCards) { card in
-          HStack(spacing: 12) {
+          HStack(alignment: .top, spacing: 12) {
             Image(systemName: card.iconName())
               .foregroundStyle(card.id == cardManager
                 .recentCardId ? themeProvider.theme.accentColor : .secondary)
-            VStack(alignment: .leading, spacing: 2) {
-              Text(card.sidebarTitle)
-                .font(.headline)
-                .lineLimit(1)
-                .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
-                  .localized || card.sidebarTitle == "card.type.sutta"
-                  .localized ? .secondary : .primary)
+
+            if card.cardType == .sutta {
+              suttaCardContent(card)
+            } else {
+              VStack(alignment: .leading, spacing: 2) {
+                Text(card.sidebarTitle)
+                  .font(.headline)
+                  .lineLimit(1)
+                  .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
+                    .localized || card.sidebarTitle == "card.type.sutta"
+                    .localized ? .secondary : .primary)
+              }
             }
           }
           .contentShape(Rectangle())
@@ -153,6 +158,68 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       // .blur(radius: 5)
     )
   }
+
+  // MARK: - Sutta Card Display
+
+  private func suttaCardContent(_ card: Manager.ManagedCard) -> some View {
+    VStack(alignment: .leading, spacing: 4) {
+      // Line 1: Abbreviation + Title (clipped with ellipsis)
+      if let suttaRef = SuttaRef.create(card.suttaReference) {
+        let abbreviation = suttaRef.abbreviation()
+        let title = getTitleForSuttaRef(suttaRef, mlDoc: card.mlDoc)
+        let displayText = "\(abbreviation) \(title)"
+
+        Text(displayText)
+          .font(.headline)
+          .lineLimit(1)
+          .truncationMode(.tail)
+          .foregroundStyle(.primary)
+      }
+
+      // Line 2: lang:author (segmentCount)
+      if let suttaRef = SuttaRef.create(card.suttaReference) {
+        let caption = formatSuttaCaption(suttaRef, mlDoc: card.mlDoc)
+        Text(caption)
+          .font(.caption)
+          .lineLimit(1)
+          .foregroundStyle(.secondary)
+      }
+    }
+  }
+
+  private func getTitleForSuttaRef(_ suttaRef: SuttaRef, mlDoc: MLDocument?)
+    -> String
+  {
+    guard let mlDoc else {
+      return Tipitaka.tipitakaName(suttaRef: suttaRef)
+    }
+
+    // Try to get title from segment :0.3
+    if let titleSegment = mlDoc.segMap["\(suttaRef.suttaUid):0.3"],
+       let doc = titleSegment.doc, !doc.isEmpty
+    {
+      return doc.trimmingCharacters(in: .whitespaces)
+    }
+
+    // Fall back to segment :0.2
+    if let titleSegment = mlDoc.segMap["\(suttaRef.suttaUid):0.2"],
+       let doc = titleSegment.doc, !doc.isEmpty
+    {
+      return doc.trimmingCharacters(in: .whitespaces)
+    }
+
+    // Fall back to Pali name
+    return Tipitaka.tipitakaName(suttaRef: suttaRef)
+  }
+
+  private func formatSuttaCaption(_ suttaRef: SuttaRef, mlDoc: MLDocument?)
+    -> String
+  {
+    let segmentCount = mlDoc?.segMap.count ?? 0
+    return "\(suttaRef.lang):\(suttaRef.author ?? "unknown") (\(segmentCount))"
+  }
+
+  // MARK: - Private Methods
 
   private func addNewCard() {
     let newCard = cardManager.addCard(type: .search)
@@ -289,10 +356,14 @@ public class MockCardManager: ICardManager {
 // MARK: - Preview
 
 #Preview("CardSidebarView with 3 cards") {
-  @Previewable @State var selectedId: UUID?
+  @Previewable @State var selectedId: UUID? = nil
 
   let card1 = MockCard(cardType: .search, typeId: 1, searchQuery: "mindfulness")
-  let card2 = MockCard(cardType: .sutta, typeId: 1, searchQuery: "MN44")
+  let card2 = MockCard(
+    cardType: .sutta,
+    typeId: 1,
+    suttaReference: "thig1.1/en/soma",
+  )
   let card3 = MockCard(cardType: .search, typeId: 3, searchQuery: "")
 
   let manager = MockCardManager(
@@ -300,9 +371,7 @@ public class MockCardManager: ICardManager {
     selectedCardId: card1.id,
   )
 
-  selectedId = card1.id
-
-  return CardSidebarView(
+  CardSidebarView(
     cardManager: manager,
     selectedCardId: $selectedId,
     onSettingsTap: {
