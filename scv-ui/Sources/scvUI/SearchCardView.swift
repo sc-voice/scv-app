@@ -66,12 +66,6 @@ public enum QuoteHTMLParser {
 public enum SearchQueryFilter {
   public static func filter(_ input: String) -> String {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
-    // Allow letters (EN, FR, PT, ES, RU), digits, parsing punctuation (. : ,),
-    // and basic regexp (.*+^$\)
-    var allowedCharacters = CharacterSet.letters
-    allowedCharacters.formUnion(CharacterSet.decimalDigits)
-    let punctuation = CharacterSet(charactersIn: ".:- .*+^$\\,")
-    allowedCharacters.formUnion(punctuation)
     let lowercased = input.lowercased()
 
     // Replace 1+ consecutive invalid characters with single space
@@ -79,7 +73,9 @@ public enum SearchQueryFilter {
     var lastWasInvalid = false
 
     for char in lowercased {
-      if char.unicodeScalars.allSatisfy({ allowedCharacters.contains($0) }) {
+      if char.unicodeScalars
+        .allSatisfy({ EbtQuery.allowedCharacters.contains($0) })
+      {
         result.append(char)
         lastWasInvalid = false
       } else {

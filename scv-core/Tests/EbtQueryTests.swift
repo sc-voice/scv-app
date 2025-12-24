@@ -538,4 +538,78 @@ struct EbtQueryTests {
       "Should return exactly these 5 suttas in order, got \(resultSuttas)",
     )
   }
+
+  @Test("EbtQuery.allowedCharacters includes all SuttaRef characters")
+  func allowedCharactersIncludesSuttaRefChars() {
+    // Valid SuttaRef examples covering all allowed character types:
+    // - lowercase letters: "mn", "thig"
+    // - uppercase letters: "MN", "THIG"
+    // - digits: "1", "42", "11"
+    // - dot: "."
+    // - hyphen: "-"
+    // - underscore: "_"
+    // - colon: ":"
+    // - forward slash: "/"
+    let suttaRefExamples = [
+      "mn1",
+      "MN1",
+      "thig1.1",
+      "THIG1.1",
+      "an1.1-10",
+      "AN1.1-10",
+      "pli-tv-kd20:27.1.1",
+      "mn1/en/sujato",
+      "MN1/EN/SUJATO",
+      "thig1.1:1.1/en",
+      "THIG1.1:1.1/EN",
+    ]
+
+    for example in suttaRefExamples {
+      let lowercased = example.lowercased()
+      for char in lowercased {
+        let isAllowed = char.unicodeScalars.allSatisfy {
+          EbtQuery.allowedCharacters.contains($0)
+        }
+        #expect(
+          isAllowed,
+          "Character '\(char)' in '\(example)' should be allowed",
+        )
+      }
+    }
+  }
+
+  @Test("EbtQuery.allowedCharacters includes Pali diacritical marks")
+  func allowedCharactersIncludesPaliDiacritics() {
+    // Pali uses diacritical marks: ā, ī, ū, ṅ, ṭ, ṇ, ṣ, ḍ, ṃ
+    // These are Unicode letters and are included in CharacterSet.letters
+    // Note: While SearchQueryFilter passes them through, the lemmatizer strips
+    // them
+    // during lemmatization (see TODO at line 301 of this file)
+    let paliExamples = [
+      "ānanda", // a with macron
+      "īti", // i with macron
+      "ūpadhi", // u with macron
+      "aṅga", // n with dot above
+      "uṭṭha", // t with dot below
+      "niṭṭha", // n with dot below
+      "nandi", // s with dot below
+      "bodhi", // d with dot below
+      "asmī", // m with dot above
+      "Āgamā", // uppercase A with macron
+      "Īti", // uppercase I with macron
+    ]
+
+    for example in paliExamples {
+      let lowercased = example.lowercased()
+      for char in lowercased {
+        let isAllowed = char.unicodeScalars.allSatisfy {
+          EbtQuery.allowedCharacters.contains($0)
+        }
+        #expect(
+          isAllowed,
+          "Pali character '\(char)' in '\(example)' should be allowed",
+        )
+      }
+    }
+  }
 }

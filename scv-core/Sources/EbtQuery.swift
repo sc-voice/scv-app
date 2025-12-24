@@ -14,6 +14,18 @@ import Foundation
 public class EbtQuery {
   private let cc = ColorConsole(#file, #function, dbg.EbtQuery.other)
 
+  /// Character set allowed in search queries
+  /// Includes letters (EN, FR, PT, ES, RU), digits, parsing punctuation (. : ,
+  /// - _ /),
+  /// and basic regexp operators (* + ^ $ \)
+  public static let allowedCharacters: CharacterSet = {
+    var chars = CharacterSet.letters
+    chars.formUnion(CharacterSet.decimalDigits)
+    let punctuation = CharacterSet(charactersIn: ".:-_ /,;")
+    chars.formUnion(punctuation)
+    return chars
+  }()
+
   /// Original query string provided by user
   public let query: String
 
