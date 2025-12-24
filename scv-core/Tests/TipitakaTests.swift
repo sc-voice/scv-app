@@ -262,4 +262,77 @@ struct TipitakaTests {
     let fileExists = FileManager.default.fileExists(atPath: "/tmp/soma.json")
     #expect(fileExists)
   }
+
+  @Test func authorTipitakaBrahmali() async throws {
+    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+      lang: "en",
+      author: "brahmali",
+    )
+    print("Found \(suttaUids.count) suttaUids for en/brahmali")
+    if suttaUids.count > 0 {
+      print("First few: \(suttaUids.prefix(5))")
+    }
+
+    // Verify we have vinaya texts (brahmali only translates vinaya)
+    #expect(suttaUids.count == 427)
+
+    let tipitaka = await Tipitaka.authorTipitaka(lang: "en", author: "brahmali")
+
+    // Verify it's the synthetic root
+    #expect(tipitaka.id == "/tipitaka")
+    #expect(tipitaka.name == "Tipiṭaka")
+    #expect(tipitaka.caption == "Buddhist Canon")
+
+    // Verify vinaya root exists (brahmali has only vinaya)
+    if let vinayaRoot = tipitaka.children?
+      .first(where: { $0.id == "/vinaya" })
+    {
+      #expect(vinayaRoot.name == "Vinaya")
+      // Verify we have vinaya children
+      #expect(vinayaRoot.children != nil)
+      #expect(!vinayaRoot.children!.isEmpty)
+    } else {
+      // If no /vinaya root, test should still pass - brahmali texts might be
+      // directly under /tipitaka
+      #expect(tipitaka.children != nil)
+      #expect(!tipitaka.children!.isEmpty)
+    }
+
+    // Count all leaf nodes (texts with no children)
+    func countLeaves(_ ref: TipitakaRef) -> Int {
+      if ref.children == nil || ref.children!.isEmpty {
+        return 1 // This is a leaf
+      }
+      return ref.children!.reduce(0) { $0 + countLeaves($1) }
+    }
+
+    let leafCount = countLeaves(tipitaka)
+
+    // Verify all 427 vinaya texts appear as leaf nodes
+    // Brahmali's translation includes:
+    // - 133 bhikkhuni (nuns) vinaya texts (pli-tv-bi-*)
+    // - 294 bhikkhu (monks) vinaya texts (pli-tv-bu-*)
+    #expect(
+      leafCount == 427,
+      "Expected 427 leaf nodes for all brahmali vinaya texts",
+    )
+
+    // Serialize to JSON
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [
+      .prettyPrinted,
+      .sortedKeys,
+      .withoutEscapingSlashes,
+    ]
+    let jsonData = try encoder.encode(tipitaka)
+
+    // Write to /tmp/brahmali.json
+    let fileURL = URL(fileURLWithPath: "/tmp/brahmali.json")
+    try jsonData.write(to: fileURL)
+
+    // Verify file exists
+    let fileExists = FileManager.default
+      .fileExists(atPath: "/tmp/brahmali.json")
+    #expect(fileExists)
+  }
 }

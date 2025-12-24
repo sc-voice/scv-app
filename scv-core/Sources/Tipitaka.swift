@@ -8783,6 +8783,52 @@ public struct Tipitaka {
   /// - Parameter suttaUid: Sutta identifier (e.g., "an1.3", "dn14")
   /// - Returns: Parent directory path, or nil if suttaUid not found
   public static func parentPath(suttaUid: String) -> String? {
+    // Handle Pali root text IDs (e.g., "pli-tv-bi-pm", "pli-tv-bu-pm",
+    // "pli-tv-kd1")
+    if suttaUid.starts(with: "pli-tv-") {
+      let components = suttaUid.split(
+        separator: "-",
+        omittingEmptySubsequences: true,
+      )
+      guard components.count >= 3 else { return nil }
+
+      // Handle Khandhaka texts (pli-tv-kd1, pli-tv-kd2, etc.)
+      if String(components[2]).starts(with: "kd") {
+        return "/vinaya/kd"
+      }
+
+      // Handle Parivara texts (pli-tv-pvr1.1, pli-tv-pvr1.2, etc.)
+      if String(components[2]).starts(with: "pvr") {
+        return "/vinaya/pvr"
+      }
+
+      // Determine vinaya section (bi=bhikkhuni/nuns, bu=bhikkhu/monks)
+      guard components.count >= 4 else { return nil }
+      let vSection: String
+      if components[2] == "bi" {
+        vSection = "bi"
+      } else if components[2] == "bu" {
+        vSection = "bu"
+      } else {
+        return nil
+      }
+
+      // pli-tv-bi-pm → /vinaya/bi-pm
+      // pli-tv-bi-vb-pj1 → /vinaya/bi-vb-pj
+      // pli-tv-bu-pm → /vinaya/bu-pm
+      // pli-tv-bu-vb-pj1 → /vinaya/bu-vb-pj
+      if components[3] == "pm" {
+        return "/vinaya/\(vSection)-pm"
+      } else if components[3] == "vb", components.count >= 5 {
+        // Extract letter prefix from category (pj from pj1, pj from pj1-4)
+        let categoryStr = String(components[4])
+        let letterPrefix = categoryStr.prefix { $0.isLetter }
+        return "/vinaya/\(vSection)-vb-\(letterPrefix)"
+      }
+      return nil
+    }
+
+    // Standard sutta reference handling (e.g., "an1", "dn14", "thig1.1")
     // Extract prefix (letters only, up to first digit or dot)
     let prefix = suttaUid.prefix { $0.isLetter }.lowercased()
 

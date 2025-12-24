@@ -140,21 +140,28 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       }
     }
 
-    // Use provided suids or load default
-    let uidList = suids ?? SuttaRef.loadSortedSuids()
-
-    // If we have a SUID list, validate via binary search
+    // Handle Pali root text IDs (pli-tv-*) which represent Tipitaka texts
+    // These are valid database UIDs but don't match standard sutta reference
+    // format
     let finalSuttaUid: String
-    if !uidList.isEmpty {
-      finalSuttaUid = try SuttaRef.findSuttaUidInRange(suttaUid, in: uidList)
-    } else if !suttaUid.isEmpty {
-      // No SUID map; require basic SCID format validation
-      guard SuttaCentralId.test(suttaUid) else {
-        throw SuttaRefError.suttaNotFound("Invalid sutta_uid: \(suttaUid)")
-      }
+    if suttaUid.starts(with: "pli-tv-") {
       finalSuttaUid = suttaUid
     } else {
-      throw SuttaRefError.invalidSuttaUid("sutta_uid cannot be empty")
+      // Use provided suids or load default for standard sutta references
+      let uidList = suids ?? SuttaRef.loadSortedSuids()
+
+      // If we have a SUID list, validate via binary search
+      if !uidList.isEmpty {
+        finalSuttaUid = try SuttaRef.findSuttaUidInRange(suttaUid, in: uidList)
+      } else if !suttaUid.isEmpty {
+        // No SUID map; require basic SCID format validation
+        guard SuttaCentralId.test(suttaUid) else {
+          throw SuttaRefError.suttaNotFound("Invalid sutta_uid: \(suttaUid)")
+        }
+        finalSuttaUid = suttaUid
+      } else {
+        throw SuttaRefError.invalidSuttaUid("sutta_uid cannot be empty")
+      }
     }
 
     let scidValue = String(refLower.split(separator: "/")[0])

@@ -481,4 +481,105 @@ import Testing
       _ = try SuttaRef(suttaUid: "mn1", lang: "en", author: "soma test")
     }
   }
+
+  @Test("create() accepts pli-tv-bi-* (bhikkhuni vinaya texts)")
+  func createPaliVinayaBhikkhuni() {
+    // pli-tv-bi-pm (bhikkhuni patimokkha)
+    let ref1 = SuttaRef.create("pli-tv-bi-pm")
+    #expect(ref1?.suttaUid == "pli-tv-bi-pm")
+    #expect(ref1?.lang == "pli")
+    #expect(ref1?.author == "ms")
+
+    // pli-tv-bi-vb-pj1 (bhikkhuni parajika)
+    let ref2 = SuttaRef.create("pli-tv-bi-vb-pj1")
+    #expect(ref2?.suttaUid == "pli-tv-bi-vb-pj1")
+    #expect(ref2?.lang == "pli")
+
+    // With language and author specified
+    let ref3 = SuttaRef.create("pli-tv-bi-vb-np5/en/brahmali")
+    #expect(ref3?.suttaUid == "pli-tv-bi-vb-np5")
+    #expect(ref3?.lang == "en")
+    #expect(ref3?.author == "brahmali")
+  }
+
+  @Test("create() accepts pli-tv-bu-* (bhikkhu vinaya texts)")
+  func createPaliVinayaBhikkhu() {
+    // pli-tv-bu-pm (bhikkhu patimokkha)
+    let ref1 = SuttaRef.create("pli-tv-bu-pm")
+    #expect(ref1?.suttaUid == "pli-tv-bu-pm")
+    #expect(ref1?.lang == "pli")
+
+    // pli-tv-bu-vb-pj1 (bhikkhu parajika)
+    let ref2 = SuttaRef.create("pli-tv-bu-vb-pj1")
+    #expect(ref2?.suttaUid == "pli-tv-bu-vb-pj1")
+
+    // With language and author
+    let ref3 = SuttaRef.create("pli-tv-bu-vb-pc50/en/brahmali")
+    #expect(ref3?.suttaUid == "pli-tv-bu-vb-pc50")
+    #expect(ref3?.lang == "en")
+    #expect(ref3?.author == "brahmali")
+  }
+
+  @Test("create() accepts pli-tv-kd-* (Khandhaka texts)")
+  func createPaliKhandhaka() {
+    // pli-tv-kd1 through pli-tv-kd22
+    let ref1 = SuttaRef.create("pli-tv-kd1")
+    #expect(ref1?.suttaUid == "pli-tv-kd1")
+    #expect(ref1?.lang == "pli")
+
+    let ref2 = SuttaRef.create("pli-tv-kd22/en/brahmali")
+    #expect(ref2?.suttaUid == "pli-tv-kd22")
+    #expect(ref2?.lang == "en")
+    #expect(ref2?.author == "brahmali")
+  }
+
+  @Test("create() accepts pli-tv-pvr-* (Parivara texts)")
+  func createPaliParivara() {
+    // pli-tv-pvr1.1 through pli-tv-pvr11
+    let ref1 = SuttaRef.create("pli-tv-pvr1.1")
+    #expect(ref1?.suttaUid == "pli-tv-pvr1.1")
+    #expect(ref1?.lang == "pli")
+
+    let ref2 = SuttaRef.create("pli-tv-pvr11/en/brahmali")
+    #expect(ref2?.suttaUid == "pli-tv-pvr11")
+    #expect(ref2?.lang == "en")
+    #expect(ref2?.author == "brahmali")
+  }
+
+  @Test("create() pali vinaya with custom lang/author")
+  func createPaliVinayaCustom() {
+    // Direct constructor with pli-tv-* UID
+    let ref = try? SuttaRef(
+      suttaUid: "pli-tv-bi-vb-np1",
+      lang: "en",
+      author: "brahmali",
+    )
+    #expect(ref?.suttaUid == "pli-tv-bi-vb-np1")
+    #expect(ref?.lang == "en")
+    #expect(ref?.author == "brahmali")
+    #expect(ref?.scid == "pli-tv-bi-vb-np1")
+
+    // With segment number
+    let ref2 = try? SuttaRef(
+      suttaUid: "pli-tv-bu-vb-pc1",
+      lang: "en",
+      author: "brahmali",
+      segnum: "1.1",
+    )
+    #expect(ref2?.suttaUid == "pli-tv-bu-vb-pc1")
+    #expect(ref2?.segnum == "1.1")
+    #expect(ref2?.scid == "pli-tv-bu-vb-pc1:1.1")
+  }
+
+  @Test("toString() for pali vinaya texts")
+  func toStringPaliVinaya() {
+    let ref1 = SuttaRef.create("pli-tv-bi-pm")
+    #expect(ref1?.toString() == "pli-tv-bi-pm/pli/ms")
+
+    let ref2 = SuttaRef.create("pli-tv-bu-vb-pj1/en/brahmali")
+    #expect(ref2?.toString() == "pli-tv-bu-vb-pj1/en/brahmali")
+
+    let ref3 = SuttaRef.create("pli-tv-kd1/en/brahmali:1.5")
+    #expect(ref3?.toString() == "pli-tv-kd1:1.5/en/brahmali")
+  }
 }
