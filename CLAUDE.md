@@ -163,3 +163,14 @@ cd scv-core && swift test --filter CardTests
     - Apply to all debug logging calls in EbtSeeker and EbtData
     - Reduces boilerplate while maintaining intent
 
+### Make EbtData SQL query methods async
+**Status**: Backlog
+
+01. [ ] Convert synchronous EbtData SQL methods to async (See: scv-core/Sources/EbtData.swift:328-1110)
+    - Current: Methods like `getMLDocument()`, `getDocument()`, `metadata()` are sync
+    - Problem: Sync database queries block MainActor when called from UI code
+    - Solution: Make all SQL query methods async to avoid UI freezing
+    - Priority methods: getMLDocument, getDocument, metadata, availableAuthors, suttaUidsForAuthor
+    - Update all callsites to use await
+    - Keep actor serialization to maintain thread safety
+

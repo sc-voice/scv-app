@@ -135,7 +135,7 @@ struct TipitakaTests {
     let jsonData = try encoder.encode(tree)
     let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
 
-    #expect(jsonString.contains("\"id\""))
+    #expect(jsonString.contains("\"$id\""))
     #expect(jsonString.contains("/sutta"))
     #expect(jsonString.contains("Suttas"))
     #expect(jsonString.contains("children"))
@@ -178,5 +178,88 @@ struct TipitakaTests {
     #expect(leaf?.id == "/sutta/sn/sn53/sn53.1-12")
     #expect(leaf?.name == "Suttas 1-12")
     #expect(leaf?.children == nil)
+  }
+
+  @Test func parentPathSuttaUid_AN() {
+    #expect(Tipitaka.parentPath(suttaUid: "an1.1") == "/sutta/an/an1")
+    #expect(Tipitaka.parentPath(suttaUid: "an1.10") == "/sutta/an/an1")
+    #expect(Tipitaka.parentPath(suttaUid: "an1.3") == "/sutta/an/an1")
+    #expect(Tipitaka.parentPath(suttaUid: "an2.5") == "/sutta/an/an2")
+    #expect(Tipitaka.parentPath(suttaUid: "an11.10") == "/sutta/an/an11")
+  }
+
+  @Test func parentPathSuttaUid_DN() {
+    #expect(Tipitaka.parentPath(suttaUid: "dn1") == "/sutta/dn")
+    #expect(Tipitaka.parentPath(suttaUid: "dn14") == "/sutta/dn")
+    #expect(Tipitaka.parentPath(suttaUid: "dn34") == "/sutta/dn")
+  }
+
+  @Test func parentPathSuttaUid_SN() {
+    #expect(Tipitaka.parentPath(suttaUid: "sn1.1") == "/sutta/sn/sn1")
+    #expect(Tipitaka.parentPath(suttaUid: "sn1.10") == "/sutta/sn/sn1")
+    #expect(Tipitaka.parentPath(suttaUid: "sn56.3") == "/sutta/sn/sn56")
+  }
+
+  @Test func parentPathSuttaUid_MN() {
+    #expect(Tipitaka.parentPath(suttaUid: "mn1") == "/sutta/mn")
+    #expect(Tipitaka.parentPath(suttaUid: "mn50.5") == "/sutta/mn")
+    #expect(Tipitaka.parentPath(suttaUid: "mn152") == "/sutta/mn")
+  }
+
+  @Test func parentPathSuttaUid_Invalid() {
+    #expect(Tipitaka.parentPath(suttaUid: "") == nil)
+    #expect(Tipitaka.parentPath(suttaUid: "xyz123") == nil)
+  }
+
+  @Test func authorTipitakaSoma() async throws {
+    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+      lang: "en",
+      author: "soma",
+    )
+    print("Found \(suttaUids.count) suttaUids for en/soma")
+    if suttaUids.count > 0 {
+      print("First few: \(suttaUids.prefix(5))")
+    }
+
+    let tipitaka = await Tipitaka.authorTipitaka(lang: "en", author: "soma")
+
+    // Verify it's the synthetic root
+    #expect(tipitaka.id == "/tipitaka")
+    #expect(tipitaka.name == "Tipiṭaka")
+    #expect(tipitaka.caption == "Buddhist Canon")
+
+    // Find thig1.1 leaf node and verify its name (abbreviation + Pali document
+    // name)
+    if let thig1_1 = Tipitaka.findRef(
+      byId: "/sutta/kn/thig/thig1.1",
+      in: [tipitaka],
+    ) {
+      let suttaRef = try SuttaRef(
+        suttaUid: "thig1.1",
+        lang: "pli",
+        author: "ms",
+      )
+      let abbr = suttaRef.abbreviation()
+      let paliName = Tipitaka.tipitakaName(suttaRef: suttaRef)
+      let expectedName = "\(abbr) \(paliName)"
+      #expect(thig1_1.name == expectedName)
+    }
+
+    // Serialize to JSON
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [
+      .prettyPrinted,
+      .sortedKeys,
+      .withoutEscapingSlashes,
+    ]
+    let jsonData = try encoder.encode(tipitaka)
+
+    // Write to /tmp/soma.json
+    let fileURL = URL(fileURLWithPath: "/tmp/soma.json")
+    try jsonData.write(to: fileURL)
+
+    // Verify file exists
+    let fileExists = FileManager.default.fileExists(atPath: "/tmp/soma.json")
+    #expect(fileExists)
   }
 }

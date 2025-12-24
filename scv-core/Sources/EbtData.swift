@@ -878,6 +878,38 @@ public actor EbtData {
     }
   }
 
+  /// Returns all suttaUids available for specific author
+  public func suttaUidsForAuthor(lang: String,
+                                 author: String) async -> [String]
+  {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let key = "\(lang)/\(author)"
+      guard let db = databases[key] else { return [] }
+
+      let query = "SELECT DISTINCT suttaUid FROM suttas ORDER BY suttaUid"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        return []
+      }
+
+      defer { sqlite3_finalize(stmt) }
+
+      var suttaUids: [String] = []
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        if let suttaUidC = sqlite3_column_text(stmt, 0) {
+          let suttaUid = String(cString: suttaUidC)
+          suttaUids.append(suttaUid)
+        }
+      }
+
+      return suttaUids
+    } catch {
+      return []
+    }
+  }
+
   /// Clears cached database connections (for testing after database files are
   /// rebuilt)
   public func clearDatabaseCache() {
