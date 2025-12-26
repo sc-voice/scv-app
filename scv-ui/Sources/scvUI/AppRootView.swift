@@ -171,7 +171,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           #endif
 
           // Probe main thread responsiveness every 50ms until it responds
-          DispatchQueue.global(qos: .background).async {
+          DispatchQueue.global(qos: .background).async { [cc] in
             var mainActorBusy = true
             var checkCount = 0
             while mainActorBusy, checkCount < 300 {
@@ -232,7 +232,7 @@ public struct AppRootView<Manager: ICardManager>: View {
       #line,
       #function,
       "selectedCardId:",
-      cardManager.selectedCardId,
+      cardManager.selectedCardId as Any,
       "cardId:",
       cardId,
     )

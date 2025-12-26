@@ -17,6 +17,10 @@ public struct dbg: Sendable {
     public static let other: Int = 2
   }
 
+  public struct AutoComplete: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct CardManager: Sendable {
     public static let other: Int = 2
   }

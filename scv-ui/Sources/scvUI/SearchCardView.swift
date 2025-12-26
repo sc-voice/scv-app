@@ -133,8 +133,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   // MARK: - Private Methods
 
-  private func autoComplete(_ query: String, card _: Card) {
-    cc.ok1(#line, "autocomplete:", query, card.searchQuery)
+  private func onAutoComplete(_ query: String, card _: Card) {
+    cc.ok1(#line, "onAutocomplete:", query, card.searchQuery)
   }
 
   private func populateSuttaInfoInBackground(
@@ -400,6 +400,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           "Search completed with \(searchResult.items.count) results",
         )
 
+        // Track phrase in AutoComplete for suggestions
+        AutoComplete.shared.track(
+          phrase: searchQuery,
+          documentCount: searchResult.items.count,
+          author: searchResult.metadata.docAuthor,
+          lang: searchResult.metadata.docLang,
+        )
+
         // Trigger background sutta info and quote population
         // Note: We need to spawn this on the main thread context
         // Create a temporary view instance to call the instance method
@@ -455,7 +463,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           repeats: false,
         ) { _ in
           Task { @MainActor in
-            autoComplete(filtered, card: card)
+            onAutoComplete(filtered, card: card)
           }
         }
       }

@@ -65,6 +65,10 @@ public class Settings: Codable {
   /// Schema version of this settings instance
   public var version: Int = 1
 
+  /// UserDefaults instance for persistence (injected for testing, defaults to
+  /// standard if nil)
+  private let userDefaults: UserDefaults?
+
   /// Currently selected voice document language
   public var docLang: ScvLanguage = .default
 
@@ -101,12 +105,19 @@ public class Settings: Codable {
   /// Maximum number of documents to return in search results
   public var maxDoc: Int = MAX_DOC_DEFAULT
 
+  /// AutoComplete phrase data by author:lang
+  public var autoCompleteData: [PhrasesByAuthorLang] = []
+
   // MARK: - Initialization
 
   /// Initialize Settings instance
+  /// - Parameter userDefaults: UserDefaults instance for persistence (nil
+  /// defaults to UserDefaults.standard for dependency injection in tests)
   /// - Note: Internal visibility allows tests to create instances with specific
   /// values
-  init() {
+  init(userDefaults: UserDefaults? = nil) {
+    self.userDefaults = userDefaults
+
     // Detect system language and set as default if available
     if let preferredLanguage = Locale.preferredLanguages.first,
        let systemLanguage = ScvLanguage.toVoiceLanguage(preferredLanguage)
@@ -139,6 +150,7 @@ public class Settings: Codable {
     case playDoc
     case lastApplicationVersion
     case maxDoc
+    case autoCompleteData
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -161,9 +173,14 @@ public class Settings: Codable {
       forKey: .lastApplicationVersion,
     )
     try container.encode(maxDoc, forKey: .maxDoc)
+    try container.encode(autoCompleteData, forKey: .autoCompleteData)
   }
 
   public required init(from decoder: Decoder) throws {
+    // userDefaults is nil for Codable decoding (will use UserDefaults.standard
+    // when needed)
+    userDefaults = nil
+
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Decode version (defaults to 1 for backwards compatibility with v0
@@ -253,6 +270,10 @@ public class Settings: Codable {
       ) ?? ""
       maxDoc = try container
         .decodeIfPresent(Int.self, forKey: .maxDoc) ?? MAX_DOC_DEFAULT
+      autoCompleteData = try container.decodeIfPresent(
+        [PhrasesByAuthorLang].self,
+        forKey: .autoCompleteData,
+      ) ?? []
     default:
       // Unknown version: reset to defaults (will be validated later)
       docLang = .default
@@ -264,6 +285,7 @@ public class Settings: Codable {
       isDarkModeEnabled = false
       lastApplicationVersion = ""
       maxDoc = MAX_DOC_DEFAULT
+      autoCompleteData = []
     }
 
     validate()
@@ -360,13 +382,17 @@ public class Settings: Codable {
     validate()
     let encoder = JSONEncoder()
     if let encoded = try? encoder.encode(self) {
-      UserDefaults.standard.set(encoded, forKey: "com.scv.settings")
+      (userDefaults ?? UserDefaults.standard).set(
+        encoded,
+        forKey: "com.scv.settings",
+      )
     }
   }
 
   /// Loads settings from UserDefaults
   private func load() {
-    guard let data = UserDefaults.standard.data(forKey: "com.scv.settings")
+    guard let data = (userDefaults ?? UserDefaults.standard)
+      .data(forKey: "com.scv.settings")
     else {
       return
     }
@@ -386,6 +412,7 @@ public class Settings: Codable {
       playDoc = decoded.playDoc
       lastApplicationVersion = decoded.lastApplicationVersion
       maxDoc = decoded.maxDoc
+      autoCompleteData = decoded.autoCompleteData
     }
   }
 
@@ -404,6 +431,8 @@ public class Settings: Codable {
     playDoc = true
     lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT
-    UserDefaults.standard.removeObject(forKey: "com.scv.settings")
+    autoCompleteData = []
+    (userDefaults ?? UserDefaults.standard)
+      .removeObject(forKey: "com.scv.settings")
   }
 }
