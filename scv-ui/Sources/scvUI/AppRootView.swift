@@ -24,6 +24,8 @@ public struct AppRootView<Manager: ICardManager>: View {
     .shared)
   @State private var rootSearchQuery: String = ""
   @State private var isReady = false
+  @State private var suggestions: [PhraseAsset] = []
+  @State private var debounceTimer: Timer?
   let appIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
@@ -35,6 +37,25 @@ public struct AppRootView<Manager: ICardManager>: View {
     self.cardManager = cardManager
     self.appIcon = appIcon
     self.isReady = isReady
+  }
+
+  // MARK: - Private Methods
+
+  private func updateSuggestions(_ query: String) {
+    guard !query.isEmpty else {
+      suggestions = []
+      return
+    }
+
+    Task { @MainActor in
+      let newSuggestions = AutoComplete.shared.suggest(
+        prefix: query,
+        author: Settings.shared.docAuthor,
+        lang: Settings.shared.docLang.code
+      )
+      cc.ok2(#line, "updateSuggestions for:", query, "found:", newSuggestions.count)
+      suggestions = newSuggestions
+    }
   }
 
   public var body: some View {
@@ -85,6 +106,23 @@ public struct AppRootView<Manager: ICardManager>: View {
                   // }(),
                   prompt: "Search",
                 )
+                .searchSuggestions {
+                  ForEach(suggestions, id: \.lemma) { suggestion in
+                    Button(action: {
+                      rootSearchQuery = suggestion.lastUsedPhrase
+                      cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
+                    }) {
+                      HStack {
+                        Text(suggestion.lastUsedPhrase)
+                        Spacer()
+                        Text("★ \(String(format: "%.2f", suggestion.utility))")
+                          .font(.caption)
+                          .foregroundColor(.secondary)
+                      }
+                    }
+                    .searchCompletion(suggestion.lastUsedPhrase)
+                  }
+                }
                 .focused($searchFieldIsFocused)
                 .onChange(of: isSearchPresented) { _, newValue in
                   cc.ok1(#line, "isSearchPresented changed to:", newValue)
@@ -105,6 +143,19 @@ public struct AppRootView<Manager: ICardManager>: View {
                   // Note: Card updates are handled by
                   // SearchCardView.searchSubmitHandler
                   // on search submission, not by onChange here
+
+                  // Cancel existing debounce timer
+                  debounceTimer?.invalidate()
+
+                  // Start new 500ms debounce timer for autocomplete suggestions
+                  debounceTimer = Timer.scheduledTimer(
+                    withTimeInterval: 0.5,
+                    repeats: false,
+                  ) { _ in
+                    Task { @MainActor in
+                      updateSuggestions(newValue)
+                    }
+                  }
                 }
                 .onAppear {
                   cc.ok1(
@@ -121,6 +172,10 @@ public struct AppRootView<Manager: ICardManager>: View {
                     searchQueryBinding: $rootSearchQuery,
                   )
                   isSearchPresented = false
+                }
+                .onDisappear {
+                  debounceTimer?.invalidate()
+                  debounceTimer = nil
                 }
             } else {
               VStack(spacing: 16) {

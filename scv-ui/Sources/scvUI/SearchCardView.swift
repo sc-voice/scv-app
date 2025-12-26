@@ -110,7 +110,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   let isSearchPresented: Bool
-  @State private var debounceTimer: Timer?
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
   @State private var maxIconOffset: CGFloat = -200
@@ -132,10 +131,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   // MARK: - Private Methods
-
-  private func onAutoComplete(_ query: String, card _: Card) {
-    cc.ok1(#line, "onAutocomplete:", query, card.searchQuery)
-  }
 
   private func populateSuttaInfoInBackground(
     searchResult: SeekerResult,
@@ -453,19 +448,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           iconOffset = 0
         }
         scheduleFade()
-
-        // Cancel existing debounce timer
-        debounceTimer?.invalidate()
-
-        // Start new 500ms debounce timer for autocomplete
-        debounceTimer = Timer.scheduledTimer(
-          withTimeInterval: 0.5,
-          repeats: false,
-        ) { _ in
-          Task { @MainActor in
-            onAutoComplete(filtered, card: card)
-          }
-        }
       }
       .onSubmit(of: .search) {
         cc.ok1(#line, "Search submitted:", card.searchQuery)
@@ -473,10 +455,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       .onAppear {
         cc.ok1(#line, "SearchCardView initialized for card:", card.name)
         scheduleFade()
-      }
-      .onDisappear {
-        debounceTimer?.invalidate()
-        debounceTimer = nil
       }
   }
 }

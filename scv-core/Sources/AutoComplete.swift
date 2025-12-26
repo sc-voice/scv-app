@@ -199,9 +199,9 @@ public final class AutoComplete: @unchecked Sendable {
     let now = Date()
     let (year, month) = currentYearMonth()
 
-    cc.ok1(
+    cc.ok2(
       #line,
-      "Tracking phrase:",
+      "track",
       phrase,
       "lemma:",
       resolvedLemma,
@@ -225,7 +225,7 @@ public final class AutoComplete: @unchecked Sendable {
         usesByMonth: [MonthUsage(year: year, month: month, count: 1)],
       )
       phrasesMap[key]?.phrases[resolvedLemma] = newPhraseAsset
-      cc.ok2(#line, "Created new phrase:", resolvedLemma)
+      cc.ok1(#line, "Created new phrase:", resolvedLemma, phrase)
     } else {
       // Update existing phrase asset
       var phraseAsset = phrasesMap[key]?.phrases[resolvedLemma]!
@@ -247,7 +247,7 @@ public final class AutoComplete: @unchecked Sendable {
       }
 
       phrasesMap[key]?.phrases[resolvedLemma] = phraseAsset!
-      cc.ok2(
+      cc.ok1(
         #line,
         "Updated phrase:",
         resolvedLemma,
