@@ -109,12 +109,16 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  let isSearchPresented: Bool
+  @State private var isSearchPresented: Bool = false
   @State private var iconOpacity: Double = 1.0
   @State private var iconOffset: CGFloat = 0
   @State private var maxIconOffset: CGFloat = -200
   @State private var tipitakaRefs: [TipitakaRef] = []
   @State private var tipitakaLoading: Bool = false
+  @State private var searchQuery: String = ""
+  @State private var suggestions: [PhraseAsset] = []
+  @State private var debounceTimer: Timer?
+  @FocusState private var searchFieldIsFocused: Bool
   let appIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -122,12 +126,10 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     card: Binding<Card>,
     cardManager: Manager,
     appIcon: Image? = nil,
-    isSearchPresented: Bool = false,
   ) {
     _card = card
     self.cardManager = cardManager
     self.appIcon = appIcon ?? Image(systemName: "app.circle")
-    self.isSearchPresented = isSearchPresented
   }
 
   // MARK: - Private Methods
@@ -187,6 +189,29 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       tipitakaRefs = root.children ?? []
       tipitakaLoading = false
       cc.ok1(#line, "loadTipitaka: loaded \(tipitakaRefs.count) root refs")
+    }
+  }
+
+  private func updateSuggestions(_ query: String) {
+    guard !query.isEmpty else {
+      suggestions = []
+      return
+    }
+
+    Task { @MainActor in
+      let newSuggestions = AutoComplete.shared.suggest(
+        prefix: query,
+        author: Settings.shared.docAuthor,
+        lang: Settings.shared.docLang.code,
+      )
+      cc.ok2(
+        #line,
+        "updateSuggestions for:",
+        query,
+        "found:",
+        newSuggestions.count,
+      )
+      suggestions = newSuggestions
     }
   }
 
@@ -435,7 +460,92 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     resultsView
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .padding(0)
+      .toolbar {
+        ToolbarItem(placement: {
+          #if os(iOS)
+            return .navigationBarTrailing
+          #else
+            return .automatic
+          #endif
+        }()) {
+          Button(action: { isSearchPresented.toggle() }) {
+            Image(systemName: "magnifyingglass")
+              .font(.title2)
+          }
+          .buttonStyle(.plain)
+          .help("Toggle search")
+        }
+      }
+      .searchable(
+        text: $searchQuery,
+        isPresented: $isSearchPresented,
+        prompt: "Search",
+      )
+      .searchSuggestions {
+        ForEach(suggestions, id: \.lemma) { suggestion in
+          Button(action: {
+            searchQuery = suggestion.lastUsedPhrase
+            cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
+          }) {
+            HStack {
+              Text(suggestion.lastUsedPhrase)
+              Spacer()
+              Text("★ \(String(format: "%.2f", suggestion.utility))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+          .searchCompletion(suggestion.lastUsedPhrase)
+        }
+      }
+      .focused($searchFieldIsFocused)
+      .onChange(of: isSearchPresented) { _, newValue in
+        cc.ok1(#line, "isSearchPresented changed to:", newValue)
+      }
+      .onChange(of: searchFieldIsFocused) { _, newValue in
+        cc.ok1(
+          #line,
+          "searchFieldIsFocused (TextField actual focus) changed to:",
+          newValue,
+        )
+      }
+      .onChange(of: searchQuery) { _, newValue in
+        cc.ok1(
+          #line,
+          "searchQuery changed in keyboard to:",
+          newValue,
+        )
+
+        // Cancel existing debounce timer
+        debounceTimer?.invalidate()
+
+        // Start new 500ms debounce timer for autocomplete suggestions
+        debounceTimer = Timer.scheduledTimer(
+          withTimeInterval: 0.5,
+          repeats: false,
+        ) { _ in
+          Task { @MainActor in
+            updateSuggestions(newValue)
+          }
+        }
+      }
+      .onSubmit(of: .search) {
+        cc.ok1(#line, "Search submitted in keyboard")
+        SearchCardView.searchSubmitHandler(
+          cardManager: cardManager,
+          selectedCardId: card.id,
+          searchQueryBinding: $searchQuery,
+        )
+        isSearchPresented = false
+      }
+      .onDisappear {
+        debounceTimer?.invalidate()
+        debounceTimer = nil
+      }
       .onChange(of: card.searchQuery) { _, newValue in
+        // Sync searchQuery state with card.searchQuery
+        searchQuery = newValue
+
         let filtered = SearchQueryFilter.filter(newValue)
         if filtered != newValue {
           card.searchQuery = filtered
@@ -449,11 +559,17 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         }
         scheduleFade()
       }
-      .onSubmit(of: .search) {
-        cc.ok1(#line, "Search submitted:", card.searchQuery)
-      }
       .onAppear {
         cc.ok1(#line, "SearchCardView initialized for card:", card.name)
+        // Sync initial state
+        searchQuery = card.searchQuery
+        // Enable search on initial appearance
+        isSearchPresented = true
+        cc.ok1(
+          #line,
+          "searchable modifier appeared, isSearchPresented:",
+          isSearchPresented,
+        )
         scheduleFade()
       }
   }

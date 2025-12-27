@@ -21,7 +21,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var player: SuttaPlayer
-  let isSearchPresented: Bool
   @State private var segments: [(key: String, value: Segment)] = []
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -29,26 +28,21 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     card: Binding<Card>,
     cardManager: Manager,
     player: SuttaPlayer = .shared,
-    isSearchPresented: Bool = false,
   ) {
     _card = card
     self.cardManager = cardManager
     self.player = player
-    self.isSearchPresented = isSearchPresented
   }
 
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      // Title Header - hides when search is focused
-      if !isSearchPresented {
-        SuttaHeaderView(
-          card: card,
-          player: player,
-          isCurrentlyPlaying: isCurrentlyPlaying,
-        )
-        .environmentObject(themeProvider)
-        .transition(.opacity)
-      }
+      // Title Header
+      SuttaHeaderView(
+        card: card,
+        player: player,
+        isCurrentlyPlaying: isCurrentlyPlaying,
+      )
+      .environmentObject(themeProvider)
 
       // Segments Content
       if let mlDoc = card.mlDoc {

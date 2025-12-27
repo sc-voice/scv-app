@@ -17,15 +17,10 @@ import SwiftUI
 public struct AppRootView<Manager: ICardManager>: View {
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var isSearchPresented: Bool = false
-  @FocusState private var searchFieldIsFocused: Bool
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
     .shared)
-  @State private var rootSearchQuery: String = ""
   @State private var isReady = false
-  @State private var suggestions: [PhraseAsset] = []
-  @State private var debounceTimer: Timer?
   let appIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
@@ -37,25 +32,6 @@ public struct AppRootView<Manager: ICardManager>: View {
     self.cardManager = cardManager
     self.appIcon = appIcon
     self.isReady = isReady
-  }
-
-  // MARK: - Private Methods
-
-  private func updateSuggestions(_ query: String) {
-    guard !query.isEmpty else {
-      suggestions = []
-      return
-    }
-
-    Task { @MainActor in
-      let newSuggestions = AutoComplete.shared.suggest(
-        prefix: query,
-        author: Settings.shared.docAuthor,
-        lang: Settings.shared.docLang.code
-      )
-      cc.ok2(#line, "updateSuggestions for:", query, "found:", newSuggestions.count)
-      suggestions = newSuggestions
-    }
   }
 
   public var body: some View {
@@ -93,89 +69,6 @@ public struct AppRootView<Manager: ICardManager>: View {
                 // changes
                 .onAppear {
                   cc.ok1(#line, "Detail view layout complete")
-                }
-                .searchable(
-                  text: $rootSearchQuery,
-                  isPresented: $isSearchPresented,
-                  // placement: {
-                  // #if os(iOS)
-                  // return .navigationBarDrawer(displayMode: .automatic)
-                  // #else
-                  // return .toolbar
-                  // #endif
-                  // }(),
-                  prompt: "Search",
-                )
-                .searchSuggestions {
-                  ForEach(suggestions, id: \.lemma) { suggestion in
-                    Button(action: {
-                      rootSearchQuery = suggestion.lastUsedPhrase
-                      cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
-                    }) {
-                      HStack {
-                        Text(suggestion.lastUsedPhrase)
-                        Spacer()
-                        Text("★ \(String(format: "%.2f", suggestion.utility))")
-                          .font(.caption)
-                          .foregroundColor(.secondary)
-                      }
-                    }
-                    .searchCompletion(suggestion.lastUsedPhrase)
-                  }
-                }
-                .focused($searchFieldIsFocused)
-                .onChange(of: isSearchPresented) { _, newValue in
-                  cc.ok1(#line, "isSearchPresented changed to:", newValue)
-                }
-                .onChange(of: searchFieldIsFocused) { _, newValue in
-                  cc.ok1(
-                    #line,
-                    "searchFieldIsFocused (TextField actual focus) changed to:",
-                    newValue,
-                  )
-                }
-                .onChange(of: rootSearchQuery) { _, newValue in
-                  cc.ok1(
-                    #line,
-                    "rootSearchQuery changed in keyboard to:",
-                    newValue,
-                  )
-                  // Note: Card updates are handled by
-                  // SearchCardView.searchSubmitHandler
-                  // on search submission, not by onChange here
-
-                  // Cancel existing debounce timer
-                  debounceTimer?.invalidate()
-
-                  // Start new 500ms debounce timer for autocomplete suggestions
-                  debounceTimer = Timer.scheduledTimer(
-                    withTimeInterval: 0.5,
-                    repeats: false,
-                  ) { _ in
-                    Task { @MainActor in
-                      updateSuggestions(newValue)
-                    }
-                  }
-                }
-                .onAppear {
-                  cc.ok1(
-                    #line,
-                    "searchable modifier appeared, isSearchPresented:",
-                    isSearchPresented,
-                  )
-                }
-                .onSubmit(of: .search) {
-                  cc.ok1(#line, "Search submitted in keyboard")
-                  SearchCardView.searchSubmitHandler(
-                    cardManager: cardManager,
-                    selectedCardId: selectedCardId,
-                    searchQueryBinding: $rootSearchQuery,
-                  )
-                  isSearchPresented = false
-                }
-                .onDisappear {
-                  debounceTimer?.invalidate()
-                  debounceTimer = nil
                 }
             } else {
               VStack(spacing: 16) {
@@ -245,23 +138,13 @@ public struct AppRootView<Manager: ICardManager>: View {
             }
           }
 
-          // Delay search focus to allow view hierarchy to stabilize
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            cc.ok1(#line, "Enabling search focus after delay")
-            isSearchPresented = true
-          }
+          // View hierarchy is now stabilized; SearchCardView will manage search
+          // focus
         }
         .onChange(of: cardManager.selectedCardId) {
           let idString = cardManager.selectedCardId
             .map { String(describing: $0) } ?? "nil"
           cc.ok2(#line, "selectedCardId:", idString)
-
-          // Sync rootSearchQuery with new card's searchQuery
-          if let cardId = cardManager.selectedCardId,
-             let card = cardManager.cardFromId(cardId)
-          {
-            rootSearchQuery = card.searchQuery
-          }
         }
         .sheet(isPresented: $showSettings) {
           SettingsView(controller: settingsController)
@@ -301,52 +184,18 @@ public struct AppRootView<Manager: ICardManager>: View {
           card: cardBinding,
           cardManager: cardManager,
           appIcon: appIcon,
-          isSearchPresented: isSearchPresented,
         )
         .environmentObject(themeProvider)
         .onAppear {
           cc.ok1(#line, "SearchCardView appeared on screen")
-        }
-        .toolbar {
-          ToolbarItem(placement: {
-            #if os(iOS)
-              return .navigationBarTrailing
-            #else
-              return .automatic
-            #endif
-          }()) {
-            Button(action: { isSearchPresented.toggle() }) {
-              Image(systemName: "magnifyingglass")
-                .font(.title2)
-            }
-            .buttonStyle(.plain)
-            .help("Toggle search")
-          }
         }
 
       case .sutta:
         SuttaCardView(
           card: cardBinding,
           cardManager: cardManager,
-          isSearchPresented: isSearchPresented,
         )
         .environmentObject(themeProvider)
-        .toolbar {
-          ToolbarItem(placement: {
-            #if os(iOS)
-              return .navigationBarTrailing
-            #else
-              return .automatic
-            #endif
-          }()) {
-            Button(action: { isSearchPresented.toggle() }) {
-              Image(systemName: "magnifyingglass")
-                .font(.title2)
-            }
-            .buttonStyle(.plain)
-            .help("Toggle search")
-          }
-        }
 
       case .help:
         HelpCardView()

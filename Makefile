@@ -43,8 +43,8 @@ _test-core: _build-core
 test-core-verbose: _init _build-core _end
 	@cd scv-core && swift test --no-parallel --verbose
 
-test-build: build-build
-	@echo "=== MAKE test-build..." | tee -a $(LOG_FILE)
+test-build-tools: build-build-tools
+	@echo "=== MAKE test-build-tools..." | tee -a $(LOG_FILE)
 	@cd scv-build && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
 	@grep -v "started\." $(LOG_FILE) | tail -10 || true
 
@@ -69,7 +69,7 @@ test-nlp: build-nlp
 # Macro plugin is not currently used due to SPM cross-package limitations (see scv-macros/Sources/scvMacros/CCOK1.swift)
 
 # Rebuild all .zst files from latest ebt-data content and regenerate manifest
-build-content: build-build
+build-content: build-build-tools
 	@echo "Pulling latest ebt-data..." | tee -a $(LOG_FILE)
 	@(cd local/ebt-data && git pull) 2>&1 | tee -a $(LOG_FILE)
 	@echo "Rebuilding all databases from latest content..." | tee -a $(LOG_FILE)
@@ -78,7 +78,7 @@ build-content: build-build
 	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a $(LOG_FILE)
 	@echo "✓ All .zst files rebuilt and manifest regenerated" | tee -a $(LOG_FILE)
 
-content: _init clean-build build-content
+content: _init clean-build-tools build-content
 
 build-db:
 	@if [ -z "$(DB)" ]; then \
@@ -89,8 +89,8 @@ build-db:
 	@echo "Building database: $(DB)..."
 	@scripts/build-ebt-data $(DB)
 
-build-build: _init _build-core
-	@echo "=== MAKE build-build..." | tee -a $(LOG_FILE)
+build-build-tools: _init _build-core
+	@echo "=== MAKE build-build-tools..." | tee -a $(LOG_FILE)
 	@cd scv-build && swift build 2>&1 | tee -a $(LOG_FILE)
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
@@ -179,8 +179,8 @@ _clean-core:
 	@echo "=== MAKE clean-core..." 2>&1 | tee -a ${LOG_FILE}
 	@cd scv-core && swift package clean 2>/dev/null || true
 
-clean-build: clean-lemmatizer clean-db-cache
-	@echo "=== MAKE clean-build..."
+clean-build-tools: clean-lemmatizer clean-db-cache
+	@echo "=== MAKE clean-build-tools..."
 	@rm -f scv-core/Sources/Resources/*.db.zst 2>/dev/null || true
 	@echo "Cleared .zst database resource files"
 	@rm -f scv-core/Sources/Resources/*.db 2>/dev/null || true
@@ -244,19 +244,19 @@ help:
 	@echo "  make test-all          Run all package tests and build validation"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
-	@echo "  make test-build        Run scv-build tests serially"
+	@echo "  make test-build-tools  Run scv-build tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-ui	        Build scv-ui package"
-	@echo "  make build-build       Build scv-build package (build tools)"
+	@echo "  make build-build-tools Build scv-build package (build tools)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-db DB=lang:author    Build single database (e.g. make build-db DB=en:sujato)"
 	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"
-	@echo "  make clean-build       Clean scv-build package"
+	@echo "  make clean-build-tools Clean scv-build package"
 	@echo "  make clean-ui          Clean scv-ui package"
 	@echo "  make clean-ios         Clean scv-ios app build artifacts"
 	@echo "  make clean-db DB=lang:author    Clean database caches (e.g. make clean-db DB=en:sujato)"
