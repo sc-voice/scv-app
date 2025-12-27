@@ -90,17 +90,33 @@ cd scv-core && swift test --filter CardTests
     - Update/remove if no longer needed
 
 ### Create app privacy label
-**Status**: Backlog
+**Status**: In Progress
 
-01. [ ] Identify data categories app collects (search queries, viewing history, etc.)
+01. [x] Identify data categories app collects (search queries, viewing history, etc.)
 
-02. [ ] Map data to Apple privacy categories and purposes
+02. [x] Map data to Apple privacy categories and purposes
 
-03. [ ] Configure privacy manifest in Xcode
+03. [x] Configure privacy manifest in Xcode (See: scv-ios/scv-ios/PrivacyInfo.xcprivacy)
 
-04. [ ] Add app privacy label to App Store Connect
+04. [ ] Add app privacy label to App Store Connect (manual step)
 
 05. [ ] Test privacy label accuracy against actual app behavior
+
+### Create accessibility declaration
+**Status**: Backlog
+
+01. [ ] Audit app for accessibility features (VoiceOver, Dynamic Type, Reduced Motion, etc.)
+    - Test with VoiceOver enabled on iOS
+    - Test Dynamic Type scaling (small, large, accessibility sizes)
+    - Check color contrast ratios for WCAG AA compliance
+    - Verify keyboard navigation support
+    - Test with reduced motion preference enabled
+
+02. [ ] Create accessibility label in App Store Connect
+    - Declare supported accessibility features
+    - Add audio descriptions if applicable
+    - Document any accessibility limitations
+    - Verify accuracy against actual app behavior
 
 ### Fix Sendability warnings in CardManager and MockCardManager
 **Status**: Backlog
