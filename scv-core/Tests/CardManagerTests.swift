@@ -18,7 +18,7 @@ struct CardManagerTests {
 
     #expect(manager.allCards.count == 1)
     #expect(manager.selectedCard != nil)
-    #expect(manager.selectedCard?.cardType == .help)
+    #expect(manager.selectedCard?.cardType == .about)
   }
 
   @Test
@@ -127,9 +127,9 @@ struct CardManagerTests {
 
     manager.removeCard(onlyCard)
 
-    // After deleting the only card, a help card should be auto-created
+    // After deleting the only card, an about card should be auto-created
     #expect(manager.selectedCard != nil)
-    #expect(manager.selectedCard?.cardType == .help)
+    #expect(manager.selectedCard?.cardType == .about)
     #expect(manager.allCards.count == 1)
   }
 
@@ -265,17 +265,17 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    let helpCard = manager.allCards.first!
+    let aboutCard = manager.allCards.first!
     manager.addCard(type: .search)
     manager.addCard(type: .sutta)
 
-    #expect(manager.count(for: .help) == 1)
+    #expect(manager.count(for: .about) == 1)
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 1)
 
-    manager.removeCard(helpCard)
+    manager.removeCard(aboutCard)
 
-    #expect(manager.count(for: .help) == 0)
+    #expect(manager.count(for: .about) == 0)
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 1)
   }
@@ -466,27 +466,27 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
 
-    // Create 2 search and 3 sutta cards (first card is .help)
-    let helpCard = manager.allCards.first!
+    // Create 2 search and 3 sutta cards (first card is .about)
+    let aboutCard = manager.allCards.first!
     _ = manager.addCard(type: .search)
     let searchCard2 = manager.addCard(type: .search)
     let suttaCard1 = manager.addCard(type: .sutta)
     _ = manager.addCard(type: .sutta)
     _ = manager.addCard(type: .sutta)
 
-    #expect(manager.count(for: .help) == 1)
+    #expect(manager.count(for: .about) == 1)
     #expect(manager.count(for: .search) == 2)
     #expect(manager.count(for: .sutta) == 3)
 
     // Delete alternating cards
-    manager.removeCard(helpCard)
+    manager.removeCard(aboutCard)
     manager.removeCard(suttaCard1)
     manager.removeCard(searchCard2)
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
     // Should have 1 search and 2 sutta remaining
-    #expect(manager.count(for: .help) == 0)
+    #expect(manager.count(for: .about) == 0)
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 2)
     #expect(manager.totalCount == 3)

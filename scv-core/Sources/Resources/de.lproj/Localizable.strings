@@ -4,8 +4,8 @@
 /* Card type label for sutta viewer card */
 "card.type.sutta" = "Sutra";
 
-/* Card type label for help card */
-"card.type.help" = "Hilfe";
+/* Card type label for about card */
+"card.type.about" = "Über";
 
 /* Placeholder text for empty search query */
 "card.search.placeholder" = "Suche...?";

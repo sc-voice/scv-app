@@ -65,7 +65,7 @@ public class CardManager: ICardManager {
 
     // Ensure at least one card exists
     if allCards.isEmpty {
-      addCard(type: .help)
+      addCard(type: .about)
     }
 
     // Ensure a card is always selected
@@ -148,11 +148,11 @@ public class CardManager: ICardManager {
             } catch {
               self.cc.bad1(#line, #function, error.localizedDescription)
               // Return a minimal placeholder card to avoid crashing
-              return Card(cardType: .help)
+              return Card(cardType: .about)
             }
           } else {
             self.cc.bad1(#line, #function, "ghostCardJson?")
-            return Card(cardType: .help)
+            return Card(cardType: .about)
           }
         }
       },
@@ -293,12 +293,12 @@ public class CardManager: ICardManager {
     }
 
     if totalCount < 1 {
-      // No remaining cards, create a help card to maintain invariant
+      // No remaining cards, create an about card to maintain invariant
       cc.ok2(#line, #function, "No cards")
-      let helpCard = addCard(type: .help)
-      selectedCardId = helpCard.id
-      recentCardId = helpCard.id
-      cc.ok2(#line, #function, "selectedCard:", helpCard.name)
+      let aboutCard = addCard(type: .about)
+      selectedCardId = aboutCard.id
+      recentCardId = aboutCard.id
+      cc.ok2(#line, #function, "selectedCard:", aboutCard.name)
     }
 
     // Cards are deleted at launch to prevent SwiftUI race conditions

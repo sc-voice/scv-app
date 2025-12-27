@@ -197,8 +197,8 @@ public struct AppRootView<Manager: ICardManager>: View {
         )
         .environmentObject(themeProvider)
 
-      case .help:
-        HelpCardView()
+      case .about:
+        AboutCardView()
           .environmentObject(themeProvider)
       }
     } else {
