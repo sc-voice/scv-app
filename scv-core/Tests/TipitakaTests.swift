@@ -335,4 +335,58 @@ struct TipitakaTests {
       .fileExists(atPath: "/tmp/brahmali.json")
     #expect(fileExists)
   }
+
+  @Test func authorTipitakaJohnKelly() async throws {
+    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+      lang: "en",
+      author: "kelly",
+    )
+    print("Found \(suttaUids.count) suttaUids for en/kelly")
+    if suttaUids.count > 0 {
+      print("First few: \(suttaUids.prefix(5))")
+    }
+
+    // Verify that mil3.8 is available for John Kelly
+    #expect(suttaUids.contains("mil3.8"))
+
+    let tipitaka = await Tipitaka.authorTipitaka(lang: "en", author: "kelly")
+
+    // Verify it's the synthetic root
+    #expect(tipitaka.id == "/tipitaka")
+    #expect(tipitaka.name == "Tipiṭaka")
+    #expect(tipitaka.caption == "Buddhist Canon")
+
+    // Find mil3.8 leaf node and verify its exists
+    if let mil3_8 = Tipitaka.findRef(
+      byId: "/sutta/kn/mil/mil3.8",
+      in: [tipitaka],
+    ) {
+      let suttaRef = try SuttaRef(
+        suttaUid: "mil3.8",
+        lang: "pli",
+        author: "ms",
+      )
+      let abbr = suttaRef.abbreviation()
+      #expect(mil3_8.name == abbr)
+      let paliName = Tipitaka.tipitakaName(suttaRef: suttaRef)
+      #expect(mil3_8.caption == paliName)
+    }
+
+    // Serialize to JSON
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [
+      .prettyPrinted,
+      .sortedKeys,
+      .withoutEscapingSlashes,
+    ]
+    let jsonData = try encoder.encode(tipitaka)
+
+    // Write to /tmp/kelly.json
+    let fileURL = URL(fileURLWithPath: "/tmp/kelly.json")
+    try jsonData.write(to: fileURL)
+
+    // Verify file exists
+    let fileExists = FileManager.default.fileExists(atPath: "/tmp/kelly.json")
+    #expect(fileExists)
+  }
 }

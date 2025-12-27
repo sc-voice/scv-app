@@ -10,7 +10,8 @@ import SwiftUI
 
 // MARK: - CollapsibleSection
 
-/// A reusable collapsible section component with title, disclosure triangle, and content
+/// A reusable collapsible section component with title, disclosure triangle,
+/// and content
 public struct CollapsibleSection<Content: View>: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var isExpanded: Bool = false
@@ -22,12 +23,13 @@ public struct CollapsibleSection<Content: View>: View {
   /// Initialize a CollapsibleSection
   /// - Parameters:
   ///   - title: The header title displayed
-  ///   - initiallyExpanded: Whether the section starts expanded (default: false)
+  ///   - initiallyExpanded: Whether the section starts expanded (default:
+  /// false)
   ///   - content: ViewBuilder closure containing the collapsible content
   public init(
     _ title: String,
     initiallyExpanded: Bool = false,
-    @ViewBuilder content: @escaping () -> Content
+    @ViewBuilder content: @escaping () -> Content,
   ) {
     self.title = title
     self.initiallyExpanded = initiallyExpanded
@@ -38,7 +40,10 @@ public struct CollapsibleSection<Content: View>: View {
   public var body: some View {
     VStack(spacing: 0) {
       // MARK: - Header
-      Button(action: { withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() } }) {
+
+      Button(action: {
+        withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
+      }) {
         HStack(spacing: 12) {
           // Disclosure triangle
           Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
@@ -58,11 +63,13 @@ public struct CollapsibleSection<Content: View>: View {
       }
 
       // MARK: - Divider
+
       Rectangle()
         .fill(themeProvider.theme.borderColor)
         .frame(height: 0.5)
 
       // MARK: - Content
+
       if isExpanded {
         VStack(spacing: 0) {
           content()
@@ -77,7 +84,7 @@ public struct CollapsibleSection<Content: View>: View {
     .cornerRadius(8)
     .overlay(
       RoundedRectangle(cornerRadius: 8)
-        .stroke(themeProvider.theme.borderColor, lineWidth: 0.5)
+        .stroke(themeProvider.theme.borderColor, lineWidth: 0.5),
     )
   }
 }

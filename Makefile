@@ -80,14 +80,16 @@ build-content: build-build-tools
 
 content: _init clean-build-tools build-content
 
-build-db:
+build-db: _init _build-db _end
+
+_build-db:
 	@if [ -z "$(DB)" ]; then \
 		echo "Usage: make build-db DB=lang:author"; \
 		echo "Example: make build-db DB=en:sujato"; \
 		exit 1; \
 	fi
-	@echo "Building database: $(DB)..."
-	@scripts/build-ebt-data $(DB)
+	@echo "Building database: $(DB)..." 2>&1 | tee -a $(LOG_FILE)
+	@scripts/build-ebt-data $(DB) 2>&1 | tee -a $(LOG_FILE)
 
 build-build-tools: _init _build-core
 	@echo "=== MAKE build-build-tools..." | tee -a $(LOG_FILE)

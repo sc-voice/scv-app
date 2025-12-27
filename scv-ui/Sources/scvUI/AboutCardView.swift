@@ -48,25 +48,27 @@ public struct AboutCardView: View {
 
         CollapsibleSection("Overview", initiallyExpanded: true) {
           VStack(alignment: .leading, spacing: 12) {
-            Text("Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
+            Text(
+              "Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.",
+            )
+            .font(.body)
+            .foregroundStyle(themeProvider.theme.textColor)
 
             VStack(alignment: .leading, spacing: 8) {
               FeatureRow(
                 icon: "magnifyingglass",
                 title: "Full-Text Search",
-                description: "Search across thousands of suttas"
+                description: "Search across thousands of suttas",
               )
               FeatureRow(
                 icon: "book.fill",
                 title: "Multiple Languages",
-                description: "English, German, Portuguese, and more"
+                description: "English, German, Portuguese, and more",
               )
               FeatureRow(
                 icon: "highlighter",
                 title: "Highlighting",
-                description: "See matched segments and quotes"
+                description: "See matched segments and quotes",
               )
             }
           }
@@ -81,10 +83,26 @@ public struct AboutCardView: View {
               .foregroundStyle(themeProvider.theme.textColor)
 
             VStack(alignment: .leading, spacing: 8) {
-              StepRow(number: 1, title: "Create a Search Card", description: "Tap the '+' button to create a new card")
-              StepRow(number: 2, title: "Enter a Query", description: "Search for a word, phrase, or sutta UID")
-              StepRow(number: 3, title: "View Results", description: "Browse matching suttas and segments")
-              StepRow(number: 4, title: "Open Suttas", description: "Tap results to read the full text")
+              StepRow(
+                number: 1,
+                title: "Create a Search Card",
+                description: "Tap the '+' button to create a new card",
+              )
+              StepRow(
+                number: 2,
+                title: "Enter a Query",
+                description: "Search for a word, phrase, or sutta UID",
+              )
+              StepRow(
+                number: 3,
+                title: "View Results",
+                description: "Browse matching suttas and segments",
+              )
+              StepRow(
+                number: 4,
+                title: "Open Suttas",
+                description: "Tap results to read the full text",
+              )
             }
           }
         }
@@ -107,9 +125,11 @@ public struct AboutCardView: View {
 
             SourceRow(title: "Mahāsaṅgīti", author: "Tipiṭaka Buddhavasse 2500")
 
-            Text("All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.")
-              .font(.caption)
-              .foregroundStyle(themeProvider.theme.secondaryTextColor)
+            Text(
+              "All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.",
+            )
+            .font(.caption)
+            .foregroundStyle(themeProvider.theme.secondaryTextColor)
           }
         }
 
@@ -122,8 +142,14 @@ public struct AboutCardView: View {
               .foregroundStyle(themeProvider.theme.textColor)
 
             VStack(alignment: .leading, spacing: 8) {
-              AckRow(role: "Translations", names: "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), and Sonja Büge (DE)")
-              AckRow(role: "Root Text", names: "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500")
+              AckRow(
+                role: "Translations",
+                names: "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), and Sonja Büge (DE)",
+              )
+              AckRow(
+                role: "Root Text",
+                names: "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+              )
               AckRow(role: "Database", names: "SuttaCentral team")
               AckRow(role: "Development", names: "SC-Voice contributors")
             }
@@ -159,9 +185,21 @@ public struct AboutCardView: View {
               .foregroundStyle(themeProvider.theme.textColor)
 
             VStack(alignment: .leading, spacing: 8) {
-              PrivacyRow(icon: "lock.fill", title: "No Analytics", description: "We do not track your searches or usage")
-              PrivacyRow(icon: "icloud.slash", title: "Local Storage", description: "All data is stored locally on your device")
-              PrivacyRow(icon: "key.fill", title: "Open Source", description: "Review the code to verify our privacy practices")
+              PrivacyRow(
+                icon: "lock.fill",
+                title: "No Analytics",
+                description: "We do not track your searches or usage",
+              )
+              PrivacyRow(
+                icon: "icloud.slash",
+                title: "Local Storage",
+                description: "All data is stored locally on your device",
+              )
+              PrivacyRow(
+                icon: "key.fill",
+                title: "Open Source",
+                description: "Review the code to verify our privacy practices",
+              )
             }
           }
         }
@@ -174,9 +212,11 @@ public struct AboutCardView: View {
             .foregroundStyle(themeProvider.theme.textColor)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-          Text("Found a bug? Have a suggestion? Visit our GitHub repository to report issues or contribute.")
-            .font(.body)
-            .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          Text(
+            "Found a bug? Have a suggestion? Visit our GitHub repository to report issues or contribute.",
+          )
+          .font(.body)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
           Button(action: {
             if let url = URL(string: "https://github.com/sc-voice") {
