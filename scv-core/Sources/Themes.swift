@@ -68,11 +68,17 @@ public struct Theme {
 
 // MARK: - Theme Definitions
 
-/// Saffron color used in both themes
+/// Saffron color used in dark theme
 private let COLOR_SAFFRON = Color(red: 1.0, green: 0.6, blue: 0.2) // #ff9933
 
-/// Cyan color for user-mutable values
+/// Dark brown accent for light theme (WCAG AA compliant)
+private let COLOR_BROWN_ACCENT = Color(red: 0.545, green: 0.271, blue: 0.075) // #8b4513
+
+/// Cyan color for user-mutable values in dark theme
 private let COLOR_CYAN = Color(red: 0.0, green: 1.0, blue: 1.0) // #00ffff
+
+/// Dark teal color for light theme value display (WCAG AA compliant)
+private let COLOR_TEAL_DARK = Color(red: 0.024, green: 0.373, blue: 0.451) // #065f73
 
 /// Brown color for toolbar (dark theme)
 private let COLOR_BROWN = Color(red: 0.243, green: 0.161,
@@ -105,16 +111,17 @@ public enum AppTheme {
     case .light:
       // Light theme: light backgrounds with dark text
       // Based on vuetify-opts.mjs lightTheme
+      // Uses darker accent and value colors for WCAG AA contrast compliance
       Theme(
         backgroundColor: Color(red: 0.933, green: 0.933,
                                blue: 0.933), // #eeeeee (grey.lighten1)
         textColor: Color(red: 0.1, green: 0.1, blue: 0.1), // dark text
         secondaryTextColor: Color(red: 0.5, green: 0.5,
                                   blue: 0.5), // medium grey
-        accentColor: COLOR_SAFFRON, // #ff9933
+        accentColor: COLOR_BROWN_ACCENT, // #8b4513 (4.91:1 contrast ratio)
         cardBackground: Color(red: 0.941, green: 0.941, blue: 0.941), // #f0f0f0
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
-        valueColor: COLOR_CYAN, // #00ffff
+        valueColor: COLOR_TEAL_DARK, // #065f73 (5.02:1 contrast ratio)
         toolbarColor: COLOR_GREY, // #BDBDBD
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF

@@ -119,8 +119,13 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var suggestions: [PhraseAsset] = []
   @State private var debounceTimer: Timer?
   @FocusState private var searchFieldIsFocused: Bool
+  @Environment(\.sizeCategory) var sizeCategory
   let appIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
+
+  private var shouldStackVertically: Bool {
+    sizeCategory.isAccessibilityCategory
+  }
 
   public init(
     card: Binding<Card>,
@@ -282,12 +287,12 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           Text(error.message)
             .font(.body)
             .foregroundColor(themeProvider.theme.errorTextColor)
-            .lineLimit(3)
+            .lineLimit(shouldStackVertically ? 4 : 3)
           if !error.detail.isEmpty {
             Text(error.detail)
               .font(.caption)
               .foregroundColor(themeProvider.theme.secondaryTextColor)
-              .lineLimit(2)
+              .lineLimit(shouldStackVertically ? 3 : 2)
           }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -317,25 +322,51 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         // Results list
         List(searchResult.items, id: \.suttaRef) { item in
           VStack(alignment: .leading, spacing: 4) {
-            HStack {
-              Text(item.suttaRef.author ?? "unknown")
+            if shouldStackVertically {
+              // Vertical stack for accessibility sizes
+              VStack(alignment: .leading, spacing: 2) {
+                Text(item.suttaRef.author ?? "unknown")
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.textColor)
+                  .fontWeight(.semibold)
+                HStack {
+                  Text(
+                    "★ \(String(format: "%.2f", item.score))",
+                  )
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.textColor)
+                  .fontWeight(.semibold)
+                  Spacer()
+                  Text(
+                    item.segmentCount.map(String.init) ?? "…",
+                  )
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.textColor)
+                  .fontWeight(.semibold)
+                }
+              }
+            } else {
+              // Horizontal stack for normal sizes
+              HStack {
+                Text(item.suttaRef.author ?? "unknown")
+                  .font(.caption)
+                  .foregroundColor(themeProvider.theme.textColor)
+                  .fontWeight(.semibold)
+                Spacer()
+                Text(
+                  "★ \(String(format: "%.2f", item.score))",
+                )
                 .font(.caption)
                 .foregroundColor(themeProvider.theme.textColor)
                 .fontWeight(.semibold)
-              Spacer()
-              Text(
-                "★ \(String(format: "%.2f", item.score))",
-              )
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.textColor)
-              .fontWeight(.semibold)
-              Text(
-                item.segmentCount.map(String.init) ?? "…",
-              )
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.textColor)
-              .fontWeight(.semibold)
-              .frame(minWidth: 30, alignment: .trailing)
+                Text(
+                  item.segmentCount.map(String.init) ?? "…",
+                )
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.textColor)
+                .fontWeight(.semibold)
+                .frame(minWidth: 30, alignment: .trailing)
+              }
             }
             Text(item.suttaRef.suttaUid)
               .font(.body)
@@ -352,7 +383,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               Text(attributed)
                 .font(.caption)
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
-                .lineLimit(2)
+                .lineLimit(shouldStackVertically ? 5 : 3)
             }
           }
           .padding(.vertical, 4)
