@@ -303,24 +303,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     // Display results
     return AnyView(
       VStack(alignment: .leading, spacing: 12) {
-        // Summary header
-        VStack(alignment: .leading, spacing: 4) {
-          Text(
-            "Found \(searchResult.items.count) document\(searchResult.items.count == 1 ? "" : "s")",
-          )
-          .font(.headline)
-          .foregroundColor(themeProvider.theme.textColor)
-          Text("Method: \(searchResult.metadata.method.rawValue)")
-            .font(.caption)
-            .foregroundColor(themeProvider.theme.textColor)
-            .fontWeight(.semibold)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .cornerRadius(8)
-
         // Results list
         List(searchResult.items, id: \.suttaRef) { item in
+          HStack(spacing: 4) {
+            Image(systemName: "doc.text")
+              .font(.caption)
+            Text("\(searchResult.items.count)")
+              .font(.caption)
+          }
           VStack(alignment: .leading, spacing: 4) {
             if shouldStackVertically {
               // Vertical stack for accessibility sizes

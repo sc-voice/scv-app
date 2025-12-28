@@ -72,13 +72,15 @@ public struct Theme {
 private let COLOR_SAFFRON = Color(red: 1.0, green: 0.6, blue: 0.2) // #ff9933
 
 /// Dark brown accent for light theme (WCAG AA compliant)
-private let COLOR_BROWN_ACCENT = Color(red: 0.545, green: 0.271, blue: 0.075) // #8b4513
+private let COLOR_BROWN_ACCENT = Color(red: 0.545, green: 0.271,
+                                       blue: 0.075) // #8b4513
 
 /// Cyan color for user-mutable values in dark theme
 private let COLOR_CYAN = Color(red: 0.0, green: 1.0, blue: 1.0) // #00ffff
 
 /// Dark teal color for light theme value display (WCAG AA compliant)
-private let COLOR_TEAL_DARK = Color(red: 0.024, green: 0.373, blue: 0.451) // #065f73
+private let COLOR_TEAL_DARK = Color(red: 0.024, green: 0.373,
+                                    blue: 0.451) // #065f73
 
 /// Brown color for toolbar (dark theme)
 private let COLOR_BROWN = Color(red: 0.243, green: 0.161,

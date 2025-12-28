@@ -86,7 +86,6 @@ public enum ScvBackground {
           .clipped()
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
           .offset(y: -geometry.size.height * 0.1)
-          .background(Material.thin)
       }
     }
   }
@@ -94,6 +93,7 @@ public enum ScvBackground {
 
 public struct ScvBackgroundsView: View {
   let background: ScvBackground
+  @Environment(\.colorScheme) var colorScheme
 
   public init(_ background: ScvBackground = .nothingness) {
     self.background = background
@@ -102,6 +102,13 @@ public struct ScvBackgroundsView: View {
   public var body: some View {
     background.view
       .frame(maxWidth: .infinity, maxHeight: .infinity)
+      // .overlay(
+      // Group {
+      // if colorScheme == .light && background == .palm_leaf {
+      // Color.white.opacity(0.4)
+      // }
+      // }
+      // )
       .ignoresSafeArea()
   }
 }

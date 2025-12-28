@@ -6,13 +6,16 @@ func verifyManifest() {
   let manifestPath = "scv-core/Sources/Resources/db-manifest.json"
   let resourcesDir = "scv-core/Sources/Resources"
 
-  guard let manifestData = try? Data(contentsOf: URL(fileURLWithPath: manifestPath)) else {
+  guard let manifestData =
+    try? Data(contentsOf: URL(fileURLWithPath: manifestPath))
+  else {
     print("Error: Could not read manifest at \(manifestPath)")
     exit(1)
   }
 
   guard
-    let json = try? JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
+    let json = try? JSONSerialization
+    .jsonObject(with: manifestData) as? [String: Any],
     let databases = json["databases"] as? [[String: Any]]
   else {
     print("Error: Could not parse manifest JSON")
@@ -22,7 +25,9 @@ func verifyManifest() {
   var missing: [(String, String)] = []
 
   for db in databases {
-    guard let language = db["language"] as? String, let author = db["author"] as? String else {
+    guard let language = db["language"] as? String,
+          let author = db["author"] as? String
+    else {
       continue
     }
 
