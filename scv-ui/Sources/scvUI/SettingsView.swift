@@ -122,13 +122,13 @@ public struct SettingsView: View {
                   Text("settings.sound.effects.volume".localized)
                     .font(.body)
                   Slider(value: Binding(
-                    get: { Double(AudioEffects.shared.soundEffectVolume) },
+                    get: { Double(controller.soundEffectVolume) },
                     set: { newValue in
-                      AudioEffects.shared.soundEffectVolume = Int(newValue)
+                      controller.soundEffectVolume = Int(newValue)
                     },
                   ), in: 0 ... 4, step: 1)
                 }
-                Text("\(AudioEffects.shared.soundEffectVolume)")
+                Text("\(controller.soundEffectVolume)")
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
                   .frame(width: 20)
@@ -148,7 +148,7 @@ public struct SettingsView: View {
                     set: { newValue in
                       controller.segmentPause = newValue
                     },
-                  ), in: 0.0 ... 0.5, step: 0.05)
+                  ), in: 0.0 ... 1.0, step: 0.1)
                 }
                 Text("\(String(format: "%.2f", controller.segmentPause))s")
                   .font(.caption)

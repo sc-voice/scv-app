@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import scvCore
 
 @MainActor
 public final class AudioEffects: ObservableObject {
@@ -17,15 +18,15 @@ public final class AudioEffects: ObservableObject {
     var filename: String {
       switch self {
       case .silent:
-        "no_audio"
+        "scv-no-audio"
       case .click:
-        "click1"
+        "513481__budek__click"
       case .bell:
-        "simple-bell"
+        "370507__craigmaloney__bell"
       case .alertBell:
-        "indian-bell-flemur-sampling-plus-1.0"
+        "753271__heckfricker__single-chirp"
       case .block:
-        "block2"
+        "742279__sadiquecat__ashboy34-temple-block-lunarlander-1969"
       case .swoosh:
         "577049__nezuai__cartoon-air-swoosh-6"
       case .pageTurn:
@@ -44,26 +45,19 @@ public final class AudioEffects: ObservableObject {
     case alert
   }
 
-  @Published public var soundEffectVolume: Int = 3 {
-    didSet {
-      UserDefaults.standard.set(soundEffectVolume, forKey: "soundEffectVolume")
-    }
-  }
-
   private var audioPlayer: AVAudioPlayer?
   private let cc = ColorConsole(#file, #function, dbg.AudioEffects.other)
 
   init() {
-    // Load saved volume or use default
-    if UserDefaults.standard.object(forKey: "soundEffectVolume") != nil {
-      soundEffectVolume = UserDefaults.standard.integer(
-        forKey: "soundEffectVolume",
-      )
-    } else {
-      soundEffectVolume = 3
-      UserDefaults.standard.set(3, forKey: "soundEffectVolume")
-    }
-    cc.ok2(#line, "AudioEffects initialized with volume: \(soundEffectVolume)")
+    cc.ok2(
+      #line,
+      "AudioEffects initialized with volume: \(Settings.shared.soundEffectVolume)",
+    )
+  }
+
+  /// Get current sound effect volume from Settings
+  public var soundEffectVolume: Int {
+    Settings.shared.soundEffectVolume
   }
 
   /// Announce an event which triggers appropriate sound

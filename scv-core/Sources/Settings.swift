@@ -11,7 +11,8 @@ import Foundation
 // MARK: - Constants
 
 let MAX_DOC_DEFAULT = 50
-public let SEGMENT_PAUSE_DEFAULT = 0.1
+public let SEGMENT_PAUSE_DEFAULT = 0.5
+public let SOUND_EFFECT_VOLUME_DEFAULT = 2
 
 // MARK: - SpeechConfig
 
@@ -99,6 +100,9 @@ public class Settings: Codable {
   /// Whether to play document (translation) text during narration
   public var playDoc: Bool = true
 
+  /// Sound effect volume level (0-4, where 0 is muted, default 2)
+  public var soundEffectVolume: Int = SOUND_EFFECT_VOLUME_DEFAULT
+
   /// Application version when last run
   public var lastApplicationVersion: String = ""
 
@@ -148,6 +152,7 @@ public class Settings: Codable {
     case segmentPause
     case playPali
     case playDoc
+    case soundEffectVolume
     case lastApplicationVersion
     case maxDoc
     case autoCompleteData
@@ -168,6 +173,7 @@ public class Settings: Codable {
     try container.encode(segmentPause, forKey: .segmentPause)
     try container.encode(playPali, forKey: .playPali)
     try container.encode(playDoc, forKey: .playDoc)
+    try container.encode(soundEffectVolume, forKey: .soundEffectVolume)
     try container.encode(
       lastApplicationVersion,
       forKey: .lastApplicationVersion,
@@ -264,6 +270,10 @@ public class Settings: Codable {
         Bool.self,
         forKey: .playDoc,
       ) ?? true
+      soundEffectVolume = try container.decodeIfPresent(
+        Int.self,
+        forKey: .soundEffectVolume,
+      ) ?? SOUND_EFFECT_VOLUME_DEFAULT
       lastApplicationVersion = try container.decodeIfPresent(
         String.self,
         forKey: .lastApplicationVersion,
@@ -429,6 +439,7 @@ public class Settings: Codable {
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false
     playDoc = true
+    soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
     lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT
     autoCompleteData = []

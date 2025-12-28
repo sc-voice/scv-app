@@ -1,0 +1,30 @@
+{
+  "nothingness-background": {
+    "credit": "White Sands, New Mexico",
+    "license": "Public Domain"
+  },
+  "sangha-background": {
+    "credit": "Phutthamonthon Buddha statue, Nakhon Pathom, Thailand",
+    "license": "CC0 / Creative Commons"
+  },
+  "sangha-dark-background": {
+    "credit": "Bodleian MS. Burm. a. 12, Life of the Buddha. Bodleian Library, University of Oxford",
+    "license": "Public Domain"
+  },
+  "seurat-background": {
+    "credit": "Georges Seurat, A Sunday on La Grande Jatte, 1884. Art Institute of Chicago",
+    "license": "Public Domain"
+  },
+  "space-background": {
+    "credit": "Outer space and stars",
+    "license": "Rawpixel License / CC0"
+  },
+  "wilderness-background": {
+    "credit": "Summer forest landscape",
+    "license": "Rawpixel License / CC0"
+  },
+  "palm-leaf": {
+    "credit": "Singhalese Manuscript 143, Wellcome Collection",
+    "license": "CC BY 4.0"
+  }
+}

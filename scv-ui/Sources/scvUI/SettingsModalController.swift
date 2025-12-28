@@ -64,6 +64,10 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var soundEffectVolume: Int {
+    didSet { autosave() }
+  }
+
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
   private let originalIsDarkModeEnabled: Bool
@@ -93,6 +97,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     segmentPause = settings.segmentPause
     playPali = settings.playPali
     playDoc = settings.playDoc
+    soundEffectVolume = settings.soundEffectVolume
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
@@ -127,6 +132,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.segmentPause = segmentPause
     Settings.shared.playPali = playPali
     Settings.shared.playDoc = playDoc
+    Settings.shared.soundEffectVolume = soundEffectVolume
 
     // If language changed, validate to ensure docAuthor/refAuthor are valid for
     // the new language
@@ -209,5 +215,6 @@ public class SettingsModalController: NSObject, ObservableObject {
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false
     playDoc = true
+    soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
   }
 }

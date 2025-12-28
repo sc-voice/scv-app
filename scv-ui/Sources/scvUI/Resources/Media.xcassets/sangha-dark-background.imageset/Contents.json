@@ -11,6 +11,7 @@
   },
   "properties" : {
     "license" : "Public Domain",
-    "credit" : "Bodleian MS. Burm. a. 12, Life of the Buddha. Bodleian Library, University of Oxford"
+    "credit" : "Bodleian MS. Burm. a. 12, Life of the Buddha. Bodleian Library, University of Oxford",
+    "url" : "https://bodleian.ox.ac.uk/"
   }
 }

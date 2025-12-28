@@ -517,6 +517,48 @@ struct scvUITests {
     // Run 2: " text"
     #expect(String(result[runs[2].range].characters) == " text")
   }
+
+  @Test
+  @MainActor
+  func imageCreditsLoaderLoadsCreditsFromBundle() {
+    let loader = ImageCreditsLoader()
+    let credits = loader.loadImageCredits()
+
+    // Verify that image credits were loaded
+    #expect(!credits.isEmpty, "Image credits should not be empty")
+
+    // Verify that all expected themes are present
+    let expectedThemes = [
+      "nothingness-background",
+      "sangha-background",
+      "sangha-dark-background",
+      "seurat-background",
+      "space-background",
+      "wilderness-background",
+      "palm-leaf",
+    ]
+
+    for theme in expectedThemes {
+      #expect(
+        credits[theme] != nil,
+        "Theme \(theme) should be present in credits",
+      )
+    }
+
+    // Verify each credit has both credit and license
+    for (name, credit) in credits {
+      #expect(
+        !credit.credit.isEmpty,
+        "\(name) should have a credit description",
+      )
+      #expect(
+        !credit.license.isEmpty,
+        "\(name) should have a license",
+      )
+    }
+
+    cc.ok1(#line, "Loaded \(credits.count) image credits successfully")
+  }
 }
 
 // MARK: - Test Helpers
@@ -529,9 +571,6 @@ func createTestCardManager() throws -> CardManager {
   return CardManager(modelContext: context)
 }
 
-// MARK: - Mock URLOpener for Testing
-
-@MainActor
 class MockURLOpener: URLOpener {
   nonisolated(unsafe) var lastURL: URL?
   nonisolated(unsafe) var openWasCalled = false

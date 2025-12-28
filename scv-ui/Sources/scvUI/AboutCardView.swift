@@ -8,12 +8,99 @@
 import scvCore
 import SwiftUI
 
+// MARK: - Image Credit Model
+
+struct ImageCredit: Decodable {
+  let filename: String
+  let license: String
+  let credit: String
+
+  enum CodingKeys: String, CodingKey {
+    case license
+    case credit
+    case images
+    case properties
+    case filename
+  }
+
+  init(filename: String, license: String, credit: String) {
+    self.filename = filename
+    self.license = license
+    self.credit = credit
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let propertiesContainer = try container.nestedContainer(
+      keyedBy: CodingKeys.self,
+      forKey: .properties,
+    )
+    license = try propertiesContainer.decode(String.self, forKey: .license)
+    credit = try propertiesContainer.decode(String.self, forKey: .credit)
+
+    var imagesArray = try container.nestedUnkeyedContainer(forKey: .images)
+    let firstImage = try imagesArray.nestedContainer(keyedBy: CodingKeys.self)
+    filename = try firstImage.decode(String.self, forKey: .filename)
+  }
+}
+
+// MARK: - Image Credits Loader
+
+@MainActor
+class ImageCreditsLoader {
+  static let shared = ImageCreditsLoader()
+  private var cachedCredits: [String: ImageCredit]?
+  private let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
+
+  func loadImageCredits() -> [String: ImageCredit] {
+    if let cached = cachedCredits {
+      return cached
+    }
+
+    let startTime = Date()
+
+    // Convert generated imageCreditsData to ImageCredit objects
+    var credits: [String: ImageCredit] = [:]
+    for (name, creditInfo) in imageCreditsData {
+      credits[name] = ImageCredit(
+        filename: name,
+        license: creditInfo.license,
+        credit: creditInfo.credit,
+      )
+    }
+
+    let elapsed = Date().timeIntervalSince(startTime) * 1000
+    cc.ok2(
+      "loadImageCredits() Loaded \(credits.count) image credits from generated data (\(String(format: "%.1f", elapsed))ms)",
+    )
+
+    cachedCredits = credits
+    return credits
+  }
+
+  func getImageUrl(for imageName: String) -> String? {
+    imageCreditsData[imageName]?.url
+  }
+
+  func getAudioCredits() -> [(
+    name: String,
+    credit: String,
+    license: String,
+    url: String?,
+  )] {
+    audioCreditsData.map { key, value in
+      (name: key, credit: value.credit, license: value.license, url: value.url)
+    }.sorted { $0.credit < $1.credit }
+  }
+}
+
 // MARK: - AboutCardView
 
 /// About card view with collapsible sections for app information
 public struct AboutCardView: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.openURL) var openURL
+  @State private var imageCredits: [String: ImageCredit] = [:]
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
   public init() {}
@@ -156,17 +243,143 @@ public struct AboutCardView: View {
           }
         }
 
-        // MARK: - Open Source Licenses
+        // MARK: - Graphics & Design
 
-        CollapsibleSection("Open Source Licenses") {
+        CollapsibleSection("Graphics & Design") {
           VStack(alignment: .leading, spacing: 12) {
-            Text("This app uses these open source libraries:")
+            Text("Background images and themes:")
+              .font(.body)
+              .foregroundStyle(themeProvider.theme.textColor)
+
+            VStack(alignment: .leading, spacing: 12) {
+              // Display theme credits dynamically
+              ForEach(
+                imageCredits.sorted(by: { $0.key < $1.key }),
+                id: \.key,
+              ) { name, credit in
+                HStack(alignment: .top, spacing: 12) {
+                  // Thumbnail image
+                  Image(name, bundle: .module)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .cornerRadius(4)
+
+                  // Credit info
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(
+                      name
+                        .replacingOccurrences(of: "-", with: " ")
+                        .capitalized,
+                    )
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(themeProvider.theme.accentColor)
+
+                    Text(credit.credit)
+                      .font(.caption)
+                      .foregroundStyle(themeProvider.theme.textColor)
+
+                    Text("License: \(credit.license)")
+                      .font(.caption2)
+                      .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+                    // Clickable link
+                    if let url = ImageCreditsLoader.shared
+                      .getImageUrl(for: name),
+                      let linkUrl = URL(string: url)
+                    {
+                      Button(action: {
+                        openURL(linkUrl)
+                      }) {
+                        Text("View source")
+                          .font(.caption)
+                          .foregroundStyle(.blue)
+                          .underline()
+                      }
+                    }
+                  }
+                  .frame(maxWidth: .infinity, alignment: .leading)
+
+                  Spacer()
+                }
+              }
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+              Text("App Icon")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(themeProvider.theme.accentColor)
+              Text("Designed by Friends of Voice")
+                .font(.caption)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
+            }
+          }
+        }
+        .onAppear {
+          imageCredits = ImageCreditsLoader.shared.loadImageCredits()
+        }
+
+        // MARK: - Audio Credits
+
+        CollapsibleSection("Audio Credits") {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Sound effects and audio:")
               .font(.body)
               .foregroundStyle(themeProvider.theme.textColor)
 
             VStack(alignment: .leading, spacing: 8) {
-              LicenseRow(library: "SwiftUI", license: "Apple")
-              LicenseRow(library: "SwiftData", license: "Apple")
+              ForEach(
+                ImageCreditsLoader.shared.getAudioCredits(),
+                id: \.name,
+              ) { audio in
+                VStack(alignment: .leading, spacing: 4) {
+                  Text(audio.credit)
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(themeProvider.theme.accentColor)
+
+                  Text("License: \(audio.license)")
+                    .font(.caption2)
+                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+                  if let url = audio.url, let linkUrl = URL(string: url) {
+                    Button(action: {
+                      openURL(linkUrl)
+                    }) {
+                      Text("View source")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                        .underline()
+                    }
+                  }
+                }
+              }
+            }
+
+            Text("Audio sourced from Freesound.org and original compositions.")
+              .font(.caption)
+              .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          }
+        }
+
+        // MARK: - Open Source Licenses
+
+        CollapsibleSection("Open Source Licenses") {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(
+              "All SC-Voice source code is licensed under the MIT License unless otherwise noted.",
+            )
+            .font(.body)
+            .foregroundStyle(themeProvider.theme.textColor)
+
+            Text("The following libraries are also included:")
+              .font(.body)
+              .foregroundStyle(themeProvider.theme.textColor)
+
+            VStack(alignment: .leading, spacing: 8) {
+              LicenseRow(library: "SQLite", license: "Public Domain")
               LicenseRow(library: "Zstandard", license: "BSD License")
             }
 

@@ -420,13 +420,17 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           "Search completed with \(searchResult.items.count) results",
         )
 
-        // Track phrase in AutoComplete for suggestions
-        AutoComplete.shared.track(
-          phrase: searchQuery,
-          documentCount: searchResult.items.count,
-          author: searchResult.metadata.docAuthor,
-          lang: searchResult.metadata.docLang,
-        )
+        // Track phrase in AutoComplete only for lemma searches with results
+        if searchResult.items.count > 0,
+           searchResult.metadata.method == .lemma
+        {
+          AutoComplete.shared.track(
+            phrase: searchQuery,
+            documentCount: searchResult.items.count,
+            author: searchResult.metadata.docAuthor,
+            lang: searchResult.metadata.docLang,
+          )
+        }
 
         // Trigger background sutta info and quote population
         // Note: We need to spawn this on the main thread context

@@ -29,6 +29,9 @@ let package = Package(
     .testTarget(
       name: "scvUITests",
       dependencies: ["scvUI"],
+      resources: [
+        .process("../Sources/scvUI/Resources"),
+      ],
     ),
   ],
 )
