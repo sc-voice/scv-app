@@ -80,15 +80,6 @@ cd scv-core && swift test --filter CardTests
     - Test suttaPlayerJumpToSegmentWhilePlaying
     - Consider if tests should verify speech synthesis or just state changes
 
-### Review SearchSuttasIntentTestHelper for relevance
-**Status**: Backlog
-
-01. [ ] Evaluate SearchSuttasIntentTestHelper (See: scv-ui/Sources/scvUI/SearchSuttasIntentTestHelper.swift)
-    - Determine if still relevant after SearchCardView implementation
-    - Check if it duplicates SearchCardView functionality
-    - Decide: keep as debug tool, refactor, or remove
-    - Update/remove if no longer needed
-
 ### Create app privacy label
 **Status**: In Progress
 
