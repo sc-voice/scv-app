@@ -112,7 +112,7 @@ public struct AboutCardView: View {
 
         VStack(spacing: 12) {
           Image(systemName: "info.circle.fill")
-            .font(.system(size: 48))
+            .font(.title)
             .foregroundStyle(themeProvider.theme.accentColor)
 
           VStack(spacing: 4) {

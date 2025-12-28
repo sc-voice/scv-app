@@ -69,3 +69,18 @@
 
 /* Settings toggle label for playing document text during narration */
 "settings.play.document" = "Play Document Text";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Dark Mode";
+
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Narrator";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Pitch";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Rate";
+
+/* Settings label for customization options */
+"settings.customize" = "Customize";

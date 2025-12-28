@@ -26,10 +26,6 @@ public struct SettingsView: View {
     _controller = ObservedObject(wrappedValue: controller)
   }
 
-  var buildNumber: String {
-    Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
-  }
-
   var availableDocAuthors: [DatabaseInfo] {
     EbtData.authorsForLanguageFromManifest(controller.docLang.code)
       .sorted { $0.files.total > $1.files.total }
@@ -97,7 +93,7 @@ public struct SettingsView: View {
                 Image(systemName: controller
                   .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
                   .foregroundColor(themeProvider.theme.accentColor)
-                Toggle("Dark Mode", isOn: Binding(
+                Toggle("settings.dark.mode".localized, isOn: Binding(
                   get: { controller.isDarkModeEnabled },
                   set: { newValue in
                     controller.isDarkModeEnabled = newValue
@@ -194,24 +190,13 @@ public struct SettingsView: View {
 
             // MARK: - Document Voice Section
 
-            Section("Document Narration Voice") {
+            Section("settings.narrator".localized) {
               VoicePickerView(
                 selectedVoiceId: $controller.docVoiceId,
                 pitch: $controller.docPitch,
                 rate: $controller.docRate,
                 language: controller.docLang,
               )
-            }
-
-            // MARK: - Build Section
-
-            Section {
-              HStack {
-                Text("settings.build".localized)
-                Spacer()
-                Text(buildNumber)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-              }
             }
 
             // MARK: - Reset Button Section
@@ -278,6 +263,15 @@ struct LanguagesSection: View {
   @Binding var showDocLangPicker: Bool
   @Binding var showDocAuthorPicker: Bool
   @Binding var showRefLangPicker: Bool
+  @Environment(\.sizeCategory) var sizeCategory
+
+  var pickerDetent: Set<PresentationDetent> {
+    sizeCategory.isAccessibilityCategory ? [.fraction(0.95)] : [.medium]
+  }
+
+  var pickerHeight: CGFloat {
+    sizeCategory.isAccessibilityCategory ? 400 : 250
+  }
 
   var availableDocAuthors: [DatabaseInfo] {
     EbtData.authorsForLanguageFromManifest(controller.docLang.code)
@@ -300,19 +294,27 @@ struct LanguagesSection: View {
         }
       }
       .sheet(isPresented: $showDocLangPicker) {
-        Picker(
-          "settings.document.language".localized,
-          selection: $controller.docLang,
-        ) {
-          ForEach(sortedLanguages, id: \.self) { lang in
-            Text(lang.displayName).tag(lang)
+        VStack {
+          Picker(
+            "settings.document.language".localized,
+            selection: $controller.docLang,
+          ) {
+            ForEach(sortedLanguages, id: \.self) { lang in
+              Text(lang.displayName)
+                .font(.body)
+                .lineSpacing(1.5)
+                .tag(lang)
+            }
           }
+          #if os(iOS)
+          .pickerStyle(.wheel)
+          #else
+          .pickerStyle(.menu)
+          #endif
         }
+        .frame(height: pickerHeight)
         #if os(iOS)
-        .pickerStyle(.wheel)
-        .presentationDetents([.medium])
-        #else
-        .pickerStyle(.menu)
+        .presentationDetents(pickerDetent)
         #endif
       }
 
@@ -325,19 +327,27 @@ struct LanguagesSection: View {
         }
       }
       .sheet(isPresented: $showDocAuthorPicker) {
-        Picker(
-          "settings.document.author".localized,
-          selection: $controller.docAuthor,
-        ) {
-          ForEach(availableDocAuthors, id: \.author) { info in
-            Text(info.authorName).tag(info.author)
+        VStack {
+          Picker(
+            "settings.document.author".localized,
+            selection: $controller.docAuthor,
+          ) {
+            ForEach(availableDocAuthors, id: \.author) { info in
+              Text(info.authorName)
+                .font(.body)
+                .lineSpacing(1.5)
+                .tag(info.author)
+            }
           }
+          #if os(iOS)
+          .pickerStyle(.wheel)
+          #else
+          .pickerStyle(.menu)
+          #endif
         }
+        .frame(height: pickerHeight)
         #if os(iOS)
-        .pickerStyle(.wheel)
-        .presentationDetents([.medium])
-        #else
-        .pickerStyle(.menu)
+        .presentationDetents(pickerDetent)
         #endif
       }
 
@@ -351,19 +361,27 @@ struct LanguagesSection: View {
           }
         }
         .sheet(isPresented: $showRefLangPicker) {
-          Picker(
-            "settings.reference.language".localized,
-            selection: $controller.refLang,
-          ) {
-            ForEach(sortedLanguages, id: \.self) { lang in
-              Text(lang.displayName).tag(lang)
+          VStack {
+            Picker(
+              "settings.reference.language".localized,
+              selection: $controller.refLang,
+            ) {
+              ForEach(sortedLanguages, id: \.self) { lang in
+                Text(lang.displayName)
+                  .font(.body)
+                  .lineSpacing(1.5)
+                  .tag(lang)
+              }
             }
+            #if os(iOS)
+            .pickerStyle(.wheel)
+            #else
+            .pickerStyle(.menu)
+            #endif
           }
+          .frame(height: pickerHeight)
           #if os(iOS)
-          .pickerStyle(.wheel)
-          .presentationDetents([.medium])
-          #else
-          .pickerStyle(.menu)
+          .presentationDetents(pickerDetent)
           #endif
         }
       #endif

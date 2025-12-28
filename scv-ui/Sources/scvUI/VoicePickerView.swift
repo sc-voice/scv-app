@@ -73,10 +73,10 @@ struct VoicePickerView: View {
         #endif
       }
 
-      DisclosureGroup("Customize...", isExpanded: $showCustomization) {
+      DisclosureGroup("settings.customize".localized, isExpanded: $showCustomization) {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
-            Text("Pitch")
+            Text("settings.pitch".localized)
             Slider(value: $pitch, in: 0.5 ... 2.0, step: 0.1)
             Text(String(format: "%.1f", pitch))
               .foregroundColor(themeProvider.theme.valueColor)
@@ -84,7 +84,7 @@ struct VoicePickerView: View {
           }
 
           HStack {
-            Text("Rate")
+            Text("settings.rate".localized)
             Slider(value: $rate, in: 0.1 ... 2.0, step: 0.1)
             Text(String(format: "%.1f", rate))
               .foregroundColor(themeProvider.theme.valueColor)

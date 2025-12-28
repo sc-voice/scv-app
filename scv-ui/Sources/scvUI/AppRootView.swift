@@ -73,7 +73,7 @@ public struct AppRootView<Manager: ICardManager>: View {
             } else {
               VStack(spacing: 16) {
                 Image(systemName: "square.3.layers.3d")
-                  .font(.system(size: 48))
+                  .font(.title)
                   .foregroundStyle(.secondary)
                 Text("No card selected")
                   .font(.headline)

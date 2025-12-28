@@ -47,7 +47,7 @@ public struct CollapsibleSection<Content: View>: View {
         HStack(spacing: 12) {
           // Disclosure triangle
           Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-            .font(.system(size: 14, weight: .semibold))
+            .font(.body.weight(.semibold))
             .foregroundColor(themeProvider.theme.accentColor)
             .frame(width: 16)
 
