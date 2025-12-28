@@ -104,11 +104,14 @@ struct VoicePickerView: View {
         }
         .frame(height: pickerHeight)
         #if os(iOS)
-        .presentationDetents(pickerDetent)
+          .presentationDetents(pickerDetent)
         #endif
       }
 
-      DisclosureGroup("settings.customize".localized, isExpanded: $showCustomization) {
+      DisclosureGroup(
+        "settings.customize".localized,
+        isExpanded: $showCustomization,
+      ) {
         VStack(alignment: .leading, spacing: 8) {
           if shouldStackVertically {
             VStack(alignment: .leading, spacing: 8) {

@@ -378,7 +378,7 @@ struct LanguagesSection: View {
         }
         .frame(height: pickerHeight)
         #if os(iOS)
-        .presentationDetents(pickerDetent)
+          .presentationDetents(pickerDetent)
         #endif
       }
 
@@ -423,7 +423,7 @@ struct LanguagesSection: View {
         }
         .frame(height: pickerHeight)
         #if os(iOS)
-        .presentationDetents(pickerDetent)
+          .presentationDetents(pickerDetent)
         #endif
       }
 
@@ -469,7 +469,7 @@ struct LanguagesSection: View {
           }
           .frame(height: pickerHeight)
           #if os(iOS)
-          .presentationDetents(pickerDetent)
+            .presentationDetents(pickerDetent)
           #endif
         }
       #endif
