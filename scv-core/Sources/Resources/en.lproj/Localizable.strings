@@ -65,10 +65,10 @@
 "alert.cancel" = "Cancel";
 
 /* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Play Pali Text";
+"settings.play.pali" = "Hear Pali";
 
 /* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Play Document Text";
+"settings.play.document" = "Hear Translation";
 
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dark Mode";

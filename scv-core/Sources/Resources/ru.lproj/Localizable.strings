@@ -65,7 +65,7 @@
 "alert.cancel" = "Отмена";
 
 /* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Воспроизводить текст на языке пали";
+"settings.play.pali" = "Слышать пали";
 
 /* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Воспроизводить текст документа";
+"settings.play.document" = "Слышать перевод";

@@ -16,11 +16,17 @@ public struct SettingsView: View {
   @ObservedObject public var controller: SettingsModalController
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
+  @Environment(\.sizeCategory) var sizeCategory
   @State private var isLoading = true
   @State private var showResetConfirmation = false
   @State private var showDocLangPicker = false
   @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
+  @State private var showAdvanced = false
+
+  var shouldStackVertically: Bool {
+    sizeCategory.isAccessibilityCategory
+  }
 
   public init(controller: SettingsModalController) {
     _controller = ObservedObject(wrappedValue: controller)
@@ -80,6 +86,17 @@ public struct SettingsView: View {
               showRefLangPicker: $showRefLangPicker,
             )
 
+            // MARK: - Document Voice Section
+
+            Section("settings.narrator".localized) {
+              VoicePickerView(
+                selectedVoiceId: $controller.docVoiceId,
+                pitch: $controller.docPitch,
+                rate: $controller.docRate,
+                language: controller.docLang,
+              )
+            }
+
             // MARK: - Accessibility Section
 
             Section("settings.accessibility".localized) {
@@ -111,52 +128,92 @@ public struct SettingsView: View {
                 .font(.caption)
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
 
-              HStack {
-                Image(systemName: "speaker.wave.2")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                VStack(alignment: .leading, spacing: 4) {
-                  Text("settings.sound.effects.volume".localized)
-                    .font(.body)
+              if shouldStackVertically {
+                VStack(alignment: .leading, spacing: 8) {
+                  HStack {
+                    Image(systemName: "speaker.wave.2")
+                      .foregroundColor(themeProvider.theme.accentColor)
+                    Text("settings.sound.effects.volume".localized)
+                      .font(.body)
+                  }
                   Slider(value: Binding(
                     get: { Double(controller.soundEffectVolume * 4.0) },
                     set: { newValue in
                       controller.soundEffectVolume = Float(newValue) / 4.0
                     },
                   ), in: 0 ... 4, step: 1)
+                  Text("\(Int(controller.soundEffectVolume * 4.0))")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.secondaryTextColor)
                 }
-                Text("\(Int(controller.soundEffectVolume * 4.0))")
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-                  .frame(width: 20)
+              } else {
+                HStack {
+                  Image(systemName: "speaker.wave.2")
+                    .foregroundColor(themeProvider.theme.accentColor)
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text("settings.sound.effects.volume".localized)
+                      .font(.body)
+                    Slider(value: Binding(
+                      get: { Double(controller.soundEffectVolume * 4.0) },
+                      set: { newValue in
+                        controller.soundEffectVolume = Float(newValue) / 4.0
+                      },
+                    ), in: 0 ... 4, step: 1)
+                  }
+                  Text("\(Int(controller.soundEffectVolume * 4.0))")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.secondaryTextColor)
+                    .frame(width: 20)
+                }
               }
 
               Divider()
                 .padding(.vertical, 12)
 
-              HStack {
-                Image(systemName: "waveform")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                VStack(alignment: .leading, spacing: 4) {
-                  Text("settings.segment.pause".localized)
-                    .font(.body)
+              if shouldStackVertically {
+                VStack(alignment: .leading, spacing: 8) {
+                  HStack {
+                    Image(systemName: "waveform")
+                      .foregroundColor(themeProvider.theme.accentColor)
+                    Text("settings.segment.pause".localized)
+                      .font(.body)
+                  }
                   Slider(value: Binding(
                     get: { controller.segmentPause },
                     set: { newValue in
                       controller.segmentPause = newValue
                     },
                   ), in: 0.0 ... 1.0, step: 0.1)
+                  Text("\(String(format: "%.2f", controller.segmentPause))s")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.secondaryTextColor)
                 }
-                Text("\(String(format: "%.2f", controller.segmentPause))s")
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-                  .frame(width: 35)
+              } else {
+                HStack {
+                  Image(systemName: "waveform")
+                    .foregroundColor(themeProvider.theme.accentColor)
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text("settings.segment.pause".localized)
+                      .font(.body)
+                    Slider(value: Binding(
+                      get: { controller.segmentPause },
+                      set: { newValue in
+                        controller.segmentPause = newValue
+                      },
+                    ), in: 0.0 ... 1.0, step: 0.1)
+                  }
+                  Text("\(String(format: "%.2f", controller.segmentPause))s")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.secondaryTextColor)
+                    .frame(width: 35)
+                }
               }
 
               Divider()
                 .padding(.vertical, 12)
 
               HStack {
-                Image(systemName: "book")
+                Image(systemName: "ear.fill")
                   .foregroundColor(themeProvider.theme.accentColor)
                 Toggle(
                   "settings.play.pali".localized,
@@ -166,7 +223,7 @@ public struct SettingsView: View {
               }
 
               HStack {
-                Image(systemName: "doc.text")
+                Image(systemName: "ear.fill")
                   .foregroundColor(themeProvider.theme.accentColor)
                 Toggle(
                   "settings.play.document".localized,
@@ -188,25 +245,16 @@ public struct SettingsView: View {
             //   )
             // }
 
-            // MARK: - Document Voice Section
-
-            Section("settings.narrator".localized) {
-              VoicePickerView(
-                selectedVoiceId: $controller.docVoiceId,
-                pitch: $controller.docPitch,
-                rate: $controller.docRate,
-                language: controller.docLang,
-              )
-            }
-
-            // MARK: - Reset Button Section
+            // MARK: - Advanced Section
 
             Section {
-              Button(
-                "settings.reset.button".localized,
-                role: .destructive,
-              ) {
-                showResetConfirmation = true
+              DisclosureGroup("Advanced", isExpanded: $showAdvanced) {
+                Button(
+                  "settings.reset.button".localized,
+                  role: .destructive,
+                ) {
+                  showResetConfirmation = true
+                }
               }
             }
           }
@@ -273,6 +321,10 @@ struct LanguagesSection: View {
     sizeCategory.isAccessibilityCategory ? 400 : 250
   }
 
+  var shouldStackVertically: Bool {
+    sizeCategory.isAccessibilityCategory
+  }
+
   var availableDocAuthors: [DatabaseInfo] {
     EbtData.authorsForLanguageFromManifest(controller.docLang.code)
       .sorted { $0.files.total > $1.files.total }
@@ -285,12 +337,25 @@ struct LanguagesSection: View {
 
   var body: some View {
     Section("settings.languages".localized) {
-      HStack {
-        Text("settings.document.language".localized)
-        Spacer()
-        Button(action: { showDocLangPicker = true }) {
-          Text(controller.docLang.displayName)
-            .foregroundColor(themeProvider.theme.valueColor)
+      Group {
+        if shouldStackVertically {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("settings.document.language".localized)
+            Button(action: { showDocLangPicker = true }) {
+              Text(controller.docLang.displayName)
+                .foregroundColor(themeProvider.theme.valueColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+          }
+        } else {
+          HStack {
+            Text("settings.document.language".localized)
+            Spacer()
+            Button(action: { showDocLangPicker = true }) {
+              Text(controller.docLang.displayName)
+                .foregroundColor(themeProvider.theme.valueColor)
+            }
+          }
         }
       }
       .sheet(isPresented: $showDocLangPicker) {
@@ -302,7 +367,6 @@ struct LanguagesSection: View {
             ForEach(sortedLanguages, id: \.self) { lang in
               Text(lang.displayName)
                 .font(.body)
-                .lineSpacing(1.5)
                 .tag(lang)
             }
           }
@@ -318,12 +382,25 @@ struct LanguagesSection: View {
         #endif
       }
 
-      HStack {
-        Text("settings.document.author".localized)
-        Spacer()
-        Button(action: { showDocAuthorPicker = true }) {
-          Text(docAuthorName)
-            .foregroundColor(themeProvider.theme.valueColor)
+      Group {
+        if shouldStackVertically {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("settings.document.author".localized)
+            Button(action: { showDocAuthorPicker = true }) {
+              Text(docAuthorName)
+                .foregroundColor(themeProvider.theme.valueColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+          }
+        } else {
+          HStack {
+            Text("settings.document.author".localized)
+            Spacer()
+            Button(action: { showDocAuthorPicker = true }) {
+              Text(docAuthorName)
+                .foregroundColor(themeProvider.theme.valueColor)
+            }
+          }
         }
       }
       .sheet(isPresented: $showDocAuthorPicker) {
@@ -335,7 +412,6 @@ struct LanguagesSection: View {
             ForEach(availableDocAuthors, id: \.author) { info in
               Text(info.authorName)
                 .font(.body)
-                .lineSpacing(1.5)
                 .tag(info.author)
             }
           }
@@ -352,12 +428,25 @@ struct LanguagesSection: View {
       }
 
       #if TODO_REFERENCE_LANGUAGE
-        HStack {
-          Text("settings.reference.language".localized)
-          Spacer()
-          Button(action: { showRefLangPicker = true }) {
-            Text(controller.refLang.displayName)
-              .foregroundColor(themeProvider.theme.valueColor)
+        Group {
+          if shouldStackVertically {
+            VStack(alignment: .leading, spacing: 8) {
+              Text("settings.reference.language".localized)
+              Button(action: { showRefLangPicker = true }) {
+                Text(controller.refLang.displayName)
+                  .foregroundColor(themeProvider.theme.valueColor)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+              }
+            }
+          } else {
+            HStack {
+              Text("settings.reference.language".localized)
+              Spacer()
+              Button(action: { showRefLangPicker = true }) {
+                Text(controller.refLang.displayName)
+                  .foregroundColor(themeProvider.theme.valueColor)
+              }
+            }
           }
         }
         .sheet(isPresented: $showRefLangPicker) {
@@ -369,7 +458,6 @@ struct LanguagesSection: View {
               ForEach(sortedLanguages, id: \.self) { lang in
                 Text(lang.displayName)
                   .font(.body)
-                  .lineSpacing(1.5)
                   .tag(lang)
               }
             }

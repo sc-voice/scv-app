@@ -65,7 +65,7 @@
 "alert.cancel" = "Annuler";
 
 /* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Lire le texte pali";
+"settings.play.pali" = "Écouter le pali";
 
 /* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Lire le texte du document";
+"settings.play.document" = "Écouter la traduction";
