@@ -12,7 +12,7 @@ import Foundation
 
 let MAX_DOC_DEFAULT = 50
 public let SEGMENT_PAUSE_DEFAULT = 0.5
-public let SOUND_EFFECT_VOLUME_DEFAULT = 2
+public let SOUND_EFFECT_VOLUME_DEFAULT: Float = 0.5
 
 // MARK: - SpeechConfig
 
@@ -100,8 +100,8 @@ public class Settings: Codable {
   /// Whether to play document (translation) text during narration
   public var playDoc: Bool = true
 
-  /// Sound effect volume level (0-4, where 0 is muted, default 2)
-  public var soundEffectVolume: Int = SOUND_EFFECT_VOLUME_DEFAULT
+  /// Sound effect volume level (0.0-1.0, where 0.0 is muted, default 0.5)
+  public var soundEffectVolume: Float = SOUND_EFFECT_VOLUME_DEFAULT
 
   /// Application version when last run
   public var lastApplicationVersion: String = ""
@@ -271,7 +271,7 @@ public class Settings: Codable {
         forKey: .playDoc,
       ) ?? true
       soundEffectVolume = try container.decodeIfPresent(
-        Int.self,
+        Float.self,
         forKey: .soundEffectVolume,
       ) ?? SOUND_EFFECT_VOLUME_DEFAULT
       lastApplicationVersion = try container.decodeIfPresent(

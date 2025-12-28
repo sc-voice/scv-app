@@ -64,7 +64,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
-  @Published var soundEffectVolume: Int {
+  @Published var soundEffectVolume: Float {
     didSet { autosave() }
   }
 

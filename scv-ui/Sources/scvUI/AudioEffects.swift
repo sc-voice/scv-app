@@ -33,6 +33,16 @@ public final class AudioEffects: ObservableObject {
         "383542__alixgaus__turn-page"
       }
     }
+
+    /// Volume bias multiplier for this sound (relative to soundEffectVolume)
+    var bias: Float {
+      switch self {
+      case .click:
+        0.5
+      default:
+        1.0
+      }
+    }
   }
 
   public enum Event {
@@ -56,7 +66,7 @@ public final class AudioEffects: ObservableObject {
   }
 
   /// Get current sound effect volume from Settings
-  public var soundEffectVolume: Int {
+  public var soundEffectVolume: Float {
     Settings.shared.soundEffectVolume
   }
 
@@ -89,7 +99,7 @@ public final class AudioEffects: ObservableObject {
 
     do {
       audioPlayer = try AVAudioPlayer(contentsOf: url)
-      audioPlayer?.volume = volumeToAVAudioVolume(soundEffectVolume)
+      audioPlayer?.volume = sound.bias * soundEffectVolume
       audioPlayer?.play()
     } catch {
       cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
@@ -113,15 +123,5 @@ public final class AudioEffects: ObservableObject {
     case .alert:
       .alertBell
     }
-  }
-
-  private func volumeToAVAudioVolume(_ level: Int) -> Float {
-    // Map 0-4 to 0.0-1.0 for AVAudioPlayer
-    // 0 = 0.0 (muted, handled above)
-    // 1 = 0.25
-    // 2 = 0.5
-    // 3 = 0.75 (default)
-    // 4 = 1.0
-    Float(level) / 4.0
   }
 }

@@ -122,13 +122,13 @@ public struct SettingsView: View {
                   Text("settings.sound.effects.volume".localized)
                     .font(.body)
                   Slider(value: Binding(
-                    get: { Double(controller.soundEffectVolume) },
+                    get: { Double(controller.soundEffectVolume * 4.0) },
                     set: { newValue in
-                      controller.soundEffectVolume = Int(newValue)
+                      controller.soundEffectVolume = Float(newValue) / 4.0
                     },
                   ), in: 0 ... 4, step: 1)
                 }
-                Text("\(controller.soundEffectVolume)")
+                Text("\(Int(controller.soundEffectVolume * 4.0))")
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
                   .frame(width: 20)
