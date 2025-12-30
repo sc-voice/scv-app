@@ -49,45 +49,48 @@ public enum ScvBackground {
 
   @ViewBuilder
   public var view: some View {
-    switch self {
-    case .village:
-      Image("seurat-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .sangha:
-      Image("sangha-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .sangha_dark:
-      Image("sangha-dark-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .wilderness:
-      Image("wilderness-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .space:
-      Image("space-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .nothingness:
-      Image("nothingness-background", bundle: .scvUI)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-    case .palm_leaf:
-      GeometryReader { geometry in
-        Image("palm-leaf", bundle: .scvUI)
+    Group {
+      switch self {
+      case .village:
+        Image("seurat-background", bundle: .scvUI)
           .resizable()
           .aspectRatio(contentMode: .fill)
-          .frame(
-            width: geometry.size.width * 1.2,
-            height: geometry.size.height * 1.2,
-          )
-          .clipped()
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-          .offset(y: -geometry.size.height * 0.1)
+      case .sangha:
+        Image("sangha-background", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+      case .sangha_dark:
+        Image("sangha-dark-background", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+      case .wilderness:
+        Image("wilderness-background", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+      case .space:
+        Image("space-background", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+      case .nothingness:
+        Image("nothingness-background", bundle: .scvUI)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+      case .palm_leaf:
+        GeometryReader { geometry in
+          Image("palm-leaf", bundle: .scvUI)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(
+              width: geometry.size.width * 1.2,
+              height: geometry.size.height * 1.2,
+            )
+            .clipped()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .offset(y: -geometry.size.height * 0.1)
+        }
       }
     }
+    .opacity(0.5)
   }
 }
 

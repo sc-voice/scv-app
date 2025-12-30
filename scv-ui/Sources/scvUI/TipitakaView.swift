@@ -89,6 +89,7 @@ public struct TipitakaView<Manager: ICardManager>: View {
         }
       }
     }
+    .scrollContentBackground(.hidden)
     .listStyle(.sidebar)
   }
 }

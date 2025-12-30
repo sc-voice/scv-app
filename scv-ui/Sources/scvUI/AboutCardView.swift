@@ -113,7 +113,7 @@ public struct AboutCardView: View {
         VStack(spacing: 12) {
           Image(systemName: "info.circle.fill")
             .font(.title)
-            .foregroundStyle(themeProvider.theme.accentColor)
+            .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
           VStack(spacing: 4) {
             Text("SC-Voice")
@@ -194,23 +194,31 @@ public struct AboutCardView: View {
           }
         }
 
-        // MARK: - Data Sources
+        // MARK: - Content Sources
 
-        CollapsibleSection("Data Sources") {
+        CollapsibleSection("Content Sources") {
           VStack(alignment: .leading, spacing: 12) {
-            Text("This app uses the following sources:")
+            Text("This app uses the following content sources:")
               .font(.body)
               .foregroundStyle(themeProvider.theme.textColor)
 
-            Button(action: {
-              if let url = URL(string: "https://suttacentral.net") {
-                openURL(url)
-              }
-            }) {
-              SourceRow(title: "SuttaCentral", author: "Bhikkhu Sujato & Team")
-            }
+            SourceRow(
+              title: "SuttaCentral",
+              author: "Bhikkhu Sujato & Team",
+              url: URL(string: "https://suttacentral.net")
+            )
 
-            SourceRow(title: "Mahāsaṅgīti", author: "Tipiṭaka Buddhavasse 2500")
+            SourceRow(
+              title: "Mahāsaṅgīti",
+              author: "Tipiṭaka Buddhavasse 2500",
+              url: URL(string: "https://tipitaka2500.github.io/")
+            )
+
+            SourceRow(
+              title: "EBT-Data",
+              author: "Other Early Buddhist Text Translations aligned to SuttaCentral content",
+              url: URL(string: "https://github.com/ebt-site/ebt-data")
+            )
 
             Text(
               "All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.",
@@ -274,7 +282,7 @@ public struct AboutCardView: View {
                     )
                     .font(.callout)
                     .fontWeight(.semibold)
-                    .foregroundStyle(themeProvider.theme.accentColor)
+                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
                     Text(credit.credit)
                       .font(.caption)
@@ -294,7 +302,7 @@ public struct AboutCardView: View {
                       }) {
                         Text("View source")
                           .font(.caption)
-                          .foregroundStyle(.blue)
+                          .foregroundStyle(themeProvider.theme.linkColor)
                           .underline()
                       }
                     }
@@ -310,7 +318,7 @@ public struct AboutCardView: View {
               Text("App Icon")
                 .font(.callout)
                 .fontWeight(.semibold)
-                .foregroundStyle(themeProvider.theme.accentColor)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
               Text("Designed by Friends of Voice")
                 .font(.caption)
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
@@ -338,7 +346,7 @@ public struct AboutCardView: View {
                   Text(audio.credit)
                     .font(.callout)
                     .fontWeight(.semibold)
-                    .foregroundStyle(themeProvider.theme.accentColor)
+                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
                   Text("License: \(audio.license)")
                     .font(.caption2)
@@ -350,7 +358,7 @@ public struct AboutCardView: View {
                     }) {
                       Text("View source")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(themeProvider.theme.linkColor)
                         .underline()
                     }
                   }
@@ -469,7 +477,7 @@ private struct FeatureRow: View {
     HStack(spacing: 12) {
       Image(systemName: icon)
         .font(.headline)
-        .foregroundColor(themeProvider.theme.accentColor)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
         .frame(width: 24)
 
       VStack(alignment: .leading, spacing: 2) {
@@ -494,12 +502,9 @@ private struct StepRow: View {
   var body: some View {
     HStack(spacing: 12) {
       Text("\(number)")
-        .font(.headline)
+        .font(.title2)
         .fontWeight(.bold)
-        .foregroundColor(.white)
-        .frame(width: 28, height: 28)
-        .background(themeProvider.theme.accentColor)
-        .cornerRadius(4)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
 
       VStack(alignment: .leading, spacing: 2) {
         Text(title)
@@ -516,15 +521,17 @@ private struct StepRow: View {
 
 private struct SourceRow: View {
   @EnvironmentObject var themeProvider: ThemeProvider
+  @Environment(\.openURL) var openURL
   let title: String
   let author: String
+  let url: URL?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 2) {
+    let content = VStack(alignment: .leading, spacing: 2) {
       Text(title)
         .font(.callout)
         .fontWeight(.semibold)
-        .foregroundStyle(themeProvider.theme.textColor)
+        .foregroundStyle(url != nil ? themeProvider.theme.linkColor : themeProvider.theme.textColor)
       Text(author)
         .font(.caption)
         .foregroundStyle(themeProvider.theme.secondaryTextColor)
@@ -534,6 +541,14 @@ private struct SourceRow: View {
     .padding(.horizontal, 12)
     .background(themeProvider.theme.backgroundColor.opacity(0.5))
     .cornerRadius(4)
+
+    if let url = url {
+      Button(action: { openURL(url) }) {
+        content
+      }
+    } else {
+      content
+    }
   }
 }
 
@@ -547,7 +562,7 @@ private struct AckRow: View {
       Text(role)
         .font(.callout)
         .fontWeight(.semibold)
-        .foregroundStyle(themeProvider.theme.accentColor)
+        .foregroundStyle(themeProvider.theme.secondaryTextColor)
       Text(names)
         .font(.caption)
         .foregroundStyle(themeProvider.theme.textColor)
@@ -589,7 +604,7 @@ private struct PrivacyRow: View {
     HStack(spacing: 12) {
       Image(systemName: icon)
         .font(.headline)
-        .foregroundColor(themeProvider.theme.accentColor)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
         .frame(width: 24)
 
       VStack(alignment: .leading, spacing: 2) {

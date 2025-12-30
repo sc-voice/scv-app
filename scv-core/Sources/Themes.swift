@@ -41,6 +41,9 @@ public struct Theme {
   /// Debug text color (only visible in debug builds)
   public let debugForeground: Color
 
+  /// Link color
+  public let linkColor: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -52,6 +55,7 @@ public struct Theme {
     toolbarColor: Color,
     errorTextColor: Color,
     debugForeground: Color,
+    linkColor: Color,
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -63,6 +67,7 @@ public struct Theme {
     self.toolbarColor = toolbarColor
     self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
+    self.linkColor = linkColor
   }
 }
 
@@ -127,6 +132,7 @@ public enum AppTheme {
         toolbarColor: COLOR_GREY, // #BDBDBD
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
+        linkColor: COLOR_BROWN_ACCENT, // #8b4513 (same as accentColor)
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
@@ -144,6 +150,7 @@ public enum AppTheme {
         toolbarColor: Color(red: 0.371, green: 0.071, blue: 0.071),
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
+        linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)
       )
     }
   }
