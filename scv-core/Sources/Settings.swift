@@ -14,12 +14,16 @@ let MAX_DOC_DEFAULT = 50
 public let SEGMENT_PAUSE_DEFAULT = 0.5
 public let SOUND_EFFECT_VOLUME_DEFAULT: Float = 0.5
 
-// MARK: - SpeechConfig
+// MARK: - LangSettings
 
-/// Configuration for speech synthesis (narration and accessibility voices)
-public struct SpeechConfig: Codable, Sendable {
-  /// Language for the voice
+/// Language-specific settings including document author and speech
+/// configuration
+public struct LangSettings: Codable, Sendable {
+  /// Language for this settings bundle
   public var language: ScvLanguage
+
+  /// Document author/translator for this language
+  public var author: String = ""
 
   /// Apple voice identifier (e.g., "com.apple.ttsbundle.Samantha-compact")
   public var voiceId: String = ""
@@ -76,17 +80,40 @@ public class Settings: Codable {
   /// Currently selected voice reference language
   public var refLang: ScvLanguage = .default
 
-  /// Document author (translator) for docLang search results
-  public var docAuthor: String = ""
-
   /// Reference author for refLang search results (typically "ms" for pali)
   public var refAuthor: String? = nil
 
-  /// Narration voice configuration for pali
-  public var paliSpeech: SpeechConfig = .init(language: .default)
+  /// Language-specific settings (author + narrator config) for each document
+  /// language
+  public var docLangSettings: [ScvLanguage: LangSettings] = [:]
 
-  /// Narration voice configuration for translations
-  public var docSpeech: SpeechConfig = .init(language: .default)
+  /// Language-specific settings for Pali narration
+  public var paliSettings: LangSettings = .init(language: .default)
+
+  /// Backward compatibility property for docAuthor (accesses
+  /// docLangSettings[docLang])
+  public var docAuthor: String {
+    get {
+      docLangSettings[docLang]?.author ?? ""
+    }
+    set {
+      if docLangSettings[docLang] == nil {
+        docLangSettings[docLang] = LangSettings(language: docLang)
+      }
+      docLangSettings[docLang]?.author = newValue
+    }
+  }
+
+  /// Backward compatibility property for docSpeech (accesses
+  /// docLangSettings[docLang])
+  public var docSpeech: LangSettings {
+    get {
+      docLangSettings[docLang] ?? LangSettings(language: docLang)
+    }
+    set {
+      docLangSettings[docLang] = newValue
+    }
+  }
 
   /// Whether dark mode is enabled
   public var isDarkModeEnabled: Bool = true
@@ -144,10 +171,9 @@ public class Settings: Codable {
     case version
     case docLang
     case refLang
-    case docAuthor
     case refAuthor
-    case paliSpeech
-    case docSpeech
+    case docLangSettings
+    case paliSettings
     case isDarkModeEnabled
     case segmentPause
     case playPali
@@ -163,12 +189,11 @@ public class Settings: Codable {
     try container.encode(version, forKey: .version)
     try container.encode(docLang, forKey: .docLang)
     try container.encode(refLang, forKey: .refLang)
-    try container.encode(docAuthor, forKey: .docAuthor)
     if let refAuthor {
       try container.encode(refAuthor, forKey: .refAuthor)
     }
-    try container.encode(paliSpeech, forKey: .paliSpeech)
-    try container.encode(docSpeech, forKey: .docSpeech)
+    try container.encode(docLangSettings, forKey: .docLangSettings)
+    try container.encode(paliSettings, forKey: .paliSettings)
     try container.encode(isDarkModeEnabled, forKey: .isDarkModeEnabled)
     try container.encode(segmentPause, forKey: .segmentPause)
     try container.encode(playPali, forKey: .playPali)
@@ -212,23 +237,6 @@ public class Settings: Codable {
       ) ?? "en"
       refLang = ScvLanguage(code: refLangCode) ?? .default
 
-      // Decode or initialize docAuthor from manifest
-      if let decodedAuthor = try container.decodeIfPresent(
-        String.self,
-        forKey: .docAuthor,
-      ) {
-        docAuthor = decodedAuthor
-      } else {
-        // Initialize from DatabaseManifest default for docLang
-        if let defaultInfo = DatabaseManifest.shared
-          .defaultAuthorForLanguage(docLang.code)
-        {
-          docAuthor = defaultInfo.author
-        } else {
-          docAuthor = ""
-        }
-      }
-
       // Decode or initialize refAuthor from manifest
       if let decodedRefAuthor = try container.decodeIfPresent(
         String.self,
@@ -246,14 +254,28 @@ public class Settings: Codable {
         }
       }
 
-      paliSpeech = try container.decodeIfPresent(
-        SpeechConfig.self,
-        forKey: .paliSpeech,
-      ) ?? SpeechConfig(language: .default)
-      docSpeech = try container.decodeIfPresent(
-        SpeechConfig.self,
-        forKey: .docSpeech,
-      ) ?? SpeechConfig(language: .default)
+      // Decode docLangSettings, initialize if empty
+      docLangSettings = try container.decodeIfPresent(
+        [ScvLanguage: LangSettings].self,
+        forKey: .docLangSettings,
+      ) ?? [:]
+
+      // Ensure docLang has an entry in docLangSettings with default author if
+      // needed
+      if docLangSettings[docLang] == nil {
+        var settings = LangSettings(language: docLang)
+        if let defaultInfo = DatabaseManifest.shared
+          .defaultAuthorForLanguage(docLang.code)
+        {
+          settings.author = defaultInfo.author
+        }
+        docLangSettings[docLang] = settings
+      }
+
+      paliSettings = try container.decodeIfPresent(
+        LangSettings.self,
+        forKey: .paliSettings,
+      ) ?? LangSettings(language: .default)
       isDarkModeEnabled = try container.decodeIfPresent(
         Bool.self,
         forKey: .isDarkModeEnabled,
@@ -288,10 +310,9 @@ public class Settings: Codable {
       // Unknown version: reset to defaults (will be validated later)
       docLang = .default
       refLang = .default
-      docAuthor = ""
       refAuthor = nil
-      paliSpeech = SpeechConfig(language: .default)
-      docSpeech = SpeechConfig(language: .default)
+      docLangSettings = [:]
+      paliSettings = LangSettings(language: .default)
       isDarkModeEnabled = false
       lastApplicationVersion = ""
       maxDoc = MAX_DOC_DEFAULT
@@ -328,7 +349,7 @@ public class Settings: Codable {
   }
 
   /// Validates and synchronizes settings to maintain consistency
-  /// Ensures docSpeech.language matches docLang with an actual Apple voice
+  /// Ensures docLangSettings[docLang] exists with valid author and voice
   /// Falls back to .english if no voice available for docLang
   /// Ensures refLang and refAuthor are properly initialized
   public func validate() {
@@ -336,13 +357,44 @@ public class Settings: Codable {
 
     let manifest = DatabaseManifest.shared
 
-    // Validate and fix docAuthor if it's invalid for docLang
-    if docAuthor.isEmpty ||
-      manifest.info(language: docLang.code, author: docAuthor) == nil
+    // Ensure docLang has an entry in docLangSettings
+    if docLangSettings[docLang] == nil {
+      var settings = LangSettings(language: docLang)
+      if let defaultInfo = manifest.defaultAuthorForLanguage(docLang.code) {
+        settings.author = defaultInfo.author
+      }
+      docLangSettings[docLang] = settings
+      cc.ok2(#line, #function, "created docLangSettings for", docLang.code)
+    }
+
+    // Validate and fix author if it's invalid for docLang
+    if docLangSettings[docLang]?.author.isEmpty ?? true ||
+      manifest.info(
+        language: docLang.code,
+        author: docLangSettings[docLang]?.author ?? "",
+      ) == nil
     {
       if let defaultInfo = manifest.defaultAuthorForLanguage(docLang.code) {
-        docAuthor = defaultInfo.author
-        cc.ok2(#line, #function, "docAuthor <=", docAuthor)
+        docLangSettings[docLang]?.author = defaultInfo.author
+        cc.ok2(#line, #function, "updated author for", docLang.code)
+      }
+    }
+
+    // Validate voice language matches docLang
+    if docLangSettings[docLang]?.language != docLang {
+      cc.ok2(#line, "validate: checking voice language for:", docLang.code)
+      // Try to find a voice for docLang
+      if let voice = findVoice(for: docLang) {
+        // Update language and voice info, preserve pitch/rate
+        docLangSettings[docLang]?.language = docLang
+        docLangSettings[docLang]?.voiceId = voice.identifier
+        docLangSettings[docLang]?.voiceName = voice.name
+        cc.ok2(#line, #function, "updated voice for", docLang.code)
+      } else {
+        // No voice available for docLang, fallback to English
+        docLang = .english
+        cc.ok2(#line, #function, "docLang <=", docLang)
+        validate() // Revalidate with new docLang
       }
     }
 
@@ -359,25 +411,6 @@ public class Settings: Codable {
       if let defaultInfo = manifest.defaultAuthorForLanguage(refLang.code) {
         refAuthor = defaultInfo.author
         cc.ok2(#line, #function, "refAuthor <=", refAuthor)
-      }
-    }
-
-    // Check if docSpeech language matches docLang
-    if docSpeech.language != docLang {
-      cc.ok2(#line, "validate: checking docSpeech language for:", docLang.code)
-      // Try to find a voice for docLang
-      if let voice = findVoice(for: docLang) {
-        // Update docSpeech to match docLang with actual voice
-        var newConfig = SpeechConfig(language: docLang)
-        newConfig.voiceId = voice.identifier
-        newConfig.voiceName = voice.name
-        docSpeech = newConfig
-        cc.ok2(#line, #function, "docSpeech <=", docSpeech.voiceName)
-      } else {
-        // No voice available for docLang, fallback to English
-        docLang = .english
-        cc.ok2(#line, #function, "docLang <=", docLang)
-        validate() // Revalidate with new docLang
       }
     }
 
@@ -412,10 +445,9 @@ public class Settings: Codable {
       version = decoded.version
       docLang = decoded.docLang
       refLang = decoded.refLang
-      docAuthor = decoded.docAuthor
       refAuthor = decoded.refAuthor
-      paliSpeech = decoded.paliSpeech
-      docSpeech = decoded.docSpeech
+      docLangSettings = decoded.docLangSettings
+      paliSettings = decoded.paliSettings
       isDarkModeEnabled = decoded.isDarkModeEnabled
       segmentPause = decoded.segmentPause
       playPali = decoded.playPali
@@ -431,10 +463,9 @@ public class Settings: Codable {
     version = 1
     docLang = .default
     refLang = .default
-    docAuthor = ""
     refAuthor = nil
-    paliSpeech = SpeechConfig(language: .default)
-    docSpeech = SpeechConfig(language: .default)
+    docLangSettings = [:]
+    paliSettings = LangSettings(language: .default)
     isDarkModeEnabled = false
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false

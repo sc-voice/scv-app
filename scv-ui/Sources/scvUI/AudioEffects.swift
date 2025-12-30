@@ -111,13 +111,13 @@ public final class AudioEffects: ObservableObject {
     case .play:
       .block
     case .pause:
-      .swoosh
+      .block
     case .endSutta:
       .bell
     case .noText:
       .click
     case .section:
-      .click
+      .pageTurn
     case .segment:
       .click
     case .alert:

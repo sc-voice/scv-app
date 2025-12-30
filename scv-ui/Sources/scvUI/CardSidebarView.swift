@@ -67,7 +67,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       .background(.black.opacity(0.5))
       .toolbar {
         ToolbarItem(placement: .principal) {
-          Text("scVoice")
+          Text("scVoice/\(Settings.shared.docLang.code.uppercased())")
             .font(.title2)
             .foregroundStyle(titleColor ?? themeProvider.theme.accentColor)
             .opacity(titleOpacity)

@@ -146,8 +146,9 @@ func generateFixtures() throws {
   // MARK: - Settings Fixtures
 
   // v0.0.221_Settings_Minimal.json
-  let paliSpeechMinimal: [String: Any] = [
+  let paliSettingsMinimal: [String: Any] = [
     "language": "en",
+    "author": "",
     "voiceId": "",
     "voiceName": "",
     "variant": "default",
@@ -156,14 +157,17 @@ func generateFixtures() throws {
     "emphasis": true,
   ]
 
-  let docSpeechMinimal: [String: Any] = [
-    "language": "en",
-    "voiceId": "",
-    "voiceName": "",
-    "variant": "default",
-    "pitch": 1.0,
-    "rate": 1.0,
-    "emphasis": true,
+  let docLangSettingsMinimal: [String: Any] = [
+    "en": [
+      "language": "en",
+      "author": "sujato",
+      "voiceId": "",
+      "voiceName": "",
+      "variant": "default",
+      "pitch": 1.0,
+      "rate": 1.0,
+      "emphasis": true,
+    ],
   ]
 
   let settingsMinimalData: [String: Any] = [
@@ -171,10 +175,9 @@ func generateFixtures() throws {
     "docLang": "en",
     "refLang": "en",
     "uiLang": "en",
-    "docAuthor": "sujato",
     "refAuthor": NSNull(),
-    "paliSpeech": paliSpeechMinimal,
-    "docSpeech": docSpeechMinimal,
+    "paliSettings": paliSettingsMinimal,
+    "docLangSettings": docLangSettingsMinimal,
     "isDarkModeEnabled": true,
     "lastApplicationVersion": appVersion,
     "maxDoc": 50,
@@ -189,8 +192,9 @@ func generateFixtures() throws {
   print("✓ \(URL(fileURLWithPath: settingsMinimalFile).lastPathComponent)")
 
   // v0.0.221_Settings_WithVoice.json
-  let paliSpeechWithVoice: [String: Any] = [
+  let paliSettingsWithVoice: [String: Any] = [
     "language": "pli",
+    "author": "",
     "voiceId": "com.apple.ttsbundle.Daniel-compact",
     "voiceName": "Daniel",
     "variant": "default",
@@ -199,14 +203,17 @@ func generateFixtures() throws {
     "emphasis": true,
   ]
 
-  let docSpeechWithVoice: [String: Any] = [
-    "language": "en",
-    "voiceId": "com.apple.ttsbundle.Samantha-compact",
-    "voiceName": "Samantha",
-    "variant": "premium",
-    "pitch": 1.0,
-    "rate": 1.0,
-    "emphasis": true,
+  let docLangSettingsWithVoice: [String: Any] = [
+    "en": [
+      "language": "en",
+      "author": "soma",
+      "voiceId": "com.apple.ttsbundle.Samantha-compact",
+      "voiceName": "Samantha",
+      "variant": "premium",
+      "pitch": 1.0,
+      "rate": 1.0,
+      "emphasis": true,
+    ],
   ]
 
   let settingsWithVoiceData: [String: Any] = [
@@ -214,10 +221,9 @@ func generateFixtures() throws {
     "docLang": "en",
     "refLang": "pli",
     "uiLang": "en",
-    "docAuthor": "soma",
     "refAuthor": "ms",
-    "paliSpeech": paliSpeechWithVoice,
-    "docSpeech": docSpeechWithVoice,
+    "paliSettings": paliSettingsWithVoice,
+    "docLangSettings": docLangSettingsWithVoice,
     "isDarkModeEnabled": false,
     "lastApplicationVersion": appVersion,
     "maxDoc": 100,

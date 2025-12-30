@@ -60,7 +60,9 @@ public class EbtQuery {
   ) {
     self.query = query
     self.docLang = docLang ?? Settings.shared.docLang.code
-    self.docAuthor = docAuthor ?? Settings.shared.docAuthor
+    self
+      .docAuthor = docAuthor ??
+      (Settings.shared.docLangSettings[Settings.shared.docLang]?.author ?? "")
     self.maxDoc = maxDoc ?? Settings.shared.maxDoc
     let (refs, method) = Self.parseQuery(
       query: query,
@@ -163,7 +165,8 @@ public class EbtQuery {
     query: String,
     method: SearchMethod? = nil,
     docLang: String = Settings.shared.docLang.code,
-    docAuthor: String = Settings.shared.docAuthor,
+    docAuthor: String = Settings.shared
+      .docLangSettings[Settings.shared.docLang]?.author ?? "",
   ) -> (suttaRefs: [SuttaRef], method: SearchMethod) {
     let trimmed = query.trimmingCharacters(in: .whitespaces)
     let entries = trimmed.split(separator: ",")

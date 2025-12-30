@@ -13,7 +13,15 @@ import SwiftUI
 public class SettingsModalController: NSObject, ObservableObject {
   let cc = ColorConsole(#file, "SettingsModalController", dbg.Settings.other)
   @Published var docLang: ScvLanguage {
-    didSet { autosave() }
+    didSet {
+      if oldValue != docLang {
+        // Save old language settings before switching
+        saveDocLangSettings(for: oldValue)
+        // Load new language settings
+        loadDocLangSettings(for: docLang)
+      }
+      autosave()
+    }
   }
 
   @Published var refLang: ScvLanguage {
@@ -87,13 +95,13 @@ public class SettingsModalController: NSObject, ObservableObject {
     docLang = settings.docLang
     refLang = settings.refLang
     isDarkModeEnabled = settings.isDarkModeEnabled
-    paliVoiceId = settings.paliSpeech.voiceId
-    docVoiceId = settings.docSpeech.voiceId
-    paliPitch = settings.paliSpeech.pitch
-    paliRate = settings.paliSpeech.rate
-    docPitch = settings.docSpeech.pitch
-    docRate = settings.docSpeech.rate
-    docAuthor = settings.docAuthor
+    paliVoiceId = settings.paliSettings.voiceId
+    docVoiceId = settings.docLangSettings[settings.docLang]?.voiceId ?? ""
+    paliPitch = settings.paliSettings.pitch
+    paliRate = settings.paliSettings.rate
+    docPitch = settings.docLangSettings[settings.docLang]?.pitch ?? 1.0
+    docRate = settings.docLangSettings[settings.docLang]?.rate ?? 1.0
+    docAuthor = settings.docLangSettings[settings.docLang]?.author ?? ""
     segmentPause = settings.segmentPause
     playPali = settings.playPali
     playDoc = settings.playDoc
@@ -102,12 +110,13 @@ public class SettingsModalController: NSObject, ObservableObject {
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
     originalIsDarkModeEnabled = settings.isDarkModeEnabled
-    originalPaliVoiceId = settings.paliSpeech.voiceId
-    originalDocVoiceId = settings.docSpeech.voiceId
-    originalPaliPitch = settings.paliSpeech.pitch
-    originalPaliRate = settings.paliSpeech.rate
-    originalDocPitch = settings.docSpeech.pitch
-    originalDocRate = settings.docSpeech.rate
+    originalPaliVoiceId = settings.paliSettings.voiceId
+    originalDocVoiceId = settings.docLangSettings[settings.docLang]?
+      .voiceId ?? ""
+    originalPaliPitch = settings.paliSettings.pitch
+    originalPaliRate = settings.paliSettings.rate
+    originalDocPitch = settings.docLangSettings[settings.docLang]?.pitch ?? 1.0
+    originalDocRate = settings.docLangSettings[settings.docLang]?.rate ?? 1.0
     originalSegmentPause = settings.segmentPause
   }
 
@@ -122,17 +131,22 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.docLang = docLang
     Settings.shared.refLang = refLang
     Settings.shared.isDarkModeEnabled = isDarkModeEnabled
-    Settings.shared.paliSpeech.voiceId = paliVoiceId
-    Settings.shared.docSpeech.voiceId = docVoiceId
-    Settings.shared.paliSpeech.pitch = paliPitch
-    Settings.shared.paliSpeech.rate = paliRate
-    Settings.shared.docSpeech.pitch = docPitch
-    Settings.shared.docSpeech.rate = docRate
-    Settings.shared.docAuthor = docAuthor
+    Settings.shared.paliSettings.voiceId = paliVoiceId
+    Settings.shared.paliSettings.pitch = paliPitch
+    Settings.shared.paliSettings.rate = paliRate
     Settings.shared.segmentPause = segmentPause
     Settings.shared.playPali = playPali
     Settings.shared.playDoc = playDoc
     Settings.shared.soundEffectVolume = soundEffectVolume
+
+    // Update docLangSettings for current language
+    if Settings.shared.docLangSettings[docLang] == nil {
+      Settings.shared.docLangSettings[docLang] = LangSettings(language: docLang)
+    }
+    Settings.shared.docLangSettings[docLang]?.voiceId = docVoiceId
+    Settings.shared.docLangSettings[docLang]?.pitch = docPitch
+    Settings.shared.docLangSettings[docLang]?.rate = docRate
+    Settings.shared.docLangSettings[docLang]?.author = docAuthor
 
     // If language changed, validate to ensure docAuthor/refAuthor are valid for
     // the new language
@@ -142,7 +156,8 @@ public class SettingsModalController: NSObject, ObservableObject {
       // voice available, or docAuthor changed to default for new language)
       docLang = Settings.shared.docLang
       refLang = Settings.shared.refLang
-      docAuthor = Settings.shared.docAuthor
+      docAuthor = Settings.shared.docLangSettings[Settings.shared.docLang]?
+        .author ?? ""
     }
 
     // Schedule deferred save to check playback state
@@ -182,6 +197,42 @@ public class SettingsModalController: NSObject, ObservableObject {
           }
         }
       }
+  }
+
+  private func saveDocLangSettings(for language: ScvLanguage) {
+    // Save current docAuthor/docVoiceId/docPitch/docRate for the language being
+    // left
+    if Settings.shared.docLangSettings[language] == nil {
+      Settings.shared
+        .docLangSettings[language] = LangSettings(language: language)
+    }
+    Settings.shared.docLangSettings[language]?.author = docAuthor
+    Settings.shared.docLangSettings[language]?.voiceId = docVoiceId
+    Settings.shared.docLangSettings[language]?.pitch = docPitch
+    Settings.shared.docLangSettings[language]?.rate = docRate
+  }
+
+  private func loadDocLangSettings(for language: ScvLanguage) {
+    // Load docAuthor/docVoiceId/docPitch/docRate for the new language
+    if let langSettings = Settings.shared.docLangSettings[language] {
+      // Use previously saved settings for this language
+      docAuthor = langSettings.author
+      docVoiceId = langSettings.voiceId
+      docPitch = langSettings.pitch
+      docRate = langSettings.rate
+    } else {
+      // First time selecting this language, use defaults from manifest
+      if let defaultInfo = DatabaseManifest.shared
+        .defaultAuthorForLanguage(language.code)
+      {
+        docAuthor = defaultInfo.author
+      } else {
+        docAuthor = ""
+      }
+      docVoiceId = ""
+      docPitch = 1.0
+      docRate = 1.0
+    }
   }
 
   func resetToDefaults() {

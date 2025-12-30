@@ -123,59 +123,54 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     currentSegmentIndex = index
     let (scid, segment) = segments[index]
     currentSutta?.currentScid = scid
-    let text = getSegmentText(segment)
+    if !Settings.shared.playDoc {
+      cc.ok1(#line, #function, "!playDoc")
+      return
+    }
 
-    guard !text.isEmpty else {
-      // Skip segment, advance to next
-      AudioEffects.shared.announce(.noText)
+    // Announce section boundary (scid ending in .1)
+    if scid.hasSuffix(".0") {
+      AudioEffects.shared.announce(.section)
+    } else if scid.hasSuffix(".1") {
+      AudioEffects.shared.announce(.segment)
+    }
+
+    let text = segment.doc ?? ""
+
+    if text.isEmpty {
       playSegmentAt(at: index + 1)
       return
     }
 
-    AudioEffects.shared.announce(.segment)
+    nextIndexToPlay = index + 1
+    let langCode = currentSutta?.docLang ?? "en"
+    playText(text, langCode: langCode)
+  }
 
+  private func playText(_ text: String, langCode: String) {
     let utterance = AVSpeechUtterance(string: text)
 
-    // Use docSpeech configuration from Settings
-    let docSpeech = Settings.shared.docSpeech
+    // Get docLangSettings for the specified language
+    let docLang = ScvLanguage(code: langCode) ?? .english
+    let docLangSettings = Settings.shared
+      .docLangSettings[docLang]
+      ?? LangSettings(language: docLang)
 
-    // Set voice from docSpeech.voiceId if available, otherwise use language
-    // code
-    if !docSpeech.voiceId.isEmpty {
-      utterance.voice = AVSpeechSynthesisVoice(identifier: docSpeech.voiceId)
+    // Set voice from docLangSettings.voiceId if available, otherwise use language code
+    if !docLangSettings.voiceId.isEmpty {
+      utterance.voice = AVSpeechSynthesisVoice(identifier: docLangSettings.voiceId)
     } else {
-      // Fallback to language-based voice selection
-      let languageCode = docSpeech.language.code
-      utterance.voice = AVSpeechSynthesisVoice(language: languageCode)
+      utterance.voice = AVSpeechSynthesisVoice(language: docLangSettings.language.code)
     }
 
     // Apply speech configuration settings
-    // AVSpeechUtterance uses rate 0.0-1.0 with 0.5 as default (normal speed)
-    // docSpeech.rate is 0.1-2.0 multiplier, so scale it: 1.0 -> 0.5 (normal)
-    utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docSpeech.rate
-    utterance.pitchMultiplier = docSpeech.pitch
+    utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docLangSettings.rate
+    utterance.pitchMultiplier = docLangSettings.pitch
     let segmentPause = Settings.shared.segmentPause
     utterance.preUtteranceDelay = segmentPause
     utterance.postUtteranceDelay = segmentPause
 
-    nextIndexToPlay = index + 1
     synthesizer.speak(utterance)
-  }
-
-  private func getSegmentText(_ segment: Segment) -> String {
-    // Query settings at point of need
-    let playPali = Settings.shared.playPali
-    let playDoc = Settings.shared.playDoc
-
-    if playPali, !(segment.pli?.isEmpty ?? true) {
-      return segment.pli!
-    }
-    if playDoc, !(segment.doc?.isEmpty ?? true) {
-      return segment.doc!
-    }
-
-    // No text to play - return empty string (will trigger .noText effect)
-    return ""
   }
 
   // MARK: - AVSpeechSynthesizerDelegate
