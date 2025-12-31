@@ -138,7 +138,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     let text = segment.doc ?? ""
 
     if text.isEmpty {
-      playSegmentAt(at: index + 1)
+      AudioEffects.shared.announce(.noText)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        self.playSegmentAt(at: index + 1)
+      }
       return
     }
 

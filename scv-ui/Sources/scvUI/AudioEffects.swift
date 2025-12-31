@@ -10,10 +10,10 @@ public final class AudioEffects: ObservableObject {
     case silent
     case click
     case bell
-    case alertBell
     case block
     case swoosh
     case pageTurn
+    case chirp
 
     var filename: String {
       switch self {
@@ -23,7 +23,7 @@ public final class AudioEffects: ObservableObject {
         "513481__budek__click"
       case .bell:
         "370507__craigmaloney__bell"
-      case .alertBell:
+      case .chirp:
         "753271__heckfricker__single-chirp"
       case .block:
         "742279__sadiquecat__ashboy34-temple-block-lunarlander-1969"
@@ -39,6 +39,8 @@ public final class AudioEffects: ObservableObject {
       switch self {
       case .click:
         0.5
+      case .chirp:
+        0.025
       default:
         1.0
       }
@@ -52,7 +54,6 @@ public final class AudioEffects: ObservableObject {
     case noText
     case section
     case segment
-    case alert
   }
 
   private var audioPlayer: AVAudioPlayer?
@@ -115,13 +116,11 @@ public final class AudioEffects: ObservableObject {
     case .endSutta:
       .bell
     case .noText:
-      .click
+      .chirp
     case .section:
       .pageTurn
     case .segment:
       .click
-    case .alert:
-      .alertBell
     }
   }
 }
