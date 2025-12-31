@@ -123,8 +123,10 @@ public struct AboutCardView: View {
 
   public var body: some View {
     ScrollView {
-      VStack(spacing: 4) {
-        // MARK: - Header
+      HStack {
+        Spacer()
+        VStack(spacing: 4) {
+          // MARK: - Header
 
         VStack(spacing: 12) {
           Image(systemName: "info.circle.fill")
@@ -491,10 +493,12 @@ public struct AboutCardView: View {
             }
           }
         }
+        }
+        .frame(maxWidth: 700)
+        .padding(16)
+        Spacer()
       }
-      .padding(16)
-      .frame(maxWidth: 700)
-    }
+    } // ScrollView
     .scrollContentBackground(.hidden)
     // .background(themeProvider.theme.backgroundColor)
   }
