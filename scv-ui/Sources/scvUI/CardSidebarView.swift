@@ -31,21 +31,46 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   }
 
   private var cardListView: some View {
-    ScrollView {
-      VStack(spacing: 0) {
-        ForEach(cardManager.allCards, id: \.id) { card in
-          cardRow(card)
+    Group {
+      if UIDevice.current.userInterfaceIdiom == .phone {
+        // iPhone: Use List for proper NavigationSplitView single-column selection behavior
+        List(selection: $selectedCardId) {
+          ForEach(cardManager.allCards, id: \.id) { card in
+            cardRowContent(card)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                selectedCardId = card.id
+                cardManager.selectCard(card)
+                cc.ok1(#line, "Selected card:", card.name)
+              }
+          }
+          .onDelete { indices in
+            cardManager.removeCards(at: indices)
+            cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
+          }
         }
+        .scrollContentBackground(.hidden)
+        .background(.black.opacity(0.5))
+      } else {
+        // iPad/macOS: Use ScrollView for custom styling and animations
+        ScrollView {
+          VStack(spacing: 0) {
+            ForEach(cardManager.allCards, id: \.id) { card in
+              cardRow(card)
+            }
+          }
+          .background(.black)
+          .cornerRadius(8)
+          .padding(8)
+        }
+        .scrollContentBackground(.hidden)
+        .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
       }
-      .background(.black)
-      .cornerRadius(8)
-      .padding(8)
     }
-    .scrollContentBackground(.hidden)
-    .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
   }
 
-  private func cardRow(_ card: Manager.ManagedCard) -> some View {
+  // Shared content for both iOS and macOS
+  private func cardRowContent(_ card: Manager.ManagedCard) -> some View {
     HStack(alignment: .top, spacing: 12) {
       Image(systemName: card.iconName())
         .foregroundStyle(card.id == cardManager
@@ -78,23 +103,27 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       .help("Delete card")
     }
     .frame(maxWidth: .infinity, alignment: .leading)
-    .contentShape(Rectangle())
-    .padding(12)
-    .padding(.trailing, 0)
-    .overlay(
-      alignment: .trailing,
-      content: {
-        if selectedCardId == card.id {
-          themeProvider.theme.accentColor
-            .frame(width: 4)
+  }
+
+  // macOS-only: card row with accent border and selection styling
+  private func cardRow(_ card: Manager.ManagedCard) -> some View {
+    cardRowContent(card)
+      .padding(12)
+      .padding(.trailing, 0)
+      .overlay(
+        alignment: .trailing,
+        content: {
+          if selectedCardId == card.id {
+            themeProvider.theme.accentColor
+              .frame(width: 4)
+          }
         }
+      )
+      .onTapGesture {
+        selectedCardId = card.id
+        cardManager.selectCard(card)
+        cc.ok1(#line, "Selected card:", card.name)
       }
-    )
-    .onTapGesture {
-      selectedCardId = card.id
-      cardManager.selectCard(card)
-      cc.ok1(#line, "Selected card:", card.name)
-    }
   }
 
   public var body: some View {
