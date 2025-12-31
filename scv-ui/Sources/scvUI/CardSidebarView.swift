@@ -18,6 +18,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   @State private var titleOpacity: Double = 1.0
   @State private var titleScale: Double = 1.0
   @State private var titleColor: Color?
+  @State private var backgroundOpacity: Double = 1
 
   public init(
     cardManager: Manager,
@@ -29,55 +30,76 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     self.onSettingsTap = onSettingsTap
   }
 
-  public var body: some View {
-    ZStack {
-      List(selection: $selectedCardId) {
+  private var cardListView: some View {
+    ScrollView {
+      VStack(spacing: 0) {
         ForEach(cardManager.allCards, id: \.id) { card in
-          HStack(alignment: .top, spacing: 12) {
-            Image(systemName: card.iconName())
-              .foregroundStyle(card.id == cardManager
-                .recentCardId ? themeProvider.theme.accentColor : .secondary)
-
-            if card.cardType == .sutta {
-              suttaCardContent(card)
-            } else {
-              VStack(alignment: .leading, spacing: 2) {
-                Text(card.sidebarTitle)
-                  .font(.headline)
-                  .lineLimit(1)
-                  .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
-                    .localized || card.sidebarTitle == "card.type.sutta"
-                    .localized ? .secondary : .primary)
-              }
-            }
-
-            Spacer()
-
-            Button(action: {
-              cardManager.removeCardId(card.id)
-              cc.ok1(#line, "Deleted card:", card.name)
-            }) {
-              Image(systemName: "xmark.circle.fill")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .help("Delete card")
-          }
-          .contentShape(Rectangle())
-          .onTapGesture {
-            selectedCardId = card.id
-            cardManager.selectCard(card)
-            cc.ok1(#line, "Selected card:", card.name)
-          }
-        }
-        .onDelete { indices in
-          cardManager.removeCards(at: indices)
-          cc.ok1(#line, "Deleted card(s) at indices:", indices.debugDescription)
+          cardRow(card)
         }
       }
-      .scrollContentBackground(.hidden)
-      .background(.black.opacity(0.5))
+      .background(.black)
+      .cornerRadius(8)
+      .padding(8)
+    }
+    .scrollContentBackground(.hidden)
+    .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
+  }
+
+  private func cardRow(_ card: Manager.ManagedCard) -> some View {
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: card.iconName())
+        .foregroundStyle(card.id == cardManager
+          .recentCardId ? themeProvider.theme.accentColor : .secondary)
+
+      if card.cardType == .sutta {
+        suttaCardContent(card)
+      } else {
+        VStack(alignment: .leading, spacing: 2) {
+          Text(card.sidebarTitle)
+            .font(.headline)
+            .lineLimit(1)
+            .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
+              .localized || card.sidebarTitle == "card.type.sutta"
+              .localized ? .secondary : .primary)
+        }
+      }
+
+      Spacer()
+
+      Button(action: {
+        cardManager.removeCardId(card.id)
+        cc.ok1(#line, "Deleted card:", card.name)
+      }) {
+        Image(systemName: "xmark.circle.fill")
+          .font(.callout)
+          .foregroundStyle(.secondary)
+      }
+      .buttonStyle(.plain)
+      .help("Delete card")
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .contentShape(Rectangle())
+    .padding(12)
+    .padding(.trailing, 0)
+    .overlay(
+      alignment: .trailing,
+      content: {
+        if selectedCardId == card.id {
+          themeProvider.theme.accentColor
+            .frame(width: 4)
+        }
+      }
+    )
+    .onTapGesture {
+      selectedCardId = card.id
+      cardManager.selectCard(card)
+      cc.ok1(#line, "Selected card:", card.name)
+    }
+  }
+
+  public var body: some View {
+    ZStack {
+      cardListView
       .toolbar {
         ToolbarItem(placement: .principal) {
           Text("scVoice/\(Settings.shared.docLang.code.uppercased())")
@@ -86,6 +108,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .opacity(titleOpacity)
             .scaleEffect(titleScale)
         }
+
         #if os(iOS)
           ToolbarItem(placement: .navigationBarLeading) {
             Button(action: addNewCard) {
@@ -95,19 +118,10 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .buttonStyle(.plain)
             .help("Add new search card")
           }
+
           if let onSettingsTap {
             ToolbarItem(placement: .navigationBarTrailing) {
-              Button(action: {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.accentColor
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                  withAnimation(.easeInOut(duration: 2.0)) {
-                    titleColor = themeProvider.theme.secondaryTextColor
-                  }
-                }
-                onSettingsTap()
-              }) {
+              Button(action: handleSettingsTap(onSettingsTap)) {
                 Image(systemName: "gearshape")
                   .font(.title2)
               }
@@ -116,7 +130,6 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             }
           }
         #else
-          // macOS uses different toolbar placement strategy
           ToolbarItem(placement: .automatic) {
             Button(action: addNewCard) {
               Image(systemName: "magnifyingglass")
@@ -125,19 +138,10 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .buttonStyle(.plain)
             .help("Add new search card")
           }
+
           if let onSettingsTap {
             ToolbarItem(placement: .automatic) {
-              Button(action: {
-                withAnimation(.easeInOut(duration: 2.0)) {
-                  titleColor = themeProvider.theme.accentColor
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                  withAnimation(.easeInOut(duration: 2.0)) {
-                    titleColor = themeProvider.theme.secondaryTextColor
-                  }
-                }
-                onSettingsTap()
-              }) {
+              Button(action: handleSettingsTap(onSettingsTap)) {
                 Image(systemName: "gearshape")
                   .font(.title2)
               }
@@ -147,30 +151,19 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           }
         #endif
       }
-      // .toolbarBackground(themeProvider.theme.toolbarColor, for:
-      // .navigationBar)
-      // .toolbarBackground(.visible, for: .navigationBar)
+      .toolbarBackground(Color.black, for: .navigationBar)
+      .toolbarBackground(.visible, for: .navigationBar)
       .onAppear {
         if titleColor == nil {
           titleColor = themeProvider.theme.secondaryTextColor
         }
+        withAnimation(.linear(duration: 30)) {
+          backgroundOpacity = 0.2
+        }
       }
     } // ZStack
-    .background(
-      ScvBackgroundsView(.wilderness)
-        .overlay(
-          LinearGradient(
-            gradient: Gradient(stops: [
-              .init(color: .clear, location: 0),
-              .init(color: .black.opacity(0.3), location: 1),
-            ]),
-            startPoint: .top,
-            endPoint: .bottom,
-          ),
-        ),
-      // .blur(radius: 5)
-    )
-  }
+    .background( Color.black )
+  } // View
 
   // MARK: - Sutta Card Display
 
@@ -238,6 +231,20 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     let newCard = cardManager.addCard(type: .search)
     cardManager.selectCard(newCard)
     cc.ok1(#line, "Added new card:", newCard.name)
+  }
+
+  private func handleSettingsTap(_ callback: @escaping () -> Void) -> () -> Void {
+    {
+      withAnimation(.easeInOut(duration: 2.0)) {
+        titleColor = themeProvider.theme.accentColor
+      }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+        withAnimation(.easeInOut(duration: 2.0)) {
+          titleColor = themeProvider.theme.secondaryTextColor
+        }
+      }
+      callback()
+    }
   }
 }
 
