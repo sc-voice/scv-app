@@ -23,7 +23,7 @@
 "settings.title" = "Paramètres";
 
 /* Settings section header for language selection */
-"settings.languages" = "Langues";
+"settings.languages" = "Traductions";
 
 /* Settings label for document language */
 "settings.document.language" = "Langue du document";
@@ -43,8 +43,11 @@
 /* Settings subsection header for audio options */
 "settings.audio" = "Audio";
 
+/* Settings section header for display options */
+"settings.display" = "Affichage";
+
 /* Settings label for sound effects volume */
-"settings.sound.effects.volume" = "Volume des effets sonores";
+"settings.sound.effects.volume" = "Volume des Indices de Lecture";
 
 /* Settings section header for build information */
 "settings.build" = "Build";

@@ -150,6 +150,7 @@ public struct AppRootView<Manager: ICardManager>: View {
           SettingsView(controller: settingsController)
             .environmentObject(themeProvider)
         }
+        .modifier(SheetBackgroundDimmingModifier(isPresented: $showSettings))
       } // VStack
 
       if !isReady {

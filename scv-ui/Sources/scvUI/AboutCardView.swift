@@ -149,7 +149,9 @@ public struct AboutCardView: View {
 
         // MARK: - Overview (Always Expanded)
 
-        CollapsibleSection("Overview", isExpanded: .constant(expandedSection == "overview" || expandedSection == nil)) {
+        CollapsibleSection("Overview", isExpanded: .constant(expandedSection == "overview"), onToggle: {
+          expandedSection = expandedSection == "overview" ? nil : "overview"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text(
               "Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.",

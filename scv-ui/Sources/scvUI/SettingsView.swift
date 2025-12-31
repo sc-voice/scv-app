@@ -16,16 +16,19 @@ public struct SettingsView: View {
   @ObservedObject public var controller: SettingsModalController
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.dismiss) var dismiss
-  @Environment(\.sizeCategory) var sizeCategory
   @State private var isLoading = true
   @State private var showResetConfirmation = false
   @State private var showDocLangPicker = false
   @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
-  @State private var showAdvanced = false
+  @State private var expandedSection: String? = "languages"
 
-  var shouldStackVertically: Bool {
-    sizeCategory.isAccessibilityCategory
+  private func toggleSection(_ section: String) {
+    if expandedSection == section {
+      expandedSection = nil
+    } else {
+      expandedSection = section
+    }
   }
 
   public init(controller: SettingsModalController) {
@@ -49,7 +52,7 @@ public struct SettingsView: View {
   public var body: some View {
     ZStack {
       themeProvider.theme.backgroundColor
-        .opacity(0.5)
+        .opacity(0.2)
 
       VStack(spacing: 0) {
         HStack {
@@ -76,179 +79,64 @@ public struct SettingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(themeProvider.theme.backgroundColor)
         } else {
-          Form {
-            LanguagesSection(
-              controller: controller,
-              themeProvider: themeProvider,
-              sortedLanguages: sortedLanguages,
-              showDocLangPicker: $showDocLangPicker,
-              showDocAuthorPicker: $showDocAuthorPicker,
-              showRefLangPicker: $showRefLangPicker,
-            )
+          ScrollView {
+            VStack(spacing: 4) {
+              // MARK: - Languages Section
 
-            // MARK: - Document Voice Section
-
-            Section("settings.narrator".localized) {
-              VoicePickerView(
-                selectedVoiceId: $controller.docVoiceId,
-                pitch: $controller.docPitch,
-                rate: $controller.docRate,
-                language: controller.docLang,
-              )
-            }
-
-            // MARK: - Accessibility Section
-
-            Section("settings.accessibility".localized) {
-              // MARK: - Vision Group
-
-              Text("settings.vision".localized)
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-
-              HStack {
-                Image(systemName: controller
-                  .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                Toggle("settings.dark.mode".localized, isOn: Binding(
-                  get: { controller.isDarkModeEnabled },
-                  set: { newValue in
-                    controller.isDarkModeEnabled = newValue
-                    themeProvider.setTheme(newValue ? .dark : .light)
-                  },
-                ))
-              }
-
-              Divider()
-                .padding(.vertical, 12)
-
-              // MARK: - Audio Group
-
-              Text("settings.audio".localized)
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-
-              if shouldStackVertically {
-                VStack(alignment: .leading, spacing: 8) {
-                  HStack {
-                    Image(systemName: "speaker.wave.2")
-                      .foregroundColor(themeProvider.theme.accentColor)
-                    Text("settings.sound.effects.volume".localized)
-                      .font(.body)
-                  }
-                  Slider(value: Binding(
-                    get: { Double(controller.soundEffectVolume * 4.0) },
-                    set: { newValue in
-                      controller.soundEffectVolume = Float(newValue) / 4.0
-                    },
-                  ), in: 0 ... 4, step: 1)
-                  Text("\(Int(controller.soundEffectVolume * 4.0))")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.secondaryTextColor)
-                }
-              } else {
-                HStack {
-                  Image(systemName: "speaker.wave.2")
-                    .foregroundColor(themeProvider.theme.accentColor)
-                  VStack(alignment: .leading, spacing: 4) {
-                    Text("settings.sound.effects.volume".localized)
-                      .font(.body)
-                    Slider(value: Binding(
-                      get: { Double(controller.soundEffectVolume * 4.0) },
-                      set: { newValue in
-                        controller.soundEffectVolume = Float(newValue) / 4.0
-                      },
-                    ), in: 0 ... 4, step: 1)
-                  }
-                  Text("\(Int(controller.soundEffectVolume * 4.0))")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.secondaryTextColor)
-                    .frame(width: 20)
-                }
-              }
-
-              Divider()
-                .padding(.vertical, 12)
-
-              if shouldStackVertically {
-                VStack(alignment: .leading, spacing: 8) {
-                  HStack {
-                    Image(systemName: "waveform")
-                      .foregroundColor(themeProvider.theme.accentColor)
-                    Text("settings.segment.pause".localized)
-                      .font(.body)
-                  }
-                  Slider(value: Binding(
-                    get: { controller.segmentPause },
-                    set: { newValue in
-                      controller.segmentPause = newValue
-                    },
-                  ), in: 0.0 ... 1.0, step: 0.1)
-                  Text("\(String(format: "%.2f", controller.segmentPause))s")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.secondaryTextColor)
-                }
-              } else {
-                HStack {
-                  Image(systemName: "waveform")
-                    .foregroundColor(themeProvider.theme.accentColor)
-                  VStack(alignment: .leading, spacing: 4) {
-                    Text("settings.segment.pause".localized)
-                      .font(.body)
-                    Slider(value: Binding(
-                      get: { controller.segmentPause },
-                      set: { newValue in
-                        controller.segmentPause = newValue
-                      },
-                    ), in: 0.0 ... 1.0, step: 0.1)
-                  }
-                  Text("\(String(format: "%.2f", controller.segmentPause))s")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.secondaryTextColor)
-                    .frame(width: 35)
-                }
-              }
-
-              Divider()
-                .padding(.vertical, 12)
-
-              HStack {
-                Image(systemName: "ear.fill")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                Toggle(
-                  "settings.play.pali".localized,
-                  isOn: $controller.playPali,
+              CollapsibleSection(
+                "settings.languages".localized,
+                isExpanded: Binding(
+                  get: { expandedSection == "languages" },
+                  set: { _ in toggleSection("languages") }
                 )
-                .disabled(true)
-              }
-
-              HStack {
-                Image(systemName: "ear.fill")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                Toggle(
-                  "settings.play.document".localized,
-                  isOn: $controller.playDoc,
+              ) {
+                LanguagesSectionContent(
+                  controller: controller,
+                  availableDocAuthors: availableDocAuthors,
+                  sortedLanguages: sortedLanguages,
+                  showDocLangPicker: $showDocLangPicker,
+                  showDocAuthorPicker: $showDocAuthorPicker,
+                  showRefLangPicker: $showRefLangPicker
                 )
               }
-            }
 
-            // MARK: - Pali Voice Section
+              // MARK: - Audio Section
 
-            // FUTURE: Enable Pali voice selection
+              CollapsibleSection(
+                "settings.audio".localized,
+                isExpanded: Binding(
+                  get: { expandedSection == "audio" },
+                  set: { _ in toggleSection("audio") }
+                )
+              ) {
+                AudioSectionContent(
+                  controller: controller
+                )
+              }
 
-            // Section("Pali Narration Voice") {
-            //   VoicePickerView(
-            //     selectedVoiceId: $controller.paliVoiceId,
-            //     pitch: $controller.paliPitch,
-            //     rate: $controller.paliRate,
-            //     language: .pli,
-            //   )
-            // }
+              // MARK: - Display Section
 
-            // MARK: - Advanced Section
+              CollapsibleSection(
+                "settings.display".localized,
+                isExpanded: Binding(
+                  get: { expandedSection == "display" },
+                  set: { _ in toggleSection("display") }
+                )
+              ) {
+                DisplaySectionContent(
+                  controller: controller
+                )
+              }
 
-            Section {
-              DisclosureGroup("Advanced", isExpanded: $showAdvanced) {
+              // MARK: - Advanced Section
+
+              CollapsibleSection(
+                "Advanced",
+                isExpanded: Binding(
+                  get: { expandedSection == "advanced" },
+                  set: { _ in toggleSection("advanced") }
+                )
+              ) {
                 Button(
                   "settings.reset.button".localized,
                   role: .destructive,
@@ -257,19 +145,18 @@ public struct SettingsView: View {
                 }
               }
             }
+            .padding()
           }
           .scrollContentBackground(.hidden)
-          .frame(maxWidth: 500)
-          .padding(.horizontal)
         }
-      }
+      } // VStack
 
       if isLoading {
         ProgressView()
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .background(Color.black.opacity(1.0))
       }
-    }
+    } // ZStack
     .background(ScvBackgroundsView(.village))
     .onChange(of: showResetConfirmation) {
       if showResetConfirmation {
@@ -295,39 +182,26 @@ public struct SettingsView: View {
       Text("settings.reset.alert.message".localized)
     }
     .onAppear {
-      cc.ok1(#line, #function)
-      cc.ok2(#line, "isLoading: \(isLoading)")
       isLoading = false
+      cc.ok1(#line, #function, "isLoading: \(isLoading)")
     }
-  }
-}
+  } // View
+} // SettingsView
 
-// MARK: - Languages Section
+// MARK: - Languages Section Content
 
-struct LanguagesSection: View {
+struct LanguagesSectionContent: View {
+  @EnvironmentObject var themeProvider: ThemeProvider
+  @Environment(\.sizeCategory) var sizeCategory
   @ObservedObject var controller: SettingsModalController
-  let themeProvider: ThemeProvider
+  let availableDocAuthors: [DatabaseInfo]
   let sortedLanguages: [ScvLanguage]
   @Binding var showDocLangPicker: Bool
   @Binding var showDocAuthorPicker: Bool
   @Binding var showRefLangPicker: Bool
-  @Environment(\.sizeCategory) var sizeCategory
-
-  var pickerDetent: Set<PresentationDetent> {
-    sizeCategory.isAccessibilityCategory ? [.fraction(0.95)] : [.medium]
-  }
-
-  var pickerHeight: CGFloat {
-    sizeCategory.isAccessibilityCategory ? 400 : 250
-  }
 
   var shouldStackVertically: Bool {
     sizeCategory.isAccessibilityCategory
-  }
-
-  var availableDocAuthors: [DatabaseInfo] {
-    EbtData.authorsForLanguageFromManifest(controller.docLang.code)
-      .sorted { $0.files.total > $1.files.total }
   }
 
   var docAuthorName: String {
@@ -336,11 +210,14 @@ struct LanguagesSection: View {
   }
 
   var body: some View {
-    Section("settings.languages".localized) {
+    VStack(alignment: .leading, spacing: 12) {
+      // Document Language
       Group {
         if shouldStackVertically {
           VStack(alignment: .leading, spacing: 8) {
             Text("settings.document.language".localized)
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
             Button(action: { showDocLangPicker = true }) {
               Text(controller.docLang.displayName)
                 .foregroundColor(themeProvider.theme.valueColor)
@@ -350,6 +227,8 @@ struct LanguagesSection: View {
         } else {
           HStack {
             Text("settings.document.language".localized)
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
             Spacer()
             Button(action: { showDocLangPicker = true }) {
               Text(controller.docLang.displayName)
@@ -359,33 +238,24 @@ struct LanguagesSection: View {
         }
       }
       .sheet(isPresented: $showDocLangPicker) {
-        VStack {
-          Picker(
-            "settings.document.language".localized,
-            selection: $controller.docLang,
-          ) {
-            ForEach(sortedLanguages, id: \.self) { lang in
-              Text(lang.displayName)
-                .font(.body)
-                .tag(lang)
-            }
-          }
-          #if os(iOS)
-          .pickerStyle(.wheel)
-          #else
-          .pickerStyle(.menu)
-          #endif
-        }
-        .frame(height: pickerHeight)
-        #if os(iOS)
-          .presentationDetents(pickerDetent)
-        #endif
+        LanguagePickerModal(
+          title: "settings.document.language".localized,
+          selection: $controller.docLang,
+          options: sortedLanguages,
+          optionLabel: { $0.displayName }
+        )
       }
 
+      Divider()
+        .padding(.vertical, 4)
+
+      // Document Author
       Group {
         if shouldStackVertically {
           VStack(alignment: .leading, spacing: 8) {
             Text("settings.document.author".localized)
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
             Button(action: { showDocAuthorPicker = true }) {
               Text(docAuthorName)
                 .foregroundColor(themeProvider.theme.valueColor)
@@ -395,6 +265,8 @@ struct LanguagesSection: View {
         } else {
           HStack {
             Text("settings.document.author".localized)
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
             Spacer()
             Button(action: { showDocAuthorPicker = true }) {
               Text(docAuthorName)
@@ -404,34 +276,27 @@ struct LanguagesSection: View {
         }
       }
       .sheet(isPresented: $showDocAuthorPicker) {
-        VStack {
-          Picker(
-            "settings.document.author".localized,
-            selection: $controller.docAuthor,
-          ) {
-            ForEach(availableDocAuthors, id: \.author) { info in
-              Text(info.authorName)
-                .font(.body)
-                .tag(info.author)
-            }
+        LanguagePickerModal(
+          title: "settings.document.author".localized,
+          selection: $controller.docAuthor,
+          options: availableDocAuthors.map { $0.author },
+          optionLabel: { author in
+            availableDocAuthors.first { $0.author == author }?.authorName ?? author
           }
-          #if os(iOS)
-          .pickerStyle(.wheel)
-          #else
-          .pickerStyle(.menu)
-          #endif
-        }
-        .frame(height: pickerHeight)
-        #if os(iOS)
-          .presentationDetents(pickerDetent)
-        #endif
+        )
       }
 
       #if TODO_REFERENCE_LANGUAGE
+        Divider()
+          .padding(.vertical, 4)
+
+        // Reference Language
         Group {
           if shouldStackVertically {
             VStack(alignment: .leading, spacing: 8) {
               Text("settings.reference.language".localized)
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
               Button(action: { showRefLangPicker = true }) {
                 Text(controller.refLang.displayName)
                   .foregroundColor(themeProvider.theme.valueColor)
@@ -441,6 +306,8 @@ struct LanguagesSection: View {
           } else {
             HStack {
               Text("settings.reference.language".localized)
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.secondaryTextColor)
               Spacer()
               Button(action: { showRefLangPicker = true }) {
                 Text(controller.refLang.displayName)
@@ -450,39 +317,115 @@ struct LanguagesSection: View {
           }
         }
         .sheet(isPresented: $showRefLangPicker) {
-          VStack {
-            Picker(
-              "settings.reference.language".localized,
-              selection: $controller.refLang,
-            ) {
-              ForEach(sortedLanguages, id: \.self) { lang in
-                Text(lang.displayName)
-                  .font(.body)
-                  .tag(lang)
-              }
-            }
-            #if os(iOS)
-            .pickerStyle(.wheel)
-            #else
-            .pickerStyle(.menu)
-            #endif
-          }
-          .frame(height: pickerHeight)
-          #if os(iOS)
-            .presentationDetents(pickerDetent)
-          #endif
+          LanguagePickerModal(
+            title: "settings.reference.language".localized,
+            selection: $controller.refLang,
+            options: sortedLanguages,
+            optionLabel: { $0.displayName }
+          )
         }
       #endif
     }
   }
 }
 
-// MARK: - Helper Extension
+// MARK: - Audio Section Content
 
-extension View {
-  func borderBottom() -> some View {
-    overlay(alignment: .bottom) {
+struct AudioSectionContent: View {
+  @EnvironmentObject var themeProvider: ThemeProvider
+  @ObservedObject var controller: SettingsModalController
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      // Document Narrator
+      Text("settings.narrator".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+
+      VoicePickerView(
+        selectedVoiceId: $controller.docVoiceId,
+        pitch: $controller.docPitch,
+        rate: $controller.docRate,
+        language: controller.docLang,
+      )
+
       Divider()
+        .padding(.vertical, 4)
+
+      // Sound Effects Volume
+      SliderSettingRow(
+        icon: "speaker.wave.2",
+        label: "settings.sound.effects.volume".localized,
+        value: Binding(
+          get: { Double(controller.soundEffectVolume * 4.0) },
+          set: { newValue in
+            controller.soundEffectVolume = Float(newValue) / 4.0
+          }
+        ),
+        in: 0 ... 4,
+        step: 1,
+        displayFormatter: { String(Int($0)) }
+      )
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Segment Pause
+      SliderSettingRow(
+        icon: "waveform",
+        label: "settings.segment.pause".localized,
+        value: $controller.segmentPause,
+        in: 0.0 ... 1.0,
+        step: 0.1,
+        displayFormatter: { String(format: "%.2f", $0) + "s" }
+      )
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Play Pali
+      HStack {
+        Image(systemName: "ear.fill")
+          .foregroundColor(themeProvider.theme.accentColor)
+        Toggle(
+          "settings.play.pali".localized,
+          isOn: $controller.playPali,
+        )
+        .disabled(true)
+      }
+
+      // Play Document
+      HStack {
+        Image(systemName: "ear.fill")
+          .foregroundColor(themeProvider.theme.accentColor)
+        Toggle(
+          "settings.play.document".localized,
+          isOn: $controller.playDoc,
+        )
+      }
+    }
+  }
+}
+
+// MARK: - Display Section Content
+
+struct DisplaySectionContent: View {
+  @EnvironmentObject var themeProvider: ThemeProvider
+  @ObservedObject var controller: SettingsModalController
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Image(systemName: controller.isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
+          .foregroundColor(themeProvider.theme.accentColor)
+        Toggle("settings.dark.mode".localized, isOn: Binding(
+          get: { controller.isDarkModeEnabled },
+          set: { newValue in
+            controller.isDarkModeEnabled = newValue
+            themeProvider.setTheme(newValue ? .dark : .light)
+          },
+        ))
+      }
     }
   }
 }
