@@ -54,13 +54,35 @@ public class CardManager: ICardManager {
   // MARK: - Properties
 
   private let modelContext: ModelContext
-  public var selectedCardId: AnyHashable?
+  private let selectedCardIdKey = "CardManager.selectedCardId"
+  private var _selectedCardId: AnyHashable?
+  private var isInitializing = true
+
+  public var selectedCardId: AnyHashable? {
+    get { _selectedCardId }
+    set {
+      _selectedCardId = newValue
+      // Only persist after initialization is complete
+      if !isInitializing {
+        if let selectedCardId = newValue as? UUID {
+          UserDefaults.standard.set(selectedCardId.uuidString, forKey: selectedCardIdKey)
+          cc.ok1(#line, #function, "saved selectedCardId:", selectedCardId.uuidString)
+        } else {
+          UserDefaults.standard.removeObject(forKey: selectedCardIdKey)
+          cc.ok1(#line, #function, "cleared selectedCardId from UserDefaults")
+        }
+      }
+    }
+  }
+
   public var recentCardId: AnyHashable?
 
   // MARK: - Initialization
 
   public init(modelContext: ModelContext) {
     self.modelContext = modelContext
+    // Don't persist to UserDefaults during initialization
+    isInitializing = true
 
     // Clean up detached cards from previous sessions
     deleteDetachedCards()
@@ -70,13 +92,42 @@ public class CardManager: ICardManager {
       addCard(type: .about)
     }
 
-    // Ensure a card is always selected
-    if selectedCardId == nil {
+    // Restore selectedCardId from UserDefaults if available
+    if let savedUUIDString = UserDefaults.standard.string(forKey: selectedCardIdKey) {
+      cc.ok1(#line, #function, "found savedUUIDString:", savedUUIDString)
+      if let savedUUID = UUID(uuidString: savedUUIDString) {
+        cc.ok1(#line, #function, "parsed savedUUID:", savedUUID)
+        if let card = cardFromId(savedUUID) {
+          selectedCardId = savedUUID
+          recentCardId = savedUUID
+          cc.ok1(#line, #function, "restored selectedCard:", card.name)
+        } else {
+          cc.ok1(#line, #function, "card not found for savedUUID:", savedUUID)
+          // Fallback: select first card
+          let first = allCards.first
+          selectedCardId = first?.id
+          recentCardId = first?.id
+          cc.ok1(#line, #function, "fallback selectedCard:", first?.name ?? "nil")
+        }
+      } else {
+        cc.ok1(#line, #function, "failed to parse UUID from:", savedUUIDString)
+        // Fallback: select first card
+        let first = allCards.first
+        selectedCardId = first?.id
+        recentCardId = first?.id
+        cc.ok1(#line, #function, "fallback selectedCard:", first?.name ?? "nil")
+      }
+    } else {
+      cc.ok1(#line, #function, "no savedUUIDString found in UserDefaults")
+      // Fallback: select first card
       let first = allCards.first
       selectedCardId = first?.id
       recentCardId = first?.id
       cc.ok1(#line, #function, "selectedCard:", first?.name ?? "nil")
     }
+
+    // Enable persistence after initialization
+    isInitializing = false
   }
 
   /// Factory method that returns CardManager as any ICardManager.

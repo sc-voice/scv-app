@@ -14,27 +14,28 @@ import SwiftUI
 /// and content
 public struct CollapsibleSection<Content: View>: View {
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var isExpanded: Bool = false
+  @Binding var isExpanded: Bool
 
   let title: String
-  let initiallyExpanded: Bool
+  let onToggle: (() -> Void)?
   let content: () -> Content
 
-  /// Initialize a CollapsibleSection
+  /// Initialize a CollapsibleSection with external state management
   /// - Parameters:
   ///   - title: The header title displayed
-  ///   - initiallyExpanded: Whether the section starts expanded (default:
-  /// false)
+  ///   - isExpanded: Binding to whether the section is expanded
+  ///   - onToggle: Optional callback when section is toggled
   ///   - content: ViewBuilder closure containing the collapsible content
   public init(
     _ title: String,
-    initiallyExpanded: Bool = false,
+    isExpanded: Binding<Bool>,
+    onToggle: (() -> Void)? = nil,
     @ViewBuilder content: @escaping () -> Content,
   ) {
     self.title = title
-    self.initiallyExpanded = initiallyExpanded
+    self._isExpanded = isExpanded
+    self.onToggle = onToggle
     self.content = content
-    _isExpanded = State(initialValue: initiallyExpanded)
   }
 
   public var body: some View {
@@ -42,7 +43,10 @@ public struct CollapsibleSection<Content: View>: View {
       // MARK: - Header
 
       Button(action: {
-        withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
+        withAnimation(.easeInOut(duration: 0.2)) {
+          isExpanded.toggle()
+          onToggle?()
+        }
       }) {
         HStack(spacing: 12) {
           // Disclosure triangle
@@ -92,29 +96,37 @@ public struct CollapsibleSection<Content: View>: View {
 // MARK: - Preview
 
 #Preview("CollapsibleSection") {
-  VStack(spacing: 16) {
-    CollapsibleSection("Expand me", initiallyExpanded: false) {
-      VStack(alignment: .leading, spacing: 12) {
-        Text("This is the collapsed content.")
-          .font(.body)
-        Text("It can contain any view.")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-    }
+  struct PreviewContainer: View {
+    @State private var expandedSection: String? = nil
 
-    CollapsibleSection("Initially Expanded", initiallyExpanded: true) {
-      VStack(alignment: .leading, spacing: 8) {
-        Text("This section starts expanded")
-        Text("Click the header to collapse it")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
-    }
+    var body: some View {
+      VStack(spacing: 16) {
+        CollapsibleSection("Expand me", isExpanded: .constant(expandedSection == "one")) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("This is the collapsed content.")
+              .font(.body)
+            Text("It can contain any view.")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+        }
 
-    Spacer()
+        CollapsibleSection("Another Section", isExpanded: .constant(expandedSection == "two")) {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("This section can be expanded")
+            Text("Click the header to expand/collapse it")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+        }
+
+        Spacer()
+      }
+      .padding()
+      .background(.gray.opacity(0.1))
+      .environmentObject(ThemeProvider())
+    }
   }
-  .padding()
-  .background(.gray.opacity(0.1))
-  .environmentObject(ThemeProvider())
+
+  return PreviewContainer()
 }

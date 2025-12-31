@@ -103,6 +103,7 @@ public struct AboutCardView: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.openURL) var openURL
   @State private var imageCredits: [String: ImageCredit] = [:]
+  @State private var expandedSection: String? = nil
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
   public init<Card: ICard, Manager: ICardManager>(
@@ -122,7 +123,7 @@ public struct AboutCardView: View {
 
   public var body: some View {
     ScrollView {
-      VStack(spacing: 16) {
+      VStack(spacing: 4) {
         // MARK: - Header
 
         VStack(spacing: 12) {
@@ -148,7 +149,7 @@ public struct AboutCardView: View {
 
         // MARK: - Overview (Always Expanded)
 
-        CollapsibleSection("Overview", initiallyExpanded: true) {
+        CollapsibleSection("Overview", isExpanded: .constant(expandedSection == "overview" || expandedSection == nil)) {
           VStack(alignment: .leading, spacing: 12) {
             Text(
               "Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.",
@@ -178,7 +179,9 @@ public struct AboutCardView: View {
 
         // MARK: - How to Use
 
-        CollapsibleSection("How to Use") {
+        CollapsibleSection("How to Use", isExpanded: .constant(expandedSection == "howToUse"), onToggle: {
+          expandedSection = expandedSection == "howToUse" ? nil : "howToUse"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("Getting started with SC-Voice:")
               .font(.headline)
@@ -211,7 +214,9 @@ public struct AboutCardView: View {
 
         // MARK: - Content Sources
 
-        CollapsibleSection("Content Sources") {
+        CollapsibleSection("Content Sources", isExpanded: .constant(expandedSection == "contentSources"), onToggle: {
+          expandedSection = expandedSection == "contentSources" ? nil : "contentSources"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("This app uses the following content sources:")
               .font(.body)
@@ -245,7 +250,9 @@ public struct AboutCardView: View {
 
         // MARK: - Acknowledgements
 
-        CollapsibleSection("Acknowledgements") {
+        CollapsibleSection("Acknowledgements", isExpanded: .constant(expandedSection == "acknowledgements"), onToggle: {
+          expandedSection = expandedSection == "acknowledgements" ? nil : "acknowledgements"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("SC-Voice builds on the work of many contributors:")
               .font(.body)
@@ -268,7 +275,9 @@ public struct AboutCardView: View {
 
         // MARK: - Graphics & Design
 
-        CollapsibleSection("Graphics & Design") {
+        CollapsibleSection("Graphics & Design", isExpanded: .constant(expandedSection == "graphicsDesign"), onToggle: {
+          expandedSection = expandedSection == "graphicsDesign" ? nil : "graphicsDesign"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("Background images and themes:")
               .font(.body)
@@ -290,14 +299,34 @@ public struct AboutCardView: View {
 
                   // Credit info
                   VStack(alignment: .leading, spacing: 4) {
-                    Text(
-                      name
-                        .replacingOccurrences(of: "-", with: " ")
-                        .capitalized,
-                    )
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
+                    // Clickable title
+                    if let url = ImageCreditsLoader.shared
+                      .getImageUrl(for: name),
+                      let linkUrl = URL(string: url)
+                    {
+                      Button(action: {
+                        openURL(linkUrl)
+                      }) {
+                        Text(
+                          name
+                            .replacingOccurrences(of: "-", with: " ")
+                            .capitalized,
+                        )
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(themeProvider.theme.linkColor)
+                        .underline()
+                      }
+                    } else {
+                      Text(
+                        name
+                          .replacingOccurrences(of: "-", with: " ")
+                          .capitalized,
+                      )
+                      .font(.callout)
+                      .fontWeight(.semibold)
+                      .foregroundStyle(themeProvider.theme.secondaryTextColor)
+                    }
 
                     Text(credit.credit)
                       .font(.caption)
@@ -306,21 +335,6 @@ public struct AboutCardView: View {
                     Text("License: \(credit.license)")
                       .font(.caption2)
                       .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-                    // Clickable link
-                    if let url = ImageCreditsLoader.shared
-                      .getImageUrl(for: name),
-                      let linkUrl = URL(string: url)
-                    {
-                      Button(action: {
-                        openURL(linkUrl)
-                      }) {
-                        Text("View source")
-                          .font(.caption)
-                          .foregroundStyle(themeProvider.theme.linkColor)
-                          .underline()
-                      }
-                    }
                   }
                   .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -346,7 +360,9 @@ public struct AboutCardView: View {
 
         // MARK: - Audio Credits
 
-        CollapsibleSection("Audio Credits") {
+        CollapsibleSection("Audio Credits", isExpanded: .constant(expandedSection == "audioCredits"), onToggle: {
+          expandedSection = expandedSection == "audioCredits" ? nil : "audioCredits"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("Sound effects and audio:")
               .font(.body)
@@ -389,7 +405,9 @@ public struct AboutCardView: View {
 
         // MARK: - Open Source Licenses
 
-        CollapsibleSection("Open Source Licenses") {
+        CollapsibleSection("Open Source Licenses", isExpanded: .constant(expandedSection == "openSourceLicenses"), onToggle: {
+          expandedSection = expandedSection == "openSourceLicenses" ? nil : "openSourceLicenses"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text(
               "All SC-Voice source code is licensed under the MIT License unless otherwise noted.",
@@ -414,7 +432,9 @@ public struct AboutCardView: View {
 
         // MARK: - Privacy Policy
 
-        CollapsibleSection("Privacy Policy") {
+        CollapsibleSection("Privacy Policy", isExpanded: .constant(expandedSection == "privacyPolicy"), onToggle: {
+          expandedSection = expandedSection == "privacyPolicy" ? nil : "privacyPolicy"
+        }) {
           VStack(alignment: .leading, spacing: 12) {
             Text("SC-Voice respects your privacy:")
               .font(.headline)
@@ -442,39 +462,36 @@ public struct AboutCardView: View {
 
         // MARK: - Support & Feedback
 
-        VStack(spacing: 12) {
-          Text("Support & Feedback")
-            .font(.headline)
-            .foregroundStyle(themeProvider.theme.textColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        CollapsibleSection("Support & Feedback", isExpanded: .constant(expandedSection == "supportFeedback"), onToggle: {
+          expandedSection = expandedSection == "supportFeedback" ? nil : "supportFeedback"
+        }) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text(
+              "Found a bug? Have a suggestion? Visit our GitHub repository to report issues or contribute.",
+            )
+            .font(.body)
+            .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
-          Text(
-            "Found a bug? Have a suggestion? Visit our GitHub repository to report issues or contribute.",
-          )
-          .font(.body)
-          .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-          Button(action: {
-            if let url = URL(string: "https://github.com/sc-voice") {
-              openURL(url)
+            Button(action: {
+              if let url = URL(string: "https://github.com/sc-voice") {
+                openURL(url)
+              }
+            }) {
+              HStack {
+                Image(systemName: "link")
+                Text("Visit GitHub")
+              }
+              .frame(maxWidth: .infinity)
+              .padding(.vertical, 10)
+              .background(themeProvider.theme.accentColor)
+              .foregroundColor(.white)
+              .cornerRadius(6)
             }
-          }) {
-            HStack {
-              Image(systemName: "link")
-              Text("Visit GitHub")
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(themeProvider.theme.accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(6)
           }
         }
-        .padding(12)
-        .background(themeProvider.theme.cardBackground)
-        .cornerRadius(8)
       }
       .padding(16)
+      .frame(maxWidth: 700)
     }
     .scrollContentBackground(.hidden)
     // .background(themeProvider.theme.backgroundColor)
