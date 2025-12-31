@@ -156,11 +156,14 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       .docLangSettings[docLang]
       ?? LangSettings(language: docLang)
 
-    // Set voice from docLangSettings.voiceId if available, otherwise use language code
+    // Set voice from docLangSettings.voiceId if available, otherwise use
+    // language code
     if !docLangSettings.voiceId.isEmpty {
-      utterance.voice = AVSpeechSynthesisVoice(identifier: docLangSettings.voiceId)
+      utterance
+        .voice = AVSpeechSynthesisVoice(identifier: docLangSettings.voiceId)
     } else {
-      utterance.voice = AVSpeechSynthesisVoice(language: docLangSettings.language.code)
+      utterance
+        .voice = AVSpeechSynthesisVoice(language: docLangSettings.language.code)
     }
 
     // Apply speech configuration settings

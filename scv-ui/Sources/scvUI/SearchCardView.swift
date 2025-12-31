@@ -142,7 +142,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   private func populateSuttaInfoInBackground(
     searchResult: SeekerResult,
     cardManager: Manager,
-    cardId: Card.ID,
+    cardId: AnyHashable,
   ) {
     cc.ok2(
       #line,
@@ -407,7 +407,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   static func searchSubmitHandler(
     cardManager: Manager,
-    selectedCardId: Manager.ManagedCard.ID,
+    selectedCardId: AnyHashable,
     searchQueryBinding: Binding<String>,
   ) {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
@@ -603,16 +603,24 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 // MARK: - Preview
 
 #Preview("SearchCardView") {
-  @Previewable @State var selectedCardId: UUID? = nil
-  @Previewable @State var mockCard1 = MockCard(
+  @Previewable @State var selectedCardId: AnyHashable? = nil
+  @Previewable @State var mockCard1 = PreviewCard(
     cardType: .search,
     typeId: 1,
     searchQuery: "mindfulness",
   )
 
-  let card1 = MockCard(cardType: .search, typeId: 1, searchQuery: "mindfulness")
-  let card2 = MockCard(cardType: .search, typeId: 2, searchQuery: "suffering")
-  let manager = MockCardManager(
+  let card1 = PreviewCard(
+    cardType: .search,
+    typeId: 1,
+    searchQuery: "mindfulness",
+  )
+  let card2 = PreviewCard(
+    cardType: .search,
+    typeId: 2,
+    searchQuery: "suffering",
+  )
+  let manager = PreviewCardManager(
     cards: [card1, card2],
     selectedCardId: card1.id,
   )

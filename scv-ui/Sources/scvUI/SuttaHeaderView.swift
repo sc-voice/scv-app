@@ -84,7 +84,7 @@ public struct SuttaHeaderView<Card: ICard>: View {
 // MARK: - Preview
 
 #Preview("SuttaHeaderView") {
-  @Previewable @State var mockCard = MockCard(
+  @Previewable @State var mockCard = PreviewCard(
     cardType: .sutta,
     typeId: 1,
     suttaReference: "mn1/en/sujato",

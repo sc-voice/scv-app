@@ -17,14 +17,16 @@ public protocol ICardManager: Observable {
   associatedtype ManagedCard: ICard
 
   var allCards: [ManagedCard] { get }
-  var selectedCardId: ManagedCard.ID? { get set }
-  var recentCardId: ManagedCard.ID? { get set }
+  var selectedCard: ManagedCard? { get }
+  var selectedCardId: AnyHashable? { get set }
+  var recentCardId: AnyHashable? { get set }
 
   func selectCard(_ card: ManagedCard)
-  func selectCardId(_ id: ManagedCard.ID?)
+  func selectCardId(_ id: AnyHashable?)
+  func removeCardId(_ id: AnyHashable)
   func removeCards(at indices: IndexSet)
-  func cardFromId(_ id: ManagedCard.ID) -> ManagedCard?
-  func bindCard(id: ManagedCard.ID) -> Binding<ManagedCard>?
+  func cardFromId(_ id: AnyHashable) -> ManagedCard?
+  func bindCard(id: AnyHashable) -> Binding<ManagedCard>?
   @discardableResult
   func addCard(type: scvCore.CardType) -> ManagedCard
   func saveCard(_ card: ManagedCard)
@@ -52,8 +54,8 @@ public class CardManager: ICardManager {
   // MARK: - Properties
 
   private let modelContext: ModelContext
-  public var selectedCardId: Card.ID?
-  public var recentCardId: Card.ID?
+  public var selectedCardId: AnyHashable?
+  public var recentCardId: AnyHashable?
 
   // MARK: - Initialization
 
@@ -75,6 +77,16 @@ public class CardManager: ICardManager {
       recentCardId = first?.id
       cc.ok1(#line, #function, "selectedCard:", first?.name ?? "nil")
     }
+  }
+
+  /// Factory method that returns CardManager as any ICardManager.
+  /// Used for testing protocol conformance - if any protocol methods are
+  /// missing,
+  /// this will fail to compile.
+  public static func asProtocol(modelContext: ModelContext)
+    -> any ICardManager
+  {
+    CardManager(modelContext: modelContext)
   }
 
   // MARK: - Public Properties
@@ -99,7 +111,7 @@ public class CardManager: ICardManager {
   }
 
   /// Returns the currently selected card
-  var selectedCard: Card? {
+  public var selectedCard: Card? {
     guard let selectedCardId else { return nil }
     return allCards.first { $0.id == selectedCardId }
   }
@@ -274,8 +286,10 @@ public class CardManager: ICardManager {
     }
   }
 
-  /// Removes a card and updates selection if necessary
-  func removeCard(_ card: Card) {
+  /// Removes a card by ID and updates selection if necessary
+  public func removeCardId(_ id: AnyHashable) {
+    guard let card = cardFromId(id) else { return }
+
     // Mark card as detached before deletion to prevent SwiftData fault crashes
     // when views try to access the card during teardown
     card.isDetached = true
@@ -311,6 +325,11 @@ public class CardManager: ICardManager {
     } catch {
       cc.bad1(#line, #function, error)
     }
+  }
+
+  @available(*, deprecated, message: "Use removeCardId(_:) instead")
+  public func removeCard(_ card: Card) {
+    removeCardId(card.id)
   }
 
   /// Finds the next card to select after deleting a card

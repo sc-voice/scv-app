@@ -280,8 +280,8 @@ struct CardTests {
     // UUID should be the same
     #expect(card2.uuid == uuid1)
 
-    // But PersistentIdentifier should be different (regenerated)
-    #expect(card1.id != card2.id)
+    // ID should be the same (both use uuid)
+    #expect(card1.id == card2.id)
   }
 
   // MARK: - Card/SearchResponse Relationship Tests

@@ -73,8 +73,12 @@ struct IOSView<Manager: ICardManager>: View {
 #Preview("IOSView") {
   @Previewable @State var selectedCardId: UUID?
 
-  let card1 = MockCard(cardType: .search, typeId: 1, searchQuery: "mindfulness")
-  let manager = MockCardManager(
+  let card1 = PreviewCard(
+    cardType: .search,
+    typeId: 1,
+    searchQuery: "mindfulness",
+  )
+  let manager = PreviewCardManager(
     cards: [card1],
     selectedCardId: card1.id,
   )

@@ -164,13 +164,13 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
 // MARK: - Preview
 
 #Preview("SuttaCardView") {
-  @Previewable @State var mockCard = MockCard(
+  @Previewable @State var mockCard = PreviewCard(
     cardType: .sutta,
     typeId: 1,
     suttaReference: "mn1/en/sujato",
   )
 
-  let manager = MockCardManager(
+  let manager = PreviewCardManager(
     cards: [mockCard],
     selectedCardId: mockCard.id,
   )

@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 
 public struct CardSidebarView<Manager: ICardManager>: View {
-  @Binding var selectedCardId: Manager.ManagedCard.ID?
+  @Binding var selectedCardId: AnyHashable?
   let cardManager: Manager
   let cc = ColorConsole(#file, #function, dbg.CardSidebarView.other)
   @EnvironmentObject var themeProvider: ThemeProvider
@@ -21,7 +21,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
   public init(
     cardManager: Manager,
-    selectedCardId: Binding<Manager.ManagedCard.ID?>,
+    selectedCardId: Binding<AnyHashable?>,
     onSettingsTap: (() -> Void)? = nil,
   ) {
     self.cardManager = cardManager
@@ -32,7 +32,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   public var body: some View {
     ZStack {
       List(selection: $selectedCardId) {
-        ForEach(cardManager.allCards) { card in
+        ForEach(cardManager.allCards, id: \.id) { card in
           HStack(alignment: .top, spacing: 12) {
             Image(systemName: card.iconName())
               .foregroundStyle(card.id == cardManager
@@ -50,6 +50,19 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                     .localized ? .secondary : .primary)
               }
             }
+
+            Spacer()
+
+            Button(action: {
+              cardManager.removeCardId(card.id)
+              cc.ok1(#line, "Deleted card:", card.name)
+            }) {
+              Image(systemName: "xmark.circle.fill")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Delete card")
           }
           .contentShape(Rectangle())
           .onTapGesture {
@@ -230,57 +243,32 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
 // MARK: - Mock for Preview
 
-/// Simple mock card for preview
-@Observable
-public class MockCard: ICard {
-  public let id: UUID
-  public var cardType: CardType
-  public var typeId: Int
-  public var searchQuery: String
-  public var searchResult: SeekerResult?
-  public var suttaReference: String
-  public var mlDoc: MLDocument?
-
-  public init(
-    id: UUID = UUID(),
-    cardType: CardType,
-    typeId: Int,
-    searchQuery: String = "",
-    searchResult: SeekerResult? = nil,
-    suttaReference: String = "",
-    mlDoc: MLDocument? = nil,
-  ) {
-    self.id = id
-    self.cardType = cardType
-    self.typeId = typeId
-    self.searchQuery = searchQuery
-    self.searchResult = searchResult
-    self.suttaReference = suttaReference
-    self.mlDoc = mlDoc
-  }
-}
-
 /// Simple mock card manager for preview
 @Observable
-public class MockCardManager: ICardManager {
-  public typealias ManagedCard = MockCard
+public class PreviewCardManager: ICardManager {
+  public typealias ManagedCard = PreviewCard
 
-  public var allCards: [MockCard]
-  public var selectedCardId: UUID?
-  public var recentCardId: UUID?
+  public var allCards: [PreviewCard]
+  public var selectedCardId: AnyHashable?
+  public var recentCardId: AnyHashable?
 
-  public init(cards: [MockCard] = [], selectedCardId: UUID? = nil) {
+  public var selectedCard: PreviewCard? {
+    guard let selectedCardId else { return nil }
+    return cardFromId(selectedCardId)
+  }
+
+  public init(cards: [PreviewCard] = [], selectedCardId: AnyHashable? = nil) {
     allCards = cards
     self.selectedCardId = selectedCardId
     recentCardId = selectedCardId
   }
 
-  public func selectCard(_ card: MockCard) {
+  public func selectCard(_ card: PreviewCard) {
     selectedCardId = card.id
     recentCardId = card.id
   }
 
-  public func selectCardId(_ id: UUID?) {
+  public func selectCardId(_ id: AnyHashable?) {
     if let id, let card = cardFromId(id) {
       selectedCardId = card.id
       recentCardId = card.id
@@ -293,18 +281,24 @@ public class MockCardManager: ICardManager {
     allCards.remove(atOffsets: indices)
   }
 
-  public func cardFromId(_ id: UUID) -> MockCard? {
+  public func removeCardId(_ id: AnyHashable) {
+    if let index = allCards.firstIndex(where: { $0.id == id }) {
+      allCards.remove(at: index)
+    }
+  }
+
+  public func cardFromId(_ id: AnyHashable) -> PreviewCard? {
     allCards.first { $0.id == id }
   }
 
-  public func bindCard(id: UUID) -> Binding<MockCard>? {
+  public func bindCard(id: AnyHashable) -> Binding<PreviewCard>? {
     guard cardFromId(id) != nil else {
       return nil
     }
 
     return Binding(
       get: { [weak self] in
-        self?.cardFromId(id) ?? MockCard(cardType: .search, typeId: 0)
+        self?.cardFromId(id) ?? PreviewCard(cardType: .search, typeId: 0)
       },
       set: { [weak self] newValue in
         if let index = self?.allCards.firstIndex(where: { $0.id == id }) {
@@ -315,14 +309,14 @@ public class MockCardManager: ICardManager {
   }
 
   @discardableResult
-  public func addCard(type cardType: scvCore.CardType) -> MockCard {
+  public func addCard(type cardType: scvCore.CardType) -> PreviewCard {
     let newId = (allCards.map(\.typeId).max() ?? 0) + 1
-    let newCard = MockCard(cardType: cardType, typeId: newId)
+    let newCard = PreviewCard(cardType: cardType, typeId: newId)
     allCards.append(newCard)
     return newCard
   }
 
-  public func saveCard(_ card: MockCard) {
+  public func saveCard(_ card: PreviewCard) {
     // Mock implementation - just updates in-memory
     if let index = allCards.firstIndex(where: { $0.id == card.id }) {
       allCards[index] = card
@@ -330,7 +324,7 @@ public class MockCardManager: ICardManager {
   }
 
   public func suttaCardForRef(_ suttaRef: SuttaRef,
-                              searchQuery: String?) async -> MockCard
+                              searchQuery: String?) async -> PreviewCard
   {
     // Mock implementation - return existing or create new sutta card
     let refString = suttaRef.toString()
@@ -342,7 +336,7 @@ public class MockCardManager: ICardManager {
 
     let newId = (allCards.filter { $0.cardType == .sutta }.map(\.typeId)
       .max() ?? 0) + 1
-    let newCard = MockCard(
+    let newCard = PreviewCard(
       cardType: .sutta,
       typeId: newId,
       searchQuery: searchQuery ?? "",
@@ -356,17 +350,21 @@ public class MockCardManager: ICardManager {
 // MARK: - Preview
 
 #Preview("CardSidebarView with 3 cards") {
-  @Previewable @State var selectedId: UUID? = nil
+  @Previewable @State var selectedId: AnyHashable? = nil
 
-  let card1 = MockCard(cardType: .search, typeId: 1, searchQuery: "mindfulness")
-  let card2 = MockCard(
+  let card1 = PreviewCard(
+    cardType: .search,
+    typeId: 1,
+    searchQuery: "mindfulness",
+  )
+  let card2 = PreviewCard(
     cardType: .sutta,
     typeId: 1,
     suttaReference: "thig1.1/en/soma",
   )
-  let card3 = MockCard(cardType: .search, typeId: 3, searchQuery: "")
+  let card3 = PreviewCard(cardType: .search, typeId: 3, searchQuery: "")
 
-  let manager = MockCardManager(
+  let manager = PreviewCardManager(
     cards: [card1, card2, card3],
     selectedCardId: card1.id,
   )

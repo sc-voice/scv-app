@@ -116,8 +116,8 @@ private struct TipitakaViewPreview: View {
           tipitakaRefs = [root]
         }
     } else {
-      // Use MockCardManager for preview (cardManager is optional)
-      TipitakaView<MockCardManager>(
+      // Use PreviewCardManager for preview (cardManager is optional)
+      TipitakaView<PreviewCardManager>(
         tipitakaRefs: tipitakaRefs[0].children ?? [],
         cardManager: nil,
       )

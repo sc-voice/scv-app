@@ -47,56 +47,37 @@ public enum ScvBackground {
     }
   }
 
+  private func backgroundImage() -> Image {
+    switch self {
+    case .village:
+      Image("seurat-background", bundle: .scvUI)
+    case .sangha:
+      Image("sangha-background", bundle: .scvUI)
+    case .sangha_dark:
+      Image("sangha-dark-background", bundle: .scvUI)
+    case .wilderness:
+      Image("wilderness-background", bundle: .scvUI)
+    case .space:
+      Image("space-background", bundle: .scvUI)
+    case .nothingness:
+      Image("nothingness-background", bundle: .scvUI)
+    case .palm_leaf:
+      Image("palm-leaf", bundle: .scvUI)
+    }
+  }
+
   @ViewBuilder
   public var view: some View {
-    Group {
-      switch self {
-      case .village:
-        Image("seurat-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .sangha:
-        Image("sangha-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .sangha_dark:
-        Image("sangha-dark-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .wilderness:
-        Image("wilderness-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .space:
-        Image("space-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .nothingness:
-        Image("nothingness-background", bundle: .scvUI)
-          .resizable()
-          .aspectRatio(contentMode: .fill)
-      case .palm_leaf:
-        GeometryReader { geometry in
-          Image("palm-leaf", bundle: .scvUI)
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(
-              width: geometry.size.width * 1.2,
-              height: geometry.size.height * 1.2,
-            )
-            .clipped()
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .offset(y: -geometry.size.height * 0.1)
-        }
-      }
-    }
-    .opacity(0.5)
+    backgroundImage()
+      .resizable()
+      .aspectRatio(contentMode: .fill)
   }
 }
 
 public struct ScvBackgroundsView: View {
   let background: ScvBackground
   @Environment(\.colorScheme) var colorScheme
+  @State private var opacity: Double = 1.0
 
   public init(_ background: ScvBackground = .nothingness) {
     self.background = background
@@ -104,14 +85,14 @@ public struct ScvBackgroundsView: View {
 
   public var body: some View {
     background.view
+      .background(Color.white)
+      .opacity(opacity)
+      .onAppear {
+        withAnimation(.linear(duration: 30)) {
+          opacity = 0.3
+        }
+      }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      // .overlay(
-      // Group {
-      // if colorScheme == .light && background == .palm_leaf {
-      // Color.white.opacity(0.4)
-      // }
-      // }
-      // )
       .ignoresSafeArea()
   }
 }

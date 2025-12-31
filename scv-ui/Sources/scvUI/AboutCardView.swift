@@ -98,12 +98,27 @@ class ImageCreditsLoader {
 
 /// About card view with collapsible sections for app information
 public struct AboutCardView: View {
+  var card: (any ICard)?
+  var cardManager: (any ICardManager)?
   @EnvironmentObject var themeProvider: ThemeProvider
   @Environment(\.openURL) var openURL
   @State private var imageCredits: [String: ImageCredit] = [:]
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
 
-  public init() {}
+  public init<Card: ICard, Manager: ICardManager>(
+    card: Card? = nil,
+    cardManager: Manager? = nil,
+  )
+    where Manager.ManagedCard == Card
+  {
+    self.card = card
+    self.cardManager = cardManager
+  }
+
+  public init() {
+    card = nil
+    cardManager = nil
+  }
 
   public var body: some View {
     ScrollView {
@@ -205,19 +220,19 @@ public struct AboutCardView: View {
             SourceRow(
               title: "SuttaCentral",
               author: "Bhikkhu Sujato & Team",
-              url: URL(string: "https://suttacentral.net")
+              url: URL(string: "https://suttacentral.net"),
             )
 
             SourceRow(
               title: "Mahāsaṅgīti",
               author: "Tipiṭaka Buddhavasse 2500",
-              url: URL(string: "https://tipitaka2500.github.io/")
+              url: URL(string: "https://tipitaka2500.github.io/"),
             )
 
             SourceRow(
               title: "EBT-Data",
               author: "Other Early Buddhist Text Translations aligned to SuttaCentral content",
-              url: URL(string: "https://github.com/ebt-site/ebt-data")
+              url: URL(string: "https://github.com/ebt-site/ebt-data"),
             )
 
             Text(
@@ -461,7 +476,8 @@ public struct AboutCardView: View {
       }
       .padding(16)
     }
-    .background(themeProvider.theme.backgroundColor)
+    .scrollContentBackground(.hidden)
+    // .background(themeProvider.theme.backgroundColor)
   }
 }
 
@@ -531,7 +547,8 @@ private struct SourceRow: View {
       Text(title)
         .font(.callout)
         .fontWeight(.semibold)
-        .foregroundStyle(url != nil ? themeProvider.theme.linkColor : themeProvider.theme.textColor)
+        .foregroundStyle(url != nil ? themeProvider.theme
+          .linkColor : themeProvider.theme.textColor)
       Text(author)
         .font(.caption)
         .foregroundStyle(themeProvider.theme.secondaryTextColor)
@@ -542,7 +559,7 @@ private struct SourceRow: View {
     .background(themeProvider.theme.backgroundColor.opacity(0.5))
     .cornerRadius(4)
 
-    if let url = url {
+    if let url {
       Button(action: { openURL(url) }) {
         content
       }

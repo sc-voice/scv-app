@@ -19,7 +19,8 @@ public enum CardType: String, CaseIterable, Codable {
 // MARK: - ICard Protocol
 
 /// Card interface - defines contract for card types
-public protocol ICard: Identifiable {
+public protocol ICard {
+  var id: AnyHashable { get }
   var cardType: CardType { get }
   var typeId: Int { get }
   var searchQuery: String { get set }
@@ -72,14 +73,19 @@ public extension ICard {
       "card.type.about".localized
     }
   }
+
+  /// Returns the display title for the card
+  @MainActor
+  func title() -> String {
+    // Always return localized CardType + ID (don't store in name)
+    "\(localizedCardTypeName()) \(typeId)"
+  }
 }
 
-// MARK: - Card Model
+// MARK: - Card Model (SwiftData)
 
 @Model
 public final class Card: Codable, ICard {
-  public typealias ID = PersistentIdentifier
-
   // MARK: - Properties
 
   private(set) var uuid: UUID = UUID()
@@ -99,6 +105,12 @@ public final class Card: Codable, ICard {
 
   // Document display (for viewing segments with selection tracking)
   public var mlDoc: MLDocument?
+
+  // MARK: - ICard Conformance
+
+  public var id: AnyHashable {
+    uuid
+  }
 
   // MARK: - Initialization
 
@@ -197,13 +209,90 @@ public final class Card: Codable, ICard {
     suttaReference = try container.decode(String.self, forKey: .suttaReference)
     mlDoc = try container.decodeIfPresent(MLDocument.self, forKey: .mlDoc)
   }
+}
 
-  // MARK: - Public Methods
+// MARK: - PreviewCard (For Previews)
 
-  /// Returns the display title for the card
-  @MainActor
-  public func title() -> String {
-    // Always return localized CardType + ID (don't store in name)
-    "\(localizedCardTypeName()) \(typeId)"
+/// Card implementation for use in previews and SwiftUI previews
+/// Identical structure to Card but without @Model
+public final class PreviewCard: ICard {
+  // MARK: - Properties
+
+  public let uuid: UUID
+  public let createdAt: Date
+  public private(set) var cardType: CardType
+  public private(set) var typeId: Int
+
+  // Search card properties
+  public var searchQuery: String = ""
+  /// JSON storage for searchResult (encoded/decoded via computed property)
+  private var searchResultJSON: String?
+  public var searchResults: SearchResponse?
+
+  // Sutta card properties
+  public var suttaReference: String = ""
+
+  // Document display (for viewing segments with selection tracking)
+  public var mlDoc: MLDocument?
+
+  // MARK: - ICard Conformance
+
+  public var id: AnyHashable {
+    uuid
+  }
+
+  // MARK: - Initialization
+
+  public init(
+    uuid: UUID = UUID(),
+    createdAt: Date = Date(),
+    cardType: CardType = .search,
+    typeId: Int = 0,
+    searchQuery: String = "",
+    searchResult: SeekerResult? = nil,
+    searchResults: SearchResponse? = nil,
+    suttaReference: String = "",
+    mlDoc: MLDocument? = nil,
+  ) {
+    self.uuid = uuid
+    self.createdAt = createdAt
+    self.cardType = cardType
+    self.typeId = typeId
+    self.searchQuery = searchQuery
+    self.searchResult = searchResult
+    self.searchResults = searchResults
+    self.suttaReference = suttaReference
+    self.mlDoc = mlDoc
+  }
+
+  // MARK: - SeekerResult Property (JSON Encoded/Decoded)
+
+  /// Computed property to get/set searchResult with JSON serialization
+  public var searchResult: SeekerResult? {
+    get {
+      guard let json = searchResultJSON else { return nil }
+      let decoder = JSONDecoder()
+      do {
+        return try decoder.decode(
+          SeekerResult.self,
+          from: json.data(using: .utf8) ?? Data(),
+        )
+      } catch {
+        return nil
+      }
+    }
+    set {
+      if let result = newValue {
+        let encoder = JSONEncoder()
+        do {
+          let data = try encoder.encode(result)
+          searchResultJSON = String(data: data, encoding: .utf8)
+        } catch {
+          searchResultJSON = nil
+        }
+      } else {
+        searchResultJSON = nil
+      }
+    }
   }
 }

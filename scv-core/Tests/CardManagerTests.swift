@@ -756,3 +756,176 @@ struct CardManagerTests {
     #expect(card1 === card2)
   }
 }
+
+// MARK: - ICardManager Protocol Tests
+
+@Suite
+struct ICardManagerProtocolTests {
+  /// Test that any ICardManager implementation has required properties
+  @Test
+  @MainActor
+  func protocolRequiresAllCardsProperty() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager: any ICardManager = CardManager(modelContext: context)
+
+    // Must have allCards property
+    let cards = manager.allCards
+    #expect(cards is [Card])
+  }
+
+  /// Test that any ICardManager implementation has selectedCardId property
+  @Test
+  @MainActor
+  func protocolRequiresSelectedCardIdProperty() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager: any ICardManager = CardManager(modelContext: context)
+
+    // Must have selectedCardId property (get/set)
+    let id = manager.selectedCardId
+    #expect(id != nil)
+  }
+
+  /// Test that any ICardManager implementation has required methods
+  @Test
+  @MainActor
+  func protocolRequiresSelectCardMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    // Must have selectCard method
+    let card = manager.allCards.first!
+    manager.selectCard(card)
+    #expect(manager.selectedCardId == card.id)
+  }
+
+  /// Test that ICardManager protocol has removeCardId method
+  /// This test will fail to compile if removeCardId is missing from the
+  /// protocol
+  @Test
+  @MainActor
+  func protocolRequiresRemoveCardIdMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    // Use factory method that returns any ICardManager
+    // If removeCardId is missing from protocol, this fails to compile
+    let manager = CardManager.asProtocol(modelContext: context)
+
+    let initialCount = manager.allCards.count
+    let newCard = manager.addCard(type: .search)
+    #expect(manager.allCards.count == initialCount + 1)
+
+    // Call removeCardId through protocol interface
+    manager.removeCardId(newCard.id)
+    #expect(manager.allCards.count == initialCount)
+  }
+
+  /// Test that any ICardManager implementation has removeCards method
+  @Test
+  @MainActor
+  func protocolRequiresRemoveCardsMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    let initialCount = manager.allCards.count
+    // Add a card to remove
+    manager.addCard(type: .search)
+    #expect(manager.allCards.count == initialCount + 1)
+
+    // Must have removeCards method
+    manager.removeCards(at: IndexSet(integer: 0))
+    #expect(manager.allCards.count == initialCount)
+  }
+
+  /// Test that any ICardManager implementation has addCard method
+  @Test
+  @MainActor
+  func protocolRequiresAddCardMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    let initialCount = manager.allCards.count
+    // Must have addCard method
+    manager.addCard(type: .search)
+    #expect(manager.allCards.count == initialCount + 1)
+  }
+
+  /// Test that any ICardManager implementation has cardFromId method
+  @Test
+  @MainActor
+  func protocolRequiresCardFromIdMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    let card = manager.allCards.first!
+    // Must have cardFromId method
+    let foundCard = manager.cardFromId(card.id)
+    #expect(foundCard?.id == card.id)
+  }
+
+  /// Test that any ICardManager implementation has bindCard method
+  @Test
+  @MainActor
+  func protocolRequiresBindCardMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    let card = manager.allCards.first!
+    // Must have bindCard method
+    let binding = manager.bindCard(id: card.id)
+    #expect(binding != nil)
+  }
+
+  /// Test that any ICardManager implementation has saveCard method
+  @Test
+  @MainActor
+  func protocolRequiresSaveCardMethod() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+    let manager = CardManager(modelContext: context)
+
+    let card = manager.allCards.first!
+    // Must have saveCard method
+    manager.saveCard(card)
+    #expect(true) // If we got here without error, method exists
+  }
+
+  /// Test that any ICardManager implementation can be used with generic code
+  @Test
+  @MainActor
+  func protocolEnablesGenericCardOperations() throws {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: Card.self, configurations: config)
+    let context = ModelContext(container)
+
+    // This simulates what happens in generic View code
+    func operateOnAnyCardManager<Manager: ICardManager>(
+      _ manager: Manager,
+      _ card: Manager.ManagedCard,
+    ) {
+      manager.selectCard(card)
+      let foundCard = manager.cardFromId(card.id)
+      #expect(foundCard?.id == card.id)
+    }
+
+    let manager = CardManager(modelContext: context)
+    let card = manager.allCards.first!
+    operateOnAnyCardManager(manager, card)
+  }
+}

@@ -162,7 +162,7 @@ public struct AppRootView<Manager: ICardManager>: View {
   } // body
 
   @ViewBuilder
-  private func detailView(for cardId: Manager.ManagedCard.ID,
+  private func detailView(for cardId: AnyHashable,
                           cardBinding: Binding<Manager.ManagedCard>?)
     -> some View
   {
@@ -198,7 +198,7 @@ public struct AppRootView<Manager: ICardManager>: View {
         .environmentObject(themeProvider)
 
       case .about:
-        AboutCardView()
+        AboutCardView(card: card, cardManager: cardManager)
           .environmentObject(themeProvider)
       }
     } else {
@@ -211,13 +211,13 @@ public struct AppRootView<Manager: ICardManager>: View {
 // MARK: - Preview
 
 #Preview("AppRootView with 1 card", traits: .portrait) {
-  let card1 = MockCard(
+  let card1 = PreviewCard(
     cardType: .search,
     typeId: 1,
     searchQuery: "mindfulness",
   )
 
-  let manager = MockCardManager(
+  let manager = PreviewCardManager(
     cards: [card1],
     selectedCardId: card1.id,
   )
