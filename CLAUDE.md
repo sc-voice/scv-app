@@ -117,21 +117,71 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 
 05. [ ] Test privacy label accuracy against actual app behavior
 
+### Add VoiceOver accessibility labels
+**Status**: Backlog
+
+01. [ ] Add accessibilityLabel to all icon-only buttons (See: SearchCardView.swift:511-523, CardSidebarView.swift:98-107, SuttaHeaderView.swift:62-74, AboutCardView.swift:333-345,417-425)
+    - Search toolbar button: "Search"
+    - Add card button: "Add new search card"
+    - Settings button: "Open settings"
+    - Delete card button: "Delete card"
+    - Play/pause button: "Play audio" / "Pause audio"
+    - Link buttons in AboutCardView: descriptive labels for external links
+    - Test with VoiceOver enabled on iOS device
+
+### Add Reduce Motion support
+**Status**: Backlog
+
+01. [ ] Wrap all animations with @Environment(\.accessibilityReduceMotion) check (See: SearchCardView.swift:173-176,581-584; CardSidebarView.swift:193-195,273-280; SuttaCardView.swift:70-82,87-98)
+    - SearchCardView: 5-second fade animation
+    - CardSidebarView: 30-second opacity fade, 2-second easing animations
+    - SuttaCardView: 0.8-second layout animations
+    - Test with reduced motion enabled in Accessibility settings
+
+### Fix accessibility layout adaptation
+**Status**: Backlog
+
+01. [ ] Add accessibilityCategory checks to AboutCardView and SettingsView (similar to SearchCardView:122-128)
+    - AboutCardView: Stack sections vertically when accessibility sizes active
+    - SettingsView: Improve spacing and layout for large text sizes
+    - Verify readability in VoiceOver with large text
+
+### Ensure minimum touch target sizes
+**Status**: Backlog
+
+01. [ ] Verify all interactive elements meet 44pt minimum (See: SearchCardView.swift:496-502, CardSidebarView.swift:98-107,147-164, SegmentView.swift:70-85)
+    - Icon-only buttons: explicitly set .frame(minHeight: 44, minWidth: 44)
+    - Slider components: verify system defaults meet 44pt
+    - Test on iPhone with visual inspection
+    - Consider increasing target sizes on iPad for easier touch
+
+### Add keyboard accessibility
+**Status**: Backlog
+
+01. [ ] Add keyboard shortcuts for common actions (See: SearchCardView, CardSidebarView, AboutCardView)
+    - Command+F: Focus search field in SearchCardView
+    - Command+N: Add new card
+    - Tab order and focus management for all interactive elements
+    - Keyboard support for collapsible sections (collapse/expand with Enter/Space)
+
+02. [ ] Remove color-only information conveyance
+    - Star ratings in SearchCardView: Add text label or accessibility value
+    - Ensure all semantic information is accessible to screen readers
+
 ### Create accessibility declaration
 **Status**: Backlog
 
-01. [ ] Audit app for accessibility features (VoiceOver, Dynamic Type, Reduced Motion, etc.)
-    - Test with VoiceOver enabled on iOS
-    - Test Dynamic Type scaling (small, large, accessibility sizes)
-    - Check color contrast ratios for WCAG AA compliance
-    - Verify keyboard navigation support
-    - Test with reduced motion preference enabled
-
-02. [ ] Create accessibility label in App Store Connect
-    - Declare supported accessibility features
+01. [ ] Create accessibility label in App Store Connect
+    - Declare supported accessibility features (after implementing above fixes)
     - Add audio descriptions if applicable
     - Document any accessibility limitations
     - Verify accuracy against actual app behavior
+
+02. [ ] Test on devices with accessibility features enabled
+    - Test VoiceOver on iOS device
+    - Test with maximum Dynamic Type size
+    - Test with reduced motion enabled
+    - Test keyboard navigation without touch
 
 ### Fix Sendability warnings in CardManager and MockCardManager
 **Status**: Backlog
