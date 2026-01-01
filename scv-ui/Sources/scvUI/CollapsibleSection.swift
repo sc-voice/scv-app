@@ -33,7 +33,7 @@ public struct CollapsibleSection<Content: View>: View {
     @ViewBuilder content: @escaping () -> Content,
   ) {
     self.title = title
-    self._isExpanded = isExpanded
+    _isExpanded = isExpanded
     self.onToggle = onToggle
     self.content = content
   }
@@ -101,7 +101,10 @@ public struct CollapsibleSection<Content: View>: View {
 
     var body: some View {
       VStack(spacing: 16) {
-        CollapsibleSection("Expand me", isExpanded: .constant(expandedSection == "one")) {
+        CollapsibleSection(
+          "Expand me",
+          isExpanded: .constant(expandedSection == "one"),
+        ) {
           VStack(alignment: .leading, spacing: 12) {
             Text("This is the collapsed content.")
               .font(.body)
@@ -111,7 +114,10 @@ public struct CollapsibleSection<Content: View>: View {
           }
         }
 
-        CollapsibleSection("Another Section", isExpanded: .constant(expandedSection == "two")) {
+        CollapsibleSection(
+          "Another Section",
+          isExpanded: .constant(expandedSection == "two"),
+        ) {
           VStack(alignment: .leading, spacing: 8) {
             Text("This section can be expanded")
             Text("Click the header to expand/collapse it")

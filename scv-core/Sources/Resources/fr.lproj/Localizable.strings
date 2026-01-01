@@ -78,3 +78,204 @@
 
 /* Search results header: search method used */
 "search.results.method" = "Méthode : %@";
+
+/* About card view: app title */
+"about.title" = "SC-Voice";
+
+/* About card view: version label */
+"about.version" = "Version %@";
+
+/* About card view: overview section title */
+"about.section.overview" = "Aperçu";
+
+/* About card view: overview description */
+"about.overview.description" = "Recherchez et lisez les écritures bouddhistes (suttas) dans plusieurs langues avec de puissantes capacités de recherche et une belle typographie.";
+
+/* About card view: full-text search feature */
+"about.feature.search" = "Recherche en texte intégral";
+
+/* About card view: full-text search description */
+"about.feature.search.desc" = "Recherchez dans des milliers de suttas";
+
+/* About card view: multiple languages feature */
+"about.feature.languages" = "Plusieurs langues";
+
+/* About card view: multiple languages description */
+"about.feature.languages.desc" = "Anglais, allemand, portugais et bien d'autres";
+
+/* About card view: highlighting feature */
+"about.feature.highlighting" = "Surlignage";
+
+/* About card view: highlighting description */
+"about.feature.highlighting.desc" = "Voir les segments et citations correspondants";
+
+/* About card view: how to use section title */
+"about.section.how_to_use" = "Comment utiliser";
+
+/* About card view: getting started text */
+"about.how_to_use.intro" = "Premiers pas avec SC-Voice :";
+
+/* About card view: step 1 title */
+"about.step.1.title" = "Créer une carte de recherche";
+
+/* About card view: step 1 description */
+"about.step.1.desc" = "Appuyez sur le bouton '+' pour créer une nouvelle carte";
+
+/* About card view: step 2 title */
+"about.step.2.title" = "Entrez une requête";
+
+/* About card view: step 2 description */
+"about.step.2.desc" = "Recherchez un mot, une phrase ou un UID de sutta";
+
+/* About card view: step 3 title */
+"about.step.3.title" = "Afficher les résultats";
+
+/* About card view: step 3 description */
+"about.step.3.desc" = "Parcourez les suttas et segments correspondants";
+
+/* About card view: step 4 title */
+"about.step.4.title" = "Ouvrir les Suttas";
+
+/* About card view: step 4 description */
+"about.step.4.desc" = "Appuyez sur les résultats pour lire le texte complet";
+
+/* About card view: content sources section title */
+"about.section.content_sources" = "Sources de contenu";
+
+/* About card view: content sources intro */
+"about.content_sources.intro" = "Cette application utilise les sources de contenu suivantes :";
+
+/* About card view: SuttaCentral source */
+"about.source.suttacentral" = "SuttaCentral";
+
+/* About card view: SuttaCentral author */
+"about.source.suttacentral.author" = "Bhikkhu Sujato & Équipe";
+
+/* About card view: Mahasangiti source */
+"about.source.mahasangiti" = "Mahāsaṅgīti";
+
+/* About card view: Mahasangiti author */
+"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+
+/* About card view: EBT-Data source */
+"about.source.ebt_data" = "EBT-Data";
+
+/* About card view: EBT-Data author */
+"about.source.ebt_data.author" = "Autres traductions de textes bouddhistes anciens alignées avec le contenu de SuttaCentral";
+
+/* About card view: content sources license notice */
+"about.content_sources.license" = "Tous les textes sont disponibles sous des licences Creative Commons, permettant l'utilisation et la distribution gratuites avec attribution appropriée.";
+
+/* About card view: acknowledgements section title */
+"about.section.acknowledgements" = "Remerciements";
+
+/* About card view: acknowledgements intro */
+"about.acknowledgements.intro" = "SC-Voice s'appuie sur le travail de nombreux contributeurs :";
+
+/* About card view: translations role */
+"about.ack.translations" = "Traductions";
+
+/* About card view: translations names */
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), et Sonja Büge (DE)";
+
+/* About card view: root text role */
+"about.ack.root_text" = "Texte racine";
+
+/* About card view: root text attribution */
+"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
+
+/* About card view: database role */
+"about.ack.database" = "Base de données";
+
+/* About card view: database attribution */
+"about.ack.database.names" = "Équipe SuttaCentral";
+
+/* About card view: development role */
+"about.ack.development" = "Développement";
+
+/* About card view: development attribution */
+"about.ack.development.names" = "Contributeurs SC-Voice";
+
+/* About card view: graphics & design section title */
+"about.section.graphics_design" = "Graphiques et design";
+
+/* About card view: graphics & design intro */
+"about.graphics_design.intro" = "Images de fond et thèmes :";
+
+/* About card view: app icon label */
+"about.app_icon.label" = "Icône de l'application";
+
+/* About card view: app icon credit */
+"about.app_icon.credit" = "Conçu par Friends of Voice";
+
+/* About card view: license label prefix */
+"about.license.prefix" = "Licence : %@";
+
+/* About card view: audio credits section title */
+"about.section.audio_credits" = "Crédits audio";
+
+/* About card view: audio credits intro */
+"about.audio_credits.intro" = "Effets sonores et audio :";
+
+/* About card view: audio credits notice */
+"about.audio_credits.notice" = "Audio provenant de Freesound.org et compositions originales.";
+
+/* About card view: view source button */
+"about.button.view_source" = "Voir la source";
+
+/* About card view: open source licenses section title */
+"about.section.open_source" = "Licences open source";
+
+/* About card view: open source intro */
+"about.open_source.intro" = "Tout le code source SC-Voice est sous licence MIT sauf indication contraire.";
+
+/* About card view: open source libraries intro */
+"about.open_source.libraries" = "Les bibliothèques suivantes sont également incluses :";
+
+/* About card view: SQLite library */
+"about.library.sqlite" = "SQLite";
+
+/* About card view: SQLite license */
+"about.library.sqlite.license" = "Domaine public";
+
+/* About card view: Zstandard library */
+"about.library.zstandard" = "Zstandard";
+
+/* About card view: Zstandard license */
+"about.library.zstandard.license" = "Licence BSD";
+
+/* About card view: open source footer */
+"about.open_source.footer" = "Voir le référentiel GitHub pour les informations complètes sur les licences.";
+
+/* About card view: privacy policy section title */
+"about.section.privacy_policy" = "Politique de confidentialité";
+
+/* About card view: privacy intro */
+"about.privacy.intro" = "SC-Voice respecte votre confidentialité :";
+
+/* About card view: no analytics privacy item */
+"about.privacy.no_analytics" = "Pas d'analytique";
+
+/* About card view: no analytics description */
+"about.privacy.no_analytics.desc" = "Nous ne suivons pas vos recherches ou votre utilisation";
+
+/* About card view: local storage privacy item */
+"about.privacy.local_storage" = "Stockage local";
+
+/* About card view: local storage description */
+"about.privacy.local_storage.desc" = "Toutes les données sont stockées localement sur votre appareil";
+
+/* About card view: open source privacy item */
+"about.privacy.open_source" = "Open source";
+
+/* About card view: open source privacy description */
+"about.privacy.open_source.desc" = "Examinez le code pour vérifier nos pratiques de confidentialité";
+
+/* About card view: support & feedback section title */
+"about.section.support" = "Support et retours";
+
+/* About card view: support intro */
+"about.support.intro" = "Trouvé un bug ? Avez-vous une suggestion ? Visitez notre référentiel GitHub pour signaler des problèmes ou contribuer.";
+
+/* About card view: visit GitHub button */
+"about.button.visit_github" = "Visiter GitHub";

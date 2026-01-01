@@ -10,7 +10,8 @@ import SwiftUI
 
 // MARK: - LanguagePickerModal
 
-/// A reusable modal component for selecting from a picker with language/author options.
+/// A reusable modal component for selecting from a picker with language/author
+/// options.
 /// Handles iOS wheel picker and macOS menu picker styles automatically.
 public struct LanguagePickerModal<T: Hashable>: View {
   @Environment(\.sizeCategory) var sizeCategory
@@ -38,7 +39,7 @@ public struct LanguagePickerModal<T: Hashable>: View {
     title: String,
     selection: Binding<T>,
     options: [T],
-    optionLabel: @escaping (T) -> String
+    optionLabel: @escaping (T) -> String,
   ) {
     self.title = title
     self.selection = selection
@@ -86,7 +87,7 @@ public struct LanguagePickerModal<T: Hashable>: View {
             title: "Language",
             selection: $selectedLanguage,
             options: ScvLanguage.allCases,
-            optionLabel: { $0.displayName }
+            optionLabel: { $0.displayName },
           )
         }
       }

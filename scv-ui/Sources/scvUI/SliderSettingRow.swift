@@ -10,7 +10,8 @@ import SwiftUI
 
 // MARK: - SliderSettingRow
 
-/// A reusable row component for settings with an icon, label, slider, and value display.
+/// A reusable row component for settings with an icon, label, slider, and value
+/// display.
 /// Automatically adapts layout based on accessibility size category.
 public struct SliderSettingRow: View {
   @EnvironmentObject var themeProvider: ThemeProvider
@@ -41,7 +42,8 @@ public struct SliderSettingRow: View {
     value: Binding<Double>,
     in range: ClosedRange<Double> = 0.0 ... 1.0,
     step: Double = 0.1,
-    displayFormatter: @escaping (Double) -> String = { String(format: "%.2f", $0) }
+    displayFormatter: @escaping (Double)
+      -> String = { String(format: "%.2f", $0) },
   ) {
     self.icon = icon
     self.label = label
@@ -99,7 +101,8 @@ public struct SliderSettingRow: View {
             value: $volume,
             in: 0 ... 1,
             step: 0.25,
-            displayFormatter: { Int($0 * 4) == 4 ? "Max" : String(Int($0 * 4)) }
+            displayFormatter: { Int($0 * 4) == 4 ? "Max" : String(Int($0 * 4))
+            },
           )
           SliderSettingRow(
             icon: "waveform",
@@ -107,7 +110,7 @@ public struct SliderSettingRow: View {
             value: $pause,
             in: 0 ... 1,
             step: 0.1,
-            displayFormatter: { String(format: "%.2f", $0) + "s" }
+            displayFormatter: { String(format: "%.2f", $0) + "s" },
           )
         }
       }

@@ -128,189 +128,222 @@ public struct AboutCardView: View {
         VStack(spacing: 4) {
           // MARK: - Header
 
-        VStack(spacing: 12) {
-          Image(systemName: "info.circle.fill")
-            .font(.title)
-            .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-          VStack(spacing: 4) {
-            Text("SC-Voice")
-              .font(.title2)
-              .fontWeight(.bold)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            Text("Version \(scvCore.appVersion)")
-              .font(.caption)
+          VStack(spacing: 12) {
+            Image(systemName: "info.circle.fill")
+              .font(.title)
               .foregroundStyle(themeProvider.theme.secondaryTextColor)
-          }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(themeProvider.theme.cardBackground)
-        .cornerRadius(8)
 
-        // MARK: - Overview (Always Expanded)
+            VStack(spacing: 4) {
+              Text("about.title".localized)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(themeProvider.theme.textColor)
 
-        CollapsibleSection("Overview", isExpanded: .constant(expandedSection == "overview"), onToggle: {
-          expandedSection = expandedSection == "overview" ? nil : "overview"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text(
-              "Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.",
-            )
-            .font(.body)
-            .foregroundStyle(themeProvider.theme.textColor)
-
-            VStack(alignment: .leading, spacing: 8) {
-              FeatureRow(
-                icon: "magnifyingglass",
-                title: "Full-Text Search",
-                description: "Search across thousands of suttas",
-              )
-              FeatureRow(
-                icon: "book.fill",
-                title: "Multiple Languages",
-                description: "English, German, Portuguese, and more",
-              )
-              FeatureRow(
-                icon: "highlighter",
-                title: "Highlighting",
-                description: "See matched segments and quotes",
-              )
+              Text("about.version".localized(scvCore.appVersion))
+                .font(.caption)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
             }
           }
-        }
+          .frame(maxWidth: .infinity)
+          .padding(.vertical, 16)
+          .background(themeProvider.theme.cardBackground)
+          .cornerRadius(8)
 
-        // MARK: - How to Use
+          // MARK: - Overview (Always Expanded)
 
-        CollapsibleSection("How to Use", isExpanded: .constant(expandedSection == "howToUse"), onToggle: {
-          expandedSection = expandedSection == "howToUse" ? nil : "howToUse"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Getting started with SC-Voice:")
-              .font(.headline)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            VStack(alignment: .leading, spacing: 8) {
-              StepRow(
-                number: 1,
-                title: "Create a Search Card",
-                description: "Tap the '+' button to create a new card",
-              )
-              StepRow(
-                number: 2,
-                title: "Enter a Query",
-                description: "Search for a word, phrase, or sutta UID",
-              )
-              StepRow(
-                number: 3,
-                title: "View Results",
-                description: "Browse matching suttas and segments",
-              )
-              StepRow(
-                number: 4,
-                title: "Open Suttas",
-                description: "Tap results to read the full text",
-              )
-            }
-          }
-        }
-
-        // MARK: - Content Sources
-
-        CollapsibleSection("Content Sources", isExpanded: .constant(expandedSection == "contentSources"), onToggle: {
-          expandedSection = expandedSection == "contentSources" ? nil : "contentSources"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("This app uses the following content sources:")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            SourceRow(
-              title: "SuttaCentral",
-              author: "Bhikkhu Sujato & Team",
-              url: URL(string: "https://suttacentral.net"),
-            )
-
-            SourceRow(
-              title: "Mahāsaṅgīti",
-              author: "Tipiṭaka Buddhavasse 2500",
-              url: URL(string: "https://tipitaka2500.github.io/"),
-            )
-
-            SourceRow(
-              title: "EBT-Data",
-              author: "Other Early Buddhist Text Translations aligned to SuttaCentral content",
-              url: URL(string: "https://github.com/ebt-site/ebt-data"),
-            )
-
-            Text(
-              "All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.",
-            )
-            .font(.caption)
-            .foregroundStyle(themeProvider.theme.secondaryTextColor)
-          }
-        }
-
-        // MARK: - Acknowledgements
-
-        CollapsibleSection("Acknowledgements", isExpanded: .constant(expandedSection == "acknowledgements"), onToggle: {
-          expandedSection = expandedSection == "acknowledgements" ? nil : "acknowledgements"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("SC-Voice builds on the work of many contributors:")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            VStack(alignment: .leading, spacing: 8) {
-              AckRow(
-                role: "Translations",
-                names: "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), and Sonja Büge (DE)",
-              )
-              AckRow(
-                role: "Root Text",
-                names: "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
-              )
-              AckRow(role: "Database", names: "SuttaCentral team")
-              AckRow(role: "Development", names: "SC-Voice contributors")
-            }
-          }
-        }
-
-        // MARK: - Graphics & Design
-
-        CollapsibleSection("Graphics & Design", isExpanded: .constant(expandedSection == "graphicsDesign"), onToggle: {
-          expandedSection = expandedSection == "graphicsDesign" ? nil : "graphicsDesign"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Background images and themes:")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
-
+          CollapsibleSection(
+            "about.section.overview".localized,
+            isExpanded: .constant(expandedSection == "overview"),
+            onToggle: {
+              expandedSection = expandedSection == "overview" ? nil : "overview"
+            },
+          ) {
             VStack(alignment: .leading, spacing: 12) {
-              // Display theme credits dynamically
-              ForEach(
-                imageCredits.sorted(by: { $0.key < $1.key }),
-                id: \.key,
-              ) { name, credit in
-                HStack(alignment: .top, spacing: 12) {
-                  // Thumbnail image
-                  Image(name, bundle: .module)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(4)
+              Text("about.overview.description".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
 
-                  // Credit info
-                  VStack(alignment: .leading, spacing: 4) {
-                    // Clickable title
-                    if let url = ImageCreditsLoader.shared
-                      .getImageUrl(for: name),
-                      let linkUrl = URL(string: url)
-                    {
-                      Button(action: {
-                        openURL(linkUrl)
-                      }) {
+              VStack(alignment: .leading, spacing: 8) {
+                FeatureRow(
+                  icon: "magnifyingglass",
+                  title: "about.feature.search".localized,
+                  description: "about.feature.search.desc".localized,
+                )
+                FeatureRow(
+                  icon: "book.fill",
+                  title: "about.feature.languages".localized,
+                  description: "about.feature.languages.desc".localized,
+                )
+                FeatureRow(
+                  icon: "highlighter",
+                  title: "about.feature.highlighting".localized,
+                  description: "about.feature.highlighting.desc".localized,
+                )
+              }
+            }
+          }
+
+          // MARK: - How to Use
+
+          CollapsibleSection(
+            "about.section.how_to_use".localized,
+            isExpanded: .constant(expandedSection == "howToUse"),
+            onToggle: {
+              expandedSection = expandedSection == "howToUse" ? nil : "howToUse"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.how_to_use.intro".localized)
+                .font(.headline)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              VStack(alignment: .leading, spacing: 8) {
+                StepRow(
+                  number: 1,
+                  title: "about.step.1.title".localized,
+                  description: "about.step.1.desc".localized,
+                )
+                StepRow(
+                  number: 2,
+                  title: "about.step.2.title".localized,
+                  description: "about.step.2.desc".localized,
+                )
+                StepRow(
+                  number: 3,
+                  title: "about.step.3.title".localized,
+                  description: "about.step.3.desc".localized,
+                )
+                StepRow(
+                  number: 4,
+                  title: "about.step.4.title".localized,
+                  description: "about.step.4.desc".localized,
+                )
+              }
+            }
+          }
+
+          // MARK: - Content Sources
+
+          CollapsibleSection(
+            "about.section.content_sources".localized,
+            isExpanded: .constant(expandedSection == "contentSources"),
+            onToggle: {
+              expandedSection = expandedSection == "contentSources" ? nil : "contentSources"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.content_sources.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              SourceRow(
+                title: "about.source.suttacentral".localized,
+                author: "about.source.suttacentral.author".localized,
+                url: URL(string: "https://suttacentral.net"),
+              )
+
+              SourceRow(
+                title: "about.source.mahasangiti".localized,
+                author: "about.source.mahasangiti.author".localized,
+                url: URL(string: "https://tipitaka2500.github.io/"),
+              )
+
+              SourceRow(
+                title: "about.source.ebt_data".localized,
+                author: "about.source.ebt_data.author".localized,
+                url: URL(string: "https://github.com/ebt-site/ebt-data"),
+              )
+
+              Text("about.content_sources.license".localized)
+                .font(.caption)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
+            }
+          }
+
+          // MARK: - Acknowledgements
+
+          CollapsibleSection(
+            "about.section.acknowledgements".localized,
+            isExpanded: .constant(expandedSection == "acknowledgements"),
+            onToggle: {
+              expandedSection = expandedSection == "acknowledgements" ? nil : "acknowledgements"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.acknowledgements.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              VStack(alignment: .leading, spacing: 8) {
+                AckRow(
+                  role: "about.ack.translations".localized,
+                  names: "about.ack.translations.names".localized,
+                )
+                AckRow(
+                  role: "about.ack.root_text".localized,
+                  names: "about.ack.root_text.names".localized,
+                )
+                AckRow(
+                  role: "about.ack.database".localized,
+                  names: "about.ack.database.names".localized,
+                )
+                AckRow(
+                  role: "about.ack.development".localized,
+                  names: "about.ack.development.names".localized,
+                )
+              }
+            }
+          }
+
+          // MARK: - Graphics & Design
+
+          CollapsibleSection(
+            "about.section.graphics_design".localized,
+            isExpanded: .constant(expandedSection == "graphicsDesign"),
+            onToggle: {
+              expandedSection = expandedSection == "graphicsDesign" ? nil : "graphicsDesign"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.graphics_design.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              VStack(alignment: .leading, spacing: 12) {
+                // Display theme credits dynamically
+                ForEach(
+                  imageCredits.sorted(by: { $0.key < $1.key }),
+                  id: \.key,
+                ) { name, credit in
+                  HStack(alignment: .top, spacing: 12) {
+                    // Thumbnail image
+                    Image(name, bundle: .module)
+                      .resizable()
+                      .scaledToFill()
+                      .frame(width: 60, height: 60)
+                      .cornerRadius(4)
+
+                    // Credit info
+                    VStack(alignment: .leading, spacing: 4) {
+                      // Clickable title
+                      if let url = ImageCreditsLoader.shared
+                        .getImageUrl(for: name),
+                        let linkUrl = URL(string: url)
+                      {
+                        Button(action: {
+                          openURL(linkUrl)
+                        }) {
+                          Text(
+                            name
+                              .replacingOccurrences(of: "-", with: " ")
+                              .capitalized,
+                          )
+                          .font(.callout)
+                          .fontWeight(.semibold)
+                          .foregroundStyle(themeProvider.theme.linkColor)
+                          .underline()
+                        }
+                      } else {
                         Text(
                           name
                             .replacingOccurrences(of: "-", with: " ")
@@ -318,181 +351,189 @@ public struct AboutCardView: View {
                         )
                         .font(.callout)
                         .fontWeight(.semibold)
-                        .foregroundStyle(themeProvider.theme.linkColor)
-                        .underline()
+                        .foregroundStyle(themeProvider.theme.secondaryTextColor)
                       }
-                    } else {
-                      Text(
-                        name
-                          .replacingOccurrences(of: "-", with: " ")
-                          .capitalized,
-                      )
+
+                      Text(credit.credit)
+                        .font(.caption)
+                        .foregroundStyle(themeProvider.theme.textColor)
+
+                      Text("about.license.prefix".localized(credit.license))
+                        .font(.caption2)
+                        .foregroundStyle(themeProvider.theme.secondaryTextColor)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Spacer()
+                  }
+                }
+              }
+
+              VStack(alignment: .leading, spacing: 4) {
+                Text("about.app_icon.label".localized)
+                  .font(.callout)
+                  .fontWeight(.semibold)
+                  .foregroundStyle(themeProvider.theme.secondaryTextColor)
+                Text("about.app_icon.credit".localized)
+                  .font(.caption)
+                  .foregroundStyle(themeProvider.theme.secondaryTextColor)
+              }
+            }
+          }
+          .onAppear {
+            imageCredits = ImageCreditsLoader.shared.loadImageCredits()
+          }
+
+          // MARK: - Audio Credits
+
+          CollapsibleSection(
+            "about.section.audio_credits".localized,
+            isExpanded: .constant(expandedSection == "audioCredits"),
+            onToggle: {
+              expandedSection = expandedSection == "audioCredits" ? nil : "audioCredits"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.audio_credits.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              VStack(alignment: .leading, spacing: 8) {
+                ForEach(
+                  ImageCreditsLoader.shared.getAudioCredits(),
+                  id: \.name,
+                ) { audio in
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(audio.credit)
                       .font(.callout)
                       .fontWeight(.semibold)
                       .foregroundStyle(themeProvider.theme.secondaryTextColor)
-                    }
 
-                    Text(credit.credit)
-                      .font(.caption)
-                      .foregroundStyle(themeProvider.theme.textColor)
-
-                    Text("License: \(credit.license)")
+                    Text("about.license.prefix".localized(audio.license))
                       .font(.caption2)
                       .foregroundStyle(themeProvider.theme.secondaryTextColor)
-                  }
-                  .frame(maxWidth: .infinity, alignment: .leading)
 
-                  Spacer()
+                    if let url = audio.url, let linkUrl = URL(string: url) {
+                      Button(action: {
+                        openURL(linkUrl)
+                      }) {
+                        Text("about.button.view_source".localized)
+                          .font(.caption)
+                          .foregroundStyle(themeProvider.theme.linkColor)
+                          .underline()
+                      }
+                    }
+                  }
                 }
               }
-            }
 
-            VStack(alignment: .leading, spacing: 4) {
-              Text("App Icon")
-                .font(.callout)
-                .fontWeight(.semibold)
-                .foregroundStyle(themeProvider.theme.secondaryTextColor)
-              Text("Designed by Friends of Voice")
+              Text("about.audio_credits.notice".localized)
                 .font(.caption)
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
             }
           }
-        }
-        .onAppear {
-          imageCredits = ImageCreditsLoader.shared.loadImageCredits()
-        }
 
-        // MARK: - Audio Credits
+          // MARK: - Open Source Licenses
 
-        CollapsibleSection("Audio Credits", isExpanded: .constant(expandedSection == "audioCredits"), onToggle: {
-          expandedSection = expandedSection == "audioCredits" ? nil : "audioCredits"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("Sound effects and audio:")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
+          CollapsibleSection(
+            "about.section.open_source".localized,
+            isExpanded: .constant(expandedSection == "openSourceLicenses"),
+            onToggle: {
+              expandedSection = expandedSection == "openSourceLicenses" ? nil :
+                "openSourceLicenses"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.open_source.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
 
-            VStack(alignment: .leading, spacing: 8) {
-              ForEach(
-                ImageCreditsLoader.shared.getAudioCredits(),
-                id: \.name,
-              ) { audio in
-                VStack(alignment: .leading, spacing: 4) {
-                  Text(audio.credit)
-                    .font(.callout)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
+              Text("about.open_source.libraries".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.textColor)
 
-                  Text("License: \(audio.license)")
-                    .font(.caption2)
-                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
+              VStack(alignment: .leading, spacing: 8) {
+                LicenseRow(
+                  library: "about.library.sqlite".localized,
+                  license: "about.library.sqlite.license".localized,
+                )
+                LicenseRow(
+                  library: "about.library.zstandard".localized,
+                  license: "about.library.zstandard.license".localized,
+                )
+              }
 
-                  if let url = audio.url, let linkUrl = URL(string: url) {
-                    Button(action: {
-                      openURL(linkUrl)
-                    }) {
-                      Text("View source")
-                        .font(.caption)
-                        .foregroundStyle(themeProvider.theme.linkColor)
-                        .underline()
-                    }
-                  }
+              Text("about.open_source.footer".localized)
+                .font(.caption)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
+            }
+          }
+
+          // MARK: - Privacy Policy
+
+          CollapsibleSection(
+            "about.section.privacy_policy".localized,
+            isExpanded: .constant(expandedSection == "privacyPolicy"),
+            onToggle: {
+              expandedSection = expandedSection == "privacyPolicy" ? nil : "privacyPolicy"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.privacy.intro".localized)
+                .font(.headline)
+                .foregroundStyle(themeProvider.theme.textColor)
+
+              VStack(alignment: .leading, spacing: 8) {
+                PrivacyRow(
+                  icon: "lock.fill",
+                  title: "about.privacy.no_analytics".localized,
+                  description: "about.privacy.no_analytics.desc".localized,
+                )
+                PrivacyRow(
+                  icon: "icloud.slash",
+                  title: "about.privacy.local_storage".localized,
+                  description: "about.privacy.local_storage.desc".localized,
+                )
+                PrivacyRow(
+                  icon: "key.fill",
+                  title: "about.privacy.open_source".localized,
+                  description: "about.privacy.open_source.desc".localized,
+                )
+              }
+            }
+          }
+
+          // MARK: - Support & Feedback
+
+          CollapsibleSection(
+            "about.section.support".localized,
+            isExpanded: .constant(expandedSection == "supportFeedback"),
+            onToggle: {
+              expandedSection = expandedSection == "supportFeedback" ? nil : "supportFeedback"
+            },
+          ) {
+            VStack(alignment: .leading, spacing: 12) {
+              Text("about.support.intro".localized)
+                .font(.body)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+              Button(action: {
+                if let url = URL(string: "https://github.com/sc-voice") {
+                  openURL(url)
                 }
+              }) {
+                HStack {
+                  Image(systemName: "link")
+                  Text("about.button.visit_github".localized)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(themeProvider.theme.accentColor)
+                .foregroundColor(.white)
+                .cornerRadius(6)
               }
             }
-
-            Text("Audio sourced from Freesound.org and original compositions.")
-              .font(.caption)
-              .foregroundStyle(themeProvider.theme.secondaryTextColor)
           }
-        }
-
-        // MARK: - Open Source Licenses
-
-        CollapsibleSection("Open Source Licenses", isExpanded: .constant(expandedSection == "openSourceLicenses"), onToggle: {
-          expandedSection = expandedSection == "openSourceLicenses" ? nil : "openSourceLicenses"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text(
-              "All SC-Voice source code is licensed under the MIT License unless otherwise noted.",
-            )
-            .font(.body)
-            .foregroundStyle(themeProvider.theme.textColor)
-
-            Text("The following libraries are also included:")
-              .font(.body)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            VStack(alignment: .leading, spacing: 8) {
-              LicenseRow(library: "SQLite", license: "Public Domain")
-              LicenseRow(library: "Zstandard", license: "BSD License")
-            }
-
-            Text("See GitHub repository for full license information.")
-              .font(.caption)
-              .foregroundStyle(themeProvider.theme.secondaryTextColor)
-          }
-        }
-
-        // MARK: - Privacy Policy
-
-        CollapsibleSection("Privacy Policy", isExpanded: .constant(expandedSection == "privacyPolicy"), onToggle: {
-          expandedSection = expandedSection == "privacyPolicy" ? nil : "privacyPolicy"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("SC-Voice respects your privacy:")
-              .font(.headline)
-              .foregroundStyle(themeProvider.theme.textColor)
-
-            VStack(alignment: .leading, spacing: 8) {
-              PrivacyRow(
-                icon: "lock.fill",
-                title: "No Analytics",
-                description: "We do not track your searches or usage",
-              )
-              PrivacyRow(
-                icon: "icloud.slash",
-                title: "Local Storage",
-                description: "All data is stored locally on your device",
-              )
-              PrivacyRow(
-                icon: "key.fill",
-                title: "Open Source",
-                description: "Review the code to verify our privacy practices",
-              )
-            }
-          }
-        }
-
-        // MARK: - Support & Feedback
-
-        CollapsibleSection("Support & Feedback", isExpanded: .constant(expandedSection == "supportFeedback"), onToggle: {
-          expandedSection = expandedSection == "supportFeedback" ? nil : "supportFeedback"
-        }) {
-          VStack(alignment: .leading, spacing: 12) {
-            Text(
-              "Found a bug? Have a suggestion? Visit our GitHub repository to report issues or contribute.",
-            )
-            .font(.body)
-            .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-            Button(action: {
-              if let url = URL(string: "https://github.com/sc-voice") {
-                openURL(url)
-              }
-            }) {
-              HStack {
-                Image(systemName: "link")
-                Text("Visit GitHub")
-              }
-              .frame(maxWidth: .infinity)
-              .padding(.vertical, 10)
-              .background(themeProvider.theme.accentColor)
-              .foregroundColor(.white)
-              .cornerRadius(6)
-            }
-          }
-        }
         }
         .frame(maxWidth: 700)
         .padding(16)

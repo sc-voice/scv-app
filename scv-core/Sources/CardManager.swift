@@ -65,8 +65,16 @@ public class CardManager: ICardManager {
       // Only persist after initialization is complete
       if !isInitializing {
         if let selectedCardId = newValue as? UUID {
-          UserDefaults.standard.set(selectedCardId.uuidString, forKey: selectedCardIdKey)
-          cc.ok1(#line, #function, "saved selectedCardId:", selectedCardId.uuidString)
+          UserDefaults.standard.set(
+            selectedCardId.uuidString,
+            forKey: selectedCardIdKey,
+          )
+          cc.ok1(
+            #line,
+            #function,
+            "saved selectedCardId:",
+            selectedCardId.uuidString,
+          )
         } else {
           UserDefaults.standard.removeObject(forKey: selectedCardIdKey)
           cc.ok1(#line, #function, "cleared selectedCardId from UserDefaults")
@@ -93,7 +101,9 @@ public class CardManager: ICardManager {
     }
 
     // Restore selectedCardId from UserDefaults if available
-    if let savedUUIDString = UserDefaults.standard.string(forKey: selectedCardIdKey) {
+    if let savedUUIDString = UserDefaults.standard
+      .string(forKey: selectedCardIdKey)
+    {
       cc.ok1(#line, #function, "found savedUUIDString:", savedUUIDString)
       if let savedUUID = UUID(uuidString: savedUUIDString) {
         cc.ok1(#line, #function, "parsed savedUUID:", savedUUID)
@@ -107,7 +117,12 @@ public class CardManager: ICardManager {
           let first = allCards.first
           selectedCardId = first?.id
           recentCardId = first?.id
-          cc.ok1(#line, #function, "fallback selectedCard:", first?.name ?? "nil")
+          cc.ok1(
+            #line,
+            #function,
+            "fallback selectedCard:",
+            first?.name ?? "nil",
+          )
         }
       } else {
         cc.ok1(#line, #function, "failed to parse UUID from:", savedUUIDString)

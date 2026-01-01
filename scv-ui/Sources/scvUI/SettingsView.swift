@@ -87,8 +87,8 @@ public struct SettingsView: View {
                 "settings.languages".localized,
                 isExpanded: Binding(
                   get: { expandedSection == "languages" },
-                  set: { _ in toggleSection("languages") }
-                )
+                  set: { _ in toggleSection("languages") },
+                ),
               ) {
                 LanguagesSectionContent(
                   controller: controller,
@@ -96,7 +96,7 @@ public struct SettingsView: View {
                   sortedLanguages: sortedLanguages,
                   showDocLangPicker: $showDocLangPicker,
                   showDocAuthorPicker: $showDocAuthorPicker,
-                  showRefLangPicker: $showRefLangPicker
+                  showRefLangPicker: $showRefLangPicker,
                 )
               }
 
@@ -106,11 +106,11 @@ public struct SettingsView: View {
                 "settings.audio".localized,
                 isExpanded: Binding(
                   get: { expandedSection == "audio" },
-                  set: { _ in toggleSection("audio") }
-                )
+                  set: { _ in toggleSection("audio") },
+                ),
               ) {
                 AudioSectionContent(
-                  controller: controller
+                  controller: controller,
                 )
               }
 
@@ -120,11 +120,11 @@ public struct SettingsView: View {
                 "settings.display".localized,
                 isExpanded: Binding(
                   get: { expandedSection == "display" },
-                  set: { _ in toggleSection("display") }
-                )
+                  set: { _ in toggleSection("display") },
+                ),
               ) {
                 DisplaySectionContent(
-                  controller: controller
+                  controller: controller,
                 )
               }
 
@@ -134,8 +134,8 @@ public struct SettingsView: View {
                 "Advanced",
                 isExpanded: Binding(
                   get: { expandedSection == "advanced" },
-                  set: { _ in toggleSection("advanced") }
-                )
+                  set: { _ in toggleSection("advanced") },
+                ),
               ) {
                 Button(
                   "settings.reset.button".localized,
@@ -242,7 +242,7 @@ struct LanguagesSectionContent: View {
           title: "settings.document.language".localized,
           selection: $controller.docLang,
           options: sortedLanguages,
-          optionLabel: { $0.displayName }
+          optionLabel: { $0.displayName },
         )
       }
 
@@ -279,10 +279,11 @@ struct LanguagesSectionContent: View {
         LanguagePickerModal(
           title: "settings.document.author".localized,
           selection: $controller.docAuthor,
-          options: availableDocAuthors.map { $0.author },
+          options: availableDocAuthors.map(\.author),
           optionLabel: { author in
-            availableDocAuthors.first { $0.author == author }?.authorName ?? author
-          }
+            availableDocAuthors.first { $0.author == author }?
+              .authorName ?? author
+          },
         )
       }
 
@@ -321,7 +322,7 @@ struct LanguagesSectionContent: View {
             title: "settings.reference.language".localized,
             selection: $controller.refLang,
             options: sortedLanguages,
-            optionLabel: { $0.displayName }
+            optionLabel: { $0.displayName },
           )
         }
       #endif
@@ -360,11 +361,11 @@ struct AudioSectionContent: View {
           get: { Double(controller.soundEffectVolume * 4.0) },
           set: { newValue in
             controller.soundEffectVolume = Float(newValue) / 4.0
-          }
+          },
         ),
         in: 0 ... 4,
         step: 1,
-        displayFormatter: { String(Int($0)) }
+        displayFormatter: { String(Int($0)) },
       )
 
       Divider()
@@ -377,7 +378,7 @@ struct AudioSectionContent: View {
         value: $controller.segmentPause,
         in: 0.0 ... 1.0,
         step: 0.1,
-        displayFormatter: { String(format: "%.2f", $0) + "s" }
+        displayFormatter: { String(format: "%.2f", $0) + "s" },
       )
 
       Divider()
@@ -416,7 +417,8 @@ struct DisplaySectionContent: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack {
-        Image(systemName: controller.isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
+        Image(systemName: controller
+          .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
           .foregroundColor(themeProvider.theme.accentColor)
         Toggle("settings.dark.mode".localized, isOn: Binding(
           get: { controller.isDarkModeEnabled },

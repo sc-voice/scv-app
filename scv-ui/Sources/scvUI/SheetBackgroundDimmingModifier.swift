@@ -10,7 +10,8 @@ import SwiftUI
 // MARK: - SheetBackgroundDimmingModifier
 
 /// A modifier that dims the background when a sheet is presented.
-/// Creates a semi-transparent overlay behind the sheet to darken the underlying content.
+/// Creates a semi-transparent overlay behind the sheet to darken the underlying
+/// content.
 struct SheetBackgroundDimmingModifier: ViewModifier {
   @Binding var isPresented: Bool
 
