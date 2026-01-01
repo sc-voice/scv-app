@@ -3,6 +3,7 @@ import Foundation
 import Testing
 
 struct TipitakaTests {
+  let cc = ColorConsole(#file, #function, dbg.Tipitaka.other)
   @Test func emptyDocumentsList() {
     let flatDocs: [TipitakaRef] = []
     let tree = Tipitaka.buildTree(from: flatDocs)
@@ -389,4 +390,129 @@ struct TipitakaTests {
     let fileExists = FileManager.default.fileExists(atPath: "/tmp/kelly.json")
     #expect(fileExists)
   }
+
+  @Test func authorTipitakaSujato_WithTiming() async throws {
+    // Comprehensive timing test for en/sujato tipitaka loading
+    print("=== TIPITAKA LOADING TIMING ANALYSIS: en/sujato ===")
+
+    let startTime = CFAbsoluteTimeGetCurrent()
+
+    // Phase 1: Fetch sutta UIDs
+    print("\nPhase 1: Fetch sutta UIDs")
+    let phaseStartTime = CFAbsoluteTimeGetCurrent()
+    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+      lang: "en",
+      author: "sujato",
+    )
+    let suttaUidsTime = (CFAbsoluteTimeGetCurrent() - phaseStartTime) * 1000
+    print("  Count: \(suttaUids.count)")
+    print("  Time: \(String(format: "%.2f", suttaUidsTime)) ms")
+    if suttaUids.count > 0 {
+      print("  First 3: \(suttaUids.prefix(3).joined(separator: ", "))")
+    }
+
+    // Phase 2: Build tipitaka tree
+    print("\nPhase 2: Build tipitaka tree")
+    let treeStartTime = CFAbsoluteTimeGetCurrent()
+    let tipitaka = await Tipitaka.authorTipitaka(lang: "en", author: "sujato")
+    let treeTime = (CFAbsoluteTimeGetCurrent() - treeStartTime) * 1000
+    print("  Time: \(String(format: "%.2f", treeTime)) ms")
+
+    // Phase 3: Analyze tree structure
+    print("\nPhase 3: Analyze tree structure")
+    let analyzeStartTime = CFAbsoluteTimeGetCurrent()
+    func countNodes(_ ref: TipitakaRef) -> (branches: Int, leaves: Int) {
+      var branches = 1
+      var leaves = 0
+      if let children = ref.children, !children.isEmpty {
+        for child in children {
+          let (b, l) = countNodes(child)
+          branches += b
+          leaves += l
+        }
+      } else {
+        leaves = 1
+      }
+      return (branches, leaves)
+    }
+
+    let (totalNodes, totalLeaves) = countNodes(tipitaka)
+    let analyzeTime = (CFAbsoluteTimeGetCurrent() - analyzeStartTime) * 1000
+    print("  Total nodes: \(totalNodes)")
+    print("  Total leaves: \(totalLeaves)")
+    print("  Time: \(String(format: "%.2f", analyzeTime)) ms")
+
+    // Phase 4: Verify tree is valid
+    #expect(tipitaka.id == "/tipitaka")
+    #expect(tipitaka.name == "Tipiṭaka")
+    #expect(tipitaka.caption == "Buddhist Canon")
+    #expect(tipitaka.children != nil)
+    #expect(!tipitaka.children!.isEmpty)
+
+    print("\nPhase 4: Verification")
+    print("  Tipitaka ID: \(tipitaka.id) ✓")
+    print("  Tipitaka name: \(tipitaka.name) ✓")
+    print(
+      "  Tree leaves vs sutta UIDs: \(totalLeaves) vs \(suttaUids.count) (diff: \(suttaUids.count - totalLeaves))",
+    )
+
+    // Phase 5: Serialize to JSON
+    print("\nPhase 5: JSON encoding")
+    let jsonStartTime = CFAbsoluteTimeGetCurrent()
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [
+      .prettyPrinted,
+      .sortedKeys,
+      .withoutEscapingSlashes,
+    ]
+    let jsonData = try encoder.encode(tipitaka)
+    let jsonTime = (CFAbsoluteTimeGetCurrent() - jsonStartTime) * 1000
+    print("  JSON size: \(jsonData.count) bytes")
+    print("  Time: \(String(format: "%.2f", jsonTime)) ms")
+
+    // Phase 6: Write to file
+    print("\nPhase 6: File write")
+    let writeStartTime = CFAbsoluteTimeGetCurrent()
+    let fileURL = URL(fileURLWithPath: "/tmp/sujato-timing.json")
+    try jsonData.write(to: fileURL)
+    let writeTime = (CFAbsoluteTimeGetCurrent() - writeStartTime) * 1000
+    print("  File path: \(fileURL.path)")
+    print("  Time: \(String(format: "%.2f", writeTime)) ms")
+
+    // Calculate total time
+    let totalTime = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
+
+    // Print summary
+    print("\n=== TIMING SUMMARY ===")
+    print(
+      "suttaUidsForAuthor    : \(String(format: "%7.2f", suttaUidsTime)) ms",
+    )
+    print("tipitakaTreeBuilding  : \(String(format: "%7.2f", treeTime)) ms")
+    print("treeAnalysis          : \(String(format: "%7.2f", analyzeTime)) ms")
+    print("jsonEncoding          : \(String(format: "%7.2f", jsonTime)) ms")
+    print("fileWrite             : \(String(format: "%7.2f", writeTime)) ms")
+    print("TOTAL                 : \(String(format: "%7.2f", totalTime)) ms")
+
+    // Write timing summary to log file
+    print("\nPhase 7: Write log file")
+    let logURL = URL(fileURLWithPath: "/tmp/sujato-timing.log")
+    var logContent = "=== TIPITAKA LOADING TIMING ANALYSIS: en/sujato ===\n"
+    logContent += "Date: \(Date())\n"
+    logContent += "Sutta count: \(suttaUids.count)\n"
+    logContent += "Tree nodes: \(totalNodes)\n"
+    logContent += "Tree leaves: \(totalLeaves)\n"
+    logContent += "\n=== TIMING BREAKDOWN ===\n"
+    logContent += "suttaUidsForAuthor    : \(String(format: "%7.2f", suttaUidsTime)) ms\n"
+    logContent += "tipitakaTreeBuilding  : \(String(format: "%7.2f", treeTime)) ms\n"
+    logContent += "treeAnalysis          : \(String(format: "%7.2f", analyzeTime)) ms\n"
+    logContent += "jsonEncoding          : \(String(format: "%7.2f", jsonTime)) ms\n"
+    logContent += "fileWrite             : \(String(format: "%7.2f", writeTime)) ms\n"
+    logContent += "TOTAL                 : \(String(format: "%7.2f", totalTime)) ms\n"
+    try logContent.write(to: logURL, atomically: true, encoding: .utf8)
+    print("  Log file written: \(logURL.path)")
+
+    #expect(FileManager.default.fileExists(atPath: "/tmp/sujato-timing.json"))
+    #expect(FileManager.default.fileExists(atPath: "/tmp/sujato-timing.log"))
+  }
+
 }
