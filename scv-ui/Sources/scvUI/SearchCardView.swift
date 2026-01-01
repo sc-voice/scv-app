@@ -177,23 +177,17 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   private func loadTipitaka() {
-    cc.ok1(
-      #line,
-      "loadTipitaka: starting load for lang:",
-      Settings.shared.docLang.code,
-      "author:",
-      Settings.shared.docAuthor,
-    )
+    let lang = Settings.shared.docLang.code
+    let author = Settings.shared.docAuthor
+    cc.ok2(#line, #function, lang, author)
+
     tipitakaLoading = true
 
     Task {
-      let root = await Tipitaka.authorTipitaka(
-        lang: Settings.shared.docLang.code,
-        author: Settings.shared.docAuthor,
-      )
+      let root = await Tipitaka.authorTipitaka(lang: lang, author: author)
       tipitakaRefs = root.children ?? []
       tipitakaLoading = false
-      cc.ok1(#line, "loadTipitaka: loaded \(tipitakaRefs.count) root refs")
+      cc.ok1(#line, #function, "loaded \(tipitakaRefs.count) root refs")
     }
   }
 
@@ -232,14 +226,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           if !tipitakaRefs.isEmpty {
             TipitakaView(tipitakaRefs: tipitakaRefs, cardManager: cardManager)
           } else if tipitakaLoading {
-            VStack(spacing: 12) {
-              ProgressView()
-                .scaleEffect(1.5)
-              Text("Loading Tipiṭaka...")
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ScvProgressView(appIcon: appIcon, label: "Loading Tipiṭaka...")
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
           } else {
             // Fallback: show app icon
             GeometryReader { geometry in

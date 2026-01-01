@@ -110,7 +110,7 @@ private struct TipitakaViewPreview: View {
 
   var body: some View {
     if tipitakaRefs.isEmpty {
-      ProgressView()
+      ScvProgressView()
         .task {
           let root = await Tipitaka.authorTipitaka(lang: "en", author: "soma")
           tipitakaRefs = [root]

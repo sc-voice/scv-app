@@ -75,7 +75,7 @@ public struct SettingsView: View {
         }
 
         if isLoading {
-          ProgressView()
+          ScvProgressView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(themeProvider.theme.backgroundColor)
         } else {
@@ -152,7 +152,7 @@ public struct SettingsView: View {
       } // VStack
 
       if isLoading {
-        ProgressView()
+        ScvProgressView()
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .background(Color.black.opacity(1.0))
       }

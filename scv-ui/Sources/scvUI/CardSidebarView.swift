@@ -8,6 +8,9 @@
 import scvCore
 import SwiftData
 import SwiftUI
+#if os(iOS)
+  import UIKit
+#endif
 
 public struct CardSidebarView<Manager: ICardManager>: View {
   @Binding var selectedCardId: AnyHashable?
@@ -184,8 +187,10 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             }
           #endif
         }
+      #if os(iOS)
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+      #endif
         .onAppear {
           if titleColor == nil {
             titleColor = themeProvider.theme.secondaryTextColor
