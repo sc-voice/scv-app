@@ -41,7 +41,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       SuttaHeaderView(
         card: card,
         player: player,
-        isCurrentlyPlaying: isCurrentlyPlaying,
       )
       .environmentObject(themeProvider)
 
@@ -56,7 +55,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                   segment: segment,
                   mlDoc: mlDoc,
                   player: player,
-                  isCurrentlyPlaying: isCurrentlyPlaying,
                 )
               }
             }
@@ -156,10 +154,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   // MARK: - Private Methods
-
-  private var isCurrentlyPlaying: Bool {
-    player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid
-  }
 }
 
 // MARK: - Preview

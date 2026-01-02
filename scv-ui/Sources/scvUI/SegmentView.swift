@@ -8,8 +8,7 @@ struct SegmentView: View {
   let cc = ColorConsole(#file, #function, dbg.SegmentView.other)
   let segment: Segment
   let mlDoc: MLDocument
-  let player: SuttaPlayer
-  let isCurrentlyPlaying: Bool
+  @ObservedObject var player: SuttaPlayer
 
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var attributedString: AttributedString?
@@ -69,7 +68,7 @@ struct SegmentView: View {
     .id(segment.scid)
     .onTapGesture {
       mlDoc.currentScid = segment.scid
-      if isCurrentlyPlaying, player.isPlaying {
+      if player.isPlaying {
         player.jumpToSegment(scid: segment.scid)
       }
       // Dismiss keyboard when segment is selected
@@ -136,7 +135,6 @@ struct SegmentView: View {
     segment: Segment(scid: "mn1:0.1", doc: "The Middle Collection"),
     mlDoc: mlDoc,
     player: mockPlayer,
-    isCurrentlyPlaying: false,
   )
   .environmentObject(ThemeProvider())
 }

@@ -14,20 +14,17 @@ import SwiftUI
 /// button
 public struct SuttaHeaderView<Card: ICard>: View {
   let card: Card
-  let player: SuttaPlayer
-  let isCurrentlyPlaying: Bool
+  @ObservedObject var player: SuttaPlayer
   let suttaRef: SuttaRef?
   @EnvironmentObject var themeProvider: ThemeProvider
 
   public init(
     card: Card,
     player: SuttaPlayer,
-    isCurrentlyPlaying: Bool,
   ) {
     suttaRef = SuttaRef.create(card.suttaReference)
     self.card = card
-    self.player = player
-    self.isCurrentlyPlaying = isCurrentlyPlaying
+    self._player = ObservedObject(initialValue: player)
   }
 
   public var title: String {
@@ -65,8 +62,7 @@ public struct SuttaHeaderView<Card: ICard>: View {
           }
           player.togglePlayback()
         }) {
-          Image(systemName: isCurrentlyPlaying && player
-            .isPlaying ? "pause.fill" : "play.fill")
+          Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
             .font(.title2)
             .foregroundColor(themeProvider.theme.textColor)
             .padding(8)
@@ -101,7 +97,6 @@ public struct SuttaHeaderView<Card: ICard>: View {
   SuttaHeaderView(
     card: mockCard,
     player: .shared,
-    isCurrentlyPlaying: false,
   )
   .environmentObject(ThemeProvider())
 }
