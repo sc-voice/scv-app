@@ -150,12 +150,14 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func jumpToSegment(scid: String) {
     guard let index = segments.firstIndex(where: { $0.key == scid })
     else { return }
+
+    // Update the current segment
+    currentSegmentIndex = index
+    currentSutta?.currentScid = scid
+
+    // Stop playback when user taps a segment
     if isPlaying {
-      nextIndexToPlay = index
-      synthesizer.stopSpeaking(at: .immediate)
-    } else {
-      currentSegmentIndex = index
-      currentSutta?.currentScid = scid
+      pause()
     }
   }
 
