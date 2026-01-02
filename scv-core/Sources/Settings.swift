@@ -127,6 +127,15 @@ public class Settings: Codable {
   /// Whether to play document (translation) text during narration
   public var playDoc: Bool = true
 
+  /// Whether to display Pali text in segments
+  public var showPali: Bool = false
+
+  /// Whether to display document (translation) text in segments
+  public var showDoc: Bool = true
+
+  /// Whether to display reference text in segments
+  public var showRef: Bool = false
+
   /// Sound effect volume level (0.0-1.0, where 0.0 is muted, default 0.5)
   public var soundEffectVolume: Float = SOUND_EFFECT_VOLUME_DEFAULT
 
@@ -178,6 +187,9 @@ public class Settings: Codable {
     case segmentPause
     case playPali
     case playDoc
+    case showPali
+    case showDoc
+    case showRef
     case soundEffectVolume
     case lastApplicationVersion
     case maxDoc
@@ -198,6 +210,9 @@ public class Settings: Codable {
     try container.encode(segmentPause, forKey: .segmentPause)
     try container.encode(playPali, forKey: .playPali)
     try container.encode(playDoc, forKey: .playDoc)
+    try container.encode(showPali, forKey: .showPali)
+    try container.encode(showDoc, forKey: .showDoc)
+    try container.encode(showRef, forKey: .showRef)
     try container.encode(soundEffectVolume, forKey: .soundEffectVolume)
     try container.encode(
       lastApplicationVersion,
@@ -292,6 +307,18 @@ public class Settings: Codable {
         Bool.self,
         forKey: .playDoc,
       ) ?? true
+      showPali = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .showPali,
+      ) ?? false
+      showDoc = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .showDoc,
+      ) ?? true
+      showRef = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .showRef,
+      ) ?? false
       soundEffectVolume = try container.decodeIfPresent(
         Float.self,
         forKey: .soundEffectVolume,
@@ -314,6 +341,9 @@ public class Settings: Codable {
       docLangSettings = [:]
       paliSettings = LangSettings(language: .default)
       isDarkModeEnabled = false
+      showPali = false
+      showDoc = true
+      showRef = false
       lastApplicationVersion = ""
       maxDoc = MAX_DOC_DEFAULT
       autoCompleteData = []
@@ -452,6 +482,9 @@ public class Settings: Codable {
       segmentPause = decoded.segmentPause
       playPali = decoded.playPali
       playDoc = decoded.playDoc
+      showPali = decoded.showPali
+      showDoc = decoded.showDoc
+      showRef = decoded.showRef
       lastApplicationVersion = decoded.lastApplicationVersion
       maxDoc = decoded.maxDoc
       autoCompleteData = decoded.autoCompleteData
@@ -470,6 +503,9 @@ public class Settings: Codable {
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false
     playDoc = true
+    showPali = false
+    showDoc = true
+    showRef = false
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
     lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT

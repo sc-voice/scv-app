@@ -1,3 +1,21 @@
+/* Loading indicator text */
+"loading" = "Loading...";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Show";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Speak";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Pali";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Translation";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Reference";
+
 /* Card type label for search card */
 "card.type.search" = "Search";
 
@@ -68,10 +86,10 @@
 "alert.cancel" = "Cancel";
 
 /* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Hear Pali";
+"settings.play.pali" = "Pali";
 
 /* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Hear Translation";
+"settings.play.document" = "Translation";
 
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dark Mode";

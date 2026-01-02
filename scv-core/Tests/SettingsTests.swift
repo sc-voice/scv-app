@@ -94,6 +94,61 @@ import Testing
     #expect(Settings.shared.maxDoc == 10)
   }
 
+  // MARK: - Column Visibility Tests
+
+  @Test func columnVisibilityDefaults() {
+    Settings.shared.reset()
+
+    #expect(Settings.shared.showPali == false)
+    #expect(Settings.shared.showDoc == true)
+    #expect(Settings.shared.showRef == false)
+  }
+
+  @Test func toggleShowPali() {
+    Settings.shared.reset()
+    #expect(Settings.shared.showPali == false)
+
+    Settings.shared.showPali = true
+    #expect(Settings.shared.showPali == true)
+
+    Settings.shared.showPali = false
+    #expect(Settings.shared.showPali == false)
+  }
+
+  @Test func toggleShowDoc() {
+    Settings.shared.reset()
+    #expect(Settings.shared.showDoc == true)
+
+    Settings.shared.showDoc = false
+    #expect(Settings.shared.showDoc == false)
+
+    Settings.shared.showDoc = true
+    #expect(Settings.shared.showDoc == true)
+  }
+
+  @Test func toggleShowRef() {
+    Settings.shared.reset()
+    #expect(Settings.shared.showRef == false)
+
+    Settings.shared.showRef = true
+    #expect(Settings.shared.showRef == true)
+
+    Settings.shared.showRef = false
+    #expect(Settings.shared.showRef == false)
+  }
+
+  @Test func multipleColumnTogglesCombined() {
+    Settings.shared.reset()
+
+    Settings.shared.showPali = true
+    Settings.shared.showDoc = false
+    Settings.shared.showRef = true
+
+    #expect(Settings.shared.showPali == true)
+    #expect(Settings.shared.showDoc == false)
+    #expect(Settings.shared.showRef == true)
+  }
+
   // MARK: - Codable Tests
 
   @Test func encode() throws {
@@ -103,6 +158,9 @@ import Testing
     settings.isDarkModeEnabled = true
     settings.lastApplicationVersion = "2.0.0"
     settings.maxDoc = 75
+    settings.showPali = true
+    settings.showDoc = false
+    settings.showRef = true
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(settings)
@@ -113,6 +171,9 @@ import Testing
     #expect(json?["isDarkModeEnabled"] as? Bool == true)
     #expect(json?["lastApplicationVersion"] as? String == "2.0.0")
     #expect(json?["maxDoc"] as? Int == 75)
+    #expect(json?["showPali"] as? Bool == true)
+    #expect(json?["showDoc"] as? Bool == false)
+    #expect(json?["showRef"] as? Bool == true)
   }
 
   @Test func decode() throws {
@@ -122,7 +183,10 @@ import Testing
       "refLang": "es",
       "isDarkModeEnabled": false,
       "lastApplicationVersion": "1.5.0",
-      "maxDoc": 25
+      "maxDoc": 25,
+      "showPali": true,
+      "showDoc": false,
+      "showRef": true
     }
     """.data(using: .utf8)!
 
@@ -134,6 +198,9 @@ import Testing
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "1.5.0")
     #expect(settings.maxDoc == 25)
+    #expect(settings.showPali == true)
+    #expect(settings.showDoc == false)
+    #expect(settings.showRef == true)
   }
 
   @Test func decodeWithMissingFields() throws {
@@ -151,6 +218,9 @@ import Testing
     #expect(settings.isDarkModeEnabled == false)
     #expect(settings.lastApplicationVersion == "")
     #expect(settings.maxDoc == MAX_DOC_DEFAULT)
+    #expect(settings.showPali == false)
+    #expect(settings.showDoc == true)
+    #expect(settings.showRef == false)
   }
 
   @Test func decodeWithInvalidLanguageCode() throws {

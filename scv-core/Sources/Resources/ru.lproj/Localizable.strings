@@ -1,3 +1,21 @@
+/* Loading indicator text */
+"loading" = "Загрузка...";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Показать";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Говорить";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Пали";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Перевод";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Ссылка";
+
 /* Card type label for search card */
 "card.type.search" = "Поиск";
 
@@ -68,10 +86,10 @@
 "alert.cancel" = "Отмена";
 
 /* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Слышать пали";
+"settings.play.pali" = "Пали";
 
 /* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Слышать перевод";
+"settings.play.document" = "Перевод";
 
 /* Search results header: count of documents found */
 "search.results.found" = "Найдено %d документ(ов)";

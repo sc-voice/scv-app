@@ -72,6 +72,18 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var showPali: Bool {
+    didSet { autosave() }
+  }
+
+  @Published var showDoc: Bool {
+    didSet { autosave() }
+  }
+
+  @Published var showRef: Bool {
+    didSet { autosave() }
+  }
+
   @Published var soundEffectVolume: Float {
     didSet { autosave() }
   }
@@ -105,6 +117,9 @@ public class SettingsModalController: NSObject, ObservableObject {
     segmentPause = settings.segmentPause
     playPali = settings.playPali
     playDoc = settings.playDoc
+    showPali = settings.showPali
+    showDoc = settings.showDoc
+    showRef = settings.showRef
     soundEffectVolume = settings.soundEffectVolume
 
     originalDocLang = settings.docLang
@@ -137,6 +152,9 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.segmentPause = segmentPause
     Settings.shared.playPali = playPali
     Settings.shared.playDoc = playDoc
+    Settings.shared.showPali = showPali
+    Settings.shared.showDoc = showDoc
+    Settings.shared.showRef = showRef
     Settings.shared.soundEffectVolume = soundEffectVolume
 
     // Update docLangSettings for current language
@@ -266,6 +284,9 @@ public class SettingsModalController: NSObject, ObservableObject {
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false
     playDoc = true
+    showPali = false
+    showDoc = true
+    showRef = false
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
   }
 }

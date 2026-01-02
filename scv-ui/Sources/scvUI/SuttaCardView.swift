@@ -36,7 +36,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   public var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    VStack(alignment: .leading, spacing: 0) { // VStack1
       // Title Header
       SuttaHeaderView(
         card: card,
@@ -110,7 +110,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
-    }
+    } // VStack1
     .background(
       Group {
         if Settings.shared.isDarkModeEnabled {

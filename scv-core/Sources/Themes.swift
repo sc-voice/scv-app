@@ -44,6 +44,9 @@ public struct Theme {
   /// Link color
   public let linkColor: Color
 
+  /// Opacity for annotational (non-interactive) icons
+  public let iconOpacity: Double
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -56,6 +59,7 @@ public struct Theme {
     errorTextColor: Color,
     debugForeground: Color,
     linkColor: Color,
+    iconOpacity: Double = 0.8,
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -68,6 +72,7 @@ public struct Theme {
     self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
     self.linkColor = linkColor
+    self.iconOpacity = iconOpacity
   }
 }
 
@@ -133,6 +138,7 @@ public enum AppTheme {
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_BROWN_ACCENT, // #8b4513 (same as accentColor)
+        iconOpacity: 0.8,
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
@@ -151,6 +157,7 @@ public enum AppTheme {
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)
+        iconOpacity: 0.8,
       )
     }
   }

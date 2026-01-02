@@ -43,8 +43,8 @@ struct SegmentView: View {
           .font(bodyFont())
           .lineLimit(nil)
       } else {
-        ProgressView()
-          .scaleEffect(0.8, anchor: .center)
+        Text("⏳")
+          .font(bodyFont())
       }
     }
     .padding(.horizontal)

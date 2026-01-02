@@ -100,20 +100,6 @@ public struct SettingsView: View {
                 )
               }
 
-              // MARK: - Audio Section
-
-              CollapsibleSection(
-                "settings.audio".localized,
-                isExpanded: Binding(
-                  get: { expandedSection == "audio" },
-                  set: { _ in toggleSection("audio") },
-                ),
-              ) {
-                AudioSectionContent(
-                  controller: controller,
-                )
-              }
-
               // MARK: - Display Section
 
               CollapsibleSection(
@@ -124,6 +110,20 @@ public struct SettingsView: View {
                 ),
               ) {
                 DisplaySectionContent(
+                  controller: controller,
+                )
+              }
+
+              // MARK: - Audio Section
+
+              CollapsibleSection(
+                "settings.audio".localized,
+                isExpanded: Binding(
+                  get: { expandedSection == "audio" },
+                  set: { _ in toggleSection("audio") },
+                ),
+              ) {
+                AudioSectionContent(
                   controller: controller,
                 )
               }
@@ -384,21 +384,28 @@ struct AudioSectionContent: View {
       Divider()
         .padding(.vertical, 4)
 
-      // Play Pali
+      Text("settings.speak".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+
       HStack {
-        Image(systemName: "ear.fill")
-          .foregroundColor(themeProvider.theme.accentColor)
+        Image(systemName: controller
+          .playPali ? "speaker.fill" : "speaker.slash")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
         Toggle(
           "settings.play.pali".localized,
           isOn: $controller.playPali,
         )
-        .disabled(true)
+        // .disabled(true)
       }
 
-      // Play Document
       HStack {
-        Image(systemName: "ear.fill")
-          .foregroundColor(themeProvider.theme.accentColor)
+        Image(systemName: controller.playDoc ? "speaker.fill" : "speaker.slash")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
         Toggle(
           "settings.play.document".localized,
           isOn: $controller.playDoc,
@@ -419,7 +426,9 @@ struct DisplaySectionContent: View {
       HStack {
         Image(systemName: controller
           .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
-          .foregroundColor(themeProvider.theme.accentColor)
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
         Toggle("settings.dark.mode".localized, isOn: Binding(
           get: { controller.isDarkModeEnabled },
           set: { newValue in
@@ -427,6 +436,46 @@ struct DisplaySectionContent: View {
             themeProvider.setTheme(newValue ? .dark : .light)
           },
         ))
+      }
+
+      Divider()
+
+      Text("settings.show".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+        .padding(.top, 4)
+
+      HStack {
+        Image(systemName: controller.showPali ? "eye.fill" : "eye.slash")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        Toggle(
+          "settings.show.pali".localized,
+          isOn: $controller.showPali,
+        )
+      }
+
+      HStack {
+        Image(systemName: controller.showDoc ? "eye.fill" : "eye.slash")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        Toggle(
+          "settings.show.document".localized,
+          isOn: $controller.showDoc,
+        )
+      }
+
+      HStack {
+        Image(systemName: controller.showRef ? "eye.fill" : "eye.slash")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        Toggle(
+          "settings.show.reference".localized,
+          isOn: $controller.showRef,
+        )
       }
     }
   }

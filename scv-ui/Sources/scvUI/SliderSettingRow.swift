@@ -58,7 +58,8 @@ public struct SliderSettingRow: View {
       VStack(alignment: .leading, spacing: 8) {
         HStack(spacing: 8) {
           Image(systemName: icon)
-            .foregroundColor(themeProvider.theme.accentColor)
+            .foregroundColor(themeProvider.theme.textColor
+              .opacity(themeProvider.theme.iconOpacity))
           Text(label)
             .font(.body)
         }
@@ -70,7 +71,8 @@ public struct SliderSettingRow: View {
     } else {
       HStack(spacing: 12) {
         Image(systemName: icon)
-          .foregroundColor(themeProvider.theme.accentColor)
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
         VStack(alignment: .leading, spacing: 4) {
           Text(label)
             .font(.body)
