@@ -120,6 +120,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var debounceTimer: Timer?
   @FocusState private var searchFieldIsFocused: Bool
   @Environment(\.sizeCategory) var sizeCategory
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
   let appIcon: Image
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
 
@@ -170,7 +171,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   private func scheduleFade() {
     cc.ok2(#line, "scheduleFade: icon will fade and move up over 5s")
-    withAnimation(.easeOut(duration: 5.0)) {
+    withAnimation(reduceMotion ? nil : .easeOut(duration: 5.0)) {
       iconOpacity = 0.1
       iconOffset = maxIconOffset
     }

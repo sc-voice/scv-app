@@ -15,6 +15,7 @@ import SwiftUI
 public struct CollapsibleSection<Content: View>: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @Binding var isExpanded: Bool
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   let title: String
   let onToggle: (() -> Void)?
@@ -43,7 +44,7 @@ public struct CollapsibleSection<Content: View>: View {
       // MARK: - Header
 
       Button(action: {
-        withAnimation(.easeInOut(duration: 0.2)) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) {
           isExpanded.toggle()
           onToggle?()
         }

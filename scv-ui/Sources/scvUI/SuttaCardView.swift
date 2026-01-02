@@ -23,6 +23,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @ObservedObject var player: SuttaPlayer
   @State private var segments: [(key: String, value: Segment)] = []
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   public init(
     card: Binding<Card>,
@@ -67,7 +68,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             if let currentScid = mlDoc.currentScid {
               // Delay scroll to allow segments to load
               DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.easeInOut(duration: 0.8)) {
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.8)) {
                   // Scroll to two line heights from top
                   scrollProxy.scrollTo(
                     currentScid,
@@ -84,7 +85,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           }
           .onChange(of: mlDoc.currentScid) { _, newScid in
             if let newScid {
-              withAnimation(.easeInOut(duration: 0.8)) {
+              withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.8)) {
                 // Scroll to two line heights from top
                 scrollProxy.scrollTo(
                   newScid,

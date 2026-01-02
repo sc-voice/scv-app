@@ -130,12 +130,14 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Test with VoiceOver enabled on iOS device
 
 ### Add Reduce Motion support
-**Status**: Backlog
+**Status**: Complete
 
-01. [ ] Wrap all animations with @Environment(\.accessibilityReduceMotion) check (See: SearchCardView.swift:173-176,581-584; CardSidebarView.swift:193-195,273-280; SuttaCardView.swift:70-82,87-98)
+01. [x] Wrap all animations with @Environment(\.accessibilityReduceMotion) check (See: SearchCardView.swift:173-176,581-584; CardSidebarView.swift:193-195,273-280; SuttaCardView.swift:70-82,87-98)
     - SearchCardView: 5-second fade animation
     - CardSidebarView: 30-second opacity fade, 2-second easing animations
     - SuttaCardView: 0.8-second layout animations
+    - CollapsibleSection: 0.2-second expand/collapse animation
+    - ScvBackgroundsView: 30-second background fade animation
     - Test with reduced motion enabled in Accessibility settings
 
 ### Fix accessibility layout adaptation

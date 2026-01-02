@@ -77,6 +77,7 @@ public enum ScvBackground {
 public struct ScvBackgroundsView: View {
   let background: ScvBackground
   @Environment(\.colorScheme) var colorScheme
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
   @State private var opacity: Double = 1.0
 
   public init(_ background: ScvBackground = .nothingness) {
@@ -88,7 +89,7 @@ public struct ScvBackgroundsView: View {
       .background(Color.white)
       .opacity(opacity)
       .onAppear {
-        withAnimation(.linear(duration: 30)) {
+        withAnimation(reduceMotion ? nil : .linear(duration: 30)) {
           opacity = 0.3
         }
       }

@@ -22,6 +22,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   @State private var titleScale: Double = 1.0
   @State private var titleColor: Color?
   @State private var backgroundOpacity: Double = 1
+  @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   public init(
     cardManager: Manager,
@@ -195,7 +196,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           if titleColor == nil {
             titleColor = themeProvider.theme.secondaryTextColor
           }
-          withAnimation(.linear(duration: 30)) {
+          withAnimation(reduceMotion ? nil : .linear(duration: 30)) {
             backgroundOpacity = 0.2
           }
         }
@@ -275,11 +276,11 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     -> () -> Void
   {
     {
-      withAnimation(.easeInOut(duration: 2.0)) {
+      withAnimation(reduceMotion ? nil : .easeInOut(duration: 2.0)) {
         titleColor = themeProvider.theme.accentColor
       }
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-        withAnimation(.easeInOut(duration: 2.0)) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 2.0)) {
           titleColor = themeProvider.theme.secondaryTextColor
         }
       }
