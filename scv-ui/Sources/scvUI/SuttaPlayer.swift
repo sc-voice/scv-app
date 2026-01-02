@@ -46,6 +46,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     #endif
   }
 
+  @MainActor
   public func load(_ sutta: MLDocument) {
     synthesizer.stopSpeaking(at: .immediate)
     currentSutta = sutta
@@ -54,6 +55,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     isPlaying = false
   }
 
+  @MainActor
   public func togglePlayback() {
     guard currentSutta != nil else { return }
 
@@ -64,6 +66,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
   }
 
+  @MainActor
   public func play() {
     guard currentSutta != nil else { return }
     isPlaying = true
@@ -84,6 +87,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
   }
 
+  @MainActor
   public func jumpToSegment(scid: String) {
     guard let index = segments.firstIndex(where: { $0.key == scid })
     else { return }
@@ -96,6 +100,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
   }
 
+  @MainActor
   public func pause() {
     synthesizer.stopSpeaking(at: .immediate)
     isPlaying = false
@@ -159,14 +164,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       .docLangSettings[docLang]
       ?? LangSettings(language: docLang)
 
-    // Set voice from docLangSettings.voiceId if available, otherwise use
-    // language code
+    // Set voice from docLangSettings.voiceId if available, otherwise find
+    // best available voice for language
     if !docLangSettings.voiceId.isEmpty {
       utterance
         .voice = AVSpeechSynthesisVoice(identifier: docLangSettings.voiceId)
     } else {
-      utterance
-        .voice = AVSpeechSynthesisVoice(language: docLangSettings.language.code)
+      // Find best available voice: enhanced/premium > default
+      let voices = AVSpeechSynthesisVoice.speechVoices()
+        .filter { $0.language == docLangSettings.language.code }
+        .sorted { $0.quality.rawValue > $1.quality.rawValue }
+      utterance.voice = voices.first
+        ?? AVSpeechSynthesisVoice(language: docLangSettings.language.code)
     }
 
     // Apply speech configuration settings

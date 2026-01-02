@@ -34,7 +34,7 @@ struct VoicePickerView: View {
   }
 
   var availableVoices: [AVSpeechSynthesisVoice] {
-    AVSpeechSynthesisVoice.speechVoices()
+    let allVoicesForLanguage = AVSpeechSynthesisVoice.speechVoices()
       .filter { voice in
         guard let voiceLanguage = ScvLanguage.toVoiceLanguage(voice.language)
         else {
@@ -43,12 +43,22 @@ struct VoicePickerView: View {
         return voiceLanguage == language
           && !voice.voiceTraits.contains(.isNoveltyVoice)
       }
-      .sorted { a, b in
-        if a.quality.rawValue != b.quality.rawValue {
-          return a.quality.rawValue > b.quality.rawValue
-        }
-        return a.name < b.name
+
+    // If enhanced or premium voices available, exclude default quality voices
+    let hasEnhancedOrPremium = allVoicesForLanguage.contains { voice in
+      voice.quality == .enhanced || voice.quality == .premium
+    }
+
+    let filtered = hasEnhancedOrPremium
+      ? allVoicesForLanguage.filter { $0.quality != .default }
+      : allVoicesForLanguage
+
+    return filtered.sorted { a, b in
+      if a.quality.rawValue != b.quality.rawValue {
+        return a.quality.rawValue > b.quality.rawValue
       }
+      return a.name < b.name
+    }
   }
 
   var selectedVoiceName: String {
