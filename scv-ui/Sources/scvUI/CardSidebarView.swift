@@ -124,6 +124,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
         Image(systemName: "xmark.circle.fill")
           .font(.callout)
           .foregroundStyle(.secondary)
+          .frame(minWidth: 44, minHeight: 44)
       }
       .buttonStyle(.plain)
       .help("Delete card")
@@ -169,6 +170,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               Button(action: addNewCard) {
                 Image(systemName: "plus")
                   .font(.title2)
+                  .frame(minWidth: 44, minHeight: 44)
               }
               .buttonStyle(.plain)
               .help("Add new search card")
@@ -179,6 +181,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 Button(action: handleSettingsTap(onSettingsTap)) {
                   Image(systemName: "gearshape")
                     .font(.title2)
+                    .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .help("Settings")
@@ -189,6 +192,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               Button(action: addNewCard) {
                 Image(systemName: "magnifyingglass")
                   .font(.title2)
+                  .frame(minWidth: 44, minHeight: 44)
               }
               .buttonStyle(.plain)
               .help("Add new search card")
@@ -199,6 +203,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 Button(action: handleSettingsTap(onSettingsTap)) {
                   Image(systemName: "gearshape")
                     .font(.title2)
+                    .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .help("Settings")

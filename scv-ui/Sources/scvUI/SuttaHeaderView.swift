@@ -65,7 +65,7 @@ public struct SuttaHeaderView<Card: ICard>: View {
           Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
             .font(.title2)
             .foregroundColor(themeProvider.theme.textColor)
-            .padding(8)
+            .frame(minWidth: 44, minHeight: 44)
         }
         .buttonStyle(.plain)
       } // mlDoc

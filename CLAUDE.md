@@ -164,15 +164,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - SettingsView: Improve spacing and layout for large text sizes
     - Verify readability in VoiceOver with large text
 
-### Ensure minimum touch target sizes
-**Status**: Backlog
-
-01. [ ] Verify all interactive elements meet 44pt minimum (See: SearchCardView.swift:496-502, CardSidebarView.swift:98-107,147-164, SegmentView.swift:70-85)
-    - Icon-only buttons: explicitly set .frame(minHeight: 44, minWidth: 44)
-    - Slider components: verify system defaults meet 44pt
-    - Test on iPhone with visual inspection
-    - Consider increasing target sizes on iPad for easier touch
-
 ### Add keyboard accessibility
 **Status**: Backlog
 

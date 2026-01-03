@@ -485,6 +485,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           Button(action: { isSearchPresented.toggle() }) {
             Image(systemName: "magnifyingglass")
               .font(.title2)
+              .frame(minWidth: 44, minHeight: 44)
           }
           .buttonStyle(.plain)
           .help("Toggle search")

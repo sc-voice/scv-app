@@ -64,6 +64,7 @@ public struct SettingsView: View {
             Image(systemName: "xmark")
               .font(.body)
               .foregroundColor(themeProvider.theme.textColor)
+              .frame(minWidth: 44, minHeight: 44)
           }
         }
         .padding()
