@@ -23,7 +23,34 @@ and provides a card-based interface where users can create multiple search and s
 
 ## Code Best Practice
 
-- ColorConsole logging: See scv-core/Sources/ColorConsole.swift for ok1/ok2/bad1/bad2 usage patterns
+### ColorConsole Logging
+
+ColorConsole (See: scv-core/Sources/ColorConsole.swift) handles output filtering internally via verbosity levels. Do NOT use conditional checks.
+
+**Initialization:**
+- Pass verbosity level at init: `let cc = ColorConsole(#file, #function, dbg.Module.level)`
+- Use `dbg` constants from codebase (e.g., `dbg.SuttaPlayer.other`)
+- Each module/class can have its own verbosity level
+
+**Usage patterns:**
+- `ok1()`: End of happy path, just before leaving method. Output if verbosity >= 1
+- `bad1()`: End of sad path (error/exception), just before leaving method. Output if verbosity >= 1
+- `ok2()`: Anywhere else on happy path (entry, intermediate steps, branches). Output if verbosity >= 2
+- `bad2()`: Anywhere else on sad path (non-fatal errors, error diagnostics). Output if verbosity >= 2
+
+**Pattern to AVOID:**
+```swift
+if dbgSearch > 1 {
+  cc.ok2(#line, "message")  // Wrong - redundant conditional
+}
+```
+
+**Pattern to USE:**
+```swift
+cc.ok2(#line, "message")  // Correct - ColorConsole checks verbosity internally
+```
+
+ColorConsole returns nil if output is filtered, allowing `@discardableResult` to silence unused value warnings.
 
 ## Claude commands
 
@@ -224,16 +251,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Evaluate caching strategies: pre-build common queries, use trie-based cache, parallel lemmatization
     - Benchmark different approaches to reduce lemmatization overhead
     - Target: reduce lemmatization time below SQL execution time
-
-### Create debug logging macro for conditional cc.ok calls
-**Status**: Backlog
-
-01. [ ] Create Swift macro to replace verbose if-statements for debug logging (See: scv-core/Sources/EbtSeeker.swift:158-189)
-    - Current: 3 lines per conditional debug log (`if dbgSearch > 1 { cc.ok2(...) }`)
-    - Goal: 1-line macro like `@debugLog(dbgSearch > 1) { cc.ok2(...) }`
-    - Define macro in scv-core/Sources
-    - Apply to all debug logging calls in EbtSeeker and EbtData
-    - Reduces boilerplate while maintaining intent
 
 ### Make EbtData SQL query methods async
 **Status**: Backlog
