@@ -44,10 +44,10 @@
 "settings.languages" = "Translations";
 
 /* Settings label for document language */
-"settings.document.language" = "Document Language";
+"settings.document.language" = "Language";
 
 /* Settings label for document author */
-"settings.document.author" = "Document Author";
+"settings.document.author" = "Author";
 
 /* Settings label for reference language */
 "settings.reference.language" = "Reference Language";
@@ -90,6 +90,9 @@
 
 /* Settings toggle label for playing document text during narration */
 "settings.play.document" = "Translation";
+
+/* Settings section header for search settings */
+"settings.search" = "Search";
 
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dark Mode";

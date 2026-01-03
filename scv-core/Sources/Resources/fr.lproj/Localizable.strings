@@ -44,10 +44,10 @@
 "settings.languages" = "Traductions";
 
 /* Settings label for document language */
-"settings.document.language" = "Langue du document";
+"settings.document.language" = "Langue";
 
 /* Settings label for document author */
-"settings.document.author" = "Auteur du document";
+"settings.document.author" = "Auteur";
 
 /* Settings label for reference language */
 "settings.reference.language" = "Langue de référence";
@@ -96,6 +96,9 @@
 
 /* Settings toggle label for playing document text during narration */
 "settings.play.document" = "Traduction";
+
+/* Settings section header for search settings */
+"settings.search" = "Recherche";
 
 /* Search results header: count of documents found */
 "search.results.found" = "%d document(s) trouvé(s)";

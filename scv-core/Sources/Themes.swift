@@ -128,8 +128,8 @@ public enum AppTheme {
         backgroundColor: Color(red: 0.933, green: 0.933,
                                blue: 0.933), // #eeeeee (grey.lighten1)
         textColor: Color(red: 0.1, green: 0.1, blue: 0.1), // dark text
-        secondaryTextColor: Color(red: 0.5, green: 0.5,
-                                  blue: 0.5), // medium grey
+        secondaryTextColor: Color(red: 0.3, green: 0.3,
+                                  blue: 0.3), // medium grey
         accentColor: COLOR_BROWN_ACCENT, // #8b4513 (4.91:1 contrast ratio)
         cardBackground: Color(red: 0.941, green: 0.941, blue: 0.941), // #f0f0f0
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey

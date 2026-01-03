@@ -268,12 +268,22 @@ struct LanguagesSectionContent: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       // Document Language
+      Text("settings.search".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+
       Group {
         if shouldStackVertically {
           VStack(alignment: .leading, spacing: 8) {
-            Text("settings.document.language".localized)
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
+            HStack {
+              Image(systemName: "globe")
+                .foregroundColor(themeProvider.theme.secondaryTextColor
+                  .opacity(themeProvider.theme.iconOpacity))
+                .frame(minWidth: 44)
+              Text("settings.document.language".localized)
+                .font(.body)
+                .foregroundColor(themeProvider.theme.textColor)
+            }
             Button(action: { showDocLangPicker = true }) {
               Text(controller.docLang.displayName)
                 .foregroundColor(themeProvider.theme.valueColor)
@@ -282,9 +292,15 @@ struct LanguagesSectionContent: View {
           }
         } else {
           HStack {
-            Text("settings.document.language".localized)
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
+            HStack {
+              Image(systemName: "globe")
+                .foregroundColor(themeProvider.theme.secondaryTextColor
+                  .opacity(themeProvider.theme.iconOpacity))
+                .frame(minWidth: 44)
+              Text("settings.document.language".localized)
+                .font(.body)
+                .foregroundColor(themeProvider.theme.textColor)
+            }
             Spacer()
             Button(action: { showDocLangPicker = true }) {
               Text(controller.docLang.displayName)
@@ -302,16 +318,19 @@ struct LanguagesSectionContent: View {
         )
       }
 
-      Divider()
-        .padding(.vertical, 4)
-
       // Document Author
       Group {
         if shouldStackVertically {
           VStack(alignment: .leading, spacing: 8) {
-            Text("settings.document.author".localized)
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
+            HStack {
+              Image(systemName: "person")
+                .foregroundColor(themeProvider.theme.textColor
+                  .opacity(themeProvider.theme.iconOpacity))
+                .frame(minWidth: 44)
+              Text("settings.document.author".localized)
+                .font(.body)
+                .foregroundColor(themeProvider.theme.textColor)
+            }
             Button(action: { showDocAuthorPicker = true }) {
               Text(docAuthorName)
                 .foregroundColor(themeProvider.theme.valueColor)
@@ -320,9 +339,15 @@ struct LanguagesSectionContent: View {
           }
         } else {
           HStack {
-            Text("settings.document.author".localized)
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
+            HStack {
+              Image(systemName: "person")
+                .foregroundColor(themeProvider.theme.textColor
+                  .opacity(themeProvider.theme.iconOpacity))
+                .frame(minWidth: 44)
+              Text("settings.document.author".localized)
+                .font(.body)
+                .foregroundColor(themeProvider.theme.textColor)
+            }
             Spacer()
             Button(action: { showDocAuthorPicker = true }) {
               Text(docAuthorName)
@@ -353,7 +378,7 @@ struct LanguagesSectionContent: View {
             VStack(alignment: .leading, spacing: 8) {
               Text("settings.reference.language".localized)
                 .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
+                .foregroundColor(themeProvider.theme.textColor)
               Button(action: { showRefLangPicker = true }) {
                 Text(controller.refLang.displayName)
                   .foregroundColor(themeProvider.theme.valueColor)
@@ -364,7 +389,7 @@ struct LanguagesSectionContent: View {
             HStack {
               Text("settings.reference.language".localized)
                 .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
+                .foregroundColor(themeProvider.theme.textColor)
               Spacer()
               Button(action: { showRefLangPicker = true }) {
                 Text(controller.refLang.displayName)
@@ -406,25 +431,26 @@ struct AudioSectionContent: View {
       HStack {
         Image(systemName: controller
           .playPali ? "speaker.fill" : "speaker.slash")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle(
           "settings.play.pali".localized,
           isOn: $controller.playPali,
         )
-        // .disabled(true)
+        .foregroundColor(themeProvider.theme.textColor)
       }
 
       HStack {
         Image(systemName: controller.playDoc ? "speaker.fill" : "speaker.slash")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle(
           "settings.play.document".localized,
           isOn: $controller.playDoc,
         )
+        .foregroundColor(themeProvider.theme.textColor)
       }
 
       Divider()
@@ -451,7 +477,7 @@ struct AudioSectionContent: View {
         .foregroundColor(themeProvider.theme.secondaryTextColor)
 
       // Pitch
-      HStack {
+      HStack(alignment: .firstTextBaseline, spacing: 12) {
         Image(systemName: "mountain.2")
           .foregroundColor(themeProvider.theme.textColor
             .opacity(themeProvider.theme.iconOpacity))
@@ -459,6 +485,7 @@ struct AudioSectionContent: View {
         VStack(alignment: .leading, spacing: 4) {
           Text("settings.pitch".localized)
             .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
           Slider(value: $controller.docPitch, in: 0.5 ... 2.0, step: 0.1)
         }
         Text(String(format: "%.1f", controller.docPitch))
@@ -470,14 +497,15 @@ struct AudioSectionContent: View {
         .padding(.vertical, 4)
 
       // Rate
-      HStack {
+      HStack(alignment: .firstTextBaseline, spacing: 12) {
         Image(systemName: "hare")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         VStack(alignment: .leading, spacing: 4) {
           Text("settings.rate".localized)
             .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
           Slider(value: $controller.docRate, in: 0.1 ... 2.0, step: 0.1)
         }
         Text(String(format: "%.1f", controller.docRate))
@@ -529,39 +557,42 @@ struct DisplaySectionContent: View {
     VStack(alignment: .leading, spacing: 12) {
       Text("settings.show".localized)
         .font(.caption)
-        .foregroundColor(themeProvider.theme.secondaryTextColor)
+        .foregroundColor(themeProvider.theme.textColor)
 
       HStack {
         Image(systemName: controller.showPali ? "eye.fill" : "eye.slash")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle(
           "settings.show.pali".localized,
           isOn: $controller.showPali,
         )
+        .foregroundColor(themeProvider.theme.textColor)
       }
 
       HStack {
         Image(systemName: controller.showDoc ? "eye.fill" : "eye.slash")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle(
           "settings.show.document".localized,
           isOn: $controller.showDoc,
         )
+        .foregroundColor(themeProvider.theme.textColor)
       }
 
       HStack {
         Image(systemName: controller.showRef ? "eye.fill" : "eye.slash")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle(
           "settings.show.reference".localized,
           isOn: $controller.showRef,
         )
+        .foregroundColor(themeProvider.theme.textColor)
       }
 
       Divider()
@@ -570,7 +601,7 @@ struct DisplaySectionContent: View {
       HStack {
         Image(systemName: controller
           .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
-          .foregroundColor(themeProvider.theme.textColor
+          .foregroundColor(themeProvider.theme.secondaryTextColor
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         Toggle("settings.dark.mode".localized, isOn: Binding(
@@ -580,6 +611,7 @@ struct DisplaySectionContent: View {
             themeProvider.setTheme(newValue ? .dark : .light)
           },
         ))
+        .foregroundColor(themeProvider.theme.textColor)
       }
     }
   }

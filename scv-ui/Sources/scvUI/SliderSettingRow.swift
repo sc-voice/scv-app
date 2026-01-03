@@ -62,6 +62,7 @@ public struct SliderSettingRow: View {
               .opacity(themeProvider.theme.iconOpacity))
           Text(label)
             .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
         }
         Slider(value: value, in: range, step: step)
         Text(displayFormatter(value.wrappedValue))
@@ -69,7 +70,7 @@ public struct SliderSettingRow: View {
           .foregroundColor(themeProvider.theme.secondaryTextColor)
       }
     } else {
-      HStack(spacing: 12) {
+      HStack(alignment: .firstTextBaseline, spacing: 12) {
         Image(systemName: icon)
           .foregroundColor(themeProvider.theme.textColor
             .opacity(themeProvider.theme.iconOpacity))
@@ -77,6 +78,7 @@ public struct SliderSettingRow: View {
         VStack(alignment: .leading, spacing: 4) {
           Text(label)
             .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
           Slider(value: value, in: range, step: step)
         }
         Text(displayFormatter(value.wrappedValue))

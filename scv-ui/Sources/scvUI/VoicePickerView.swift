@@ -77,10 +77,11 @@ struct VoicePickerView: View {
           VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
               Image(systemName: "speaker.fill")
-                .foregroundColor(themeProvider.theme.textColor
+                .foregroundColor(themeProvider.theme.secondaryTextColor
                   .opacity(themeProvider.theme.iconOpacity))
                 .frame(minWidth: 44)
               Text("Voice")
+                .foregroundColor(themeProvider.theme.textColor)
             }
             Button(action: { showVoicePicker = true }) {
               Text(selectedVoiceName)
@@ -91,10 +92,11 @@ struct VoicePickerView: View {
         } else {
           HStack {
             Image(systemName: "speaker.fill")
-              .foregroundColor(themeProvider.theme.textColor
+              .foregroundColor(themeProvider.theme.secondaryTextColor
                 .opacity(themeProvider.theme.iconOpacity))
               .frame(minWidth: 44)
             Text("Voice")
+              .foregroundColor(themeProvider.theme.textColor)
             Spacer()
             Button(action: { showVoicePicker = true }) {
               Text(selectedVoiceName)
