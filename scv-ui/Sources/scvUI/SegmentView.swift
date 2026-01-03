@@ -8,10 +8,11 @@ struct SegmentView: View {
   let cc = ColorConsole(#file, #function, dbg.SegmentView.other)
   let segment: Segment
   let mlDoc: MLDocument
+  let layout: SegmentLayout
   @ObservedObject var player: SuttaPlayer
 
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var attributedString: AttributedString?
+  @State private var attributedStrings: [String: AttributedString] = [:]
 
   private var segnum: String? {
     SuttaRef.create(segment.scid)?.segnum
@@ -31,22 +32,77 @@ struct SegmentView: View {
   }
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: 8) {
-      Text(segnum ?? segment.scid)
-        .font(.caption)
-        .foregroundColor(themeProvider.theme.secondaryTextColor)
-        .lineLimit(1)
+    VStack(alignment: .leading, spacing: 4) {
+      // Segment number (above if needed)
+      if layout.segmentNumberPosition == .above {
+        Text(segnum ?? segment.scid)
+          .font(.caption)
+          .foregroundColor(themeProvider.theme.secondaryTextColor)
+          .lineLimit(1)
+          .padding(.horizontal)
+      }
 
-      if let attributedString {
-        Text(attributedString)
-          .font(bodyFont())
-          .lineLimit(nil)
+      // Columns container
+      let columnsContent = HStack(alignment: .firstTextBaseline, spacing: layout.columnSpace) {
+        // Segment number (left if needed)
+        if layout.segmentNumberPosition == .left {
+          Text(segnum ?? segment.scid)
+            .font(.caption)
+            .foregroundColor(themeProvider.theme.secondaryTextColor)
+            .lineLimit(1)
+            .frame(width: layout.columnWidth, alignment: .leading)
+        }
+
+        // Pali column
+        if Settings.shared.showPali {
+          ColumnView(
+            attributedString: attributedStrings["pali"],
+            columnWidth: layout.columnWidth,
+            bodyFont: bodyFont()
+          )
+          .task {
+            let text = getSegmentText(field: "pli")
+            attributedStrings["pali"] = buildAttributedString(text)
+          }
+        }
+
+        // Doc column
+        if Settings.shared.showDoc {
+          ColumnView(
+            attributedString: attributedStrings["doc"],
+            columnWidth: layout.columnWidth,
+            bodyFont: bodyFont()
+          )
+          .task {
+            let text = getSegmentText(field: "doc")
+            attributedStrings["doc"] = buildAttributedString(text)
+          }
+        }
+
+        // Ref column
+        if Settings.shared.showRef {
+          ColumnView(
+            attributedString: attributedStrings["ref"],
+            columnWidth: layout.columnWidth,
+            bodyFont: bodyFont()
+          )
+          .task {
+            let text = getSegmentText(field: "ref")
+            attributedStrings["ref"] = buildAttributedString(text)
+          }
+        }
+      }
+      .padding(.horizontal)
+
+      // Wrap in ScrollView if horizontal scroll needed
+      if layout.needsHorizontalScroll {
+        ScrollView(.horizontal) {
+          columnsContent
+        }
       } else {
-        Text("⏳")
-          .font(bodyFont())
+        columnsContent
       }
     }
-    .padding(.horizontal)
     .padding(.vertical, 4)
     .background(
       isSegmentSelected ? themeProvider.theme
@@ -81,9 +137,6 @@ struct SegmentView: View {
         )
       #endif
       cc.ok1(#line, "Selected segment:", segment.scid)
-    }
-    .task {
-      attributedString = buildAttributedString(getSegmentText())
     }
   }
 
@@ -124,16 +177,43 @@ struct SegmentView: View {
   }
 }
 
+// MARK: - ColumnView Helper
+
+private struct ColumnView: View {
+  let attributedString: AttributedString?
+  let columnWidth: CGFloat
+  let bodyFont: Font
+  @EnvironmentObject var themeProvider: ThemeProvider
+
+  var body: some View {
+    VStack(alignment: .leading) {
+      if let attributedString {
+        Text(attributedString)
+          .font(bodyFont)
+          .foregroundColor(themeProvider.theme.textColor)
+          .lineLimit(nil)
+      } else {
+        Text("⏳")
+          .font(bodyFont)
+          .foregroundColor(themeProvider.theme.textColor)
+      }
+    }
+    .frame(width: columnWidth, alignment: .topLeading)
+  }
+}
+
 #Preview("SegmentView") {
   @Previewable @State var mlDoc = MLDocument(
     currentScid: "mn1:0.1",
   )
 
   let mockPlayer = SuttaPlayer()
+  let layout = SegmentLayout.calculateLayout(availableWidth: 390, columnsShown: 1)
 
   SegmentView(
     segment: Segment(scid: "mn1:0.1", doc: "The Middle Collection"),
     mlDoc: mlDoc,
+    layout: layout,
     player: mockPlayer,
   )
   .environmentObject(ThemeProvider())

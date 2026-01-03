@@ -46,20 +46,40 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
 
       // Segments Content
       if let mlDoc = card.mlDoc {
-        ScrollViewReader { scrollProxy in
-          ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 8) {
-              ForEach(segments.indices, id: \.self) { index in
-                let segment = segments[index]
-                SegmentView(
-                  segment: segment,
-                  mlDoc: mlDoc,
-                  player: player,
-                )
+        GeometryReader { geometry in
+          ScrollViewReader { scrollProxy in
+            // Calculate layout based on available width
+            let segmentNumberWidth = segments.last.flatMap { segment in
+              SegmentLayout.calculateTextWidth(
+                text: segment.scid,
+                font: PlatformFont.systemFont(ofSize: 12)
+              )
+            } ?? 40
+
+            let columnsShown = (Settings.shared.showPali ? 1 : 0) +
+                               (Settings.shared.showDoc ? 1 : 0) +
+                               (Settings.shared.showRef ? 1 : 0)
+
+            let layout = SegmentLayout.calculateLayout(
+              availableWidth: geometry.size.width,
+              columnsShown: max(1, columnsShown),
+              segmentNumberWidth: segmentNumberWidth
+            )
+
+            ScrollView(.vertical) {
+              VStack(alignment: .leading, spacing: 8) {
+                ForEach(segments, id: \.scid) { segment in
+                  SegmentView(
+                    segment: segment,
+                    mlDoc: mlDoc,
+                    layout: layout,
+                    player: player,
+                  )
+                }
               }
+              .frame(maxWidth: .infinity, alignment: .center)
+              .padding(.vertical)
             }
-            .padding(.vertical)
-          }
           .scrollContentBackground(.hidden)
           .background(.clear)
           .onAppear {
@@ -96,6 +116,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 )
               }
             }
+          }
           }
         }
       } else {
