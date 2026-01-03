@@ -52,6 +52,16 @@ cc.ok2(#line, "message")  // Correct - ColorConsole checks verbosity internally
 
 ColorConsole returns nil if output is filtered, allowing `@discardableResult` to silence unused value warnings.
 
+### Protocol Naming Convention
+
+Protocols use the "I" prefix (Microsoft convention) to make intent explicit at first glance.
+
+**Examples:**
+- `ISpeechSynthesizer` (not `SpeechSynthesizer`)
+- `ICardManager` (not `CardManager`)
+
+This convention applies to all new protocols in the codebase.
+
 ## Claude commands
 
 Always read user Claude.md at beginning of chat or whenever existing chat is cleared.
@@ -120,16 +130,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Test actual macOS appearance and UX
     - Determine if .automatic is appropriate or needs refinement
     - Consider alternative placements if needed
-
-### Test SuttaPlayer AVSpeechSynthesizer integration
-**Status**: Backlog
-
-01. [ ] Fix SuttaPlayer tests that hang due to real speech synthesis (See: scv-ui/Tests/scvUITests.swift:67-138)
-    - Tests currently commented out and using real AVSpeechSynthesizer which hangs
-    - Need protocol-based abstraction or working mock for AVSpeechSynthesizer
-    - Test suttaPlayerUpdatesCurrentScidWhenPlayingSegment
-    - Test suttaPlayerJumpToSegmentWhilePlaying
-    - Consider if tests should verify speech synthesis or just state changes
 
 ### Create app privacy label
 **Status**: In Progress

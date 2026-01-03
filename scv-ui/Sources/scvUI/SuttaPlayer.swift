@@ -18,17 +18,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var isPlaying = false
   @Published public var currentSutta: MLDocument?
 
-  private let synthesizer = AVSpeechSynthesizer()
+  private var synthesizer: ISpeechSynthesizer
   private var segments: [(key: String, value: Segment)] = []
   private var currentSegmentIndex = 0
   private var nextIndexToPlay = 0
   private var isTransitioning = false
 
-  override init() {
+  init(synthesizer: ISpeechSynthesizer = AVSpeechSynthesizer()) {
+    self.synthesizer = synthesizer
     super.init()
     cc.ok2(#line, "init() starting")
     configureAudioSession()
-    synthesizer.delegate = self
+    self.synthesizer.delegate = self
     setupAudioInterruptionHandler()
     cc.ok2(#line, "init() complete")
   }

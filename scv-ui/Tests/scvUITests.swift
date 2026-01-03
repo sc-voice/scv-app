@@ -1,8 +1,41 @@
+import AVFoundation
 import Foundation
 @testable import scvCore
 @testable import scvUI
 import SwiftData
 import Testing
+
+// MARK: - MockSpeechSynthesizer for testing
+
+class MockSpeechSynthesizer: ISpeechSynthesizer {
+  var isSpeaking = false
+  var delegate: AVSpeechSynthesizerDelegate?
+
+  var speakWasCalled = false
+  var speakCallCount = 0
+  var lastSpokenText: String?
+  var stopSpeakingWasCalled = false
+  var stopSpeakingBoundary: AVSpeechBoundary?
+
+  func speak(_ utterance: AVSpeechUtterance) throws {
+    speakWasCalled = true
+    speakCallCount += 1
+    lastSpokenText = utterance.speechString
+    isSpeaking = true
+  }
+
+  func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
+    stopSpeakingWasCalled = true
+    stopSpeakingBoundary = boundary
+    isSpeaking = false
+    return true
+  }
+
+  // Helper to simulate speech completion
+  func simulateSpeechCompletion() {
+    isSpeaking = false
+  }
+}
 
 @Suite
 struct scvUITests {
@@ -71,79 +104,68 @@ struct scvUITests {
     cc.ok1(#line, "passed")
   }
 
-  // TODO: Test SuttaPlayer speech synthesis (see backlog)
-  // @Test
-  // @MainActor
-  // func suttaPlayerUpdatesCurrentScidWhenPlayingSegment() async {
-  //   // Create a mock MLDocument with segments
-  //   if let mockResponse = SearchResponse.createMockResponse(),
-  //      let mlDoc = mockResponse.mlDocs.first
-  //   {
-  //     let mockSynthesizer = MockSpeechSynthesizer()
-  //     let player = SuttaPlayer(synthesizer: mockSynthesizer)
-  //     mockSynthesizer.mockDelegate = player
-  //     let segments = mlDoc.segments()
-  //
-  //     // Load the document
-  //     player.load(mlDoc)
-  //
-  //     // Play first segment
-  //     player.play()
-  //
-  //     // Verify speak was called and currentScid is set
-  //     #expect(mockSynthesizer.speakWasCalled == true)
-  //     let firstSegmentScid = segments[0].key
-  //     let currentScid = player.currentSutta?.currentScid
-  //     #expect(currentScid == firstSegmentScid)
-  //   }
-  // }
+  @Test
+  @MainActor
+  func suttaPlayerUpdatesCurrentScidWhenPlayingSegment() async {
+    // Create a mock MLDocument with segments
+    if let mockResponse = SearchResponse.createMockResponse(),
+       let mlDoc = mockResponse.mlDocs.first
+    {
+      let mockSynthesizer = MockSpeechSynthesizer()
+      let player = SuttaPlayer(synthesizer: mockSynthesizer)
+      mockSynthesizer.delegate = player
+      let segments = mlDoc.segments()
 
-  // TODO: Test SuttaPlayer jump to segment (see backlog)
-  // @Test
-  // @MainActor
-  // func suttaPlayerJumpToSegmentWhilePlaying() async {
-  //   // Create a mock MLDocument with segments
-  //   if let mockResponse = SearchResponse.createMockResponse(),
-  //      let mlDoc = mockResponse.mlDocs.first
-  //   {
-  //     let mockSynthesizer = MockSpeechSynthesizer()
-  //     let player = SuttaPlayer(synthesizer: mockSynthesizer)
-  //     mockSynthesizer.mockDelegate = player
-  //     let segments = mlDoc.segments()
-  //
-  //     // Load the document
-  //     player.load(mlDoc)
-  //
-  //     // Start playing segment 0
-  //     player.play()
-  //
-  //     // Verify playing segment 0
-  //     let currentScid0 = player.currentSutta?.currentScid
-  //     #expect(currentScid0 == segments[0].key)
-  //
-  //     // User jumps to segment 3 while segment 0 is still playing
-  //     // With correct fix: jumpToSegment sets nextIndexToPlay = 3 (without
-  //     // calling playSegmentAt)
-  //     player.jumpToSegment(scid: segments[3].key)
-  //
-  //     // Simulate segment 0's didFinish callback (stale callback from before
-  //     /the
-  //     // jump)
-  //     // It should play nextIndexToPlay, which should be 3 (not 4)
-  //     let staleUtterance = AVSpeechUtterance(string: "test")
-  //     player.speechSynthesizer(player.synthesizer, didFinish: staleUtterance)
-  //
-  //     // Give async task time to complete
-  //     try? await Task.sleep(for: .milliseconds(10))
-  //
-  //     // Verify currentScid is segment 3 (not segment 4)
-  //     // If jumpToSegment called playSegmentAt(3) instead of just setting
-  //     // nextIndexToPlay = 3,
-  //     // then nextIndexToPlay would be 4, and this test would fail
-  //     let currentScid3 = player.currentSutta?.currentScid
-  //     #expect(currentScid3 == segments[3].key)
-  //   }
-  // }
+      // Load the document
+      player.load(mlDoc)
+
+      // Play first segment
+      player.play()
+
+      // Verify speak was called and currentScid is set
+      #expect(mockSynthesizer.speakWasCalled == true)
+      let firstSegmentScid = segments[0].key
+      let currentScid = player.currentSutta?.currentScid
+      #expect(currentScid == firstSegmentScid)
+      cc.ok1(#line, "passed")
+    }
+  }
+
+  @Test
+  @MainActor
+  func suttaPlayerJumpToSegmentWhilePlaying() async {
+    // Create a mock MLDocument with segments
+    if let mockResponse = SearchResponse.createMockResponse(),
+       let mlDoc = mockResponse.mlDocs.first
+    {
+      let mockSynthesizer = MockSpeechSynthesizer()
+      let player = SuttaPlayer(synthesizer: mockSynthesizer)
+      mockSynthesizer.delegate = player
+      let segments = mlDoc.segments()
+
+      // Load the document
+      player.load(mlDoc)
+
+      // Start playing segment 0
+      player.play()
+
+      // Verify playing segment 0
+      let currentScid0 = player.currentSutta?.currentScid
+      #expect(currentScid0 == segments[0].key)
+
+      // User jumps to segment 3 while segment 0 is still playing
+      // This should pause playback and update to segment 3
+      player.jumpToSegment(scid: segments[3].key)
+
+      // Verify currentScid is updated to segment 3
+      let currentScid3 = player.currentSutta?.currentScid
+      #expect(currentScid3 == segments[3].key)
+
+      // Verify that playback stopped
+      #expect(player.isPlaying == false)
+      cc.ok1(#line, "passed")
+    }
+  }
 
   // TODO: AppController tests need MockURLOpener (see backlog)
   // Tests commented out because MockURLOpener causes hangs
