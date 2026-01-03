@@ -38,28 +38,38 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       NotificationCenter.default.addObserver(
         forName: AVAudioSession.interruptionNotification,
         object: AVAudioSession.sharedInstance(),
-        queue: .main
+        queue: .main,
       ) { [weak self] notification in
         guard let self else { return }
         guard let userInfo = notification.userInfo as? [String: Any],
-              let typeValue = userInfo["AVAudioSessionInterruptionTypeKey"] as? NSNumber
+              let typeValue =
+              userInfo["AVAudioSessionInterruptionTypeKey"] as? NSNumber
         else {
-          self.cc.bad1(#line, #function, "Could not parse interruption notification")
+          cc.bad1(#line, #function, "Could not parse interruption notification")
           return
         }
 
-        let type = AVAudioSession.InterruptionType(rawValue: typeValue.uintValue)
+        let type = AVAudioSession
+          .InterruptionType(rawValue: typeValue.uintValue)
 
         if type == .began {
-          self.cc.bad1(#line, #function, "Audio session interrupted")
-          self.pause()
+          cc.bad1(#line, #function, "Audio session interrupted")
+          pause()
         } else if type == .ended {
-          let options = (userInfo["AVAudioSessionInterruptionOptionKey"] as? NSNumber)?.uintValue ?? 0
-          if AVAudioSession.InterruptionOptions(rawValue: options).contains(.shouldResume) {
-            self.cc.ok1(#line, #function, "Audio session resumed - reconfiguring")
-            self.configureAudioSession()
+          let options =
+            (userInfo["AVAudioSessionInterruptionOptionKey"] as? NSNumber)?
+              .uintValue ?? 0
+          if AVAudioSession.InterruptionOptions(rawValue: options)
+            .contains(.shouldResume)
+          {
+            cc.ok1(#line, #function, "Audio session resumed - reconfiguring")
+            configureAudioSession()
           } else {
-            self.cc.bad1(#line, #function, "Audio session resumed but resumption not recommended")
+            cc.bad1(
+              #line,
+              #function,
+              "Audio session resumed but resumption not recommended",
+            )
           }
         }
       }
@@ -110,8 +120,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     // Clear transition lock after 500ms to allow next action
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-      if !self.synthesizer.isSpeaking && self.isPlaying {
-        self.cc.bad1(#line, #function, "Synthesizer failed to start after 500ms - pausing")
+      if !self.synthesizer.isSpeaking, self.isPlaying {
+        self.cc.bad1(
+          #line,
+          #function,
+          "Synthesizer failed to start after 500ms - pausing",
+        )
         self.pause()
       }
       self.isTransitioning = false
@@ -140,7 +154,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       cc.ok1(#line, #function, "playing from currentScid:", currentScid)
       playSegmentAt(at: index)
     } else {
-      cc.ok1(#line, #function, "playing from currentSegmentIndex:", currentSegmentIndex)
+      cc.ok1(
+        #line,
+        #function,
+        "playing from currentSegmentIndex:",
+        currentSegmentIndex,
+      )
       playSegmentAt(at: currentSegmentIndex)
     }
     cc.ok1(#line, #function, "play() complete - isPlaying:", isPlaying)
@@ -261,7 +280,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     do {
       cc.ok2(#line, #function, "speak... isSpeaking:", synthesizer.isSpeaking)
       try synthesizer.speak(utterance)
-      cc.ok1(#line, #function, "speak called. isSpeaking now:", synthesizer.isSpeaking)
+      cc.ok1(
+        #line,
+        #function,
+        "speak called. isSpeaking now:",
+        synthesizer.isSpeaking,
+      )
     } catch {
       cc.bad1(#line, #function, error)
     }
@@ -278,11 +302,22 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       // When user jumps to a different segment, playSegmentAt updates
       // nextIndexToPlay,
       // so stale callbacks will use the updated target
-      self.cc.ok1(#line, #function, "didFinish callback - isPlaying:", self.isPlaying, "nextIndexToPlay:", self.nextIndexToPlay)
+      self.cc.ok1(
+        #line,
+        #function,
+        "didFinish callback - isPlaying:",
+        self.isPlaying,
+        "nextIndexToPlay:",
+        self.nextIndexToPlay,
+      )
       if self.isPlaying {
         self.playSegmentAt(at: self.nextIndexToPlay)
       } else {
-        self.cc.ok1(#line, #function, "didFinish but isPlaying=false, not continuing")
+        self.cc.ok1(
+          #line,
+          #function,
+          "didFinish but isPlaying=false, not continuing",
+        )
       }
     }
   }

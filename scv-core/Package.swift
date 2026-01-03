@@ -15,7 +15,6 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(path: "../scv-macros"),
     .package(url: "https://github.com/facebook/zstd.git", from: "1.5.5"),
     .package(path: "Plugins/GenerateManifestPlugin"),
   ],
@@ -23,7 +22,6 @@ let package = Package(
     .target(
       name: "scvCore",
       dependencies: [
-        .product(name: "scvMacros", package: "scv-macros"),
         .product(name: "libzstd", package: "zstd"),
       ],
       path: "Sources",

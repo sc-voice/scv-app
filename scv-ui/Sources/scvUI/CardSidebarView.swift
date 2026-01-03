@@ -34,48 +34,66 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     self.onSettingsTap = onSettingsTap
   }
 
-  private var cardListView: some View {
-    Group {
-      if UIDevice.current.userInterfaceIdiom == .phone {
-        // iPhone: Use List for proper NavigationSplitView single-column selection behavior
-        List(selection: $selectedCardId) {
-          ForEach(cardManager.allCards, id: \.id) { card in
-            cardRowContent(card)
-              .contentShape(Rectangle())
-              .onTapGesture {
-                selectedCardId = card.id
-                cardManager.selectCard(card)
-                cc.ok1(#line, "Selected card:", card.name)
-              }
-          }
-          .onDelete { indices in
-            cardManager.removeCards(at: indices)
-            cc.ok1(
-              #line,
-              "Deleted card(s) at indices:",
-              indices.debugDescription,
-            )
-          }
-        }
-        .scrollContentBackground(.hidden)
-        .background(.black.opacity(0.5))
-      } else {
-        // iPad/macOS: Use ScrollView for custom styling and animations
-        ScrollView {
-          VStack(spacing: 0) {
+  #if os(iOS)
+    private var cardListView: some View {
+      Group {
+        if UIDevice.current.userInterfaceIdiom == .phone {
+          // iPhone: Use List for proper NavigationSplitView single-column selection behavior
+          List(selection: $selectedCardId) {
             ForEach(cardManager.allCards, id: \.id) { card in
-              cardRow(card)
+              cardRowContent(card)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                  selectedCardId = card.id
+                  cardManager.selectCard(card)
+                  cc.ok1(#line, "Selected card:", card.name)
+                }
+            }
+            .onDelete { indices in
+              cardManager.removeCards(at: indices)
+              cc.ok1(
+                #line,
+                "Deleted card(s) at indices:",
+                indices.debugDescription,
+              )
             }
           }
-          .background(.black)
-          .cornerRadius(8)
-          .padding(8)
+          .scrollContentBackground(.hidden)
+          .background(.black.opacity(0.5))
+        } else {
+          // iPad: Use ScrollView for custom styling and animations
+          ScrollView {
+            VStack(spacing: 0) {
+              ForEach(cardManager.allCards, id: \.id) { card in
+                cardRow(card)
+              }
+            }
+            .background(.black)
+            .cornerRadius(8)
+            .padding(8)
+          }
+          .scrollContentBackground(.hidden)
+          .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
         }
-        .scrollContentBackground(.hidden)
-        .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
       }
     }
-  }
+  #else
+    private var cardListView: some View {
+      // macOS: Use ScrollView for custom styling
+      ScrollView {
+        VStack(spacing: 0) {
+          ForEach(cardManager.allCards, id: \.id) { card in
+            cardRow(card)
+          }
+        }
+        .background(.black)
+        .cornerRadius(8)
+        .padding(8)
+      }
+      .scrollContentBackground(.hidden)
+      .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
+    }
+  #endif
 
   // Shared content for both iOS and macOS
   private func cardRowContent(_ card: Manager.ManagedCard) -> some View {

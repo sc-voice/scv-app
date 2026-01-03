@@ -24,7 +24,7 @@ public struct SuttaHeaderView<Card: ICard>: View {
   ) {
     suttaRef = SuttaRef.create(card.suttaReference)
     self.card = card
-    self._player = ObservedObject(initialValue: player)
+    _player = ObservedObject(initialValue: player)
   }
 
   public var title: String {
