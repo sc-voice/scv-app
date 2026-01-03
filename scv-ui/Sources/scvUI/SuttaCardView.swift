@@ -21,7 +21,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var player: SuttaPlayer
-  @State private var segments: [(key: String, value: Segment)] = []
+  @State private var segments: [Segment] = []
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -50,7 +50,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 8) {
               ForEach(segments.indices, id: \.self) { index in
-                let (_, segment) = segments[index]
+                let segment = segments[index]
                 SegmentView(
                   segment: segment,
                   mlDoc: mlDoc,
@@ -135,7 +135,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         segments = mlDoc.segments()
         // Initialize currentScid to first segment if nil
         if mlDoc.currentScid == nil, let firstSegment = segments.first {
-          mlDoc.currentScid = firstSegment.key
+          mlDoc.currentScid = firstSegment.scid
         }
         cc.ok1(#line, "onAppear \(mlDoc.currentScid ?? "nil")")
       } else {

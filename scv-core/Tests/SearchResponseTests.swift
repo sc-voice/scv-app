@@ -756,8 +756,8 @@ struct SearchResponseTests {
 
     // Verify they're sorted in SuttaCentralId order
     for i in 0 ..< (sortedSegments.count - 1) {
-      let current = sortedSegments[i].key
-      let next = sortedSegments[i + 1].key
+      let current = sortedSegments[i].scid
+      let next = sortedSegments[i + 1].scid
 
       let cmp = SuttaCentralId.compareLow(current, next)
       #expect(
@@ -779,9 +779,9 @@ struct SearchResponseTests {
 
     // Verify first three segments are in correct order for sn42.11
     #expect(sortedSegments.count >= 3)
-    #expect(sortedSegments[0].key == "sn42.11:0.1")
-    #expect(sortedSegments[1].key == "sn42.11:0.2")
-    #expect(sortedSegments[2].key == "sn42.11:0.3")
+    #expect(sortedSegments[0].scid == "sn42.11:0.1")
+    #expect(sortedSegments[1].scid == "sn42.11:0.2")
+    #expect(sortedSegments[2].scid == "sn42.11:0.3")
   }
 
   @Test func mLDocumentSegmentsPreservesContent() async throws {
@@ -796,9 +796,9 @@ struct SearchResponseTests {
     let firstSeg = sortedSegments.first
 
     // Verify segment content is preserved
-    #expect(firstSeg?.value.scid == "sn42.11:0.1")
+    #expect(firstSeg?.scid == "sn42.11:0.1")
     #expect(
-      firstSeg?.value.displayText.contains("Linked Discourses") ?? false,
+      firstSeg?.displayText.contains("Linked Discourses") ?? false,
       "Segment content should be preserved",
     )
   }
@@ -926,7 +926,7 @@ struct SearchResponseTests {
     }
 
     let sortedSegments = doc.segments()
-    let firstScid = sortedSegments[0].key
+    let firstScid = sortedSegments[0].scid
 
     let index = doc.indexOfScid(firstScid)
     #expect(index == 0)
@@ -941,7 +941,7 @@ struct SearchResponseTests {
     }
 
     let sortedSegments = doc.segments()
-    let middleScid = sortedSegments[sortedSegments.count / 2].key
+    let middleScid = sortedSegments[sortedSegments.count / 2].scid
 
     let index = doc.indexOfScid(middleScid)
     #expect(index == sortedSegments.count / 2)

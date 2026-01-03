@@ -201,10 +201,10 @@ public final class MLDocument: Codable, @unchecked Sendable {
   }
 
   /// Returns segments sorted in SuttaCentralId order
-  public func segments() -> [(key: String, value: Segment)] {
+  public func segments() -> [Segment] {
     segMap.sorted { lhs, rhs in
       SuttaCentralId.compareLow(lhs.key, rhs.key) < 0
-    }
+    }.map(\.value)
   }
 
   enum CodingKeys: String, CodingKey {
@@ -274,7 +274,7 @@ extension MLDocument {
   /// array
   func indexOfScid(_ scid: String) -> Int? {
     let sortedSegments = segments()
-    return sortedSegments.firstIndex { $0.key == scid }
+    return sortedSegments.firstIndex { $0.scid == scid }
   }
 
   /// Serializes segments as JSON object in SuttaCentral translation format

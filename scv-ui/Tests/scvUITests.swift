@@ -124,7 +124,7 @@ struct scvUITests {
 
       // Verify speak was called and currentScid is set
       #expect(mockSynthesizer.speakWasCalled == true)
-      let firstSegmentScid = segments[0].key
+      let firstSegmentScid = segments[0].scid
       let currentScid = player.currentSutta?.currentScid
       #expect(currentScid == firstSegmentScid)
       cc.ok1(#line, "passed")
@@ -151,15 +151,15 @@ struct scvUITests {
 
       // Verify playing segment 0
       let currentScid0 = player.currentSutta?.currentScid
-      #expect(currentScid0 == segments[0].key)
+      #expect(currentScid0 == segments[0].scid)
 
       // User jumps to segment 3 while segment 0 is still playing
       // This should pause playback and update to segment 3
-      player.jumpToSegment(scid: segments[3].key)
+      player.jumpToSegment(scid: segments[3].scid)
 
       // Verify currentScid is updated to segment 3
       let currentScid3 = player.currentSutta?.currentScid
-      #expect(currentScid3 == segments[3].key)
+      #expect(currentScid3 == segments[3].scid)
 
       // Verify that playback stopped
       #expect(player.isPlaying == false)

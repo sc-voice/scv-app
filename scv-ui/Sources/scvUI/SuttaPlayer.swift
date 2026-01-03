@@ -19,7 +19,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var currentSutta: MLDocument?
 
   private var synthesizer: ISpeechSynthesizer
-  private var segments: [(key: String, value: Segment)] = []
+  private var segments: [Segment] = []
   private var currentSegmentIndex = 0
   private var nextIndexToPlay = 0
   private var isTransitioning = false
@@ -150,7 +150,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     // Start playback at currentScid if set, otherwise use currentSegmentIndex
     if let currentScid = currentSutta?.currentScid,
-       let index = segments.firstIndex(where: { $0.key == currentScid })
+       let index = segments.firstIndex(where: { $0.scid == currentScid })
     {
       cc.ok1(#line, #function, "playing from currentScid:", currentScid)
       playSegmentAt(at: index)
@@ -168,7 +168,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   @MainActor
   public func jumpToSegment(scid: String) {
-    guard let index = segments.firstIndex(where: { $0.key == scid })
+    guard let index = segments.firstIndex(where: { $0.scid == scid })
     else { return }
 
     // Update the current segment
@@ -217,17 +217,17 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
 
     currentSegmentIndex = index
-    let (scid, segment) = segments[index]
-    currentSutta?.currentScid = scid
+    let segment = segments[index]
+    currentSutta?.currentScid = segment.scid
     if !Settings.shared.playDoc {
       cc.ok1(#line, #function, "!playDoc isPlaying:", isPlaying)
       return
     }
 
     // Announce section boundary (scid ending in .1)
-    if scid.hasSuffix(".0") {
+    if segment.scid.hasSuffix(".0") {
       AudioEffects.shared.announce(.section)
-    } else if scid.hasSuffix(".1") {
+    } else if segment.scid.hasSuffix(".1") {
       AudioEffects.shared.announce(.segment)
     }
 
