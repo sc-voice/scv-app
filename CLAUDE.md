@@ -121,16 +121,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Re-enable and verify all serialization tests pass
     - Verify fixture JSON structure reflects new docLangSettings[language]: LangSettings format
 
-### Review CardSidebarView toolbar iOS/macOS design
-**Status**: Backlog
-
-01. [ ] Evaluate CardSidebarView toolbar button placement (See: scv-ui/Sources/scvUI/CardSidebarView.swift:80-135)
-    - iOS uses .navigationBarLeading and .navigationBarTrailing
-    - macOS uses .automatic placement (temporary solution)
-    - Test actual macOS appearance and UX
-    - Determine if .automatic is appropriate or needs refinement
-    - Consider alternative placements if needed
-
 ### Create app privacy label
 **Status**: In Progress
 
@@ -211,15 +201,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Need to calculate actual scores for phrase matches or inherit from keyword results
     - Update phraseSearchRootOfSuffering test with actual discovered scores
     - Consider whether phrase matches should score differently than keyword matches
-
-### Refactor MLDocument.segments() to return array instead of key-value pairs
-**Status**: Backlog
-
-01. [ ] Change MLDocument.segments() return type from array of tuples to array of Segments
-    - Current: returns `[(key: String, value: Segment)]` duplicating segment.scid
-    - Proposed: returns `[Segment]` since Segment already contains scid
-    - Update all callsites in SuttaCardView and elsewhere
-    - Simplifies iteration and eliminates tuple destructuring
 
 ### Mark matched segments in MLDocument with lemmaRegexp
 **Status**: Backlog
