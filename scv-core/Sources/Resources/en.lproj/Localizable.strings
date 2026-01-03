@@ -97,6 +97,9 @@
 /* Settings section header for narrator voice settings */
 "settings.narrator" = "Narrator";
 
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Narration";
+
 /* Settings label for pitch adjustment */
 "settings.pitch" = "Pitch";
 

@@ -85,6 +85,12 @@
 /* Alert button label for canceling action */
 "alert.cancel" = "Annuler";
 
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Narrateur";
+
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Narration";
+
 /* Settings toggle label for playing Pali text during narration */
 "settings.play.pali" = "Pali";
 

@@ -73,6 +73,7 @@ public struct SliderSettingRow: View {
         Image(systemName: icon)
           .foregroundColor(themeProvider.theme.textColor
             .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
         VStack(alignment: .leading, spacing: 4) {
           Text(label)
             .font(.body)

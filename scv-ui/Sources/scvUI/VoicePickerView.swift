@@ -18,7 +18,6 @@ struct VoicePickerView: View {
   let language: ScvLanguage
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showVoicePicker = false
-  @State private var showCustomization = false
   @Environment(\.sizeCategory) var sizeCategory
 
   var pickerDetent: Set<PresentationDetent> {
@@ -76,7 +75,13 @@ struct VoicePickerView: View {
       Group {
         if shouldStackVertically {
           VStack(alignment: .leading, spacing: 8) {
-            Text("Voice")
+            HStack(spacing: 8) {
+              Image(systemName: "speaker.fill")
+                .foregroundColor(themeProvider.theme.textColor
+                  .opacity(themeProvider.theme.iconOpacity))
+                .frame(minWidth: 44)
+              Text("Voice")
+            }
             Button(action: { showVoicePicker = true }) {
               Text(selectedVoiceName)
                 .foregroundColor(themeProvider.theme.valueColor)
@@ -85,6 +90,10 @@ struct VoicePickerView: View {
           }
         } else {
           HStack {
+            Image(systemName: "speaker.fill")
+              .foregroundColor(themeProvider.theme.textColor
+                .opacity(themeProvider.theme.iconOpacity))
+              .frame(minWidth: 44)
             Text("Voice")
             Spacer()
             Button(action: { showVoicePicker = true }) {
@@ -116,69 +125,6 @@ struct VoicePickerView: View {
         #if os(iOS)
           .presentationDetents(pickerDetent)
         #endif
-      }
-
-      DisclosureGroup(
-        "settings.customize".localized,
-        isExpanded: $showCustomization,
-      ) {
-        VStack(alignment: .leading, spacing: 8) {
-          if shouldStackVertically {
-            VStack(alignment: .leading, spacing: 8) {
-              HStack {
-                Image(systemName: "mountain.2")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                Text("settings.pitch".localized)
-                  .font(.body)
-              }
-              Slider(value: $pitch, in: 0.5 ... 2.0, step: 0.1)
-              Text(String(format: "%.1f", pitch))
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.valueColor)
-            }
-          } else {
-            HStack {
-              Image(systemName: "mountain.2")
-                .foregroundColor(themeProvider.theme.accentColor)
-              VStack(alignment: .leading, spacing: 4) {
-                Text("settings.pitch".localized)
-                  .font(.body)
-                Slider(value: $pitch, in: 0.5 ... 2.0, step: 0.1)
-              }
-              Text(String(format: "%.1f", pitch))
-                .foregroundColor(themeProvider.theme.valueColor)
-                .frame(width: 35)
-            }
-          }
-
-          if shouldStackVertically {
-            VStack(alignment: .leading, spacing: 8) {
-              HStack {
-                Image(systemName: "hare")
-                  .foregroundColor(themeProvider.theme.accentColor)
-                Text("settings.rate".localized)
-                  .font(.body)
-              }
-              Slider(value: $rate, in: 0.1 ... 2.0, step: 0.1)
-              Text(String(format: "%.1f", rate))
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.valueColor)
-            }
-          } else {
-            HStack {
-              Image(systemName: "hare")
-                .foregroundColor(themeProvider.theme.accentColor)
-              VStack(alignment: .leading, spacing: 4) {
-                Text("settings.rate".localized)
-                  .font(.body)
-                Slider(value: $rate, in: 0.1 ... 2.0, step: 0.1)
-              }
-              Text(String(format: "%.1f", rate))
-                .foregroundColor(themeProvider.theme.valueColor)
-                .frame(width: 35)
-            }
-          }
-        }
       }
     }
   }

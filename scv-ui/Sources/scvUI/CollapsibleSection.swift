@@ -12,7 +12,7 @@ import SwiftUI
 
 /// A reusable collapsible section component with title, disclosure triangle,
 /// and content
-public struct CollapsibleSection<Content: View>: View {
+public struct CollapsibleSection<Content: View, SummaryContent: View>: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @Binding var isExpanded: Bool
   @Environment(\.accessibilityReduceMotion) var reduceMotion
@@ -20,8 +20,31 @@ public struct CollapsibleSection<Content: View>: View {
   let title: String
   let onToggle: (() -> Void)?
   let content: () -> Content
+  let summary: (() -> SummaryContent)?
 
   /// Initialize a CollapsibleSection with external state management
+  /// - Parameters:
+  ///   - title: The header title displayed
+  ///   - isExpanded: Binding to whether the section is expanded
+  ///   - onToggle: Optional callback when section is toggled
+  ///   - summary: Optional ViewBuilder closure containing a summary view
+  /// displayed flush right
+  ///   - content: ViewBuilder closure containing the collapsible content
+  public init(
+    _ title: String,
+    isExpanded: Binding<Bool>,
+    onToggle: (() -> Void)? = nil,
+    @ViewBuilder summary: @escaping () -> SummaryContent,
+    @ViewBuilder content: @escaping () -> Content,
+  ) {
+    self.title = title
+    _isExpanded = isExpanded
+    self.onToggle = onToggle
+    self.summary = summary
+    self.content = content
+  }
+
+  /// Initialize a CollapsibleSection without a summary
   /// - Parameters:
   ///   - title: The header title displayed
   ///   - isExpanded: Binding to whether the section is expanded
@@ -32,10 +55,11 @@ public struct CollapsibleSection<Content: View>: View {
     isExpanded: Binding<Bool>,
     onToggle: (() -> Void)? = nil,
     @ViewBuilder content: @escaping () -> Content,
-  ) {
+  ) where SummaryContent == EmptyView {
     self.title = title
     _isExpanded = isExpanded
     self.onToggle = onToggle
+    summary = nil
     self.content = content
   }
 
@@ -61,6 +85,14 @@ public struct CollapsibleSection<Content: View>: View {
             .foregroundColor(themeProvider.theme.textColor)
 
           Spacer()
+
+          // Summary view (hidden when expanded)
+          if !isExpanded, let summary {
+            summary()
+              .font(.caption)
+              .foregroundColor(themeProvider.theme.valueColor)
+              .lineLimit(1)
+          }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)

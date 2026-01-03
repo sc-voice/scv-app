@@ -5,6 +5,7 @@
 //  Created by Visakha on 20/11/2025.
 //
 
+import AVFoundation
 import Combine
 import scvCore
 import SwiftUI
@@ -90,6 +91,15 @@ public struct SettingsView: View {
                   get: { expandedSection == "languages" },
                   set: { _ in toggleSection("languages") },
                 ),
+                summary: {
+                  VStack(alignment: .trailing, spacing: 0) {
+                    Text(controller.docLang.code.uppercased())
+                      .lineLimit(1)
+                    Text(docAuthorName)
+                      .font(.system(.caption2))
+                      .lineLimit(1)
+                  }
+                },
               ) {
                 LanguagesSectionContent(
                   controller: controller,
@@ -109,6 +119,32 @@ public struct SettingsView: View {
                   get: { expandedSection == "display" },
                   set: { _ in toggleSection("display") },
                 ),
+                summary: {
+                  VStack(alignment: .trailing, spacing: 0) {
+                    HStack(spacing: 4) {
+                      if controller.showPali {
+                        Text("PLI")
+                      }
+                      if controller.showPali, controller.showDoc {
+                        Text("/")
+                      }
+                      if controller.showDoc {
+                        Text(controller.docLang.code.uppercased())
+                      }
+                      if controller.showPali || controller.showDoc,
+                         controller.showRef
+                      {
+                        Text("/")
+                      }
+                      if controller.showRef {
+                        Text("REF")
+                      }
+                    }
+                    .lineLimit(1)
+                    Text(controller.isDarkModeEnabled ? "Dark" : "Light")
+                      .font(.system(.caption2))
+                  }
+                },
               ) {
                 DisplaySectionContent(
                   controller: controller,
@@ -123,6 +159,25 @@ public struct SettingsView: View {
                   get: { expandedSection == "audio" },
                   set: { _ in toggleSection("audio") },
                 ),
+                summary: {
+                  VStack(alignment: .trailing, spacing: 0) {
+                    HStack(spacing: 4) {
+                      if controller.showPali {
+                        Text("PLI")
+                      }
+                      if controller.showPali, controller.showDoc {
+                        Text("/")
+                      }
+                      if controller.showDoc {
+                        Text(controller.docLang.code.uppercased())
+                      }
+                    }
+                    .lineLimit(1)
+                    Text(AudioSectionContent
+                      .voiceName(for: controller.docVoiceId))
+                      .font(.system(.caption2))
+                  }
+                },
               ) {
                 AudioSectionContent(
                   controller: controller,
@@ -337,54 +392,13 @@ struct AudioSectionContent: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var controller: SettingsModalController
 
+  static func voiceName(for voiceId: String) -> String {
+    let voices = AVFoundation.AVSpeechSynthesisVoice.speechVoices()
+    return voices.first(where: { $0.identifier == voiceId })?.name ?? "Default"
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      // Document Narrator
-      Text("settings.narrator".localized)
-        .font(.caption)
-        .foregroundColor(themeProvider.theme.secondaryTextColor)
-
-      VoicePickerView(
-        selectedVoiceId: $controller.docVoiceId,
-        pitch: $controller.docPitch,
-        rate: $controller.docRate,
-        language: controller.docLang,
-      )
-
-      Divider()
-        .padding(.vertical, 4)
-
-      // Sound Effects Volume
-      SliderSettingRow(
-        icon: "speaker.wave.2",
-        label: "settings.sound.effects.volume".localized,
-        value: Binding(
-          get: { Double(controller.soundEffectVolume * 4.0) },
-          set: { newValue in
-            controller.soundEffectVolume = Float(newValue) / 4.0
-          },
-        ),
-        in: 0 ... 4,
-        step: 1,
-        displayFormatter: { String(Int($0)) },
-      )
-
-      Divider()
-        .padding(.vertical, 4)
-
-      // Segment Pause
-      SliderSettingRow(
-        icon: "waveform",
-        label: "settings.segment.pause".localized,
-        value: $controller.segmentPause,
-        in: 0.0 ... 1.0,
-        step: 0.1,
-        displayFormatter: { String(format: "%.2f", $0) + "s" },
-      )
-
-      Divider()
-        .padding(.vertical, 4)
-
       Text("settings.speak".localized)
         .font(.caption)
         .foregroundColor(themeProvider.theme.secondaryTextColor)
@@ -412,6 +426,95 @@ struct AudioSectionContent: View {
           isOn: $controller.playDoc,
         )
       }
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Narrator voice selection
+      Text("settings.narrator".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+
+      VoicePickerView(
+        selectedVoiceId: $controller.docVoiceId,
+        pitch: $controller.docPitch,
+        rate: $controller.docRate,
+        language: controller.docLang,
+      )
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Narration customization section
+      Text("settings.narration".localized)
+        .font(.caption)
+        .foregroundColor(themeProvider.theme.secondaryTextColor)
+
+      // Pitch
+      HStack {
+        Image(systemName: "mountain.2")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        VStack(alignment: .leading, spacing: 4) {
+          Text("settings.pitch".localized)
+            .font(.body)
+          Slider(value: $controller.docPitch, in: 0.5 ... 2.0, step: 0.1)
+        }
+        Text(String(format: "%.1f", controller.docPitch))
+          .foregroundColor(themeProvider.theme.valueColor)
+          .frame(minWidth: 44)
+      }
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Rate
+      HStack {
+        Image(systemName: "hare")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        VStack(alignment: .leading, spacing: 4) {
+          Text("settings.rate".localized)
+            .font(.body)
+          Slider(value: $controller.docRate, in: 0.1 ... 2.0, step: 0.1)
+        }
+        Text(String(format: "%.1f", controller.docRate))
+          .foregroundColor(themeProvider.theme.valueColor)
+          .frame(minWidth: 44)
+      }
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Sound Effects Volume (Playback Cues)
+      SliderSettingRow(
+        icon: "speaker.wave.2",
+        label: "settings.sound.effects.volume".localized,
+        value: Binding(
+          get: { Double(controller.soundEffectVolume * 4.0) },
+          set: { newValue in
+            controller.soundEffectVolume = Float(newValue) / 4.0
+          },
+        ),
+        in: 0 ... 4,
+        step: 1,
+        displayFormatter: { String(Int($0)) },
+      )
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Segment Pause
+      SliderSettingRow(
+        icon: "waveform",
+        label: "settings.segment.pause".localized,
+        value: $controller.segmentPause,
+        in: 0.0 ... 1.0,
+        step: 0.1,
+        displayFormatter: { String(format: "%.2f", $0) + "s" },
+      )
     }
   }
 }
@@ -424,27 +527,9 @@ struct DisplaySectionContent: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      HStack {
-        Image(systemName: controller
-          .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
-          .foregroundColor(themeProvider.theme.textColor
-            .opacity(themeProvider.theme.iconOpacity))
-          .frame(minWidth: 44)
-        Toggle("settings.dark.mode".localized, isOn: Binding(
-          get: { controller.isDarkModeEnabled },
-          set: { newValue in
-            controller.isDarkModeEnabled = newValue
-            themeProvider.setTheme(newValue ? .dark : .light)
-          },
-        ))
-      }
-
-      Divider()
-
       Text("settings.show".localized)
         .font(.caption)
         .foregroundColor(themeProvider.theme.secondaryTextColor)
-        .padding(.top, 4)
 
       HStack {
         Image(systemName: controller.showPali ? "eye.fill" : "eye.slash")
@@ -477,6 +562,24 @@ struct DisplaySectionContent: View {
           "settings.show.reference".localized,
           isOn: $controller.showRef,
         )
+      }
+
+      Divider()
+        .padding(.vertical, 4)
+
+      HStack {
+        Image(systemName: controller
+          .isDarkModeEnabled ? "moon.fill" : "sun.max.fill")
+          .foregroundColor(themeProvider.theme.textColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        Toggle("settings.dark.mode".localized, isOn: Binding(
+          get: { controller.isDarkModeEnabled },
+          set: { newValue in
+            controller.isDarkModeEnabled = newValue
+            themeProvider.setTheme(newValue ? .dark : .light)
+          },
+        ))
       }
     }
   }
