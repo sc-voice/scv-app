@@ -88,6 +88,10 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var maxColumnWidth: CGFloat {
+    didSet { autosave() }
+  }
+
   private let originalDocLang: ScvLanguage
   private let originalRefLang: ScvLanguage
   private let originalIsDarkModeEnabled: Bool
@@ -121,6 +125,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     showDoc = settings.showDoc
     showRef = settings.showRef
     soundEffectVolume = settings.soundEffectVolume
+    maxColumnWidth = settings.maxColumnWidth
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
@@ -156,6 +161,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.showDoc = showDoc
     Settings.shared.showRef = showRef
     Settings.shared.soundEffectVolume = soundEffectVolume
+    Settings.shared.maxColumnWidth = maxColumnWidth
 
     // Update docLangSettings for current language
     if Settings.shared.docLangSettings[docLang] == nil {
@@ -288,5 +294,6 @@ public class SettingsModalController: NSObject, ObservableObject {
     showDoc = true
     showRef = false
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
+    maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
   }
 }

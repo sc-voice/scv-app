@@ -14,6 +14,15 @@ let MAX_DOC_DEFAULT = 50
 public let SEGMENT_PAUSE_DEFAULT = 0.5
 public let SOUND_EFFECT_VOLUME_DEFAULT: Float = 0.5
 
+// MARK: - Layout Constants
+
+/// Minimum width for each column (usability constraint)
+public let MIN_COLUMN_WIDTH: CGFloat = 200
+
+/// Maximum width for each column (Apple's readable content guide: 600pt / 2
+/// columns)
+public let MAX_COLUMN_WIDTH: CGFloat = 600
+
 // MARK: - LangSettings
 
 /// Language-specific settings including document author and speech
@@ -145,6 +154,9 @@ public class Settings: Codable {
   /// Maximum number of documents to return in search results
   public var maxDoc: Int = MAX_DOC_DEFAULT
 
+  /// Maximum column width for segment display (average of MIN and MAX)
+  public var maxColumnWidth: CGFloat = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
+
   /// AutoComplete phrase data by author:lang
   public var autoCompleteData: [PhrasesByAuthorLang] = []
 
@@ -193,6 +205,7 @@ public class Settings: Codable {
     case soundEffectVolume
     case lastApplicationVersion
     case maxDoc
+    case maxColumnWidth
     case autoCompleteData
   }
 
@@ -219,6 +232,7 @@ public class Settings: Codable {
       forKey: .lastApplicationVersion,
     )
     try container.encode(maxDoc, forKey: .maxDoc)
+    try container.encode(maxColumnWidth, forKey: .maxColumnWidth)
     try container.encode(autoCompleteData, forKey: .autoCompleteData)
   }
 
@@ -329,6 +343,10 @@ public class Settings: Codable {
       ) ?? ""
       maxDoc = try container
         .decodeIfPresent(Int.self, forKey: .maxDoc) ?? MAX_DOC_DEFAULT
+      maxColumnWidth = try container.decodeIfPresent(
+        CGFloat.self,
+        forKey: .maxColumnWidth,
+      ) ?? (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
       autoCompleteData = try container.decodeIfPresent(
         [PhrasesByAuthorLang].self,
         forKey: .autoCompleteData,
@@ -487,6 +505,7 @@ public class Settings: Codable {
       showRef = decoded.showRef
       lastApplicationVersion = decoded.lastApplicationVersion
       maxDoc = decoded.maxDoc
+      maxColumnWidth = decoded.maxColumnWidth
       autoCompleteData = decoded.autoCompleteData
     }
   }
@@ -509,6 +528,7 @@ public class Settings: Codable {
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
     lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT
+    maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
     autoCompleteData = []
     (userDefaults ?? UserDefaults.standard)
       .removeObject(forKey: "com.scv.settings")

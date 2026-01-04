@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import scvCore
 #if os(iOS)
   import UIKit
 
@@ -17,13 +18,6 @@ import Foundation
 #endif
 
 // MARK: - Layout Constants
-
-/// Maximum width for each column (Apple's readable content guide: 600pt / 2
-/// columns)
-public let MAX_COLUMN_WIDTH: CGFloat = 600
-
-/// Minimum width for each column (usability constraint)
-public let MIN_COLUMN_WIDTH: CGFloat = 200
 
 /// Space between columns
 public let COLUMN_SPACE: CGFloat = 8
@@ -78,10 +72,12 @@ struct SegmentLayout {
     availableWidth: CGFloat = 400,
     columnsShown: Int = 1,
     segmentNumberWidth: CGFloat = 40,
-    maxColumnWidth: CGFloat = MAX_COLUMN_WIDTH,
+    maxColumnWidth: CGFloat? = nil,
     minColumnWidth: CGFloat = MIN_COLUMN_WIDTH,
     columnSpace: CGFloat = COLUMN_SPACE,
   ) -> SegmentLayout {
+    // Use Settings.shared.maxColumnWidth if not provided
+    let maxColumnWidth = maxColumnWidth ?? Settings.shared.maxColumnWidth
     // Step 1: Determine segment number position
     let segmentNumberPosition: SegmentNumberPosition = if segmentNumberWidth ==
       0

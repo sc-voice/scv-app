@@ -613,6 +613,32 @@ struct DisplaySectionContent: View {
         ))
         .foregroundColor(themeProvider.theme.textColor)
       }
+
+      Divider()
+        .padding(.vertical, 4)
+
+      HStack(spacing: 12) {
+        Image(systemName: "textformat.characters.arrow.left.and.right")
+          .foregroundColor(themeProvider.theme.secondaryTextColor
+            .opacity(themeProvider.theme.iconOpacity))
+          .frame(minWidth: 44)
+        VStack(alignment: .leading, spacing: 8) {
+          Text("Max Column Width")
+            .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
+          Slider(
+            value: $controller.maxColumnWidth,
+            in: MIN_COLUMN_WIDTH ... MAX_COLUMN_WIDTH,
+            step: 10
+          )
+          .foregroundColor(themeProvider.theme.textColor)
+          Text(
+            "Min: \(Int(MIN_COLUMN_WIDTH))pt - Max: \(Int(MAX_COLUMN_WIDTH))pt - Current: \(Int(controller.maxColumnWidth))pt"
+          )
+          .font(.caption)
+          .foregroundColor(themeProvider.theme.secondaryTextColor)
+        }
+      }
     }
   }
 }

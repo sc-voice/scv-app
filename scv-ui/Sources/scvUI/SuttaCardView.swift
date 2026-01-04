@@ -201,6 +201,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     .onChange(of: Settings.shared.showRef) { _, _ in
       updateLayout()
     }
+    .onChange(of: Settings.shared.maxColumnWidth) { _, _ in
+      updateLayout()
+    }
     .onDisappear {
       // Stop playback when sutta card is dismissed
       // This prevents crashes when a playing sutta card is deleted
