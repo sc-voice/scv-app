@@ -25,7 +25,8 @@ struct SegmentLayoutTests {
 
   @Test
   func calculateTextWidthForLongVinayaReference() {
-    let width = SegmentLayout.calculateTextWidth(text: "pli-tv-bu-vb-pt:1.1.1.1")
+    let width = SegmentLayout
+      .calculateTextWidth(text: "pli-tv-bu-vb-pt:1.1.1.1")
     #expect(width > 100, "Long Vinaya reference should be > 100pt")
     cc.ok1(#line, "width: \(width)")
   }
@@ -38,16 +39,19 @@ struct SegmentLayoutTests {
     let layout = SegmentLayout.calculateLayout(
       availableWidth: 430,
       columnsShown: 1,
-      segmentNumberWidth: 200
+      segmentNumberWidth: 190,
     )
 
-    // segmentNumberWidth 200 > 0.25 * 200 (50), so position = .above
+    // segmentNumberWidth 190 > 0.35 * 200 (70), so position = .above
     // Available for column: 430pt (entire width)
     // spacingWidth = (1 + 1) * 8 = 16pt (left + right padding)
     // Column width: (430 - 16) / 1 = 414, but capped at MAX_COLUMN_WIDTH (600)
     #expect(layout.segmentNumberPosition == .above,
-            "Should place segment number above (width 200 > 25% of 200)")
-    #expect(layout.columnWidth == 414, "Column width should account for left/right padding")
+            "Should place segment number above (width 190 > 35% of 200)")
+    #expect(
+      layout.columnWidth == 414,
+      "Column width should account for left/right padding",
+    )
     #expect(layout.visibleColumnCount == 1)
     #expect(layout.needsHorizontalScroll == false)
     cc.ok1(#line, "columnWidth: \(layout.columnWidth)")
@@ -59,16 +63,19 @@ struct SegmentLayoutTests {
     let layout = SegmentLayout.calculateLayout(
       availableWidth: 390,
       columnsShown: 1,
-      segmentNumberWidth: 40
+      segmentNumberWidth: 40,
     )
 
-    // With segment number width 40pt, position = .left
-    // Available: 390 - 40 - 8 = 342pt for column
+    // With segment number width 40pt > 10% of 390 (39pt), position = .above
+    // Available: 390pt (entire width)
     // spacingWidth = (1 + 1) * 8 = 16pt (left + right padding)
-    // Column width: (342 - 16) / 1 = 326pt
-    #expect(layout.segmentNumberPosition == .left,
-            "Should place segment number to left on 390pt screen")
-    #expect(layout.columnWidth == 326, "Column width should account for padding")
+    // Column width: (390 - 16) / 1 = 374pt
+    #expect(layout.segmentNumberPosition == .above,
+            "Should place segment number above on 390pt screen")
+    #expect(
+      layout.columnWidth == 374,
+      "Column width should account for padding",
+    )
     #expect(layout.visibleColumnCount == 1)
     cc.ok1(#line, "columnWidth: \(layout.columnWidth)")
   }
@@ -79,16 +86,19 @@ struct SegmentLayoutTests {
     let layout = SegmentLayout.calculateLayout(
       availableWidth: 300,
       columnsShown: 1,
-      segmentNumberWidth: 150
+      segmentNumberWidth: 150,
     )
 
-    // segmentNumberWidth 150 > 0.25 * 200 (50), so position = .above
+    // segmentNumberWidth 150 > 10% of 300 (30), so position = .above
     // Available: 300pt for column
     // spacingWidth = (1 + 1) * 8 = 16pt
     // Column width: (300 - 16) / 1 = 284pt
     #expect(layout.segmentNumberPosition == .above,
-            "Should place segment number above (width 150 > 25% of 200)")
-    #expect(layout.columnWidth == 284, "Column width should account for padding")
+            "Should place segment number above (width 150 > 10% of 300)")
+    #expect(
+      layout.columnWidth == 284,
+      "Column width should account for padding",
+    )
     cc.ok1(#line, "columnWidth: \(layout.columnWidth)")
   }
 
@@ -103,17 +113,21 @@ struct SegmentLayoutTests {
       segmentNumberWidth: 40,
       maxColumnWidth: 360,
       minColumnWidth: 200,
-      columnSpace: 8
+      columnSpace: 8,
     )
 
-    // With 2 columns: available = 768 - 40 (segnum) - 8 (space) - 8 (inter-column) = 712pt
+    // With 2 columns: available = 768 - 40 (segnum) - 8 (space) - 8
+    // (inter-column) = 712pt
     // Each column: 712 / 2 = 356pt
     #expect(layout.segmentNumberPosition == .left,
             "iPad should have room for segnum on left")
     #expect(layout.visibleColumnCount == 2 || layout.visibleColumnCount == 1,
             "Should show 1-2 columns")
     #expect(layout.columnWidth <= 360, "Should respect maxColumnWidth")
-    cc.ok1(#line, "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)")
+    cc.ok1(
+      #line,
+      "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)",
+    )
   }
 
   @Test
@@ -125,7 +139,7 @@ struct SegmentLayoutTests {
       segmentNumberWidth: 40,
       maxColumnWidth: 360,
       minColumnWidth: 200,
-      columnSpace: 8
+      columnSpace: 8,
     )
 
     #expect(layout.segmentNumberPosition == .left,
@@ -133,7 +147,10 @@ struct SegmentLayoutTests {
     #expect(layout.visibleColumnCount >= 2,
             "iPad landscape should show at least 2 columns")
     #expect(layout.columnWidth <= 360, "Should respect maxColumnWidth")
-    cc.ok1(#line, "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)")
+    cc.ok1(
+      #line,
+      "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)",
+    )
   }
 
   // MARK: - calculateLayout Tests: Edge Cases
@@ -147,7 +164,7 @@ struct SegmentLayoutTests {
       segmentNumberWidth: 0,
       maxColumnWidth: 360,
       minColumnWidth: 100,
-      columnSpace: 0
+      columnSpace: 0,
     )
 
     #expect(layout.columnWidth <= 200)
@@ -164,12 +181,15 @@ struct SegmentLayoutTests {
       segmentNumberWidth: 40,
       maxColumnWidth: 360,
       minColumnWidth: 100,
-      columnSpace: 8
+      columnSpace: 8,
     )
 
     // May need to reduce visible columns if they don't fit
     #expect(layout.visibleColumnCount >= 1, "Should show at least 1 column")
     #expect(layout.columnWidth >= 100, "Should respect minColumnWidth")
-    cc.ok1(#line, "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)")
+    cc.ok1(
+      #line,
+      "columnWidth: \(layout.columnWidth), visibleCount: \(layout.visibleColumnCount)",
+    )
   }
 }

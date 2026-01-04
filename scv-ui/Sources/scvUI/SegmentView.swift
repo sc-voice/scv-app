@@ -43,14 +43,17 @@ struct SegmentView: View {
       }
 
       // Columns container
-      let columnsContent = HStack(alignment: .firstTextBaseline, spacing: layout.columnSpace) {
+      let columnsContent = HStack(
+        alignment: .firstTextBaseline,
+        spacing: layout.columnSpace,
+      ) {
         // Segment number (left if needed)
         if layout.segmentNumberPosition == .left {
           Text(segnum ?? segment.scid)
             .font(.caption)
             .foregroundColor(themeProvider.theme.secondaryTextColor)
             .lineLimit(1)
-            .frame(width: layout.columnWidth, alignment: .leading)
+            .frame(width: layout.segmentNumberWidth, alignment: .trailing)
         }
 
         // Pali column
@@ -58,7 +61,7 @@ struct SegmentView: View {
           ColumnView(
             attributedString: attributedStrings["pali"],
             columnWidth: layout.columnWidth,
-            bodyFont: bodyFont()
+            bodyFont: bodyFont(),
           )
           .task {
             let text = getSegmentText(field: "pli")
@@ -71,7 +74,7 @@ struct SegmentView: View {
           ColumnView(
             attributedString: attributedStrings["doc"],
             columnWidth: layout.columnWidth,
-            bodyFont: bodyFont()
+            bodyFont: bodyFont(),
           )
           .task {
             let text = getSegmentText(field: "doc")
@@ -84,7 +87,7 @@ struct SegmentView: View {
           ColumnView(
             attributedString: attributedStrings["ref"],
             columnWidth: layout.columnWidth,
-            bodyFont: bodyFont()
+            bodyFont: bodyFont(),
           )
           .task {
             let text = getSegmentText(field: "ref")
@@ -208,7 +211,10 @@ private struct ColumnView: View {
   )
 
   let mockPlayer = SuttaPlayer()
-  let layout = SegmentLayout.calculateLayout(availableWidth: 390, columnsShown: 1)
+  let layout = SegmentLayout.calculateLayout(
+    availableWidth: 390,
+    columnsShown: 1,
+  )
 
   SegmentView(
     segment: Segment(scid: "mn1:0.1", doc: "The Middle Collection"),
