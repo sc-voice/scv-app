@@ -140,6 +140,120 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   // MARK: - Private Methods
 
+  private func applySearchModifiers<V: View>(_ view: V) -> some View {
+    view
+      .toolbar {
+        ToolbarItem(placement: {
+          #if os(iOS)
+            return .navigationBarTrailing
+          #else
+            return .automatic
+          #endif
+        }()) {
+          Button(action: { isSearchPresented.toggle() }) {
+            Image(systemName: "magnifyingglass")
+              .font(.title2)
+              .frame(minWidth: 44, minHeight: 44)
+          }
+          .buttonStyle(.plain)
+          .help("Toggle search")
+        }
+      }
+      #if os(iOS)
+      .toolbarBackground(themeProvider.theme.backgroundColor, for: .navigationBar)
+      .toolbarBackground(.visible, for: .navigationBar)
+      #endif
+      .searchable(
+        text: $searchQuery,
+        isPresented: $isSearchPresented,
+        prompt: "Search",
+      )
+      .searchSuggestions {
+        ForEach(suggestions, id: \.lemma) { suggestion in
+          Button(action: {
+            searchQuery = suggestion.lastUsedPhrase
+            cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
+          }) {
+            HStack {
+              Text(suggestion.lastUsedPhrase)
+              Spacer()
+              Text("★ \(String(format: "%.2f", suggestion.utility))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            }
+          }
+          .searchCompletion(suggestion.lastUsedPhrase)
+        }
+      }
+      .focused($searchFieldIsFocused)
+      .onChange(of: isSearchPresented) { _, newValue in
+        cc.ok1(#line, "isSearchPresented changed to:", newValue)
+      }
+      .onChange(of: searchFieldIsFocused) { _, newValue in
+        cc.ok1(
+          #line,
+          "searchFieldIsFocused (TextField actual focus) changed to:",
+          newValue,
+        )
+      }
+      .onChange(of: searchQuery) { _, newValue in
+        cc.ok1(
+          #line,
+          "searchQuery changed in keyboard to:",
+          newValue,
+        )
+
+        debounceTimer?.invalidate()
+        debounceTimer = Timer.scheduledTimer(
+          withTimeInterval: 0.5,
+          repeats: false,
+        ) { _ in
+          Task { @MainActor in
+            updateSuggestions(newValue)
+          }
+        }
+      }
+      .onSubmit(of: .search) {
+        cc.ok1(#line, "Search submitted in keyboard")
+        SearchCardView.searchSubmitHandler(
+          cardManager: cardManager,
+          selectedCardId: card.id,
+          searchQueryBinding: $searchQuery,
+        )
+        isSearchPresented = false
+      }
+      .onDisappear {
+        debounceTimer?.invalidate()
+        debounceTimer = nil
+      }
+      .onChange(of: card.searchQuery) { _, newValue in
+        searchQuery = newValue
+
+        let filtered = SearchQueryFilter.filter(newValue)
+        if filtered != newValue {
+          card.searchQuery = filtered
+        }
+        cc.ok2(#line, "onChange:", filtered)
+
+        withAnimation {
+          iconOpacity = 1.0
+          iconOffset = 0
+        }
+        scheduleFade()
+      }
+      .onAppear {
+        cc.ok1(#line, "SearchCardView initialized for card:", card.name)
+        searchQuery = card.searchQuery
+        isSearchPresented = true
+        cc.ok1(
+          #line,
+          "searchable modifier appeared, isSearchPresented:",
+          isSearchPresented,
+        )
+        scheduleFade()
+      }
+  }
+
   private func populateSuttaInfoInBackground(
     searchResult: SeekerResult,
     cardManager: Manager,
@@ -293,96 +407,98 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     return AnyView(
       VStack(alignment: .leading, spacing: 12) {
         // Results list
-        List(searchResult.items, id: \.suttaRef) { item in
-          HStack(spacing: 4) {
-            Image(systemName: "doc.text")
+        List(Array(searchResult.items.enumerated()), id: \.element.suttaRef) { index, item in
+          HStack {
+            Text("\(index + 1).")
               .font(.caption)
-            Text("\(searchResult.items.count)")
-              .font(.caption)
-          }
-          VStack(alignment: .leading, spacing: 4) {
-            if shouldStackVertically {
-              // Vertical stack for accessibility sizes
-              VStack(alignment: .leading, spacing: 2) {
-                Text(item.suttaRef.author ?? "unknown")
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.textColor)
-                  .fontWeight(.semibold)
+              .foregroundColor(themeProvider.theme.textColor)
+              .fontWeight(.semibold)
+              .frame(minWidth: 14, alignment: .leading)
+            VStack(alignment: .leading, spacing: 4) {
+              if shouldStackVertically {
+                // Vertical stack for accessibility sizes
+                VStack(alignment: .leading, spacing: 2) {
+                  Text(item.suttaRef.author ?? "unknown")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.textColor)
+                    .fontWeight(.semibold)
+                  HStack {
+                    Text(
+                      "★ \(String(format: "%.2f", item.score))",
+                    )
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.textColor)
+                    .fontWeight(.semibold)
+                    Spacer()
+                    Text(
+                      item.segmentCount.map(String.init) ?? "…",
+                    )
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.textColor)
+                    .fontWeight(.semibold)
+                  }
+                }
+              } else {
+                // Horizontal stack for normal sizes
                 HStack {
+                  Text(item.suttaRef.author ?? "unknown")
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.textColor)
+                    .fontWeight(.semibold)
+                  Spacer()
                   Text(
                     "★ \(String(format: "%.2f", item.score))",
                   )
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.textColor)
                   .fontWeight(.semibold)
-                  Spacer()
                   Text(
                     item.segmentCount.map(String.init) ?? "…",
                   )
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.textColor)
                   .fontWeight(.semibold)
+                  .frame(minWidth: 30, alignment: .trailing)
                 }
               }
-            } else {
-              // Horizontal stack for normal sizes
-              HStack {
-                Text(item.suttaRef.author ?? "unknown")
+              Text(item.suttaRef.suttaUid)
+                .font(.body)
+                .fontWeight(.semibold)
+                .foregroundColor(themeProvider.theme.textColor)
+
+              // Display quote if available
+              if let quote = item.quote,
+                 let attributed = QuoteHTMLParser.parseQuoteHTML(
+                   quote,
+                   accentColor: themeProvider.theme.accentColor,
+                 )
+              {
+                Text(attributed)
                   .font(.caption)
-                  .foregroundColor(themeProvider.theme.textColor)
-                  .fontWeight(.semibold)
-                Spacer()
-                Text(
-                  "★ \(String(format: "%.2f", item.score))",
+                  .foregroundColor(themeProvider.theme.secondaryTextColor)
+                  .lineLimit(shouldStackVertically ? 5 : 3)
+              }
+            } // VStack
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              Task {
+                let suttaCard = await cardManager.suttaCardForRef(
+                  item.suttaRef,
+                  searchQuery: card.searchQuery,
                 )
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.textColor)
-                .fontWeight(.semibold)
-                Text(
-                  item.segmentCount.map(String.init) ?? "…",
+                cardManager.selectCard(suttaCard)
+                cc.ok1(
+                  #line,
+                  "Selected sutta card for:",
+                  item.suttaRef.toString(),
                 )
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.textColor)
-                .fontWeight(.semibold)
-                .frame(minWidth: 30, alignment: .trailing)
               }
             }
-            Text(item.suttaRef.suttaUid)
-              .font(.body)
-              .fontWeight(.semibold)
-              .foregroundColor(themeProvider.theme.textColor)
-
-            // Display quote if available
-            if let quote = item.quote,
-               let attributed = QuoteHTMLParser.parseQuoteHTML(
-                 quote,
-                 accentColor: themeProvider.theme.accentColor,
-               )
-            {
-              Text(attributed)
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-                .lineLimit(shouldStackVertically ? 5 : 3)
-            }
-          }
-          .padding(.vertical, 4)
-          .contentShape(Rectangle())
-          .onTapGesture {
-            Task {
-              let suttaCard = await cardManager.suttaCardForRef(
-                item.suttaRef,
-                searchQuery: card.searchQuery,
-              )
-              cardManager.selectCard(suttaCard)
-              cc.ok1(
-                #line,
-                "Selected sutta card for:",
-                item.suttaRef.toString(),
-              )
-            }
-          }
-        }
+          } // HStack
+        } // List
         .scrollContentBackground(.hidden)
+        .frame(maxWidth: 700)
         #if os(iOS)
           .listStyle(.insetGrouped)
         #else
@@ -390,7 +506,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         #endif
       },
     )
-  }
+  } // resultsView
 
   // MARK: - Static Methods
 
@@ -471,122 +587,11 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   public var body: some View {
-    resultsView
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .padding(0)
-      .toolbar {
-        ToolbarItem(placement: {
-          #if os(iOS)
-            return .navigationBarTrailing
-          #else
-            return .automatic
-          #endif
-        }()) {
-          Button(action: { isSearchPresented.toggle() }) {
-            Image(systemName: "magnifyingglass")
-              .font(.title2)
-              .frame(minWidth: 44, minHeight: 44)
-          }
-          .buttonStyle(.plain)
-          .help("Toggle search")
-        }
-      }
-      .searchable(
-        text: $searchQuery,
-        isPresented: $isSearchPresented,
-        prompt: "Search",
-      )
-      .searchSuggestions {
-        ForEach(suggestions, id: \.lemma) { suggestion in
-          Button(action: {
-            searchQuery = suggestion.lastUsedPhrase
-            cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
-          }) {
-            HStack {
-              Text(suggestion.lastUsedPhrase)
-              Spacer()
-              Text("★ \(String(format: "%.2f", suggestion.utility))")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            }
-          }
-          .searchCompletion(suggestion.lastUsedPhrase)
-        }
-      }
-      .focused($searchFieldIsFocused)
-      .onChange(of: isSearchPresented) { _, newValue in
-        cc.ok1(#line, "isSearchPresented changed to:", newValue)
-      }
-      .onChange(of: searchFieldIsFocused) { _, newValue in
-        cc.ok1(
-          #line,
-          "searchFieldIsFocused (TextField actual focus) changed to:",
-          newValue,
-        )
-      }
-      .onChange(of: searchQuery) { _, newValue in
-        cc.ok1(
-          #line,
-          "searchQuery changed in keyboard to:",
-          newValue,
-        )
-
-        // Cancel existing debounce timer
-        debounceTimer?.invalidate()
-
-        // Start new 500ms debounce timer for autocomplete suggestions
-        debounceTimer = Timer.scheduledTimer(
-          withTimeInterval: 0.5,
-          repeats: false,
-        ) { _ in
-          Task { @MainActor in
-            updateSuggestions(newValue)
-          }
-        }
-      }
-      .onSubmit(of: .search) {
-        cc.ok1(#line, "Search submitted in keyboard")
-        SearchCardView.searchSubmitHandler(
-          cardManager: cardManager,
-          selectedCardId: card.id,
-          searchQueryBinding: $searchQuery,
-        )
-        isSearchPresented = false
-      }
-      .onDisappear {
-        debounceTimer?.invalidate()
-        debounceTimer = nil
-      }
-      .onChange(of: card.searchQuery) { _, newValue in
-        // Sync searchQuery state with card.searchQuery
-        searchQuery = newValue
-
-        let filtered = SearchQueryFilter.filter(newValue)
-        if filtered != newValue {
-          card.searchQuery = filtered
-        }
-        cc.ok2(#line, "onChange:", filtered)
-
-        // Reset icon when user types new query
-        withAnimation {
-          iconOpacity = 1.0
-          iconOffset = 0
-        }
-        scheduleFade()
-      }
-      .onAppear {
-        cc.ok1(#line, "SearchCardView initialized for card:", card.name)
-        // Sync initial state
-        searchQuery = card.searchQuery
-        // Enable search on initial appearance
-        isSearchPresented = true
-        cc.ok1(
-          #line,
-          "searchable modifier appeared, isSearchPresented:",
-          isSearchPresented,
-        )
-        scheduleFade()
-      }
+    applySearchModifiers(
+      resultsView
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(0)
+    )
   }
 }
 
