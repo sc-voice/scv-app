@@ -70,6 +70,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       .environmentObject(themeProvider)
       .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
       .frame(maxWidth: .infinity, alignment: .center)
+      #if os(iOS)
+        .navigationBarHidden(UIDevice.current.userInterfaceIdiom == .pad)
+      #endif
 
       // Segments Content
       if let mlDoc = card.mlDoc {
