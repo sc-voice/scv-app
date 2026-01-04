@@ -150,7 +150,7 @@ struct SegmentView: View {
   }
 
   private func getSegmentText(field: String = "doc") -> String {
-    let EMPTY_SET = "∅"
+    let EMPTY_SET = ""
     let value: String? = switch field.lowercased() {
     case "doc":
       segment.doc
@@ -192,15 +192,24 @@ private struct ColumnView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      if let attributedString {
+      if let attributedString, attributedString.characters.count > 0 {
         Text(attributedString)
           .font(bodyFont)
           .foregroundColor(themeProvider.theme.textColor)
           .lineLimit(nil)
-      } else {
+      } else if attributedString == nil {
         Text("⏳")
           .font(bodyFont)
           .foregroundColor(themeProvider.theme.textColor)
+      } else {
+        VStack {
+          Spacer()
+          Image(systemName: "pencil.slash")
+            .font(.title3)
+            .foregroundColor(themeProvider.theme.secondaryTextColor)
+            .frame(maxWidth: .infinity, alignment: .center)
+          Spacer()
+        }
       }
     }
     .frame(width: columnWidth, alignment: .topLeading)

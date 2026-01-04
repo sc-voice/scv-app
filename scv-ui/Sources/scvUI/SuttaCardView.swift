@@ -147,38 +147,15 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
       } else {
         VStack(spacing: 12) {
-          Image(systemName: "doc.text")
-            .font(.title2)
+          Image(systemName: "text.page.slash")
+            .font(.title)
             .foregroundColor(themeProvider.theme.secondaryTextColor)
           Text("No document loaded")
             .foregroundColor(themeProvider.theme.secondaryTextColor)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
       }
     } // VStack1
-    /*
-     .background(
-       Group {
-         if Settings.shared.isDarkModeEnabled {
-           ScvBackgroundsView(.space)
-             .overlay(
-               LinearGradient(
-                 gradient: Gradient(stops: [
-                   .init(color: .clear, location: 0),
-                   .init(color: .black.opacity(0.3), location: 0.1),
-                   .init(color: .black.opacity(0.6), location: 1),
-                 ]),
-                 startPoint: .top,
-                 endPoint: .bottom,
-               ),
-             )
-         } else {
-           ScvBackgroundsView(.nothingness)
-             .brightness(0.1)
-         }
-       },
-     )
-     */
     .onAppear {
       if let mlDoc = card.mlDoc {
         segments = mlDoc.segments()
