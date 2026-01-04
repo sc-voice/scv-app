@@ -306,3 +306,27 @@
 
 /* About card view: visit GitHub button */
 "about.button.visit_github" = "Visitar GitHub";
+
+/* Accessibility label for search button in toolbar */
+"a11y.button.search" = "Pesquisar";
+
+/* Accessibility label for add new card button */
+"a11y.button.add_card" = "Adicionar novo cartão";
+
+/* Accessibility label for settings button */
+"a11y.button.settings" = "Configurações";
+
+/* Accessibility label for delete card button */
+"a11y.button.delete_card" = "Deletar cartão";
+
+/* Accessibility label for play audio button */
+"a11y.button.play_audio" = "Reproduzir áudio";
+
+/* Accessibility label for pause audio button */
+"a11y.button.pause_audio" = "Pausar áudio";
+
+/* Accessibility label for external link button in AboutCardView */
+"a11y.button.external_link" = "Link externo";
+
+/* Accessibility label for search result item */
+"a11y.result" = "Resultado %d";

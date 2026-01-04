@@ -156,7 +156,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               .frame(minWidth: 44, minHeight: 44)
           }
           .buttonStyle(.plain)
-          .help("Toggle search")
+          .accessibilityLabel("a11y.button.search".localized)
         }
       }
       #if os(iOS)
@@ -408,94 +408,96 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       VStack(alignment: .leading, spacing: 12) {
         // Results list
         List(Array(searchResult.items.enumerated()), id: \.element.suttaRef) { index, item in
-          HStack {
-            Text("\(index + 1).")
-              .font(.caption)
-              .foregroundColor(themeProvider.theme.textColor)
-              .fontWeight(.semibold)
-              .frame(minWidth: 14, alignment: .leading)
-            VStack(alignment: .leading, spacing: 4) {
-              if shouldStackVertically {
-                // Vertical stack for accessibility sizes
-                VStack(alignment: .leading, spacing: 2) {
-                  Text(item.suttaRef.author ?? "unknown")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.textColor)
-                    .fontWeight(.semibold)
+          Button(action: {
+            Task {
+              let suttaCard = await cardManager.suttaCardForRef(
+                item.suttaRef,
+                searchQuery: card.searchQuery,
+              )
+              cardManager.selectCard(suttaCard)
+              cc.ok1(
+                #line,
+                "Selected sutta card for:",
+                item.suttaRef.toString(),
+              )
+            }
+          }) {
+            HStack {
+              Text("\(index + 1).")
+                .font(.caption)
+                .foregroundColor(themeProvider.theme.textColor)
+                .fontWeight(.semibold)
+                .frame(minWidth: 14, alignment: .leading)
+              VStack(alignment: .leading, spacing: 4) {
+                if shouldStackVertically {
+                  // Vertical stack for accessibility sizes
+                  VStack(alignment: .leading, spacing: 2) {
+                    Text(item.suttaRef.author ?? "unknown")
+                      .font(.caption)
+                      .foregroundColor(themeProvider.theme.textColor)
+                      .fontWeight(.semibold)
+                    HStack {
+                      Text(
+                        "★ \(String(format: "%.2f", item.score))",
+                      )
+                      .font(.caption)
+                      .foregroundColor(themeProvider.theme.textColor)
+                      .fontWeight(.semibold)
+                      Spacer()
+                      Text(
+                        item.segmentCount.map(String.init) ?? "…",
+                      )
+                      .font(.caption)
+                      .foregroundColor(themeProvider.theme.textColor)
+                      .fontWeight(.semibold)
+                    }
+                  }
+                } else {
+                  // Horizontal stack for normal sizes
                   HStack {
+                    Text(item.suttaRef.author ?? "unknown")
+                      .font(.caption)
+                      .foregroundColor(themeProvider.theme.textColor)
+                      .fontWeight(.semibold)
+                    Spacer()
                     Text(
                       "★ \(String(format: "%.2f", item.score))",
                     )
                     .font(.caption)
                     .foregroundColor(themeProvider.theme.textColor)
                     .fontWeight(.semibold)
-                    Spacer()
                     Text(
                       item.segmentCount.map(String.init) ?? "…",
                     )
                     .font(.caption)
                     .foregroundColor(themeProvider.theme.textColor)
                     .fontWeight(.semibold)
+                    .frame(minWidth: 30, alignment: .trailing)
                   }
                 }
-              } else {
-                // Horizontal stack for normal sizes
-                HStack {
-                  Text(item.suttaRef.author ?? "unknown")
-                    .font(.caption)
-                    .foregroundColor(themeProvider.theme.textColor)
-                    .fontWeight(.semibold)
-                  Spacer()
-                  Text(
-                    "★ \(String(format: "%.2f", item.score))",
-                  )
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.textColor)
+                Text(item.suttaRef.suttaUid)
+                  .font(.body)
                   .fontWeight(.semibold)
-                  Text(
-                    item.segmentCount.map(String.init) ?? "…",
-                  )
-                  .font(.caption)
                   .foregroundColor(themeProvider.theme.textColor)
-                  .fontWeight(.semibold)
-                  .frame(minWidth: 30, alignment: .trailing)
-                }
-              }
-              Text(item.suttaRef.suttaUid)
-                .font(.body)
-                .fontWeight(.semibold)
-                .foregroundColor(themeProvider.theme.textColor)
 
-              // Display quote if available
-              if let quote = item.quote,
-                 let attributed = QuoteHTMLParser.parseQuoteHTML(
-                   quote,
-                   accentColor: themeProvider.theme.accentColor,
-                 )
-              {
-                Text(attributed)
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-                  .lineLimit(shouldStackVertically ? 5 : 3)
-              }
-            } // VStack
-            .padding(.vertical, 4)
-            .contentShape(Rectangle())
-            .onTapGesture {
-              Task {
-                let suttaCard = await cardManager.suttaCardForRef(
-                  item.suttaRef,
-                  searchQuery: card.searchQuery,
-                )
-                cardManager.selectCard(suttaCard)
-                cc.ok1(
-                  #line,
-                  "Selected sutta card for:",
-                  item.suttaRef.toString(),
-                )
-              }
-            }
-          } // HStack
+                // Display quote if available
+                if let quote = item.quote,
+                   let attributed = QuoteHTMLParser.parseQuoteHTML(
+                     quote,
+                     accentColor: themeProvider.theme.accentColor,
+                   )
+                {
+                  Text(attributed)
+                    .font(.caption)
+                    .foregroundColor(themeProvider.theme.secondaryTextColor)
+                    .lineLimit(shouldStackVertically ? 5 : 3)
+                }
+              } // VStack
+              .padding(.vertical, 4)
+            } // HStack
+          }
+          .buttonStyle(.plain)
+          .accessibilityLabel(String(format: "a11y.result".localized, index + 1))
         } // List
         .scrollContentBackground(.hidden)
         .frame(maxWidth: 700)

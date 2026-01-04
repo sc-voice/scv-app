@@ -68,6 +68,7 @@ public struct SuttaHeaderView<Card: ICard>: View {
             .frame(minWidth: 44, minHeight: 44)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio".localized : "a11y.button.play_audio".localized)
       } // mlDoc
     } // HStack
     .padding(.horizontal, 16)

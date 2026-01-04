@@ -127,7 +127,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           .frame(minWidth: 44, minHeight: 44)
       }
       .buttonStyle(.plain)
-      .help("Delete card")
+      .accessibilityLabel("a11y.button.delete_card".localized)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -173,7 +173,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                   .frame(minWidth: 44, minHeight: 44)
               }
               .buttonStyle(.plain)
-              .help("Add new search card")
+              .accessibilityLabel("a11y.button.add_card".localized)
             }
 
             if let onSettingsTap {
@@ -184,7 +184,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                     .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
-                .help("Settings")
+                .accessibilityLabel("a11y.button.settings".localized)
               }
             }
           #else
@@ -196,6 +196,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               }
               .buttonStyle(.plain)
               .help("Add new search card")
+              .accessibilityLabel("a11y.button.add_card".localized)
             }
 
             if let onSettingsTap {
@@ -207,6 +208,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 }
                 .buttonStyle(.plain)
                 .help("Settings")
+                .accessibilityLabel("a11y.button.settings".localized)
               }
             }
           #endif
