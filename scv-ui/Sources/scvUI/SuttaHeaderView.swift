@@ -45,13 +45,13 @@ public struct SuttaHeaderView<Card: ICard>: View {
           .lineLimit(nil)
 
         if let mlDoc = card.mlDoc {
-          HStack(spacing: 4) {
-            Image(systemName: "person.fill")
-              .foregroundColor(themeProvider.theme.textColor)
+          //HStack(spacing: 4) {
+            //Image(systemName: "person.fill")
+              //.foregroundColor(themeProvider.theme.textColor)
             Text(mlDoc.docAuthorName)
               .foregroundColor(themeProvider.theme.textColor)
-          }
-          .font(.caption)
+          //}
+          .font(.body)
         } // mlDoc
       } // VStack
       Spacer()

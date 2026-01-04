@@ -22,6 +22,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var player: SuttaPlayer
   @State private var segments: [Segment] = []
+  @State private var layout: SegmentLayout?
+  @State private var availableWidth: CGFloat = 0
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -44,6 +46,20 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     return segmentNumberWidth
   }
 
+  func updateLayout() {
+    guard availableWidth > 0, !segments.isEmpty else { return }
+    let segmentNumberWidth = calcSegmentNumberWidth()
+    let columnsShown = (Settings.shared.showPali ? 1 : 0) +
+      (Settings.shared.showDoc ? 1 : 0) +
+      (Settings.shared.showRef ? 1 : 0)
+
+    layout = SegmentLayout.calculateLayout(
+      availableWidth: availableWidth,
+      columnsShown: max(1, columnsShown),
+      segmentNumberWidth: segmentNumberWidth,
+    )
+  }
+
   public var body: some View {
     VStack(alignment: .leading, spacing: 0) { // VStack1
       // Title Header
@@ -52,75 +68,75 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         player: player,
       )
       .environmentObject(themeProvider)
+      .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
+      .frame(maxWidth: .infinity, alignment: .center)
 
       // Segments Content
       if let mlDoc = card.mlDoc {
         GeometryReader { geometry in
           ScrollViewReader { scrollProxy in
-            // Calculate layout based on available width
-            let segmentNumberWidth = calcSegmentNumberWidth()
-            let columnsShown = (Settings.shared.showPali ? 1 : 0) +
-              (Settings.shared.showDoc ? 1 : 0) +
-              (Settings.shared.showRef ? 1 : 0)
+            // Capture available width and trigger layout calculation
+            let _ = DispatchQueue.main.async {
+              if availableWidth != geometry.size.width {
+                availableWidth = geometry.size.width
+                updateLayout()
+              }
+            }
 
-            let layout = SegmentLayout.calculateLayout(
-              availableWidth: geometry.size.width,
-              columnsShown: max(1, columnsShown),
-              segmentNumberWidth: segmentNumberWidth,
-            )
-
-            ScrollView(.vertical) {
-              VStack(alignment: .leading, spacing: 8) {
-                ForEach(segments, id: \.scid) { segment in
-                  SegmentView(
-                    segment: segment,
-                    mlDoc: mlDoc,
-                    layout: layout,
-                    player: player,
-                  )
+            if let layout = layout {
+              ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 8) {
+                  ForEach(segments, id: \.scid) { segment in
+                    SegmentView(
+                      segment: segment,
+                      mlDoc: mlDoc,
+                      layout: layout,
+                      player: player,
+                    )
+                  }
+                }
+                .frame(maxWidth: layout.totalContentWidth)
+                .padding(.vertical)
+                .background(themeProvider.theme.cardBackground)
+              }
+              .frame(maxWidth: .infinity, alignment: .center)
+              //.scrollContentBackground(.hidden)
+              //.background(.red)
+              .onAppear {
+                if let currentScid = mlDoc.currentScid {
+                  // Delay scroll to allow segments to load
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(reduceMotion ? nil :
+                      .easeInOut(duration: 0.8))
+                    {
+                      // Scroll to two line heights from top
+                      scrollProxy.scrollTo(
+                        currentScid,
+                        anchor: UnitPoint(x: 0.5, y: 0.06),
+                      )
+                      cc.ok1(
+                        #line,
+                        "Scrolled to segment (two line heights from top):",
+                        currentScid,
+                      )
+                    }
+                  }
                 }
               }
-              .frame(maxWidth: layout.totalContentWidth)
-              .padding(.vertical)
-              .background(themeProvider.theme.cardBackground)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            //.scrollContentBackground(.hidden)
-            //.background(.red)
-            .onAppear {
-              if let currentScid = mlDoc.currentScid {
-                // Delay scroll to allow segments to load
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                  withAnimation(reduceMotion ? nil :
-                    .easeInOut(duration: 0.8))
-                  {
+              .onChange(of: mlDoc.currentScid) { _, newScid in
+                if let newScid {
+                  withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.8)) {
                     // Scroll to two line heights from top
                     scrollProxy.scrollTo(
-                      currentScid,
+                      newScid,
                       anchor: UnitPoint(x: 0.5, y: 0.06),
                     )
                     cc.ok1(
                       #line,
                       "Scrolled to segment (two line heights from top):",
-                      currentScid,
+                      newScid,
                     )
                   }
-                }
-              }
-            }
-            .onChange(of: mlDoc.currentScid) { _, newScid in
-              if let newScid {
-                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.8)) {
-                  // Scroll to two line heights from top
-                  scrollProxy.scrollTo(
-                    newScid,
-                    anchor: UnitPoint(x: 0.5, y: 0.06),
-                  )
-                  cc.ok1(
-                    #line,
-                    "Scrolled to segment (two line heights from top):",
-                    newScid,
-                  )
                 }
               }
             }
@@ -163,6 +179,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     .onAppear {
       if let mlDoc = card.mlDoc {
         segments = mlDoc.segments()
+        updateLayout()
         // Initialize currentScid to first segment if nil
         if mlDoc.currentScid == nil, let firstSegment = segments.first {
           mlDoc.currentScid = firstSegment.scid
@@ -171,6 +188,18 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       } else {
         cc.ok1(#line, "onAppear no mlDoc")
       }
+    }
+    .onChange(of: segments) { _, _ in
+      updateLayout()
+    }
+    .onChange(of: Settings.shared.showPali) { _, _ in
+      updateLayout()
+    }
+    .onChange(of: Settings.shared.showDoc) { _, _ in
+      updateLayout()
+    }
+    .onChange(of: Settings.shared.showRef) { _, _ in
+      updateLayout()
     }
     .onDisappear {
       // Stop playback when sutta card is dismissed

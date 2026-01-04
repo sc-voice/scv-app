@@ -95,6 +95,7 @@ struct SegmentView: View {
           }
         }
       }
+      .foregroundColor(themeProvider.theme.textColor)
       .padding(.horizontal)
 
       // Wrap in ScrollView if horizontal scroll needed
@@ -106,7 +107,8 @@ struct SegmentView: View {
         columnsContent
       }
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, 
+      isSegmentSelected ? 10 : 4)
     .background(
       isSegmentSelected ? themeProvider.theme
         .backgroundColor : .clear,

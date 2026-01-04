@@ -75,7 +75,7 @@ struct SegmentLayout {
   ///   - columnSpace: Space between columns
   /// - Returns: SegmentLayout with positioning and sizing information
   static func calculateLayout(
-    availableWidth: CGFloat,
+    availableWidth: CGFloat = 400,
     columnsShown: Int = 1,
     segmentNumberWidth: CGFloat = 40,
     maxColumnWidth: CGFloat = MAX_COLUMN_WIDTH,

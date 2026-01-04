@@ -131,7 +131,7 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.3, green: 0.3,
                                   blue: 0.3), // medium grey
         accentColor: COLOR_BROWN_ACCENT, // #8b4513 (4.91:1 contrast ratio)
-        cardBackground: Color(red: 0.941, green: 0.941, blue: 0.941), // #f0f0f0
+        cardBackground: Color(red: 0.8, green: 0.8, blue: 0.8), 
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
         valueColor: COLOR_TEAL_DARK, // #065f73 (5.02:1 contrast ratio)
         toolbarColor: COLOR_GREY, // #BDBDBD
@@ -150,7 +150,7 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.7, green: 0.7,
                                   blue: 0.7), // light grey
         accentColor: COLOR_SAFFRON, // #ff9933
-        cardBackground: Color(red: 0.133, green: 0.133, blue: 0.133), // #222222
+        cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2), 
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: Color(red: 0.371, green: 0.071, blue: 0.071),
