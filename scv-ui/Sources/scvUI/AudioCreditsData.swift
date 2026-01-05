@@ -19,7 +19,7 @@ let audioCreditsData: [
       url: "https://freesound.org/people/craigmaloney/sounds/370507/",
     ),
     "753271__heckfricker__single-chirp": (
-      credit: "Alert",
+      credit: "Cricket Chirp",
       license: "CC0",
       url: "https://freesound.org/people/heckfricker/sounds/753271/",
     ),

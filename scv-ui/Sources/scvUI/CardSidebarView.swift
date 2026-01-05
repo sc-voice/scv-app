@@ -97,7 +97,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
   // Shared content for both iOS and macOS
   private func cardRowContent(_ card: Manager.ManagedCard) -> some View {
-    HStack(alignment: .top, spacing: 12) {
+    HStack(alignment: .firstTextBaseline, spacing: 12) {
       Image(systemName: card.iconName())
         .foregroundStyle(card.id == cardManager
           .recentCardId ? themeProvider.theme.accentColor : .secondary)

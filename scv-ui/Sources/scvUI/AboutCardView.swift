@@ -406,26 +406,27 @@ public struct AboutCardView: View {
                   id: \.name,
                 ) { audio in
                   VStack(alignment: .leading, spacing: 4) {
-                    Text(audio.credit)
-                      .font(.callout)
-                      .fontWeight(.semibold)
-                      .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
-                    Text("about.license.prefix".localized(audio.license))
-                      .font(.caption2)
-                      .foregroundStyle(themeProvider.theme.secondaryTextColor)
-
                     if let url = audio.url, let linkUrl = URL(string: url) {
                       Button(action: {
                         openURL(linkUrl)
                       }) {
-                        Text("about.button.view_source".localized)
-                          .font(.caption)
-                          .foregroundStyle(themeProvider.theme.linkColor)
-                          .underline()
+                        Text(audio.credit)
+                          .font(.callout)
+                          .fontWeight(.semibold)
+                          .foregroundStyle(themeProvider.theme.accentColor)
                       }
+                      .buttonStyle(.plain)
                       .accessibilityLabel("a11y.button.external_link".localized)
+                    } else {
+                      Text(audio.credit)
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(themeProvider.theme.secondaryTextColor)
                     }
+
+                    Text("about.license.prefix".localized(audio.license))
+                      .font(.caption2)
+                      .foregroundStyle(themeProvider.theme.secondaryTextColor)
                   }
                 }
               }

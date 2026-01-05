@@ -169,7 +169,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       .toolbar {
         ToolbarItem(placement: {
           #if os(iOS)
-            return .navigationBarLeading
+            return .principal
           #else
             return .automatic
           #endif
@@ -177,6 +177,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           Text(searchTitle)
             .font(.headline)
             .foregroundColor(themeProvider.theme.textColor)
+            .lineLimit(1)
         }
         ToolbarItem(placement: {
           #if os(iOS)
