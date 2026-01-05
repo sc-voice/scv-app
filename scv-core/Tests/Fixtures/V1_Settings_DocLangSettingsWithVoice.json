@@ -1,0 +1,43 @@
+{
+  "autoCompleteData" : [
+
+  ],
+  "docLang" : "en",
+  "docLangSettings" : [
+    "en",
+    {
+      "author" : "soma",
+      "emphasis" : true,
+      "language" : "en",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "premium",
+      "voiceId" : "com.apple.ttsbundle.Samantha-compact",
+      "voiceName" : "Samantha"
+    }
+  ],
+  "isDarkModeEnabled" : true,
+  "lastApplicationVersion" : "",
+  "maxColumnWidth" : 400,
+  "maxDoc" : 50,
+  "paliSettings" : {
+    "author" : "",
+    "emphasis" : true,
+    "language" : "pli",
+    "pitch" : 1.1,
+    "rate" : 0.95,
+    "variant" : "default",
+    "voiceId" : "com.apple.ttsbundle.Daniel-compact",
+    "voiceName" : "Daniel"
+  },
+  "playDoc" : true,
+  "playPali" : false,
+  "refAuthor" : "ms",
+  "refLang" : "pli",
+  "segmentPause" : 0.5,
+  "showDoc" : true,
+  "showPali" : false,
+  "showRef" : false,
+  "soundEffectVolume" : 0.5,
+  "version" : 1
+}

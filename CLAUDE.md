@@ -110,17 +110,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 
 ## Backlog
 
-### Recreate Settings serialization fixtures
-**Status**: Backlog
-
-01. [ ] Regenerate Settings v1 serialization fixtures before app store submittal (See: scripts/generate-fixtures.swift, scv-core/Tests/Fixtures/)
-    - Settings serialization format changed: docAuthor/docSpeech now stored in docLangSettings dictionary
-    - Disabled tests: SerializationV1Tests (settingsV1MinimalDeserialization, settingsV1WithVoiceDeserialization, settingsV1RoundTrip)
-    - Disabled test: SettingsTests.docAuthorEncodedAndDecoded
-    - Run: `swift scripts/generate-fixtures.swift` to regenerate fixtures with new format
-    - Re-enable and verify all serialization tests pass
-    - Verify fixture JSON structure reflects new docLangSettings[language]: LangSettings format
-
 ### Create app privacy label
 **Status**: In Progress
 

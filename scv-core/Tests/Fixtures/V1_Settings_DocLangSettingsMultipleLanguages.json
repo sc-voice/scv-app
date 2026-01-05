@@ -1,0 +1,65 @@
+{
+  "autoCompleteData" : [
+
+  ],
+  "docLang" : "en",
+  "docLangSettings" : [
+    "pt",
+    {
+      "author" : "felicidade",
+      "emphasis" : true,
+      "language" : "pt",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : ""
+    },
+    "de",
+    {
+      "author" : "sabbamitta",
+      "emphasis" : true,
+      "language" : "de",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : "Anna"
+    },
+    "en",
+    {
+      "author" : "sujato",
+      "emphasis" : true,
+      "language" : "en",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : ""
+    }
+  ],
+  "isDarkModeEnabled" : true,
+  "lastApplicationVersion" : "",
+  "maxColumnWidth" : 400,
+  "maxDoc" : 50,
+  "paliSettings" : {
+    "author" : "",
+    "emphasis" : true,
+    "language" : "en",
+    "pitch" : 1,
+    "rate" : 1,
+    "variant" : "default",
+    "voiceId" : "",
+    "voiceName" : ""
+  },
+  "playDoc" : true,
+  "playPali" : false,
+  "refAuthor" : "sujato",
+  "refLang" : "en",
+  "segmentPause" : 0.5,
+  "showDoc" : true,
+  "showPali" : false,
+  "showRef" : false,
+  "soundEffectVolume" : 0.5,
+  "version" : 1
+}

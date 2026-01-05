@@ -1,0 +1,43 @@
+{
+  "autoCompleteData" : [
+
+  ],
+  "docLang" : "en",
+  "docLangSettings" : [
+    "en",
+    {
+      "author" : "sujato",
+      "emphasis" : true,
+      "language" : "en",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : ""
+    }
+  ],
+  "isDarkModeEnabled" : true,
+  "lastApplicationVersion" : "0.0.589",
+  "maxColumnWidth" : 400,
+  "maxDoc" : 50,
+  "paliSettings" : {
+    "author" : "",
+    "emphasis" : true,
+    "language" : "en",
+    "pitch" : 1,
+    "rate" : 1,
+    "variant" : "default",
+    "voiceId" : "",
+    "voiceName" : ""
+  },
+  "playDoc" : true,
+  "playPali" : false,
+  "refAuthor" : "sujato",
+  "refLang" : "en",
+  "segmentPause" : 0.5,
+  "showDoc" : true,
+  "showPali" : false,
+  "showRef" : false,
+  "soundEffectVolume" : 0.5,
+  "version" : 1
+}

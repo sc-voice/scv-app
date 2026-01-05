@@ -1,0 +1,30 @@
+{
+  "cardType" : "search",
+  "createdAt" : 789326760.878028,
+  "searchQuery" : "anicca",
+  "searchResults" : {
+    "author" : "test",
+    "bilaraPaths" : [
+
+    ],
+    "lang" : "en",
+    "maxDoc" : 0,
+    "maxResults" : 0,
+    "method" : "",
+    "minLang" : 0,
+    "mlDocs" : [
+
+    ],
+    "pattern" : "anicca",
+    "resultPattern" : "",
+    "searchLang" : "",
+    "searchSuggestion" : "",
+    "segsMatched" : 10,
+    "suttaRefs" : [
+
+    ]
+  },
+  "suttaReference" : "",
+  "typeId" : 3,
+  "uuid" : "34BB54E5-1004-46AF-9481-F6FABC1A947F"
+}

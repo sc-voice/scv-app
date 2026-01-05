@@ -83,7 +83,9 @@ public struct TipitakaView<Manager: ICardManager>: View {
       Text("Tipiṭaka")
         .font(.caption)
         .listRowSeparator(.hidden)
-      OutlineGroup(sortedTipitakaRefs(tipitakaRefs), children: \.children) { ref in
+      OutlineGroup(sortedTipitakaRefs(tipitakaRefs),
+                   children: \.children)
+      { ref in
         HStack {
           VStack(alignment: .leading, spacing: 2) {
             Text(ref.name)

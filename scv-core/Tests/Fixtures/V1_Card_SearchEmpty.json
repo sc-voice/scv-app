@@ -1,0 +1,30 @@
+{
+  "cardType" : "search",
+  "createdAt" : 789326760.87802,
+  "searchQuery" : "",
+  "searchResults" : {
+    "author" : "",
+    "bilaraPaths" : [
+
+    ],
+    "lang" : "",
+    "maxDoc" : 0,
+    "maxResults" : 0,
+    "method" : "",
+    "minLang" : 0,
+    "mlDocs" : [
+
+    ],
+    "pattern" : "",
+    "resultPattern" : "",
+    "searchLang" : "",
+    "searchSuggestion" : "",
+    "segsMatched" : 0,
+    "suttaRefs" : [
+
+    ]
+  },
+  "suttaReference" : "",
+  "typeId" : 4,
+  "uuid" : "FA5912AD-9675-46DE-A3F4-3E07041797A2"
+}

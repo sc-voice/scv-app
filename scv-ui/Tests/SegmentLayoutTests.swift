@@ -45,12 +45,13 @@ struct SegmentLayoutTests {
     // segmentNumberWidth 190 > 0.35 * 200 (70), so position = .above
     // Available for column: 430pt (entire width)
     // spacingWidth = (1 + 1) * 8 = 16pt (left + right padding)
-    // Column width: (430 - 16) / 1 = 414, but capped at MAX_COLUMN_WIDTH (600)
+    // Column width: (430 - 16) / 1 = 414, but capped at Settings.maxColumnWidth
+    // (400)
     #expect(layout.segmentNumberPosition == .above,
             "Should place segment number above (width 190 > 35% of 200)")
     #expect(
-      layout.columnWidth == 414,
-      "Column width should account for left/right padding",
+      layout.columnWidth == 400,
+      "Column width should account for left/right padding and respect Settings.maxColumnWidth",
     )
     #expect(layout.visibleColumnCount == 1)
     #expect(layout.needsHorizontalScroll == false)

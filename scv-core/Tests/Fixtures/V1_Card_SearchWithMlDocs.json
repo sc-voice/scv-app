@@ -1,0 +1,449 @@
+{
+  "cardType" : "search",
+  "createdAt" : 789326760.88095,
+  "searchQuery" : "root of suffering",
+  "searchResults" : {
+    "author" : "sujato",
+    "bilaraPaths" : [
+      "root\/pli\/ms\/sutta\/sn\/sn42\/sn42.11_root-pli-ms.json",
+      "translation\/en\/sujato\/sutta\/sn\/sn42\/sn42.11_translation-en-sujato.json",
+      "root\/pli\/ms\/sutta\/mn\/mn105_root-pli-ms.json"
+    ],
+    "lang" : "en",
+    "maxDoc" : 5,
+    "maxResults" : 500,
+    "method" : "phrase",
+    "minLang" : 1,
+    "mlDocs" : [
+      {
+        "author" : "Bhikkhu Sujato",
+        "author_uid" : "sujato",
+        "bilaraPaths" : [
+          "root\/pli\/ms\/sutta\/sn\/sn42\/sn42.11_root-pli-ms.json",
+          "translation\/en\/sujato\/sutta\/sn\/sn42\/sn42.11_translation-en-sujato.json"
+        ],
+        "blurb" : "",
+        "category" : "sutta",
+        "docAuthor" : "sujato",
+        "docAuthorName" : "Bhikkhu Sujato",
+        "docFooter" : "<a href=\"https:\/\/suttacentral.net\/licensing\" target=\"_blank\">SuttaCentral<\/a>",
+        "docLang" : "en",
+        "footer" : "<a href=\"https:\/\/suttacentral.net\/licensing\" target=\"_blank\">SuttaCentral<\/a>",
+        "hyphen" : "­",
+        "lang" : "en",
+        "langSegs" : {
+          "pli" : 55,
+          "ref" : 54
+        },
+        "maxWord" : 30,
+        "minWord" : 5,
+        "refAuthor" : "sujato",
+        "refAuthorName" : "Bhikkhu Sujato",
+        "refFooter" : "<a href=\"https:\/\/suttacentral.net\/licensing\" target=\"_blank\">SuttaCentral<\/a>",
+        "refLang" : "en",
+        "score" : 5.091,
+        "segMap" : {
+          "sn42.11:0.1" : {
+            "doc" : "Linked Discourses 42.11 ",
+            "matched" : false,
+            "pli" : "Saṁyutta Nikāya 42.11 ",
+            "ref" : "Linked Discourses 42.11 ",
+            "scid" : "sn42.11:0.1"
+          },
+          "sn42.11:0.2" : {
+            "doc" : "1. Chiefs ",
+            "matched" : false,
+            "pli" : "1. Gāmaṇivagga ",
+            "ref" : "1. Chiefs ",
+            "scid" : "sn42.11:0.2"
+          },
+          "sn42.11:0.3" : {
+            "doc" : "With Bhadraka ",
+            "matched" : false,
+            "pli" : "Bhadrakasutta ",
+            "ref" : "With Bhadraka ",
+            "scid" : "sn42.11:0.3"
+          },
+          "sn42.11:1.1" : {
+            "doc" : "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. ",
+            "matched" : false,
+            "pli" : "Ekaṁ samayaṁ bhagavā mallesu viharati uruvelakappaṁ nāma mallānaṁ nigamo. ",
+            "ref" : "At one time the Buddha was staying in the land of the Mallas, near the Mallian town named Uruvelakappa. ",
+            "scid" : "sn42.11:1.1"
+          },
+          "sn42.11:1.10" : {
+            "doc" : "“Yes, sir,” Bhadraka replied. ",
+            "matched" : false,
+            "pli" : "“Evaṁ, bhante”ti kho bhadrako gāmaṇi bhagavato paccassosi. ",
+            "ref" : "“Yes, sir,” Bhadraka replied. ",
+            "scid" : "sn42.11:1.10"
+          },
+          "sn42.11:1.11" : {
+            "doc" : "The Buddha said this: ",
+            "matched" : false,
+            "pli" : "Bhagavā etadavoca: ",
+            "ref" : "The Buddha said this: ",
+            "scid" : "sn42.11:1.11"
+          },
+          "sn42.11:1.2" : {
+            "doc" : "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: ",
+            "matched" : false,
+            "pli" : "Atha kho bhadrako gāmaṇi yena bhagavā tenupasaṅkami; upasaṅkamitvā bhagavantaṁ abhivādetvā ekamantaṁ nisīdi. Ekamantaṁ nisinno kho bhadrako gāmaṇi bhagavantaṁ etadavoca: ",
+            "ref" : "Then Bhadraka the village chief went up to the Buddha, bowed, sat down to one side, and said to him: ",
+            "scid" : "sn42.11:1.2"
+          },
+          "sn42.11:1.3" : {
+            "doc" : "“Please, sir, let the Blessed One teach me the origin and cessation of suffering.” ",
+            "matched" : false,
+            "pli" : "“sādhu me, bhante, bhagavā dukkhassa samudayañca atthaṅgamañca desetū”ti. ",
+            "ref" : "“Please, sir, let the Blessed One teach me the origin and cessation of suffering.” ",
+            "scid" : "sn42.11:1.3"
+          },
+          "sn42.11:1.4" : {
+            "doc" : "“Chief, if I were to teach you about the origin and disappearance of suffering in the past, saying ",
+            "matched" : false,
+            "pli" : "“Ahañce te, gāmaṇi, atītamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+            "ref" : "“Chief, if I were to teach you about the origin and disappearance of suffering in the past, saying ",
+            "scid" : "sn42.11:1.4"
+          },
+          "sn42.11:1.5" : {
+            "doc" : "‘this is how it was in the past,’ you might have doubts or uncertainties about that. ",
+            "matched" : false,
+            "pli" : "‘evaṁ ahosi atītamaddhānan’ti, tatra te siyā kaṅkhā, siyā vimati. ",
+            "ref" : "‘this is how it was in the past,’ you might have doubts or uncertainties about that. ",
+            "scid" : "sn42.11:1.5"
+          },
+          "sn42.11:1.6" : {
+            "doc" : "If I were to teach you about the origin and disappearance of suffering in the future, saying ",
+            "matched" : false,
+            "pli" : "Ahañce te, gāmaṇi, anāgatamaddhānaṁ ārabbha dukkhassa samudayañca atthaṅgamañca deseyyaṁ: ",
+            "ref" : "If I were to teach you about the origin and disappearance of suffering in the future, saying ",
+            "scid" : "sn42.11:1.6"
+          },
+          "sn42.11:1.7" : {
+            "doc" : "‘this is how it will be in the future,’ you might have doubts or uncertainties about that. ",
+            "matched" : false,
+            "pli" : "‘evaṁ bhavissati anāgatamaddhānan’ti, tatrāpi te siyā kaṅkhā, siyā vimati. ",
+            "ref" : "‘this is how it will be in the future,’ you might have doubts or uncertainties about that. ",
+            "scid" : "sn42.11:1.7"
+          },
+          "sn42.11:1.8" : {
+            "doc" : "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. ",
+            "matched" : false,
+            "pli" : "Api cāhaṁ, gāmaṇi, idheva nisinno ettheva te nisinnassa dukkhassa samudayañca atthaṅgamañca desessāmi. ",
+            "ref" : "Rather, chief, I will teach you about the origin and disappearance of suffering as I am sitting right here and you are sitting right there. ",
+            "scid" : "sn42.11:1.8"
+          },
+          "sn42.11:1.9" : {
+            "doc" : "Listen and apply your mind well, I will speak.” ",
+            "matched" : false,
+            "pli" : "Taṁ suṇāhi, sādhukaṁ manasi karohi; bhāsissāmī”ti. ",
+            "ref" : "Listen and apply your mind well, I will speak.” ",
+            "scid" : "sn42.11:1.9"
+          },
+          "sn42.11:2.1" : {
+            "doc" : "“What do you think, chief? ",
+            "matched" : false,
+            "pli" : "“Taṁ kiṁ maññasi, gāmaṇi, ",
+            "ref" : "“What do you think, chief? ",
+            "scid" : "sn42.11:2.1"
+          },
+          "sn42.11:2.10" : {
+            "doc" : "‘All the suffering that arose in the past was rooted and sourced in desire. ",
+            "matched" : false,
+            "pli" : "‘yaṁ kho kiñci atītamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajji sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+            "ref" : "‘All the suffering that arose in the past was rooted and sourced in desire. ",
+            "scid" : "sn42.11:2.10"
+          },
+          "sn42.11:2.11" : {
+            "doc" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>. ",
+            "matched" : true,
+            "pli" : "Chando hi mūlaṁ dukkhassa. ",
+            "ref" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>. ",
+            "scid" : "sn42.11:2.11"
+          },
+          "sn42.11:2.12" : {
+            "doc" : "All the suffering that will arise in the future will be rooted and sourced in desire. ",
+            "matched" : false,
+            "pli" : "Yampi hi kiñci anāgatamaddhānaṁ dukkhaṁ uppajjamānaṁ uppajjissati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+            "ref" : "All the suffering that will arise in the future will be rooted and sourced in desire. ",
+            "scid" : "sn42.11:2.12"
+          },
+          "sn42.11:2.13" : {
+            "doc" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’” ",
+            "matched" : true,
+            "pli" : "Chando hi mūlaṁ dukkhassā’”ti. ",
+            "ref" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’” ",
+            "scid" : "sn42.11:2.13"
+          },
+          "sn42.11:2.14" : {
+            "doc" : "“It’s incredible, sir, it’s amazing! ",
+            "matched" : false,
+            "pli" : "“Acchariyaṁ, bhante, abbhutaṁ, bhante. ",
+            "ref" : "“It’s incredible, sir, it’s amazing! ",
+            "scid" : "sn42.11:2.14"
+          },
+          "sn42.11:2.15" : {
+            "doc" : "How well said this was by the Buddha! ",
+            "matched" : false,
+            "pli" : "Yāva subhāsitañcidaṁ, bhante, bhagavatā: ",
+            "ref" : "How well said this was by the Buddha! ",
+            "scid" : "sn42.11:2.15"
+          },
+          "sn42.11:2.16" : {
+            "doc" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "matched" : false,
+            "pli" : "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+            "ref" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "scid" : "sn42.11:2.16"
+          },
+          "sn42.11:2.17" : {
+            "doc" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’ ",
+            "matched" : true,
+            "pli" : "Chando hi mūlaṁ dukkhassā’ti. ",
+            "ref" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’ ",
+            "scid" : "sn42.11:2.17"
+          },
+          "sn42.11:2.18" : {
+            "doc" : "I have a boy called Ciravāsi, who resides in a house away from here. ",
+            "matched" : false,
+            "pli" : "Atthi me, bhante, ciravāsī nāma kumāro bahi āvasathe paṭivasati. ",
+            "ref" : "I have a boy called Ciravāsi, who resides in a house away from here. ",
+            "scid" : "sn42.11:2.18"
+          },
+          "sn42.11:2.19" : {
+            "doc" : "I rise early and dispatch someone, saying: ",
+            "matched" : false,
+            "pli" : "So khvāhaṁ, bhante, kālasseva vuṭṭhāya purisaṁ uyyojemi: ",
+            "ref" : "I rise early and dispatch someone, saying: ",
+            "scid" : "sn42.11:2.19"
+          },
+          "sn42.11:2.2" : {
+            "doc" : "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "matched" : false,
+            "pli" : "atthi te uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+            "ref" : "Are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "scid" : "sn42.11:2.2"
+          },
+          "sn42.11:2.20" : {
+            "doc" : "‘Go, my man, and check on my boy Ciravāsi.’ ",
+            "matched" : false,
+            "pli" : "‘gaccha, bhaṇe, ciravāsiṁ kumāraṁ jānāhī’ti. ",
+            "ref" : "‘Go, my man, and check on my boy Ciravāsi.’ ",
+            "scid" : "sn42.11:2.20"
+          },
+          "sn42.11:2.21" : {
+            "doc" : "Until they get back I worry: ",
+            "matched" : false,
+            "pli" : "Yāvakīvañca, bhante, so puriso nāgacchati, tassa me hoteva aññathattaṁ: ",
+            "ref" : "Until they get back I worry: ",
+            "scid" : "sn42.11:2.21"
+          },
+          "sn42.11:2.22" : {
+            "doc" : "‘I hope nothing’s wrong with Ciravāsi!’” ",
+            "matched" : false,
+            "pli" : "‘mā heva ciravāsissa kumārassa kiñci ābādhayitthā’”ti. ",
+            "ref" : "‘I hope nothing’s wrong with Ciravāsi!’” ",
+            "scid" : "sn42.11:2.22"
+          },
+          "sn42.11:2.3" : {
+            "doc" : "“There are, sir.” ",
+            "matched" : false,
+            "pli" : "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+            "ref" : "“There are, sir.” ",
+            "scid" : "sn42.11:2.3"
+          },
+          "sn42.11:2.4" : {
+            "doc" : "“But are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "matched" : false,
+            "pli" : "“Atthi pana te, gāmaṇi, uruvelakappe manussā yesaṁ te vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+            "ref" : "“But are there any people here in Uruvelakappa who, if they were executed, imprisoned, fined, or condemned, it would not cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "scid" : "sn42.11:2.4"
+          },
+          "sn42.11:2.5" : {
+            "doc" : "“There are, sir.” ",
+            "matched" : false,
+            "pli" : "“Atthi me, bhante, uruvelakappe manussā yesaṁ me vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti. ",
+            "ref" : "“There are, sir.” ",
+            "scid" : "sn42.11:2.5"
+          },
+          "sn42.11:2.6" : {
+            "doc" : "“What’s the cause, chief, what’s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?” ",
+            "matched" : false,
+            "pli" : "“Ko nu kho, gāmaṇi, hetu, ko paccayo yena te ekaccānaṁ uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+            "ref" : "“What’s the cause, chief, what’s the reason why, if this was to happen to some people it could cause you sorrow, while if it happens to others it does not?” ",
+            "scid" : "sn42.11:2.6"
+          },
+          "sn42.11:2.7" : {
+            "doc" : "“The people regarding whom this would give rise to sorrow are those I have desire and passion. ",
+            "matched" : false,
+            "pli" : "“Yesaṁ me, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, atthi me tesu chandarāgo. ",
+            "ref" : "“The people regarding whom this would give rise to sorrow are those I have desire and passion. ",
+            "scid" : "sn42.11:2.7"
+          },
+          "sn42.11:2.8" : {
+            "doc" : "The people regarding whom this would not give rise to sorrow are those I don’t have desire and passion.” ",
+            "matched" : false,
+            "pli" : "Yesaṁ pana, bhante, uruvelakappiyānaṁ manussānaṁ vadhena vā bandhena vā jāniyā vā garahāya vā nuppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā, natthi me tesu chandarāgo”ti. ",
+            "ref" : "The people regarding whom this would not give rise to sorrow are those I don’t have desire and passion.” ",
+            "scid" : "sn42.11:2.8"
+          },
+          "sn42.11:2.9" : {
+            "doc" : "“With this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: ",
+            "matched" : false,
+            "pli" : "“Iminā tvaṁ, gāmaṇi, dhammena diṭṭhena viditena akālikena pattena pariyogāḷhena atītānāgate nayaṁ nehi: ",
+            "ref" : "“With this present phenomenon that you have seen, understood, immediately attained, and fathomed, you can apply the same method to the past and future: ",
+            "scid" : "sn42.11:2.9"
+          },
+          "sn42.11:3.1" : {
+            "doc" : "“What do you think, chief? ",
+            "matched" : false,
+            "pli" : "“Taṁ kiṁ maññasi, gāmaṇi, ",
+            "ref" : "“What do you think, chief? ",
+            "scid" : "sn42.11:3.1"
+          },
+          "sn42.11:3.2" : {
+            "doc" : "If Ciravāsi was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "matched" : false,
+            "pli" : "ciravāsissa kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+            "ref" : "If Ciravāsi was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "scid" : "sn42.11:3.2"
+          },
+          "sn42.11:3.3" : {
+            "doc" : "“How could it not, sir?” ",
+            "matched" : false,
+            "pli" : "“Ciravāsissa me, bhante, kumārassa vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+            "ref" : "“How could it not, sir?” ",
+            "scid" : "sn42.11:3.3"
+          },
+          "sn42.11:3.4" : {
+            "doc" : "“This too is a way to understand: ",
+            "matched" : false,
+            "pli" : "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+            "ref" : "“This too is a way to understand: ",
+            "scid" : "sn42.11:3.4"
+          },
+          "sn42.11:3.5" : {
+            "doc" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "matched" : false,
+            "pli" : "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+            "ref" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "scid" : "sn42.11:3.5"
+          },
+          "sn42.11:3.6" : {
+            "doc" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’ ",
+            "matched" : true,
+            "pli" : "Chando hi mūlaṁ dukkhassā’ti. ",
+            "ref" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’ ",
+            "scid" : "sn42.11:3.6"
+          },
+          "sn42.11:4.1" : {
+            "doc" : "What do you think, chief? ",
+            "matched" : false,
+            "pli" : "Taṁ kiṁ maññasi, gāmaṇi, ",
+            "ref" : "What do you think, chief? ",
+            "scid" : "sn42.11:4.1"
+          },
+          "sn42.11:4.2" : {
+            "doc" : "Before you’d seen or heard of Ciravāsi’s mother, did you have any desire or passion or fondness for her?” ",
+            "matched" : false,
+            "pli" : "yadā te ciravāsimātā adiṭṭhā ahosi, assutā ahosi, te ciravāsimātuyā chando vā rāgo vā pemaṁ vā”ti? ",
+            "ref" : "Before you’d seen or heard of Ciravāsi’s mother, did you have any desire or passion or fondness for her?” ",
+            "scid" : "sn42.11:4.2"
+          },
+          "sn42.11:4.3" : {
+            "doc" : "“No, sir.” ",
+            "matched" : false,
+            "pli" : "“No hetaṁ, bhante”. ",
+            "ref" : "“No, sir.” ",
+            "scid" : "sn42.11:4.3"
+          },
+          "sn42.11:4.4" : {
+            "doc" : "“Then was it because you saw or heard of her that you had ",
+            "matched" : false,
+            "pli" : "“Dassanaṁ vā te, gāmaṇi, āgamma savanaṁ vā evaṁ te ahosi: ",
+            "ref" : "“Then was it because you saw or heard of her that you had ",
+            "scid" : "sn42.11:4.4"
+          },
+          "sn42.11:4.5" : {
+            "doc" : "desire or passion or fondness for her?” ",
+            "matched" : false,
+            "pli" : "‘ciravāsimātuyā chando vā rāgo vā pemaṁ vā’”ti? ",
+            "ref" : "desire or passion or fondness for her?” ",
+            "scid" : "sn42.11:4.5"
+          },
+          "sn42.11:4.6" : {
+            "doc" : "“Yes, sir.” ",
+            "matched" : false,
+            "pli" : "“Evaṁ, bhante”. ",
+            "ref" : "“Yes, sir.” ",
+            "scid" : "sn42.11:4.6"
+          },
+          "sn42.11:5.1" : {
+            "doc" : "“What do you think, chief? ",
+            "matched" : false,
+            "pli" : "“Taṁ kiṁ maññasi, gāmaṇi, ",
+            "ref" : "“What do you think, chief? ",
+            "scid" : "sn42.11:5.1"
+          },
+          "sn42.11:5.2" : {
+            "doc" : "If Ciravāsi’s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "matched" : false,
+            "pli" : "ciravāsimātuyā te vadhena vā bandhena vā jāniyā vā garahāya vā uppajjeyyuṁ sokaparidevadukkhadomanassupāyāsā”ti? ",
+            "ref" : "If Ciravāsi’s mother was executed, imprisoned, fined, or condemned, would it cause you sorrow, lamentation, pain, sadness, and distress?” ",
+            "scid" : "sn42.11:5.2"
+          },
+          "sn42.11:5.3" : {
+            "doc" : "“How could it not, sir?” ",
+            "matched" : false,
+            "pli" : "“Ciravāsimātuyā me, bhante, vadhena vā bandhena vā jāniyā vā garahāya vā jīvitassapi siyā aññathattaṁ, kiṁ pana me nuppajjissanti sokaparidevadukkhadomanassupāyāsā”ti. ",
+            "ref" : "“How could it not, sir?” ",
+            "scid" : "sn42.11:5.3"
+          },
+          "sn42.11:5.4" : {
+            "doc" : "“This too is a way to understand: ",
+            "matched" : false,
+            "pli" : "“Imināpi kho etaṁ, gāmaṇi, pariyāyena veditabbaṁ: ",
+            "ref" : "“This too is a way to understand: ",
+            "scid" : "sn42.11:5.4"
+          },
+          "sn42.11:5.5" : {
+            "doc" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "matched" : false,
+            "pli" : "‘yaṁ kiñci dukkhaṁ uppajjamānaṁ uppajjati, sabbaṁ taṁ chandamūlakaṁ chandanidānaṁ. ",
+            "ref" : "‘All the suffering that arises is rooted and sourced in desire. ",
+            "scid" : "sn42.11:5.5"
+          },
+          "sn42.11:5.6" : {
+            "doc" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’” ",
+            "matched" : true,
+            "pli" : "Chando hi mūlaṁ dukkhassā’”ti. ",
+            "ref" : "For desire is the <span class=\"scv-matched\">root of suffering<\/span>.’” ",
+            "scid" : "sn42.11:5.6"
+          },
+          "sn42.11:5.7" : {
+            "matched" : false,
+            "pli" : "Ekādasamaṁ. ",
+            "scid" : "sn42.11:5.7"
+          }
+        },
+        "segsMatched" : 5,
+        "sutta_uid" : "sn42.11",
+        "title" : "Linked Discourses 42.11\n1. Chiefs\nWith Bhadraka",
+        "trilingual" : true,
+        "type" : "translation"
+      }
+    ],
+    "pattern" : "root of suffering",
+    "resultPattern" : "\\broot\\sof\\ssuffering",
+    "searchLang" : "en",
+    "searchSuggestion" : "",
+    "segsMatched" : 14,
+    "suttaRefs" : [
+      "sn42.11\/en\/sujato"
+    ]
+  },
+  "suttaReference" : "",
+  "typeId" : 2,
+  "uuid" : "74EA6822-BE14-4E69-9F3C-5871BC9E94CD"
+}

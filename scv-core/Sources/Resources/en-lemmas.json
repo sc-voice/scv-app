@@ -119,6 +119,7 @@
 {"advocated":"advocate"}
 {"advocates":"advocate"}
 {"advocating":"advocate"}
+{"aeons":"aeon"}
 {"affairs":"affair"}
 {"affected":"affect"}
 {"affirmed":"affirm"}
@@ -194,6 +195,7 @@
 {"annulled":"annul"}
 {"anointed":"anoint"}
 {"anointing":"anoint"}
+{"anoints":"anoint"}
 {"answered":"answer"}
 {"answering":"answer"}
 {"answers":"answer"}
@@ -669,6 +671,7 @@
 {"burning":"burn"}
 {"burnished":"burnish"}
 {"burns":"burn"}
+{"burrows":"burrow"}
 {"bursting":"burst"}
 {"bursts":"burst"}
 {"butchers":"butcher"}
@@ -752,6 +755,7 @@
 {"caused":"cause"}
 {"causes":"cause"}
 {"causing":"cause"}
+{"cauterizes":"cauterize"}
 {"cauterizing":"cauterize"}
 {"caverns":"cavern"}
 {"caves":"cave"}
@@ -2070,6 +2074,7 @@
 {"extols":"extol"}
 {"extracted":"extract"}
 {"extracting":"extract"}
+{"extracts":"extract"}
 {"extremes":"extreme"}
 {"exuded":"exude"}
 {"exudes":"exude"}
@@ -3189,6 +3194,7 @@
 {"locations":"location"}
 {"locked":"lock"}
 {"locking":"lock"}
+{"lodged":"lodge"}
 {"lodgers":"lodger"}
 {"lodging":"lodge"}
 {"lodgings":"lodging"}
@@ -3280,7 +3286,6 @@
 {"marries":"marry"}
 {"mars":"mar"}
 {"marshes":"marsh"}
-{"masking":"mask"}
 {"massaged":"massage"}
 {"massages":"massage"}
 {"massaging":"massage"}
@@ -3355,6 +3360,7 @@
 {"methods":"method"}
 {"mice":"mouse"}
 {"milked":"milk"}
+{"milking":"milk"}
 {"milks":"milk"}
 {"millennia":"millennium"}
 {"mimicking":"mimic"}
@@ -4096,6 +4102,7 @@
 {"quadrupeds":"quadruped"}
 {"quails":"quail"}
 {"quaked":"quake"}
+{"quakes":"quake"}
 {"qualifications":"qualification"}
 {"qualified":"qualify"}
 {"qualities":"quality"}
@@ -5294,8 +5301,6 @@
 {"swam":"swim"}
 {"swamped":"swamp"}
 {"swans":"swan"}
-{"swapped":"swap"}
-{"swaps":"swap"}
 {"swarms":"swarm"}
 {"swayed":"sway"}
 {"swaying":"sway"}
@@ -5626,6 +5631,7 @@
 {"tying":"tie"}
 {"types":"type"}
 {"uglier":"ugly"}
+{"ulcerated":"ulcerate"}
 {"ulcers":"ulcer"}
 {"unbridled":"unbridle"}
 {"unburdened":"unburden"}

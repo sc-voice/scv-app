@@ -226,7 +226,9 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           }
           // Delay the fade-out animation so title is visible initially
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(reduceMotion ? .linear(duration: 20) : .linear(duration: 10)) {
+            withAnimation(reduceMotion ? .linear(duration: 20) :
+              .linear(duration: 10))
+            {
               titleOpacity = 0
             }
           }

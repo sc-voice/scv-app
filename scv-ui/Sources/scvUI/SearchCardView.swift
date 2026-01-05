@@ -13,9 +13,9 @@ import SwiftUI
 /// AppFocus enum for tracking which result has focus
 private enum AppFocus: Hashable {
   case none
-  case resultRow(id:String)
-  case segment(id:String)
-  case sidebar(id:String)
+  case resultRow(id: String)
+  case segment(id: String)
+  case sidebar(id: String)
   case search
 }
 
@@ -149,8 +149,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   // MARK: - Private Methods
 
-  private func onChangeSearchQuery(newValue:String) {
-    cc.ok2( #line, #function, "searchQuery:", newValue)
+  private func onChangeSearchQuery(newValue: String) {
+    cc.ok2(#line, #function, "searchQuery:", newValue)
 
     debounceTimer?.invalidate()
     debounceTimer = Timer.scheduledTimer(
@@ -161,10 +161,10 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         updateSuggestions(newValue)
       }
     }
-    cc.ok1( #line, "searchQuery:", newValue)
+    cc.ok1(#line, "searchQuery:", newValue)
   }
 
-  private func applySearchModifiers<V: View>(_ view: V) -> some View {
+  private func applySearchModifiers(_ view: some View) -> some View {
     let step1 = view
       .toolbar {
         ToolbarItem(placement: {
@@ -197,14 +197,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
     let step2: AnyView = {
       #if os(iOS)
-      return AnyView(step1
-        .toolbarBackground(
-          themeProvider.theme.backgroundColor,
-          for: .navigationBar,
-        )
-        .toolbarBackground(.visible, for: .navigationBar))
+        return AnyView(step1
+          .toolbarBackground(
+            themeProvider.theme.backgroundColor,
+            for: .navigationBar,
+          )
+          .toolbarBackground(.visible, for: .navigationBar))
       #else
-      return AnyView(step1)
+        return AnyView(step1)
       #endif
     }()
 
@@ -236,7 +236,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         cc.ok1(#line, "onChange isSearchPresented:", newValue)
       }
       .onChange(of: focused) { _, newValue in
-        cc.ok1( #line, "onChange focused:", newValue)
+        cc.ok1(#line, "onChange focused:", newValue)
       }
       .onChange(of: searchQuery) { _, newValue in
         onChangeSearchQuery(newValue: newValue)
@@ -278,16 +278,16 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           let authorAbbr = Settings.shared.docAuthor
           let authorInfo = DatabaseManifest.shared.info(
             language: Settings.shared.docLang.code,
-            author: authorAbbr
+            author: authorAbbr,
           )
           let authorName = authorInfo?.authorName ?? authorAbbr
           searchTitle = "Search \(langCode) \(authorName)"
         }
 
         cc.ok1(#line, "onAppear",
-          "searchFieldIsFocused:", searchFieldIsFocused,
-          "isSearchPresented:", isSearchPresented,
-          "searchTitle:", searchTitle)
+               "searchFieldIsFocused:", searchFieldIsFocused,
+               "isSearchPresented:", isSearchPresented,
+               "searchTitle:", searchTitle)
       }
   }
 
@@ -349,8 +349,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         lang: Settings.shared.docLang.code,
       )
 
-      cc.ok1( #line, #function, "query:", query,
-        "found:", newSuggestions.count)
+      cc.ok1(#line, #function, "query:", query,
+             "found:", newSuggestions.count)
       suggestions = newSuggestions
     }
   }
@@ -369,8 +369,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               Spacer()
               // Show TipitakaView if loaded, otherwise show loading/icon
               if !tipitakaRefs.isEmpty {
-                TipitakaView(tipitakaRefs: tipitakaRefs, cardManager: cardManager)
-                  .frame(maxWidth: min(500, geometry.size.width), maxHeight: .infinity)
+                TipitakaView(
+                  tipitakaRefs: tipitakaRefs,
+                  cardManager: cardManager,
+                )
+                .frame(
+                  maxWidth: min(500, geometry.size.width),
+                  maxHeight: .infinity,
+                )
               } else if tipitakaLoading {
                 ScvProgressView(appIcon: appIcon, label: "Loading Tipiṭaka...")
                   .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -437,14 +443,21 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
                   searchQuery: card.searchQuery,
                 )
                 cardManager.selectCard(suttaCard)
-                cc.ok1( #line, "Selected sutta card for:", selectedResultId)
+                cc.ok1(#line, "Selected sutta card for:", selectedResultId)
               }
             } else {
               // Not focused: set focus
               // focused = .resultRow(id:resultId)
-              cc.ok1(#line, #function, "focused", focused, "resultId:", resultId)
+              cc.ok1(
+                #line,
+                #function,
+                "focused",
+                focused,
+                "resultId:",
+                resultId,
+              )
               selectedResultId = resultId
-              cc.ok1( #line, "focus:", selectedResultId)
+              cc.ok1(#line, "focus:", selectedResultId)
             }
           }) { // Button content
             HStack {
@@ -528,18 +541,19 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           ))
           .focused($focused, equals: .resultRow(id: item.suttaRef.toString()))
           .keyboardShortcut(.defaultAction)
-          .listRowBackground(selectedResultId == item.suttaRef.toString() 
+          .listRowBackground(selectedResultId == item.suttaRef.toString()
             ? themeProvider.theme.backgroundColor
             : themeProvider.theme.cardBackground)
-          .listRowSeparator(selectedResultId == item.suttaRef.toString() ? .hidden :
+          .listRowSeparator(selectedResultId == item.suttaRef
+            .toString() ? .hidden :
             .automatic)
         } // List
         .scrollContentBackground(.hidden)
         .frame(maxWidth: 700)
         #if os(iOS)
-        .listStyle(.insetGrouped)
+          .listStyle(.insetGrouped)
         #else
-        .listStyle(.automatic)
+          .listStyle(.automatic)
         #endif
       }.focusable(),
     )

@@ -3048,6 +3048,7 @@
 {"flüstert":"flüstern"}
 {"flüsterte":"flüstern"}
 {"fokussiert":"fokussieren"}
+{"fokussierten":"fokussieren"}
 {"folge":"folgen"}
 {"folgende":"folgend"}
 {"folgendem":"folgend"}
@@ -3241,10 +3242,10 @@
 {"führt":"führen"}
 {"führte":"führen"}
 {"führten":"führen"}
-{"fülle":"füllen"}
-{"füll":"füllen"}
 {"füllst":"füllen"}
 {"füllt":"füllen"}
+{"füll":"füllen"}
+{"fülle":"füllen"}
 {"füllte":"füllen"}
 {"füllten":"füllen"}
 {"fünfergruppen":"fünfergruppe"}
@@ -8629,6 +8630,7 @@
 {"verwesenden":"verwesen"}
 {"verwickelt":"verwickeln"}
 {"verwicklungen":"verwicklung"}
+{"verwirf":"verwerfen"}
 {"verwirft":"verwerfen"}
 {"verwirkliche":"verwirklichen"}
 {"verwirklicht":"verwirklichen"}
@@ -8833,6 +8835,7 @@
 {"vögel":"vögeln"}
 {"völligen":"völlig"}
 {"völliger":"völlig"}
+{"völliges":"völlig"}
 {"wache":"wachen"}
 {"wachleute":"wachmann"}
 {"wachleuten":"wachmann"}
