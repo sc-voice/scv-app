@@ -138,9 +138,46 @@ Tests serialization of:
 - Search card with nil searchResults (before search)
 - Search card with empty SearchResponse (no results found)
 
+## UserDefaults Persistence vs JSON Serialization
+
+### Critical Distinction
+
+**JSON Serialization Tests** (encode/decode) can pass even when **UserDefaults persistence** fails.
+
+Example: Settings.load() was missing `soundEffectVolume = decoded.soundEffectVolume`
+- JSON round-trip tests passed (decode works)
+- UserDefaults persistence failed (load() didn't restore field)
+- Bug only exposed by testing full persistence cycle
+
+### Testing Persistence Cycle
+
+Use `getFixtureCard()` helper to test full cycle:
+
+```swift
+// 1. Encode settings
+// 2. Save to UserDefaults
+// 3. Load into new instance (calls load())
+// 4. Compare loaded vs original
+let (loaded, _) = try Self.getFixtureCard(settings, testName: "...")
+#expect(loaded.soundEffectVolume == settings.soundEffectVolume)
+```
+
+### Why This Matters
+
+Settings uses manual JSON encoding/decode with UserDefaults:
+- Each field must be copied in load() method
+- Missing even one line breaks persistence
+- Easy to miss during refactoring
+
+@Model (SwiftData) doesn't have this issue:
+- Persistence is automatic
+- All fields persisted unless explicitly deleted
+- No manual field-by-field copying
+
 ## Notes
 
 - Tests use hardcoded UUIDs from fixtures (generated values)
 - All other fields compared against original test objects
 - Fixtures are JSON and human-readable for debugging
 - Each test is independent (no shared state)
+- getFixtureCard() tests full UserDefaults persistence cycle, not just JSON round-trip
