@@ -24,6 +24,21 @@ public struct TipitakaView<Manager: ICardManager>: View {
 
   // MARK: - Private Methods
 
+  /// Recursively sort TipitakaRef children using SuttaCentralId.compareLow()
+  private func sortedTipitakaRefs(_ refs: [TipitakaRef]) -> [TipitakaRef] {
+    refs.map { ref in
+      var sortedRef = ref
+      if let children = ref.children {
+        sortedRef.children = sortedTipitakaRefs(children).sorted { a, b in
+          SuttaCentralId.compareLow(a.id, b.id) < 0
+        }
+      }
+      return sortedRef
+    }.sorted { a, b in
+      SuttaCentralId.compareLow(a.id, b.id) < 0
+    }
+  }
+
   /// Extracts the suttaUid from a TipitakaRef path
   /// Example: "/sutta/mn/mn1" → "mn1"
   private func suttaUidFromPath(_ path: String) -> String? {
@@ -68,7 +83,7 @@ public struct TipitakaView<Manager: ICardManager>: View {
       Text("Tipiṭaka")
         .font(.caption)
         .listRowSeparator(.hidden)
-      OutlineGroup(tipitakaRefs, children: \.children) { ref in
+      OutlineGroup(sortedTipitakaRefs(tipitakaRefs), children: \.children) { ref in
         HStack {
           VStack(alignment: .leading, spacing: 2) {
             Text(ref.name)

@@ -302,7 +302,7 @@ public class SuttaCentralId: CustomStringConvertible {
   }
 
   /// Compares two SCIDs using their low values
-  static func compareLow(_ a: String, _ b: String) -> Int {
+  public static func compareLow(_ a: String, _ b: String) -> Int {
     let abase = Self.basename(a)
     let bbase = Self.basename(b)
 

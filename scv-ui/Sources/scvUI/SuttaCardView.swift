@@ -86,7 +86,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
               }
             }
 
-            if let layout = layout {
+            if let layout {
               ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 8) {
                   ForEach(segments, id: \.scid) { segment in
@@ -103,8 +103,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 .background(themeProvider.theme.cardBackground)
               }
               .frame(maxWidth: .infinity, alignment: .center)
-              //.scrollContentBackground(.hidden)
-              //.background(.red)
+              // .scrollContentBackground(.hidden)
+              // .background(.red)
               .onAppear {
                 if let currentScid = mlDoc.currentScid {
                   // Delay scroll to allow segments to load
@@ -128,7 +128,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
               }
               .onChange(of: mlDoc.currentScid) { _, newScid in
                 if let newScid {
-                  withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.8)) {
+                  withAnimation(reduceMotion ? nil :
+                    .easeInOut(duration: 0.8))
+                  {
                     // Scroll to two line heights from top
                     scrollProxy.scrollTo(
                       newScid,

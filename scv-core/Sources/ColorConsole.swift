@@ -80,9 +80,7 @@ public final class ColorConsole: Sendable {
     let sinceLastOutput = now.timeIntervalSince(ColorConsole.lastOutputTime)
     ColorConsole.lastOutputTime = now
 
-    let launchMs = Int(sinceLaunch * 1000)
-    let prevMs = Int(sinceLastOutput * 1000)
-    return String(format: "%dms+%d", launchMs, prevMs)
+    return String(format: "%0.3fs+%0.3f", sinceLaunch, sinceLastOutput)
   }
 
   /// Print bright green text

@@ -47,6 +47,9 @@ public struct Theme {
   /// Opacity for annotational (non-interactive) icons
   public let iconOpacity: Double
 
+  /// Focus ring color for keyboard navigation indicators
+  public let focusColor: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -59,6 +62,7 @@ public struct Theme {
     errorTextColor: Color,
     debugForeground: Color,
     linkColor: Color,
+    focusColor: Color = .blue,
     iconOpacity: Double = 0.8,
   ) {
     self.backgroundColor = backgroundColor
@@ -72,6 +76,7 @@ public struct Theme {
     self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
     self.linkColor = linkColor
+    self.focusColor = focusColor
     self.iconOpacity = iconOpacity
   }
 }
@@ -131,13 +136,14 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.3, green: 0.3,
                                   blue: 0.3), // medium grey
         accentColor: COLOR_BROWN_ACCENT, // #8b4513 (4.91:1 contrast ratio)
-        cardBackground: Color(red: 0.8, green: 0.8, blue: 0.8), 
+        cardBackground: Color(red: 0.8, green: 0.8, blue: 0.8),
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
         valueColor: COLOR_TEAL_DARK, // #065f73 (5.02:1 contrast ratio)
         toolbarColor: COLOR_GREY, // #BDBDBD
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_BROWN_ACCENT, // #8b4513 (same as accentColor)
+        focusColor: .blue,
         iconOpacity: 0.8,
       )
     case .dark:
@@ -150,13 +156,14 @@ public enum AppTheme {
         secondaryTextColor: Color(red: 0.7, green: 0.7,
                                   blue: 0.7), // light grey
         accentColor: COLOR_SAFFRON, // #ff9933
-        cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2), 
+        cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2),
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
         toolbarColor: Color(red: 0.371, green: 0.071, blue: 0.071),
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)
+        focusColor: .blue,
         iconOpacity: 0.8,
       )
     }

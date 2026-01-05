@@ -224,6 +224,12 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           withAnimation(reduceMotion ? nil : .linear(duration: 30)) {
             backgroundOpacity = 0.2
           }
+          // Delay the fade-out animation so title is visible initially
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(reduceMotion ? .linear(duration: 20) : .linear(duration: 10)) {
+              titleOpacity = 0
+            }
+          }
         }
     } // ZStack
     .background(Color.black)

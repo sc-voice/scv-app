@@ -629,11 +629,11 @@ struct DisplaySectionContent: View {
           Slider(
             value: $controller.maxColumnWidth,
             in: MIN_COLUMN_WIDTH ... MAX_COLUMN_WIDTH,
-            step: 10
+            step: 10,
           )
           .foregroundColor(themeProvider.theme.textColor)
           Text(
-            "Min: \(Int(MIN_COLUMN_WIDTH))pt - Max: \(Int(MAX_COLUMN_WIDTH))pt - Current: \(Int(controller.maxColumnWidth))pt"
+            "Min: \(Int(MIN_COLUMN_WIDTH))pt - Max: \(Int(MAX_COLUMN_WIDTH))pt - Current: \(Int(controller.maxColumnWidth))pt",
           )
           .font(.caption)
           .foregroundColor(themeProvider.theme.secondaryTextColor)

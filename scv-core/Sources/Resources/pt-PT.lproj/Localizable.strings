@@ -25,6 +25,9 @@
 /* Card type label for about card */
 "card.type.about" = "Sobre";
 
+/* Card title for search card */
+"card.title.search" = "Pesquisa";
+
 /* Placeholder text for empty search query */
 "card.search.placeholder" = "Procurar...?";
 

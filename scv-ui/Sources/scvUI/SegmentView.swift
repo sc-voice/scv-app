@@ -107,8 +107,8 @@ struct SegmentView: View {
         columnsContent
       }
     }
-    .padding(.vertical, 
-      isSegmentSelected ? 10 : 4)
+    .padding(.vertical,
+             isSegmentSelected ? 10 : 4)
     .background(
       isSegmentSelected ? themeProvider.theme
         .backgroundColor : .clear,

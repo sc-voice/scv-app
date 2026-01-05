@@ -45,13 +45,13 @@ public struct SuttaHeaderView<Card: ICard>: View {
           .lineLimit(nil)
 
         if let mlDoc = card.mlDoc {
-          //HStack(spacing: 4) {
-            //Image(systemName: "person.fill")
-              //.foregroundColor(themeProvider.theme.textColor)
-            Text(mlDoc.docAuthorName)
-              .foregroundColor(themeProvider.theme.textColor)
-          //}
-          .font(.body)
+          // HStack(spacing: 4) {
+          // Image(systemName: "person.fill")
+          // .foregroundColor(themeProvider.theme.textColor)
+          Text(mlDoc.docAuthorName)
+            .foregroundColor(themeProvider.theme.textColor)
+            // }
+            .font(.body)
         } // mlDoc
       } // VStack
       Spacer()
@@ -68,7 +68,8 @@ public struct SuttaHeaderView<Card: ICard>: View {
             .frame(minWidth: 44, minHeight: 44)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio".localized : "a11y.button.play_audio".localized)
+        .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
+          .localized : "a11y.button.play_audio".localized)
       } // mlDoc
     } // HStack
     .padding(.horizontal, 16)

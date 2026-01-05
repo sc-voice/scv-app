@@ -2,19 +2,19 @@
 // ColorConsole methods.
 public struct dbg: Sendable {
   public struct App: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AppController: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AppRootView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AutoComplete: Sendable {
@@ -22,32 +22,32 @@ public struct dbg: Sendable {
   }
 
   public struct CardManager: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct CardSidebarView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct ContentView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct EbtQuery: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct EbtSeeker: Sendable {
-    public static let other: Int = 2
-    public static let search: Int = 2
+    public static let other: Int = 0
+    public static let search: Int = 0
   }
 
   public struct Lemmatizer: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SearchCardView: Sendable {
@@ -55,19 +55,19 @@ public struct dbg: Sendable {
   }
 
   public struct IOSView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct DemoIOSApp: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct Settings: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct OpenURL: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SegmentLayout: Sendable {
@@ -83,30 +83,30 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaPlayer: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SCVApp: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct scvUITests: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SuttaRef: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct Tipitaka: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct TipitakaView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct ZStd: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 }

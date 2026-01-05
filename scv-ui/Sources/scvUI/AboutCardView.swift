@@ -343,7 +343,8 @@ public struct AboutCardView: View {
                           .foregroundStyle(themeProvider.theme.linkColor)
                           .underline()
                         }
-                        .accessibilityLabel("a11y.button.external_link".localized)
+                        .accessibilityLabel("a11y.button.external_link"
+                          .localized)
                       } else {
                         Text(
                           name

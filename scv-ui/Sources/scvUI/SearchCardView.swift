@@ -10,6 +10,15 @@ import SwiftUI
 
 // MARK: - Quote HTML Parsing
 
+/// AppFocus enum for tracking which result has focus
+private enum AppFocus: Hashable {
+  case none
+  case resultRow(id:String)
+  case segment(id:String)
+  case sidebar(id:String)
+  case search
+}
+
 /// Helper for parsing HTML quotes and converting to AttributedString
 public enum QuoteHTMLParser {
   /// Parses HTML quote with <span> tag and returns AttributedString with bold
@@ -81,11 +90,11 @@ public enum SearchQueryFilter {
       } else {
         let charDisplay = String(char).debugDescription
         if !lastWasInvalid {
-          cc.bad1(#line, "rejected:", charDisplay)
+          cc.bad1(#line, #function, "rejected:", charDisplay)
           result.append("?")
           lastWasInvalid = true
         } else {
-          cc.bad1(#line, "ignored:", charDisplay)
+          cc.bad1(#line, #function, "ignored:", charDisplay)
         }
       }
     }
@@ -110,15 +119,15 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var isSearchPresented: Bool = false
-  @State private var iconOpacity: Double = 1.0
-  @State private var iconOffset: CGFloat = 0
-  @State private var maxIconOffset: CGFloat = -200
   @State private var tipitakaRefs: [TipitakaRef] = []
   @State private var tipitakaLoading: Bool = false
   @State private var searchQuery: String = ""
   @State private var suggestions: [PhraseAsset] = []
   @State private var debounceTimer: Timer?
+  @FocusState private var focused: AppFocus?
   @FocusState private var searchFieldIsFocused: Bool
+  @State private var searchTitle: String = "card.title.search".localized
+  @State private var selectedResultId: String?
   @Environment(\.sizeCategory) var sizeCategory
   @Environment(\.accessibilityReduceMotion) var reduceMotion
   let appIcon: Image
@@ -140,9 +149,35 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
   // MARK: - Private Methods
 
+  private func onChangeSearchQuery(newValue:String) {
+    cc.ok2( #line, #function, "searchQuery:", newValue)
+
+    debounceTimer?.invalidate()
+    debounceTimer = Timer.scheduledTimer(
+      withTimeInterval: 0.5,
+      repeats: false,
+    ) { _ in
+      Task { @MainActor in
+        updateSuggestions(newValue)
+      }
+    }
+    cc.ok1( #line, "searchQuery:", newValue)
+  }
+
   private func applySearchModifiers<V: View>(_ view: V) -> some View {
-    view
+    let step1 = view
       .toolbar {
+        ToolbarItem(placement: {
+          #if os(iOS)
+            return .navigationBarLeading
+          #else
+            return .automatic
+          #endif
+        }()) {
+          Text(searchTitle)
+            .font(.headline)
+            .foregroundColor(themeProvider.theme.textColor)
+        }
         ToolbarItem(placement: {
           #if os(iOS)
             return .navigationBarTrailing
@@ -159,10 +194,21 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           .accessibilityLabel("a11y.button.search".localized)
         }
       }
+
+    let step2: AnyView = {
       #if os(iOS)
-      .toolbarBackground(themeProvider.theme.backgroundColor, for: .navigationBar)
-      .toolbarBackground(.visible, for: .navigationBar)
+      return AnyView(step1
+        .toolbarBackground(
+          themeProvider.theme.backgroundColor,
+          for: .navigationBar,
+        )
+        .toolbarBackground(.visible, for: .navigationBar))
+      #else
+      return AnyView(step1)
       #endif
+    }()
+
+    return step2
       .searchable(
         text: $searchQuery,
         isPresented: $isSearchPresented,
@@ -172,7 +218,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         ForEach(suggestions, id: \.lemma) { suggestion in
           Button(action: {
             searchQuery = suggestion.lastUsedPhrase
-            cc.ok2(#line, "Selected suggestion:", suggestion.lastUsedPhrase)
+            cc.ok2(#line, "searchSuggestions:", suggestion.lastUsedPhrase)
           }) {
             HStack {
               Text(suggestion.lastUsedPhrase)
@@ -185,42 +231,27 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           .searchCompletion(suggestion.lastUsedPhrase)
         }
       }
-      .focused($searchFieldIsFocused)
+      .searchFocused($searchFieldIsFocused)
       .onChange(of: isSearchPresented) { _, newValue in
-        cc.ok1(#line, "isSearchPresented changed to:", newValue)
+        cc.ok1(#line, "onChange isSearchPresented:", newValue)
       }
-      .onChange(of: searchFieldIsFocused) { _, newValue in
-        cc.ok1(
-          #line,
-          "searchFieldIsFocused (TextField actual focus) changed to:",
-          newValue,
-        )
+      .onChange(of: focused) { _, newValue in
+        cc.ok1( #line, "onChange focused:", newValue)
       }
       .onChange(of: searchQuery) { _, newValue in
-        cc.ok1(
-          #line,
-          "searchQuery changed in keyboard to:",
-          newValue,
-        )
-
-        debounceTimer?.invalidate()
-        debounceTimer = Timer.scheduledTimer(
-          withTimeInterval: 0.5,
-          repeats: false,
-        ) { _ in
-          Task { @MainActor in
-            updateSuggestions(newValue)
-          }
-        }
+        onChangeSearchQuery(newValue: newValue)
       }
       .onSubmit(of: .search) {
-        cc.ok1(#line, "Search submitted in keyboard")
+        cc.ok2(#line, "onSubmit:", searchQuery)
+        searchTitle = searchQuery + "..."
         SearchCardView.searchSubmitHandler(
           cardManager: cardManager,
           selectedCardId: card.id,
           searchQueryBinding: $searchQuery,
+          searchTitleBinding: $searchTitle,
         )
         isSearchPresented = false
+        cc.ok1(#line, "onSubmit:", searchQuery)
       }
       .onDisappear {
         debounceTimer?.invalidate()
@@ -233,24 +264,30 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         if filtered != newValue {
           card.searchQuery = filtered
         }
-        cc.ok2(#line, "onChange:", filtered)
-
-        withAnimation {
-          iconOpacity = 1.0
-          iconOffset = 0
-        }
-        scheduleFade()
+        cc.ok1(#line, "onChange card.searchQuery:", filtered)
       }
       .onAppear {
-        cc.ok1(#line, "SearchCardView initialized for card:", card.name)
         searchQuery = card.searchQuery
         isSearchPresented = true
-        cc.ok1(
-          #line,
-          "searchable modifier appeared, isSearchPresented:",
-          isSearchPresented,
-        )
-        scheduleFade()
+        searchFieldIsFocused = true
+
+        if let result = card.searchResult, !result.items.isEmpty {
+          searchTitle = card.searchQuery + " (\(result.items.count))"
+        } else {
+          let langCode = Settings.shared.docLang.code.uppercased()
+          let authorAbbr = Settings.shared.docAuthor
+          let authorInfo = DatabaseManifest.shared.info(
+            language: Settings.shared.docLang.code,
+            author: authorAbbr
+          )
+          let authorName = authorInfo?.authorName ?? authorAbbr
+          searchTitle = "Search \(langCode) \(authorName)"
+        }
+
+        cc.ok1(#line, "onAppear",
+          "searchFieldIsFocused:", searchFieldIsFocused,
+          "isSearchPresented:", isSearchPresented,
+          "searchTitle:", searchTitle)
       }
   }
 
@@ -283,14 +320,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     }
   }
 
-  private func scheduleFade() {
-    cc.ok2(#line, "scheduleFade: icon will fade and move up over 5s")
-    withAnimation(reduceMotion ? nil : .easeOut(duration: 5.0)) {
-      iconOpacity = 0.1
-      iconOffset = maxIconOffset
-    }
-  }
-
   private func loadTipitaka() {
     let lang = Settings.shared.docLang.code
     let author = Settings.shared.docAuthor
@@ -299,6 +328,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     tipitakaLoading = true
 
     Task {
+      cc.ok2(#line, #function, "loading...", lang, author)
       let root = await Tipitaka.authorTipitaka(lang: lang, author: author)
       tipitakaRefs = root.children ?? []
       tipitakaLoading = false
@@ -318,13 +348,9 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         author: Settings.shared.docAuthor,
         lang: Settings.shared.docLang.code,
       )
-      cc.ok2(
-        #line,
-        "updateSuggestions for:",
-        query,
-        "found:",
-        newSuggestions.count,
-      )
+
+      cc.ok1( #line, #function, "query:", query,
+        "found:", newSuggestions.count)
       suggestions = newSuggestions
     }
   }
@@ -336,39 +362,30 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 
     if hasNoResults {
       return AnyView(
-        ZStack {
-          // Show TipitakaView if loaded, otherwise show loading/icon
-          if !tipitakaRefs.isEmpty {
-            TipitakaView(tipitakaRefs: tipitakaRefs, cardManager: cardManager)
-          } else if tipitakaLoading {
-            ScvProgressView(appIcon: appIcon, label: "Loading Tipiṭaka...")
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-          } else {
-            // Fallback: show app icon
-            GeometryReader { geometry in
-              VStack(spacing: 12) {
-                appIcon
-                  .resizable()
-                  .scaledToFit()
-                  .frame(width: 80, height: 80)
-                  .opacity(iconOpacity)
-                  .offset(y: iconOffset)
-                  .onAppear {
-                    // Calculate offset: move icon to 16pt below top
-                    let targetY = 16.0
-                    let iconCenterY = geometry.size.height / 2
-                    let calculated = -(iconCenterY - targetY)
-                    maxIconOffset = calculated
-                    cc.ok2(#line, "maxOffset calculated: \(calculated)")
-                  }
+        GeometryReader { geometry in
+          VStack {
+            Spacer()
+            HStack {
+              Spacer()
+              // Show TipitakaView if loaded, otherwise show loading/icon
+              if !tipitakaRefs.isEmpty {
+                TipitakaView(tipitakaRefs: tipitakaRefs, cardManager: cardManager)
+                  .frame(maxWidth: min(500, geometry.size.width), maxHeight: .infinity)
+              } else if tipitakaLoading {
+                ScvProgressView(appIcon: appIcon, label: "Loading Tipiṭaka...")
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+              } else {
+                // Unexpected wait
+                ScvProgressView(appIcon: appIcon, label: "Nothingness...")
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
               }
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-              .padding()
+              Spacer()
             }
+            Spacer()
           }
-        }
-        .onAppear {
-          loadTipitaka()
+          .onAppear {
+            loadTipitaka()
+          }
         },
       )
     }
@@ -407,21 +424,29 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     return AnyView(
       VStack(alignment: .leading, spacing: 12) {
         // Results list
-        List(Array(searchResult.items.enumerated()), id: \.element.suttaRef) { index, item in
+        List(Array(searchResult.items.enumerated()),
+             id: \.element.suttaRef)
+        { index, item in
           Button(action: {
-            Task {
-              let suttaCard = await cardManager.suttaCardForRef(
-                item.suttaRef,
-                searchQuery: card.searchQuery,
-              )
-              cardManager.selectCard(suttaCard)
-              cc.ok1(
-                #line,
-                "Selected sutta card for:",
-                item.suttaRef.toString(),
-              )
+            let resultId = item.suttaRef.toString()
+            if selectedResultId == resultId {
+              // Already focused: navigate to sutta card
+              Task {
+                let suttaCard = await cardManager.suttaCardForRef(
+                  item.suttaRef,
+                  searchQuery: card.searchQuery,
+                )
+                cardManager.selectCard(suttaCard)
+                cc.ok1( #line, "Selected sutta card for:", selectedResultId)
+              }
+            } else {
+              // Not focused: set focus
+              // focused = .resultRow(id:resultId)
+              cc.ok1(#line, #function, "focused", focused, "resultId:", resultId)
+              selectedResultId = resultId
+              cc.ok1( #line, "focus:", selectedResultId)
             }
-          }) {
+          }) { // Button content
             HStack {
               Text("\(index + 1).")
                 .font(.caption)
@@ -495,18 +520,28 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               } // VStack
               .padding(.vertical, 4)
             } // HStack
-          }
+          } // Button content
           .buttonStyle(.plain)
-          .accessibilityLabel(String(format: "a11y.result".localized, index + 1))
+          .accessibilityLabel(String(
+            format: "a11y.result".localized,
+            index + 1,
+          ))
+          .focused($focused, equals: .resultRow(id: item.suttaRef.toString()))
+          .keyboardShortcut(.defaultAction)
+          .listRowBackground(selectedResultId == item.suttaRef.toString() 
+            ? themeProvider.theme.backgroundColor
+            : themeProvider.theme.cardBackground)
+          .listRowSeparator(selectedResultId == item.suttaRef.toString() ? .hidden :
+            .automatic)
         } // List
         .scrollContentBackground(.hidden)
         .frame(maxWidth: 700)
         #if os(iOS)
-          .listStyle(.insetGrouped)
+        .listStyle(.insetGrouped)
         #else
-          .listStyle(.automatic)
+        .listStyle(.automatic)
         #endif
-      },
+      }.focusable(),
     )
   } // resultsView
 
@@ -516,6 +551,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     cardManager: Manager,
     selectedCardId: AnyHashable,
     searchQueryBinding: Binding<String>,
+    searchTitleBinding: Binding<String>,
   ) {
     let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
     // Fetch fresh card from manager to ensure we have current state
@@ -539,6 +575,11 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       // Update card with search result
       card.searchResult = searchResult
       cardManager.saveCard(card)
+
+      // Update search title with result count
+      DispatchQueue.main.async {
+        searchTitleBinding.wrappedValue = searchQueryBinding.wrappedValue + " (\(searchResult.items.count))"
+      }
 
       if let error = searchResult.error {
         cc.bad1(#line, "Search failed:", error.message, "detail:", error.detail)
@@ -592,7 +633,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     applySearchModifiers(
       resultsView
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(0)
+        .padding(0),
     )
   }
 }

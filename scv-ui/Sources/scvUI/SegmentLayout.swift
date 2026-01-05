@@ -97,7 +97,7 @@ struct SegmentLayout {
       availableWidth
     }
     cc.ok2(#line, #function, "availableWidth:\(availableWidth)",
-      "availableForColumns:\(availableForColumns)")
+           "availableForColumns:\(availableForColumns)")
 
     // Step 3: Maximize visibleColumnCount (start with columnsShown, reduce if
     // needed)
@@ -129,7 +129,8 @@ struct SegmentLayout {
     switch segmentNumberPosition {
     case .left:
       totalContentWidth = segmentNumberWidth + columnSpace +
-        (CGFloat(visibleColumnCount) * columnWidth) + columnSpacingWidth + contentPadding
+        (CGFloat(visibleColumnCount) * columnWidth) + columnSpacingWidth +
+        contentPadding
     case .above, .hidden:
       totalContentWidth = (CGFloat(visibleColumnCount) * columnWidth) +
         columnSpacingWidth + contentPadding
