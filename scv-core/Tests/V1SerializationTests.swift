@@ -45,176 +45,266 @@ struct V1SerializationTests {
     }
   }
 
+  /// Helper that simulates full persistence cycle: save settings to
+  /// UserDefaults,
+  /// then load into new instance (tests Settings.load() method)
+  /// Returns tuple of (loaded instance, jsonValues from fixture for comparison)
+  static func getFixtureCard(_ settings: Settings,
+                             testName: String) throws
+    -> (loaded: Settings, jsonValues: Settings)
+  {
+    // Get fixture JSON (for reproducibility and potential fixture files)
+    let jsonData = try Self.getFixtureJSON(settings, testName: testName)
+
+    // Decode to get jsonValues (all fields as they were encoded)
+    let decoder = JSONDecoder()
+    let jsonValues = try decoder.decode(Settings.self, from: jsonData)
+
+    // Create isolated UserDefaults for this test
+    let testSuiteName = "test.v1.\(testName)"
+    let testDefaults = UserDefaults(suiteName: testSuiteName)!
+    testDefaults.removePersistentDomain(forName: testSuiteName)
+
+    // Save settings to test UserDefaults (simulates app saving)
+    let encoder = JSONEncoder()
+    let encoded = try encoder.encode(settings)
+    testDefaults.set(encoded, forKey: "com.scv.settings")
+
+    // Load into new Settings instance (calls load() method)
+    let loaded = Settings(userDefaults: testDefaults)
+
+    // Clean up
+    testDefaults.removePersistentDomain(forName: testSuiteName)
+
+    return (loaded, jsonValues)
+  }
+
   // MARK: - Serialization: Atomic Fields (v1.0)
 
   @Test func serializeAllAtomicFields() throws {
     /// Comprehensive round-trip test for all atomic (non-dict) fields
+    /// Tests full UserDefaults persistence cycle
     let settings = Settings()
 
-    // Set all atomic fields
+    // Set all atomic fields to non-default values
     settings.version = 1
-    settings.docLang = .english
-    settings.refLang = .english
-    settings.refAuthor = "sujato"
-    settings.isDarkModeEnabled = true
-    settings.segmentPause = 0.5
-    settings.playPali = false
-    settings.playDoc = true
-    settings.showPali = false
-    settings.showDoc = true
-    settings.showRef = false
-    settings.soundEffectVolume = 0.5
-    settings.lastApplicationVersion = "0.0.589"
-    settings.maxDoc = 50
-    settings.maxColumnWidth = 400
-    settings.autoCompleteData = []
+    settings.docLang = .german
+    settings.refLang = .pli
+    settings.refAuthor = "ms"
+    settings.isDarkModeEnabled = false
+    settings.segmentPause = 1.25
+    settings.playPali = true
+    settings.playDoc = false
+    settings.showPali = true
+    settings.showDoc = false
+    settings.showRef = true
+    settings.soundEffectVolume = 0.75
+    settings.lastApplicationVersion = "0.0.600"
+    settings.maxDoc = 75
+    settings.maxColumnWidth = 350
 
-    // Encode and save/load fixture
-    let encoded = try Self.getFixtureJSON(
+    // Set one autoComplete entry to test persistence
+    let now = Date()
+    var phrase = PhraseAsset(
+      lemma: "test",
+      lastUsedPhrase: "testing",
+      created: now,
+      lastUsed: now,
+      documentCount: 5,
+    )
+    let autoCompleteEntry = PhrasesByAuthorLang(
+      author: "sujato",
+      lang: "en",
+      phrases: ["test": phrase],
+    )
+    settings.autoCompleteData = [autoCompleteEntry]
+
+    // Persist to UserDefaults and load into new instance
+    let (loaded, _) = try Self.getFixtureCard(
       settings,
       testName: "Settings_AllAtomicFields",
     )
 
-    // Decode
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(Settings.self, from: encoded)
+    // Verify all atomic fields survive persistence cycle
+    #expect(loaded.version == settings.version)
+    #expect(loaded.docLang == settings.docLang)
+    #expect(loaded.refLang == settings.refLang)
+    #expect(loaded.refAuthor == settings.refAuthor)
+    #expect(loaded.isDarkModeEnabled == settings.isDarkModeEnabled)
+    #expect(loaded.segmentPause == settings.segmentPause)
+    #expect(loaded.playPali == settings.playPali)
+    #expect(loaded.playDoc == settings.playDoc)
+    #expect(loaded.showPali == settings.showPali)
+    #expect(loaded.showDoc == settings.showDoc)
+    #expect(loaded.showRef == settings.showRef)
+    #expect(loaded.soundEffectVolume == settings.soundEffectVolume)
+    #expect(loaded.lastApplicationVersion == settings.lastApplicationVersion)
+    #expect(loaded.maxDoc == settings.maxDoc)
+    #expect(loaded.maxColumnWidth == settings.maxColumnWidth)
 
-    // Verify all atomic fields survive round-trip
-    #expect(decoded.version == 1)
-    #expect(decoded.docLang == .english)
-    #expect(decoded.refLang == .english)
-    #expect(decoded.refAuthor == "sujato")
-    #expect(decoded.isDarkModeEnabled == true)
-    #expect(decoded.segmentPause == 0.5)
-    #expect(decoded.playPali == false)
-    #expect(decoded.playDoc == true)
-    #expect(decoded.showPali == false)
-    #expect(decoded.showDoc == true)
-    #expect(decoded.showRef == false)
-    #expect(decoded.soundEffectVolume == 0.5)
-    #expect(decoded.lastApplicationVersion == "0.0.589")
-    #expect(decoded.maxDoc == 50)
-    #expect(decoded.maxColumnWidth == 400)
-    #expect(decoded.autoCompleteData.isEmpty)
+    // Verify autoCompleteData persists
+    #expect(loaded.autoCompleteData.count == 1)
+    #expect(loaded.autoCompleteData[0].author == "sujato")
+    #expect(loaded.autoCompleteData[0].lang == "en")
+
+    // Verify phrase data survives
+    if let loadedPhrase = loaded.autoCompleteData[0].phrases["test"] {
+      #expect(loadedPhrase.lemma == "test")
+      #expect(loadedPhrase.lastUsedPhrase == "testing")
+      #expect(loadedPhrase.documentCount == 5)
+    }
   }
 
   // MARK: - Serialization: docLangSettings (Dictionary Structure)
 
   @Test func serializeDocLangSettingsMinimal() throws {
-    /// Test docLangSettings with single entry (English)
+    /// Test docLangSettings with single entry (German)
     let settings = Settings()
-    settings.docLang = .english
-    settings.refLang = .english
+    settings.docLang = .german
+    settings.refLang = .pli
 
-    // Set minimal English settings
-    var englishSettings = LangSettings(language: .english)
-    englishSettings.author = "sujato"
-    settings.docLangSettings[.english] = englishSettings
+    // Set minimal German settings
+    var germanSettings = LangSettings(language: .german)
+    germanSettings.author = "sabbamitta"
+    settings.docLangSettings[.german] = germanSettings
 
-    // Encode and save/load fixture
-    let encoded = try Self.getFixtureJSON(
+    // Persist to UserDefaults and load into new instance
+    let (loaded, jsonValues) = try Self.getFixtureCard(
       settings,
       testName: "Settings_DocLangSettingsMinimal",
     )
 
-    // Decode
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(Settings.self, from: encoded)
-
-    // Verify docLangSettings structure
-    #expect(decoded.docLangSettings[.english] != nil)
-    #expect(decoded.docLangSettings[.english]?.author == "sujato")
-    #expect(decoded.docLangSettings[.english]?.language == .english)
-    #expect(decoded.docAuthor == "sujato")
+    // Verify docLangSettings structure survives persistence
+    #expect(loaded.docLangSettings[.german] != nil)
+    #expect(loaded.docLangSettings[.german]?.author == jsonValues
+      .docLangSettings[.german]?.author)
+    #expect(loaded.docLangSettings[.german]?.language == jsonValues
+      .docLangSettings[.german]?.language)
+    #expect(loaded.docAuthor == jsonValues.docAuthor)
   }
 
   @Test func serializeDocLangSettingsWithVoice() throws {
     /// Test docLangSettings with full voice configuration
     let settings = Settings()
-    settings.docLang = .english
+    settings.docLang = .portuguese
     settings.refLang = .pli
     settings.refAuthor = "ms"
 
-    // Set English document settings with voice
-    var englishSettings = LangSettings(language: .english)
-    englishSettings.author = "soma"
-    englishSettings.voiceName = "Samantha"
-    englishSettings.voiceId = "com.apple.ttsbundle.Samantha-compact"
-    englishSettings.variant = "premium"
-    englishSettings.pitch = 1.0
-    englishSettings.rate = 1.0
-    englishSettings.emphasis = true
-    settings.docLangSettings[.english] = englishSettings
+    // Set Portuguese document settings with voice
+    var portugueseSettings = LangSettings(language: .portuguese)
+    portugueseSettings.author = "felicidade"
+    portugueseSettings.voiceName = "Joana"
+    portugueseSettings.voiceId = "com.apple.ttsbundle.Joana-compact"
+    portugueseSettings.variant = "enhanced"
+    portugueseSettings.pitch = 1.2
+    portugueseSettings.rate = 0.9
+    portugueseSettings.emphasis = false
+    settings.docLangSettings[.portuguese] = portugueseSettings
 
     // Set Pali narration settings
     var paliSettings = LangSettings(language: .pli)
     paliSettings.voiceName = "Daniel"
     paliSettings.voiceId = "com.apple.ttsbundle.Daniel-compact"
-    paliSettings.pitch = 1.1
-    paliSettings.rate = 0.95
-    paliSettings.emphasis = true
+    paliSettings.pitch = 1.3
+    paliSettings.rate = 0.85
+    paliSettings.emphasis = false
     settings.paliSettings = paliSettings
 
-    // Encode and save/load fixture
-    let encoded = try Self.getFixtureJSON(
+    // Persist to UserDefaults and load into new instance
+    let (loaded, _) = try Self.getFixtureCard(
       settings,
       testName: "Settings_DocLangSettingsWithVoice",
     )
 
-    // Decode
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(Settings.self, from: encoded)
+    // Verify docLangSettings with voice survives persistence
+    #expect(loaded.docLangSettings[.portuguese]?.author == settings
+      .docLangSettings[.portuguese]?.author)
+    #expect(loaded.docLangSettings[.portuguese]?.voiceName == settings
+      .docLangSettings[.portuguese]?.voiceName)
+    #expect(loaded.docLangSettings[.portuguese]?.voiceId == settings
+      .docLangSettings[.portuguese]?.voiceId)
+    #expect(loaded.docLangSettings[.portuguese]?.variant == settings
+      .docLangSettings[.portuguese]?.variant)
+    if let pitch = loaded.docLangSettings[.portuguese]?.pitch,
+       let origPitch = settings.docLangSettings[.portuguese]?.pitch
+    {
+      #expect(abs(pitch - origPitch) < 0.01)
+    }
+    if let rate = loaded.docLangSettings[.portuguese]?.rate,
+       let origRate = settings.docLangSettings[.portuguese]?.rate
+    {
+      #expect(abs(rate - origRate) < 0.01)
+    }
+    #expect(loaded.docLangSettings[.portuguese]?.emphasis == settings
+      .docLangSettings[.portuguese]?.emphasis)
 
-    // Verify docLangSettings with voice
-    #expect(decoded.docLangSettings[.english]?.author == "soma")
-    #expect(decoded.docLangSettings[.english]?.voiceName == "Samantha")
-    #expect(decoded.docLangSettings[.english]?
-      .voiceId == "com.apple.ttsbundle.Samantha-compact")
-    #expect(decoded.docLangSettings[.english]?.variant == "premium")
-
-    // Verify paliSettings
-    #expect(decoded.paliSettings.voiceName == "Daniel")
-    #expect(decoded.paliSettings
-      .voiceId == "com.apple.ttsbundle.Daniel-compact")
-    #expect(abs(decoded.paliSettings.pitch - 1.1) < 0.01)
-    #expect(abs(decoded.paliSettings.rate - 0.95) < 0.01)
+    // Verify paliSettings survives persistence
+    #expect(loaded.paliSettings.voiceName == settings.paliSettings.voiceName)
+    #expect(loaded.paliSettings.voiceId == settings.paliSettings.voiceId)
+    #expect(abs(loaded.paliSettings.pitch - settings.paliSettings.pitch) < 0.01)
+    #expect(abs(loaded.paliSettings.rate - settings.paliSettings.rate) < 0.01)
+    #expect(loaded.paliSettings.emphasis == settings.paliSettings.emphasis)
   }
 
   @Test func serializeDocLangSettingsMultipleLanguages() throws {
     /// Test docLangSettings with multiple language entries
     let settings = Settings()
-    settings.docLang = .english
+    settings.docLang = .portuguese
 
-    // Add English settings
-    var englishSettings = LangSettings(language: .english)
-    englishSettings.author = "sujato"
-    settings.docLangSettings[.english] = englishSettings
+    // Add Portuguese settings
+    var portugueseSettings = LangSettings(language: .portuguese)
+    portugueseSettings.author = "felicidade"
+    portugueseSettings.voiceName = "Joana"
+    portugueseSettings.pitch = 1.15
+    settings.docLangSettings[.portuguese] = portugueseSettings
 
     // Add German settings
     var germanSettings = LangSettings(language: .german)
     germanSettings.author = "sabbamitta"
     germanSettings.voiceName = "Anna"
+    germanSettings.pitch = 1.05
     settings.docLangSettings[.german] = germanSettings
 
-    // Add Portuguese settings
-    var portugueseSettings = LangSettings(language: .portuguese)
-    portugueseSettings.author = "felicidade"
-    settings.docLangSettings[.portuguese] = portugueseSettings
+    // Add Spanish settings
+    var spanishSettings = LangSettings(language: .spanish)
+    spanishSettings.author = "garcia"
+    spanishSettings.voiceName = "Rosa"
+    spanishSettings.rate = 0.9
+    settings.docLangSettings[.spanish] = spanishSettings
 
-    // Encode and save/load fixture
-    let encoded = try Self.getFixtureJSON(
+    // Persist to UserDefaults and load into new instance
+    let (loaded, _) = try Self.getFixtureCard(
       settings,
       testName: "Settings_DocLangSettingsMultipleLanguages",
     )
 
-    // Decode
-    let decoder = JSONDecoder()
-    let decoded = try decoder.decode(Settings.self, from: encoded)
-
-    // Verify all language entries survive
-    #expect(decoded.docLangSettings[.english]?.author == "sujato")
-    #expect(decoded.docLangSettings[.german]?.author == "sabbamitta")
-    #expect(decoded.docLangSettings[.german]?.voiceName == "Anna")
-    #expect(decoded.docLangSettings[.portuguese]?.author == "felicidade")
+    // Verify all language entries survive persistence
+    #expect(loaded.docLangSettings[.portuguese]?.author == settings
+      .docLangSettings[.portuguese]?.author)
+    #expect(loaded.docLangSettings[.portuguese]?.voiceName == settings
+      .docLangSettings[.portuguese]?.voiceName)
+    if let pitch = loaded.docLangSettings[.portuguese]?.pitch,
+       let origPitch = settings.docLangSettings[.portuguese]?.pitch
+    {
+      #expect(abs(pitch - origPitch) < 0.01)
+    }
+    #expect(loaded.docLangSettings[.german]?.author == settings
+      .docLangSettings[.german]?.author)
+    #expect(loaded.docLangSettings[.german]?.voiceName == settings
+      .docLangSettings[.german]?.voiceName)
+    if let pitch = loaded.docLangSettings[.german]?.pitch,
+       let origPitch = settings.docLangSettings[.german]?.pitch
+    {
+      #expect(abs(pitch - origPitch) < 0.01)
+    }
+    #expect(loaded.docLangSettings[.spanish]?.author == settings
+      .docLangSettings[.spanish]?.author)
+    #expect(loaded.docLangSettings[.spanish]?.voiceName == settings
+      .docLangSettings[.spanish]?.voiceName)
+    if let rate = loaded.docLangSettings[.spanish]?.rate,
+       let origRate = settings.docLangSettings[.spanish]?.rate
+    {
+      #expect(abs(rate - origRate) < 0.01)
+    }
   }
 }

@@ -503,6 +503,7 @@ public class Settings: Codable {
       showPali = decoded.showPali
       showDoc = decoded.showDoc
       showRef = decoded.showRef
+      soundEffectVolume = decoded.soundEffectVolume
       lastApplicationVersion = decoded.lastApplicationVersion
       maxDoc = decoded.maxDoc
       maxColumnWidth = decoded.maxColumnWidth

@@ -2,7 +2,7 @@
   "autoCompleteData" : [
 
   ],
-  "docLang" : "en",
+  "docLang" : "de",
   "docLangSettings" : [
     "en",
     {
@@ -16,10 +16,10 @@
       "voiceName" : ""
     }
   ],
-  "isDarkModeEnabled" : true,
-  "lastApplicationVersion" : "0.0.589",
-  "maxColumnWidth" : 400,
-  "maxDoc" : 50,
+  "isDarkModeEnabled" : false,
+  "lastApplicationVersion" : "0.0.600",
+  "maxColumnWidth" : 350,
+  "maxDoc" : 75,
   "paliSettings" : {
     "author" : "",
     "emphasis" : true,
@@ -30,14 +30,14 @@
     "voiceId" : "",
     "voiceName" : ""
   },
-  "playDoc" : true,
-  "playPali" : false,
-  "refAuthor" : "sujato",
-  "refLang" : "en",
-  "segmentPause" : 0.5,
-  "showDoc" : true,
-  "showPali" : false,
-  "showRef" : false,
-  "soundEffectVolume" : 0.5,
+  "playDoc" : false,
+  "playPali" : true,
+  "refAuthor" : "ms",
+  "refLang" : "pli",
+  "segmentPause" : 1.25,
+  "showDoc" : false,
+  "showPali" : true,
+  "showRef" : true,
+  "soundEffectVolume" : 0.75,
   "version" : 1
 }

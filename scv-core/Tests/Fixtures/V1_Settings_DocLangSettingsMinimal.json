@@ -2,13 +2,24 @@
   "autoCompleteData" : [
 
   ],
-  "docLang" : "en",
+  "docLang" : "de",
   "docLangSettings" : [
     "en",
     {
       "author" : "sujato",
       "emphasis" : true,
       "language" : "en",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : ""
+    },
+    "de",
+    {
+      "author" : "sabbamitta",
+      "emphasis" : true,
+      "language" : "de",
       "pitch" : 1,
       "rate" : 1,
       "variant" : "default",
@@ -33,7 +44,7 @@
   "playDoc" : true,
   "playPali" : false,
   "refAuthor" : "sujato",
-  "refLang" : "en",
+  "refLang" : "pli",
   "segmentPause" : 0.5,
   "showDoc" : true,
   "showPali" : false,
