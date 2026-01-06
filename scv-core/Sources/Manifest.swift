@@ -78,6 +78,11 @@ public struct DatabaseManifest: Codable, Sendable {
     authorsForLanguageSortedByFiles(language).first
   }
 
+  /// Get all unique languages that have databases in the manifest
+  public func availableLanguages() -> [String] {
+    Array(Set(databases.map(\.language))).sorted()
+  }
+
   /// Checks if a SuttaRef exists in the database
   /// - Parameters:
   ///   - suttaRef: The SuttaRef to check

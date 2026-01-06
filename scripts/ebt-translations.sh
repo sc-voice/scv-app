@@ -75,7 +75,8 @@ done
 IFS=$'\n' sorted=($(sort -t'|' -k1 -rn <<<"${entries[*]}"))
 
 # Languages supported by AVSpeechSynthesizer
-apple_langs="cs de en es et fi fr hu id it ja ko lt nl no pl pt ru th tr vi zh"
+# Generated from actual AVSpeechSynthesisVoice.speechVoices() API
+apple_langs="ar bg ca cs da de el en es fi fr he hi hr hu id it ja ko ms nb nl pl pt ro ru sk sl sv ta th tr uk vi zh"
 
 # Display sorted results
 for entry in "${sorted[@]}"; do

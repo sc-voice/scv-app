@@ -118,19 +118,6 @@
       "author" : "sekha"
     },
     {
-      "language" : "lt",
-      "buildTimestamp" : "2026-01-06T15:24:57Z",
-      "author" : "piyadassi",
-      "schemaVersion" : "6",
-      "authorName" : "Sayalay Piyadassi",
-      "files" : {
-        "total" : 313,
-        "sutta" : 313
-      },
-      "json" : "{\"type\":\"translator\",\"name\":\"Sayalay Piyadassi\"}",
-      "gitHash" : "f28d2d3996e3402428bb54c3665f11a6d261337b"
-    },
-    {
       "json" : "{\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\",\"type\":\"root\"}",
       "gitHash" : "f28d2d3996e3402428bb54c3665f11a6d261337b",
       "files" : {

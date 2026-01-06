@@ -47,7 +47,9 @@ public struct SettingsView: View {
   }
 
   var sortedLanguages: [ScvLanguage] {
-    ScvLanguage.allCases.sorted { $0.code < $1.code }
+    let availableLangCodes = Set(DatabaseManifest.shared.availableLanguages())
+    return ScvLanguage.allCases.filter { availableLangCodes.contains($0.code) }
+      .sorted { $0.code < $1.code }
   }
 
   public var body: some View {

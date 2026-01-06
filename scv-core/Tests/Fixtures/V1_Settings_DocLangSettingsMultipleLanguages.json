@@ -2,44 +2,22 @@
   "autoCompleteData" : [
 
   ],
-  "docLang" : "pt",
+  "docLang" : "en",
   "docLangSettings" : [
-    "pt",
+    "en",
     {
-      "author" : "felicidade",
+      "author" : "brahmali",
       "emphasis" : true,
-      "language" : "pt",
+      "language" : "en",
       "pitch" : 1.15,
       "rate" : 1,
       "variant" : "default",
       "voiceId" : "",
-      "voiceName" : "Joana"
-    },
-    "en",
-    {
-      "author" : "sujato",
-      "emphasis" : true,
-      "language" : "en",
-      "pitch" : 1,
-      "rate" : 1,
-      "variant" : "default",
-      "voiceId" : "",
-      "voiceName" : ""
-    },
-    "es",
-    {
-      "author" : "garcia",
-      "emphasis" : true,
-      "language" : "es",
-      "pitch" : 1,
-      "rate" : 0.9,
-      "variant" : "default",
-      "voiceId" : "",
-      "voiceName" : "Rosa"
+      "voiceName" : "Daniel"
     },
     "de",
     {
-      "author" : "sabbamitta",
+      "author" : "sonjabuege",
       "emphasis" : true,
       "language" : "de",
       "pitch" : 1.05,
@@ -47,6 +25,17 @@
       "variant" : "default",
       "voiceId" : "",
       "voiceName" : "Anna"
+    },
+    "fr",
+    {
+      "author" : "noeismet",
+      "emphasis" : true,
+      "language" : "fr",
+      "pitch" : 1,
+      "rate" : 0.9,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : "Rosa"
     }
   ],
   "isDarkModeEnabled" : true,

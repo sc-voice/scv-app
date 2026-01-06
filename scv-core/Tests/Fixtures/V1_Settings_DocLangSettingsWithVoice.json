@@ -2,24 +2,13 @@
   "autoCompleteData" : [
 
   ],
-  "docLang" : "pt",
+  "docLang" : "fr",
   "docLangSettings" : [
-    "en",
+    "fr",
     {
-      "author" : "sujato",
-      "emphasis" : true,
-      "language" : "en",
-      "pitch" : 1,
-      "rate" : 1,
-      "variant" : "default",
-      "voiceId" : "",
-      "voiceName" : ""
-    },
-    "pt",
-    {
-      "author" : "felicidade",
+      "author" : "noeismet",
       "emphasis" : false,
-      "language" : "pt",
+      "language" : "fr",
       "pitch" : 1.2,
       "rate" : 0.9,
       "variant" : "enhanced",

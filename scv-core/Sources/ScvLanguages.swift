@@ -20,6 +20,7 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   case german = "de"
   case russian = "ru"
   case italian = "it"
+  case lithuanian = "lt"
 
   // MARK: - Properties
 
@@ -47,6 +48,8 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
       "Русский"
     case .italian:
       "Italiano"
+    case .lithuanian:
+      "Lietuvių"
     }
   }
 
@@ -97,7 +100,12 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   public static let voiceLanguages: [ScvLanguage] = [.english, .german, .pli]
 
   /// Supported user-interface languages
-  public static let uiLanguages: [ScvLanguage] = [.english, .german, .french]
+  public static let uiLanguages: [ScvLanguage] = [
+    .english,
+    .german,
+    .french,
+    .lithuanian,
+  ]
 
   /// Novelty voices to exclude from narration voice selection
   /// These voices are designed for entertainment and are unsuitable for serious

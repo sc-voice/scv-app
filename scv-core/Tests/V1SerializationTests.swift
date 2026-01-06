@@ -186,20 +186,20 @@ struct V1SerializationTests {
   @Test func serializeDocLangSettingsWithVoice() throws {
     /// Test docLangSettings with full voice configuration
     let settings = Settings()
-    settings.docLang = .portuguese
+    settings.docLang = .french
     settings.refLang = .pli
     settings.refAuthor = "ms"
 
-    // Set Portuguese document settings with voice
-    var portugueseSettings = LangSettings(language: .portuguese)
-    portugueseSettings.author = "felicidade"
-    portugueseSettings.voiceName = "Joana"
-    portugueseSettings.voiceId = "com.apple.ttsbundle.Joana-compact"
-    portugueseSettings.variant = "enhanced"
-    portugueseSettings.pitch = 1.2
-    portugueseSettings.rate = 0.9
-    portugueseSettings.emphasis = false
-    settings.docLangSettings[.portuguese] = portugueseSettings
+    // Set French document settings with voice (using non-default author)
+    var frenchSettings = LangSettings(language: .french)
+    frenchSettings.author = "noeismet"
+    frenchSettings.voiceName = "Joana"
+    frenchSettings.voiceId = "com.apple.ttsbundle.Joana-compact"
+    frenchSettings.variant = "enhanced"
+    frenchSettings.pitch = 1.2
+    frenchSettings.rate = 0.9
+    frenchSettings.emphasis = false
+    settings.docLangSettings[.french] = frenchSettings
 
     // Set Pali narration settings
     var paliSettings = LangSettings(language: .pli)
@@ -217,26 +217,26 @@ struct V1SerializationTests {
     )
 
     // Verify docLangSettings with voice survives persistence
-    #expect(loaded.docLangSettings[.portuguese]?.author == settings
-      .docLangSettings[.portuguese]?.author)
-    #expect(loaded.docLangSettings[.portuguese]?.voiceName == settings
-      .docLangSettings[.portuguese]?.voiceName)
-    #expect(loaded.docLangSettings[.portuguese]?.voiceId == settings
-      .docLangSettings[.portuguese]?.voiceId)
-    #expect(loaded.docLangSettings[.portuguese]?.variant == settings
-      .docLangSettings[.portuguese]?.variant)
-    if let pitch = loaded.docLangSettings[.portuguese]?.pitch,
-       let origPitch = settings.docLangSettings[.portuguese]?.pitch
+    #expect(loaded.docLangSettings[.french]?.author == settings
+      .docLangSettings[.french]?.author)
+    #expect(loaded.docLangSettings[.french]?.voiceName == settings
+      .docLangSettings[.french]?.voiceName)
+    #expect(loaded.docLangSettings[.french]?.voiceId == settings
+      .docLangSettings[.french]?.voiceId)
+    #expect(loaded.docLangSettings[.french]?.variant == settings
+      .docLangSettings[.french]?.variant)
+    if let pitch = loaded.docLangSettings[.french]?.pitch,
+       let origPitch = settings.docLangSettings[.french]?.pitch
     {
       #expect(abs(pitch - origPitch) < 0.01)
     }
-    if let rate = loaded.docLangSettings[.portuguese]?.rate,
-       let origRate = settings.docLangSettings[.portuguese]?.rate
+    if let rate = loaded.docLangSettings[.french]?.rate,
+       let origRate = settings.docLangSettings[.french]?.rate
     {
       #expect(abs(rate - origRate) < 0.01)
     }
-    #expect(loaded.docLangSettings[.portuguese]?.emphasis == settings
-      .docLangSettings[.portuguese]?.emphasis)
+    #expect(loaded.docLangSettings[.french]?.emphasis == settings
+      .docLangSettings[.french]?.emphasis)
 
     // Verify paliSettings survives persistence
     #expect(loaded.paliSettings.voiceName == settings.paliSettings.voiceName)
@@ -249,28 +249,28 @@ struct V1SerializationTests {
   @Test func serializeDocLangSettingsMultipleLanguages() throws {
     /// Test docLangSettings with multiple language entries
     let settings = Settings()
-    settings.docLang = .portuguese
+    settings.docLang = .english
 
-    // Add Portuguese settings
-    var portugueseSettings = LangSettings(language: .portuguese)
-    portugueseSettings.author = "felicidade"
-    portugueseSettings.voiceName = "Joana"
-    portugueseSettings.pitch = 1.15
-    settings.docLangSettings[.portuguese] = portugueseSettings
+    // Add English settings with non-default author
+    var englishSettings = LangSettings(language: .english)
+    englishSettings.author = "brahmali"
+    englishSettings.voiceName = "Daniel"
+    englishSettings.pitch = 1.15
+    settings.docLangSettings[.english] = englishSettings
 
-    // Add German settings
+    // Add German settings with non-default author
     var germanSettings = LangSettings(language: .german)
-    germanSettings.author = "sabbamitta"
+    germanSettings.author = "sonjabuege"
     germanSettings.voiceName = "Anna"
     germanSettings.pitch = 1.05
     settings.docLangSettings[.german] = germanSettings
 
-    // Add Spanish settings
-    var spanishSettings = LangSettings(language: .spanish)
-    spanishSettings.author = "garcia"
-    spanishSettings.voiceName = "Rosa"
-    spanishSettings.rate = 0.9
-    settings.docLangSettings[.spanish] = spanishSettings
+    // Add French settings
+    var frenchSettings = LangSettings(language: .french)
+    frenchSettings.author = "noeismet"
+    frenchSettings.voiceName = "Rosa"
+    frenchSettings.rate = 0.9
+    settings.docLangSettings[.french] = frenchSettings
 
     // Persist to UserDefaults and load into new instance
     let (loaded, _) = try Self.getFixtureCard(
@@ -279,12 +279,12 @@ struct V1SerializationTests {
     )
 
     // Verify all language entries survive persistence
-    #expect(loaded.docLangSettings[.portuguese]?.author == settings
-      .docLangSettings[.portuguese]?.author)
-    #expect(loaded.docLangSettings[.portuguese]?.voiceName == settings
-      .docLangSettings[.portuguese]?.voiceName)
-    if let pitch = loaded.docLangSettings[.portuguese]?.pitch,
-       let origPitch = settings.docLangSettings[.portuguese]?.pitch
+    #expect(loaded.docLangSettings[.english]?.author == settings
+      .docLangSettings[.english]?.author)
+    #expect(loaded.docLangSettings[.english]?.voiceName == settings
+      .docLangSettings[.english]?.voiceName)
+    if let pitch = loaded.docLangSettings[.english]?.pitch,
+       let origPitch = settings.docLangSettings[.english]?.pitch
     {
       #expect(abs(pitch - origPitch) < 0.01)
     }
@@ -297,12 +297,12 @@ struct V1SerializationTests {
     {
       #expect(abs(pitch - origPitch) < 0.01)
     }
-    #expect(loaded.docLangSettings[.spanish]?.author == settings
-      .docLangSettings[.spanish]?.author)
-    #expect(loaded.docLangSettings[.spanish]?.voiceName == settings
-      .docLangSettings[.spanish]?.voiceName)
-    if let rate = loaded.docLangSettings[.spanish]?.rate,
-       let origRate = settings.docLangSettings[.spanish]?.rate
+    #expect(loaded.docLangSettings[.french]?.author == settings
+      .docLangSettings[.french]?.author)
+    #expect(loaded.docLangSettings[.french]?.voiceName == settings
+      .docLangSettings[.french]?.voiceName)
+    if let rate = loaded.docLangSettings[.french]?.rate,
+       let origRate = settings.docLangSettings[.french]?.rate
     {
       #expect(abs(rate - origRate) < 0.01)
     }
