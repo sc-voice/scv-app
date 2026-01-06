@@ -87,6 +87,9 @@ _build-content: build-tools
 	@echo "Regenerating db-manifest.json with schema versions..." | tee -a $(LOG_FILE)
 	@scripts/build-ebt-data --build-manifest 2>&1 | tee -a $(LOG_FILE)
 	@echo "✓ All .zst files rebuilt and manifest regenerated" | tee -a $(LOG_FILE)
+	@echo "" | tee -a $(LOG_FILE)
+	@echo "=== Available Translations ===" | tee -a $(LOG_FILE)
+	@scripts/ebt-translations.sh 2>&1 | tee -a $(LOG_FILE)
 
 content: _init _content _end
 
