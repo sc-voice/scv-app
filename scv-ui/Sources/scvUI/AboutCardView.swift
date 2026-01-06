@@ -237,6 +237,7 @@ public struct AboutCardView: View {
                 .foregroundStyle(themeProvider.theme.textColor)
 
               // MARK: Sources Subsection
+
               VStack(alignment: .leading, spacing: 4) {
                 Text("about.content_sources.sources".localized)
                   .font(.callout)
@@ -265,6 +266,7 @@ public struct AboutCardView: View {
               }
 
               // MARK: Translations Subsection
+
               VStack(alignment: .leading, spacing: 4) {
                 Text("about.content_sources.translations".localized)
                   .font(.callout)

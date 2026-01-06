@@ -28,26 +28,61 @@ Run the script with:
 | **Order** | Ranking of this author by file count within the language (1=most files, 2=second most, etc.); blank if not in databases |
 | **Author** | Translator or author identifier (e.g., `sujato`, `sabbamitta`) |
 
-## Example Output
+## Current Translations
 
-```
-Translation JSON Files by Language/Author (sorted by count):
-===========================================================
 
-    4304  ✅ en   ✅ 1 sujato
-    4060  ✅ de   ✅ 1 sabbamitta
-     904  ✅ ru   ✅ 1 sv
-     427  ✅ en   ✅ 2 brahmali
-     337  ✅ ru   ✅ 2 narinyanievmenenko
-     313  ✅ lt   ✅ 1 piyadassi
-     277  ✅ fr   ✅ 1 sekha
-```
+| Count | Apple | Lang | DB | Order | Author |
+|-------|-------|------|----|----|--------|
+|     4304 | ✅ | en | ✅ | 1 | sujato |
+|     4060 | ✅ | de | ✅ | 1 | sabbamitta |
+|      904 | ✅ | ru | ✅ | 1 | sv |
+|      658 |    | sr |    | 1 | brankokovacevic |
+|      427 | ✅ | en | ✅ | 2 | brahmali |
+|      337 | ✅ | ru | ✅ | 2 | narinyanievmenenko |
+|      313 | ✅ | lt | ✅ | 1 | piyadassi |
+|      277 | ✅ | fr | ✅ | 1 | sekha |
+|      276 | ✅ | cs |    | 1 | ashinsarana |
+|      263 | ✅ | it |    | 1 | giovannizappa |
+|      193 | ✅ | pt | ✅ | 1 | laera-quaresma |
+|       99 | ✅ | en | ✅ | 3 | kelly |
+|       73 | ✅ | en | ✅ | 4 | soma |
+|       72 | ✅ | tr |    | 1 | dogensisapa |
+|       60 |    | jpn |    | 1 | kaz |
+|       57 | ✅ | pl |    | 1 | hardao |
+|       53 | ✅ | fr | ✅ | 2 | noeismet |
+|       31 | ✅ | es | ✅ | 1 | font |
+|       26 | ✅ | vi |    | 1 | phantuananh |
+|       26 | ✅ | et |    | 1 | thitanana |
+|       19 | ✅ | de | ✅ | 2 | sonjabuege |
+|       15 | ✅ | en |    | 5 | suddhaso |
+|       14 | ✅ | fr |    | 3 | christelle |
+|       10 | ✅ | pl |    | 2 | marcinow |
+|        9 |    | gu |    | 1 | trush |
+|        9 | ✅ | es |    | 2 | maggatr |
+|        8 | ✅ | ru |    | 3 | syrkin |
+|        7 |    | hi |    | 1 | trush |
+|        4 |    | my |    | 1 | my-team |
+|        2 | ✅ | th |    | 2 | jayasaro |
+|        2 | ✅ | th |    | 1 | dhiranandi |
+|        2 |    | my |    | 2 | myteam |
+|        2 |    | lo |    | 1 | jayasaro |
+|        2 |    | gsw |    | 1 | flavio |
+|        2 | ✅ | en |    | 6 | kovilo |
+|        1 | ✅ | ru |    | 4 | team |
+|        1 | ✅ | fr |    | 4 | wijayaratna |
+|        1 | ✅ | fi |    | 1 | mudito |
+
+**Total:**    13252 files
 
 ## Inclusion Criteria
 
 We welcome translations of Buddhist scriptures from qualified translators. If you would like your translation included in SC-Voice, please let us know by opening an issue in the project repository.
 
-## Including New Translations
+Note that there are limits to what can be included since each language and author increases the application size. New languages must be supported by Apple AVSpeechSynthesizer and we would also greatly appreciate help with UI localization.
+
+## Developers Notes
+
+### Including New Translations
 
 To add a translator to the app's databases:
 

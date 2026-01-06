@@ -105,9 +105,71 @@ for entry in "${sorted[@]}"; do
     printf "%-5s  %s %-3s  %s %s %-25s\n" "$count" "$apple_mark" "$lang" "$db_mark" "$order" "$author"
 done
 
-rm -f "$included_list" "$order_map"
-
 echo ""
 echo "==========================================================="
 echo "Total translation JSON files:"
-find . -type f -name "*.json" | wc -l
+total=$(find . -type f -name "*.json" | wc -l)
+echo "$total"
+
+# Update doc/ebt_translations.md with current translations
+script_dir="$(dirname "$0")"
+doc_file="$(cd "$script_dir" && pwd)/../doc/ebt_translations.md"
+
+if [ -f "$doc_file" ]; then
+    # Generate the table content
+    table_start=$(grep -n "## Current Translations" "$doc_file" | cut -d: -f1)
+    table_end=$(tail -n +$((table_start + 1)) "$doc_file" | grep -n "^## " | head -1 | cut -d: -f1)
+
+    if [ -n "$table_start" ] && [ -n "$table_end" ]; then
+        table_end=$((table_start + table_end - 1))
+
+        # Create temporary file with updated content
+        temp_doc=$(mktemp)
+
+        # Copy lines before Current Translations section
+        head -n $((table_start + 1)) "$doc_file" > "$temp_doc"
+
+        # Add updated table
+        echo "" >> "$temp_doc"
+        echo "| Count | Apple | Lang | DB | Order | Author |" >> "$temp_doc"
+        echo "|-------|-------|------|----|----|--------|" >> "$temp_doc"
+        for entry in "${sorted[@]}"; do
+            IFS='|' read -r count lang author <<< "$entry"
+
+            db_mark="  "
+            if grep -q "^$lang:$author$" "$included_list"; then
+                db_mark="✅"
+            fi
+
+            apple_mark="  "
+            if echo "$apple_langs" | grep -qw "$lang"; then
+                apple_mark="✅"
+            fi
+
+            order="  "
+            if [ -f "$order_map" ]; then
+                order_line=$(grep "^$lang:$author " "$order_map")
+                if [ -n "$order_line" ]; then
+                    order=$(echo "$order_line" | awk '{print $2}')
+                fi
+            fi
+
+            printf "| %5s | %s | %s | %s | %s | %s |\n" "$count" "$apple_mark" "$lang" "$db_mark" "$order" "$author" >> "$temp_doc"
+        done
+        echo "" >> "$temp_doc"
+        echo "**Total:** $total files" >> "$temp_doc"
+        echo "" >> "$temp_doc"
+
+        # Copy lines after the old table
+        tail -n +$((table_end + 1)) "$doc_file" >> "$temp_doc"
+
+        # Replace original file with updated version
+        mv "$temp_doc" "$doc_file"
+
+        # Update the "Last updated" date
+        sed -i '' "s/\*\*Last updated:\*\*.*/\*\*Last updated:\*\* $(date +%Y-%m-%d)/" "$doc_file"
+    fi
+fi
+
+# Clean up temp files
+rm -f "$included_list" "$order_map"
