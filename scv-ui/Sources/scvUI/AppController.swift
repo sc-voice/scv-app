@@ -8,8 +8,11 @@ import Foundation
 
 import scvCore
 
-/// Current app build version from scv-core/Sources/Version.swift
-public let appVersion = scvCore.appVersion
+/// Current marketing version from scv-core/Sources/Version.swift
+public let marketingVersion = scvCore.marketingVersion
+
+/// Current build version from scv-core/Sources/Version.swift
+public let buildVersion = scvCore.buildVersion
 
 /// Singleton controller for app-level operations including URL invocation
 @MainActor
@@ -36,7 +39,7 @@ public class AppController {
   /// Perform common app launch initialization with CardManager
   public func initialize(cardManager: CardManager? = nil) {
     self.cardManager = cardManager
-    cc.ok1(#line, "build:", appVersion)
+    cc.ok1(#line, "marketing:", marketingVersion, "build:", buildVersion)
   }
 
   /// Extract search query from incoming sc-voice:// URL

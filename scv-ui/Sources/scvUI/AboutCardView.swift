@@ -139,8 +139,12 @@ public struct AboutCardView: View {
                 .fontWeight(.bold)
                 .foregroundStyle(themeProvider.theme.textColor)
 
-              Text("about.version".localized(scvCore.appVersion))
+              Text("about.version".localized(scvCore.marketingVersion))
                 .font(.caption)
+                .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+              Text("Build \(scvCore.buildVersion)")
+                .font(.caption2)
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
             }
           }

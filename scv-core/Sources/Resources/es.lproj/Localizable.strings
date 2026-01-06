@@ -1,0 +1,356 @@
+/* Loading indicator text */
+"loading" = "Cargando...";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Mostrar";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Hablar";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Pali";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Traducción";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Referencia";
+
+/* Card type label for search card */
+"card.type.search" = "Búsqueda";
+
+/* Card type label for sutta viewer card */
+"card.type.sutta" = "Sutta";
+
+/* Card type label for about card */
+"card.type.about" = "Acerca de";
+
+/* Card title for search card */
+"card.title.search" = "Búsqueda";
+
+/* Placeholder text for empty search query */
+"card.search.placeholder" = "¿Buscar...?";
+
+/* Prompt text for Siri shortcut search query request */
+"search.for.what" = "¿Buscar qué?";
+
+/* Error message when translation not found for language/author combination */
+"translation.not.found" = "Traducción no encontrada para %@ / %@";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Pausa de Segmento";
+
+/* Settings view title */
+"settings.title" = "Configuración";
+
+/* Settings section header for language selection */
+"settings.languages" = "Traducciones";
+
+/* Settings label for document language */
+"settings.document.language" = "Idioma";
+
+/* Settings label for document author */
+"settings.document.author" = "Autor";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Idioma de Referencia";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Accesibilidad";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Visión";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Audio";
+
+/* Settings section header for display options */
+"settings.display" = "Pantalla";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Volumen de Reproducción";
+
+/* Settings section header for build information */
+"settings.build" = "Compilación";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Restablecer Configuración";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "¿Restablecer Toda la Configuración?";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Esto restaurará toda la configuración a sus valores predeterminados.";
+
+/* Alert button label for confirming reset */
+"alert.reset" = "Restablecer";
+
+/* Alert button label for canceling action */
+"alert.cancel" = "Cancelar";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Pali";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Traducción";
+
+/* Settings section header for search settings */
+"settings.search" = "Búsqueda";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Modo Oscuro";
+
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Narrador";
+
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Narración";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Tono";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Velocidad";
+
+/* Settings label for customization options */
+"settings.customize" = "Personalizar";
+
+/* Search results header: count of documents found */
+"search.results.found" = "Encontrados %d documento(s)";
+
+/* Search results header: search method used */
+"search.results.method" = "Método: %@";
+
+/* About card view: app title */
+"about.title" = "scVoice";
+
+/* About card view: version label */
+"about.version" = "Versión %@";
+
+/* About card view: overview section title */
+"about.section.overview" = "Descripción General";
+
+/* About card view: overview description */
+"about.overview.description" = "Busca y lee textos budistas antiguos (suttas) en varios idiomas con poderosas capacidades de búsqueda y hermosa tipografía.";
+
+/* About card view: full-text search feature */
+"about.feature.search" = "Búsqueda de Texto Completo";
+
+/* About card view: full-text search description */
+"about.feature.search.desc" = "Busca entre miles de suttas";
+
+/* About card view: multiple languages feature */
+"about.feature.languages" = "Múltiples Idiomas";
+
+/* About card view: multiple languages description */
+"about.feature.languages.desc" = "Inglés, alemán, portugués y más";
+
+/* About card view: highlighting feature */
+"about.feature.highlighting" = "Destacado";
+
+/* About card view: highlighting description */
+"about.feature.highlighting.desc" = "Ve segmentos coincidentes y citas";
+
+/* About card view: how to use section title */
+"about.section.how_to_use" = "Cómo Usar";
+
+/* About card view: getting started text */
+"about.how_to_use.intro" = "Comenzar con SC-Voice:";
+
+/* About card view: step 1 title */
+"about.step.1.title" = "Crear una Tarjeta de Búsqueda";
+
+/* About card view: step 1 description */
+"about.step.1.desc" = "Toca el botón '+' para crear una nueva tarjeta";
+
+/* About card view: step 2 title */
+"about.step.2.title" = "Ingresar una Consulta";
+
+/* About card view: step 2 description */
+"about.step.2.desc" = "Busca una palabra, frase o UID de sutta";
+
+/* About card view: step 3 title */
+"about.step.3.title" = "Ver Resultados";
+
+/* About card view: step 3 description */
+"about.step.3.desc" = "Examina suttas y segmentos coincidentes";
+
+/* About card view: step 4 title */
+"about.step.4.title" = "Abrir Suttas";
+
+/* About card view: step 4 description */
+"about.step.4.desc" = "Toca los resultados para leer el texto completo";
+
+/* About card view: content sources section title */
+"about.section.content_sources" = "Fuentes de Contenido";
+
+/* About card view: content sources intro */
+"about.content_sources.intro" = "Esta aplicación utiliza las siguientes fuentes de contenido:";
+
+/* About card view: SuttaCentral source */
+"about.source.suttacentral" = "SuttaCentral";
+
+/* About card view: SuttaCentral author */
+"about.source.suttacentral.author" = "Bhikkhu Sujato y Equipo";
+
+/* About card view: Mahasangiti source */
+"about.source.mahasangiti" = "Mahāsaṅgīti";
+
+/* About card view: Mahasangiti author */
+"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+
+/* About card view: EBT-Data source */
+"about.source.ebt_data" = "EBT-Data";
+
+/* About card view: EBT-Data author */
+"about.source.ebt_data.author" = "Otras Traducciones de Textos Budistas Antiguos Alineadas con Contenido de SuttaCentral";
+
+/* About card view: content sources - sources subsection title */
+"about.content_sources.sources" = "Fuentes";
+
+/* About card view: content sources - translations subsection title */
+"about.content_sources.translations" = "Traducciones";
+
+/* About card view: content sources license notice */
+"about.content_sources.license" = "Todos los textos están disponibles bajo licencias Creative Commons, permitiendo uso y distribución libre con atribución apropiada.";
+
+/* About card view: acknowledgements section title */
+"about.section.acknowledgements" = "Reconocimientos";
+
+/* About card view: acknowledgements intro */
+"about.acknowledgements.intro" = "SC-Voice se basa en el trabajo de muchos colaboradores:";
+
+/* About card view: translations role */
+"about.ack.translations" = "Traducciones";
+
+/* About card view: translations names */
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) y Sonja Büge (DE)";
+
+/* About card view: root text role */
+"about.ack.root_text" = "Texto Raíz";
+
+/* About card view: root text attribution */
+"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
+
+/* About card view: database role */
+"about.ack.database" = "Base de Datos";
+
+/* About card view: database attribution */
+"about.ack.database.names" = "Equipo de SuttaCentral";
+
+/* About card view: development role */
+"about.ack.development" = "Desarrollo";
+
+/* About card view: development attribution */
+"about.ack.development.names" = "Colaboradores de SC-Voice";
+
+/* About card view: graphics & design section title */
+"about.section.graphics_design" = "Gráficos y Diseño";
+
+/* About card view: graphics & design intro */
+"about.graphics_design.intro" = "Imágenes de fondo y temas:";
+
+/* About card view: app icon label */
+"about.app_icon.label" = "Icono de Aplicación";
+
+/* About card view: app icon credit */
+"about.app_icon.credit" = "Diseñado por Friends of Voice";
+
+/* About card view: license label prefix */
+"about.license.prefix" = "Licencia: %@";
+
+/* About card view: audio credits section title */
+"about.section.audio_credits" = "Créditos de Audio";
+
+/* About card view: audio credits intro */
+"about.audio_credits.intro" = "Efectos de sonido y audio:";
+
+/* About card view: audio credits notice */
+"about.audio_credits.notice" = "Audio procedente de Freesound.org y composiciones originales.";
+
+/* About card view: view source button */
+"about.button.view_source" = "Ver fuente";
+
+/* About card view: open source licenses section title */
+"about.section.open_source" = "Licencias de Código Abierto";
+
+/* About card view: open source intro */
+"about.open_source.intro" = "Todo el código fuente de SC-Voice está bajo licencia MIT a menos que se indique lo contrario.";
+
+/* About card view: open source libraries intro */
+"about.open_source.libraries" = "Las siguientes librerías también se incluyen:";
+
+/* About card view: SQLite library */
+"about.library.sqlite" = "SQLite";
+
+/* About card view: SQLite license */
+"about.library.sqlite.license" = "Dominio Público";
+
+/* About card view: Zstandard library */
+"about.library.zstandard" = "Zstandard";
+
+/* About card view: Zstandard license */
+"about.library.zstandard.license" = "Licencia BSD";
+
+/* About card view: open source footer */
+"about.open_source.footer" = "Ver repositorio de GitHub para información de licencia completa.";
+
+/* About card view: privacy policy section title */
+"about.section.privacy_policy" = "Política de Privacidad";
+
+/* About card view: privacy intro */
+"about.privacy.intro" = "SC-Voice respeta tu privacidad:";
+
+/* About card view: no analytics privacy item */
+"about.privacy.no_analytics" = "Sin Análisis";
+
+/* About card view: no analytics description */
+"about.privacy.no_analytics.desc" = "No rastreamos tus búsquedas o uso";
+
+/* About card view: local storage privacy item */
+"about.privacy.local_storage" = "Almacenamiento Local";
+
+/* About card view: local storage description */
+"about.privacy.local_storage.desc" = "Todos los datos se almacenan localmente en tu dispositivo";
+
+/* About card view: open source privacy item */
+"about.privacy.open_source" = "Código Abierto";
+
+/* About card view: open source privacy description */
+"about.privacy.open_source.desc" = "Revisa el código para verificar nuestras prácticas de privacidad";
+
+/* About card view: support & feedback section title */
+"about.section.support" = "Soporte y Comentarios";
+
+/* About card view: support intro */
+"about.support.intro" = "¿Encontraste un error? ¿Tienes una sugerencia? Visita nuestro repositorio de GitHub para reportar problemas o contribuir.";
+
+/* About card view: visit GitHub button */
+"about.button.visit_github" = "Visitar GitHub";
+
+/* Accessibility label for search button in toolbar */
+"a11y.button.search" = "Búsqueda";
+
+/* Accessibility label for add new card button */
+"a11y.button.add_card" = "Agregar nueva tarjeta";
+
+/* Accessibility label for settings button */
+"a11y.button.settings" = "Configuración";
+
+/* Accessibility label for delete card button */
+"a11y.button.delete_card" = "Eliminar tarjeta";
+
+/* Accessibility label for play audio button */
+"a11y.button.play_audio" = "Reproducir audio";
+
+/* Accessibility label for pause audio button */
+"a11y.button.pause_audio" = "Pausar audio";
+
+/* Accessibility label for external link button in AboutCardView */
+"a11y.button.external_link" = "Enlace externo";
+
+/* Accessibility label for search result item */
+"a11y.result" = "Resultado %d";
+
+/* About card view: document count label in translations list */
+"about.documents" = "%@ documentos";

@@ -124,16 +124,16 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 05. [ ] Test privacy label accuracy against actual app behavior
 
 ### Add VoiceOver accessibility labels
-**Status**: Backlog
+**Status**: Complete (labels implemented, testing pending)
 
-01. [ ] Add accessibilityLabel to all icon-only buttons (See: SearchCardView.swift:511-523, CardSidebarView.swift:98-107, SuttaHeaderView.swift:62-74, AboutCardView.swift:333-345,417-425)
-    - Search toolbar button: "Search"
-    - Add card button: "Add new search card"
-    - Settings button: "Open settings"
-    - Delete card button: "Delete card"
-    - Play/pause button: "Play audio" / "Pause audio"
-    - Link buttons in AboutCardView: descriptive labels for external links
-    - Test with VoiceOver enabled on iOS device
+01. [x] Add accessibilityLabel to all icon-only buttons (See: SearchCardView.swift:195, CardSidebarView.swift:176/187/130, SuttaHeaderView.swift:71-72, AboutCardView.swift:376/449)
+    - [x] Search toolbar button: "a11y.button.search" (SearchCardView:195)
+    - [x] Add card button: "a11y.button.add_card" (CardSidebarView:176)
+    - [x] Settings button: "a11y.button.settings" (CardSidebarView:187)
+    - [x] Delete card button: "a11y.button.delete_card" (CardSidebarView:130)
+    - [x] Play/pause button: "a11y.button.play_audio" / "a11y.button.pause_audio" (SuttaHeaderView:71-72)
+    - [x] Link buttons in AboutCardView: "a11y.button.external_link" (AboutCardView:376, 449)
+    - [ ] Test with VoiceOver enabled on iOS device (post-launch testing)
 
 ### Fix accessibility layout adaptation
 **Status**: Backlog
