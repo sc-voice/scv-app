@@ -3,9 +3,10 @@
 # List translation JSON file counts grouped by language and author, sorted by count descending
 # Marks those included in our databases with a checkmark
 
-script_dir="$(dirname "$0")"
-# Get absolute path before cd
-manifest_file="$(cd "$script_dir" && pwd)/../scv-core/Sources/Resources/db-manifest.json"
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+# Get absolute paths before cd
+manifest_file="$script_dir/../scv-core/Sources/Resources/db-manifest.json"
+doc_file="$script_dir/../doc/ebt_translations.md"
 
 cd "$(dirname "$0")/../local/ebt-data/translation" || exit 1
 
@@ -113,8 +114,6 @@ total=$(find . -type f -name "*.json" | wc -l)
 echo "$total"
 
 # Update doc/ebt_translations.md with current translations
-script_dir="$(dirname "$0")"
-doc_file="$(cd "$script_dir" && pwd)/../doc/ebt_translations.md"
 
 if [ -f "$doc_file" ]; then
     # Generate the table content

@@ -39,7 +39,7 @@ Run the script with:
 |      658 |    | sr |    | 1 | brankokovacevic |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
 |      337 | ✅ | ru | ✅ | 2 | narinyanievmenenko |
-|      313 | ✅ | lt | ✅ | 1 | piyadassi |
+|      313 |    | lt |    | 1 | piyadassi |
 |      277 | ✅ | fr | ✅ | 1 | sekha |
 |      276 | ✅ | cs |    | 1 | ashinsarana |
 |      263 | ✅ | it |    | 1 | giovannizappa |
@@ -52,7 +52,7 @@ Run the script with:
 |       53 | ✅ | fr | ✅ | 2 | noeismet |
 |       31 | ✅ | es | ✅ | 1 | font |
 |       26 | ✅ | vi |    | 1 | phantuananh |
-|       26 | ✅ | et |    | 1 | thitanana |
+|       26 |    | et |    | 1 | thitanana |
 |       19 | ✅ | de | ✅ | 2 | sonjabuege |
 |       15 | ✅ | en |    | 5 | suddhaso |
 |       14 | ✅ | fr |    | 3 | christelle |
@@ -60,7 +60,7 @@ Run the script with:
 |        9 |    | gu |    | 1 | trush |
 |        9 | ✅ | es |    | 2 | maggatr |
 |        8 | ✅ | ru |    | 3 | syrkin |
-|        7 |    | hi |    | 1 | trush |
+|        7 | ✅ | hi |    | 1 | trush |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
