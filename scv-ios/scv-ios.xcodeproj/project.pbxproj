@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */ = {isa = PBXBuildFile; productRef = F26DF3142EB97DA2007C60C9 /* scvUI */; };
-	/* End PBXBuildFile section */
+/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		F26DF2F62EB97B07007C60C9 /* PBXContainerItemProxy */ = {
@@ -70,7 +70,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F26DF3152EB97DA2007C60C9 /* scvUI in Frameworks */,
-				);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F26DF2F22EB97B07007C60C9 /* Frameworks */ = {
@@ -139,7 +139,7 @@
 			name = "scv-ios";
 			packageProductDependencies = (
 				F26DF3142EB97DA2007C60C9 /* scvUI */,
-				);
+			);
 			productName = "scv-ios";
 			productReference = F26DF2E62EB97B06007C60C9 /* scv-ios.app */;
 			productType = "com.apple.product-type.application";
@@ -446,7 +446,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.sc-voice";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -487,7 +487,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.scv-ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "sc-voice.net.apple.sc-voice";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

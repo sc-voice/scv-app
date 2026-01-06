@@ -236,23 +236,51 @@ public struct AboutCardView: View {
                 .font(.body)
                 .foregroundStyle(themeProvider.theme.textColor)
 
-              SourceRow(
-                title: "about.source.suttacentral".localized,
-                author: "about.source.suttacentral.author".localized,
-                url: URL(string: "https://suttacentral.net"),
-              )
+              // MARK: Sources Subsection
+              VStack(alignment: .leading, spacing: 4) {
+                Text("about.content_sources.sources".localized)
+                  .font(.callout)
+                  .fontWeight(.semibold)
+                  .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
-              SourceRow(
-                title: "about.source.mahasangiti".localized,
-                author: "about.source.mahasangiti.author".localized,
-                url: URL(string: "https://tipitaka2500.github.io/"),
-              )
+                VStack(alignment: .leading, spacing: 8) {
+                  SourceRow(
+                    title: "about.source.suttacentral".localized,
+                    author: "about.source.suttacentral.author".localized,
+                    url: URL(string: "https://suttacentral.net"),
+                  )
 
-              SourceRow(
-                title: "about.source.ebt_data".localized,
-                author: "about.source.ebt_data.author".localized,
-                url: URL(string: "https://github.com/ebt-site/ebt-data"),
-              )
+                  SourceRow(
+                    title: "about.source.mahasangiti".localized,
+                    author: "about.source.mahasangiti.author".localized,
+                    url: URL(string: "https://tipitaka2500.github.io/"),
+                  )
+
+                  SourceRow(
+                    title: "about.source.ebt_data".localized,
+                    author: "about.source.ebt_data.author".localized,
+                    url: URL(string: "https://github.com/ebt-site/ebt-data"),
+                  )
+                }
+              }
+
+              // MARK: Translations Subsection
+              VStack(alignment: .leading, spacing: 4) {
+                Text("about.content_sources.translations".localized)
+                  .font(.callout)
+                  .fontWeight(.semibold)
+                  .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+                VStack(alignment: .leading, spacing: 8) {
+                  ForEach(
+                    EbtData.availableDatabasesFromManifest()
+                      .sorted { $0.files.total > $1.files.total },
+                    id: \.id,
+                  ) { dbInfo in
+                    TranslationRow(dbInfo: dbInfo)
+                  }
+                }
+              }
 
               Text("about.content_sources.license".localized)
                 .font(.caption)
@@ -702,6 +730,86 @@ private struct PrivacyRow: View {
           .foregroundStyle(themeProvider.theme.secondaryTextColor)
       }
     }
+  }
+}
+
+private struct TranslationRow: View {
+  @EnvironmentObject var themeProvider: ThemeProvider
+  let dbInfo: DatabaseInfo
+
+  private var formattedDate: String {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .none
+    formatter.locale = Locale.current
+
+    // Parse ISO 8601 timestamp (e.g., "2025-01-05T12:34:56Z")
+    let isoFormatter = ISO8601DateFormatter()
+    if let date = isoFormatter.date(from: dbInfo.buildTimestamp) {
+      return formatter.string(from: date)
+    }
+    return dbInfo.buildTimestamp
+  }
+
+  private var hashDisplay: String {
+    if let hash = dbInfo.gitHash, hash.count > 7 {
+      return String(hash.prefix(7))
+    }
+    return dbInfo.gitHash ?? "—"
+  }
+
+  private var langCode: String {
+    dbInfo.language.uppercased()
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      // First line: Lang Code · Author Name
+      HStack(spacing: 8) {
+        Text(langCode)
+          .font(.callout)
+          .fontWeight(.semibold)
+          .foregroundStyle(themeProvider.theme.textColor)
+          .frame(width: 30)
+
+        Text(dbInfo.authorName)
+          .font(.callout)
+          .foregroundStyle(themeProvider.theme.textColor)
+          .lineLimit(1)
+
+        Spacer()
+      }
+
+      // Second line: Hash · Date · File Count
+      HStack(spacing: 12) {
+        Text(hashDisplay)
+          .font(.caption2)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          .fontDesign(.monospaced)
+
+        Text("·")
+          .font(.caption2)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+        Text(formattedDate)
+          .font(.caption2)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+        Text("·")
+          .font(.caption2)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+        Text("about.documents".localized(String(dbInfo.files.total)))
+          .font(.caption2)
+          .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+        Spacer()
+      }
+    }
+    .padding(.vertical, 8)
+    .padding(.horizontal, 12)
+    .background(themeProvider.theme.backgroundColor.opacity(0.5))
+    .cornerRadius(4)
   }
 }
 

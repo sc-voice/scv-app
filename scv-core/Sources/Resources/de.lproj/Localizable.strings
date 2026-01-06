@@ -110,7 +110,7 @@
 "search.results.method" = "Methode: %@";
 
 /* About card view: app title */
-"about.title" = "SC-Voice";
+"about.title" = "scVoice";
 
 /* About card view: version label */
 "about.version" = "Version %@";
@@ -192,6 +192,12 @@
 
 /* About card view: EBT-Data author */
 "about.source.ebt_data.author" = "Andere Übersetzungen früher buddhistischer Texte, abgestimmt auf SuttaCentral-Inhalte";
+
+/* About card view: content sources - sources subsection title */
+"about.content_sources.sources" = "Quellen";
+
+/* About card view: content sources - translations subsection title */
+"about.content_sources.translations" = "Übersetzungen";
 
 /* About card view: content sources license notice */
 "about.content_sources.license" = "Alle Texte sind unter Creative Commons-Lizenzen verfügbar, die die freie Nutzung und Verbreitung mit ordnungsgemäßer Namensnennung ermöglichen.";
@@ -333,3 +339,6 @@
 
 /* Accessibility label for search result item */
 "a11y.result" = "Ergebnis %d";
+
+/* About card view: document count label in translations list */
+"about.documents" = "%@ Dokumente";
