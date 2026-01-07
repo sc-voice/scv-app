@@ -31,40 +31,10 @@ struct IOSView<Manager: ICardManager>: View {
             "IOSView started with \(cardManager.allCards.count) card(s)",
           )
         }
-
-      // iOS bottom toolbar
-      #if os(iOS)
-        // iosBottomToolbar
-      #endif
     } // VStack
     .ignoresSafeArea()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(.pink) // Pink reveals dead background not handled in
-    // AppRootView
-  }
-
-  @ViewBuilder
-  private var iosBottomToolbar: some View {
-    let cc = ColorConsole(#file, "iosBottomToolbar", dbg.Settings.other)
-    HStack(spacing: 0) {
-      Spacer()
-      Button(action: {
-        cc.ok1(#line, "Settings gear button pressed")
-        showSettings = true
-      }) {
-        Image(systemName: "gearshape")
-          .font(.system(size: 30))
-          .foregroundStyle(themeProvider.theme.textColor)
-      }
-      Spacer()
-    }
-    .ignoresSafeArea(edges: .bottom)
-    .frame(maxHeight: 60)
-    // .background(themeProvider.theme.toolbarColor)
-    .sheet(isPresented: $showSettings) {
-      SettingsView(controller: settingsController)
-        .environmentObject(themeProvider)
-    }
+    .background(.pink) // Should never be seen
   }
 }
 

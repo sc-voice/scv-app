@@ -104,6 +104,10 @@ private let COLOR_BROWN = Color(red: 0.243, green: 0.161,
 /// Grey color for toolbar (light theme)
 private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD
 
+/// Dark saffron color for toolbar (dark theme - much darker variant of COLOR_SAFFRON)
+private let COLOR_TOOLBAR_SAFFRON = Color(red: 0.35, green: 0.21,
+                                          blue: 0.07) // #593611
+
 /// Fuchsia color for debug text (light theme)
 private let COLOR_FUCHSIA = Color(red: 1.0, green: 0.0, blue: 1.0) // #FF00FF
 
@@ -159,7 +163,7 @@ public enum AppTheme {
         cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2),
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
-        toolbarColor: Color(red: 0.371, green: 0.071, blue: 0.071),
+        toolbarColor: COLOR_TOOLBAR_SAFFRON, // #cc7a29
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)

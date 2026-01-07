@@ -18,9 +18,6 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   let cc = ColorConsole(#file, #function, dbg.CardSidebarView.other)
   @EnvironmentObject var themeProvider: ThemeProvider
   let onSettingsTap: (() -> Void)?
-  @State private var titleOpacity: Double = 1.0
-  @State private var titleScale: Double = 1.0
-  @State private var titleColor: Color?
   @State private var backgroundOpacity: Double = 1
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -97,11 +94,14 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
   // Shared content for both iOS and macOS
   private func cardRowContent(_ card: Manager.ManagedCard) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: 12) {
+    let foregroundColor = card.id == cardManager.recentCardId
+      ? themeProvider.theme.textColor
+      : themeProvider.theme.secondaryTextColor
+    let backgroundColor = card.id == cardManager.recentCardId
+      ? themeProvider.theme.backgroundColor
+      : themeProvider.theme.cardBackground
+    return HStack(alignment: .firstTextBaseline, spacing: 12) {
       Image(systemName: card.iconName())
-        .foregroundStyle(card.id == cardManager
-          .recentCardId ? themeProvider.theme.accentColor : .secondary)
-
       if card.cardType == .sutta {
         suttaCardContent(card)
       } else {
@@ -109,18 +109,16 @@ public struct CardSidebarView<Manager: ICardManager>: View {
           Text(card.sidebarTitle)
             .font(.headline)
             .lineLimit(1)
-            .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
-              .localized || card.sidebarTitle == "card.type.sutta"
-              .localized ? .secondary : .primary)
+            .foregroundStyle(foregroundColor)
           if card.cardType == .about {
             let captionFormat = "card.about.sidebar.caption".localized
             let parts = captionFormat.components(separatedBy: "%@")
             let boldPlus = Text("+").font(.system(size: 12, weight: .bold))
             let captionText = Text(parts[0]) + boldPlus + (parts.count > 1 ? Text(parts[1]) : Text(""))
             captionText
-              .font(.caption)
+              .font(.body)
               .lineLimit(1)
-              .foregroundStyle(.secondary)
+              .foregroundStyle(foregroundColor)
           }
         }
       }
@@ -139,6 +137,8 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       .buttonStyle(.plain)
       .accessibilityLabel("a11y.button.delete_card".localized)
     }
+    .foregroundStyle(foregroundColor)
+    .backgroundStyle(backgroundColor)
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
@@ -167,14 +167,6 @@ public struct CardSidebarView<Manager: ICardManager>: View {
     ZStack {
       cardListView
         .toolbar {
-          ToolbarItem(placement: .principal) {
-            Text("scVoice/\(Settings.shared.docLang.code.uppercased())")
-              .font(.title2)
-              .foregroundStyle(titleColor ?? themeProvider.theme.accentColor)
-              .opacity(titleOpacity)
-              .scaleEffect(titleScale)
-          }
-
           #if os(iOS)
             ToolbarItem(placement: .navigationBarLeading) {
               Button(action: addNewCard) {
@@ -224,25 +216,15 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               }
             }
           #endif
-        }
+        } // toolbar
+        .foregroundStyle(themeProvider.theme.textColor)
       #if os(iOS)
-        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(themeProvider.theme.toolbarColor, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
       #endif
         .onAppear {
-          if titleColor == nil {
-            titleColor = themeProvider.theme.secondaryTextColor
-          }
           withAnimation(reduceMotion ? nil : .linear(duration: 30)) {
             backgroundOpacity = 0.2
-          }
-          // Delay the fade-out animation so title is visible initially
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(reduceMotion ? .linear(duration: 20) :
-              .linear(duration: 10))
-            {
-              titleOpacity = 0
-            }
           }
         }
     } // ZStack
@@ -320,17 +302,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   private func handleSettingsTap(_ callback: @escaping () -> Void)
     -> () -> Void
   {
-    {
-      withAnimation(reduceMotion ? nil : .easeInOut(duration: 2.0)) {
-        titleColor = themeProvider.theme.accentColor
-      }
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-        withAnimation(reduceMotion ? nil : .easeInOut(duration: 2.0)) {
-          titleColor = themeProvider.theme.secondaryTextColor
-        }
-      }
-      callback()
-    }
+    return callback
   }
 }
 

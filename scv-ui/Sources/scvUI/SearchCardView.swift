@@ -7,6 +7,9 @@
 
 import scvCore
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 // MARK: - Quote HTML Parsing
 
@@ -117,7 +120,12 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 {
   @Binding var card: Card
   let cardManager: Manager
+  #if os(iOS)
   let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+  #else
+  let isPhone = false
+  #endif
+
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var tipitakaRefs: [TipitakaRef] = []
   @State private var tipitakaLoading: Bool = false
@@ -185,7 +193,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       #if os(iOS)
         return AnyView(step1
           .toolbarBackground(
-            themeProvider.theme.backgroundColor,
+            themeProvider.theme.toolbarColor,
             for: .navigationBar,
           )
           .toolbarBackground(.visible, for: .navigationBar))

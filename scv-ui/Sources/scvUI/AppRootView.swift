@@ -15,6 +15,11 @@ import SwiftUI
 
 /// Root view for SCV app with card management and NavigationSplitView layout
 public struct AppRootView<Manager: ICardManager>: View {
+  #if os(iOS)
+  let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+  #else
+  let isPhone = false
+  #endif
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
   @State private var showSettings = false
@@ -86,6 +91,9 @@ public struct AppRootView<Manager: ICardManager>: View {
           } // ZStack
           .background(ScvBackgroundsView(.palm_leaf))
         } // detail:
+        #if os(iOS)
+        .navigationSplitViewStyle(.balanced)
+        #endif
         .onAppear {
           cc.ok1(
             #line,
