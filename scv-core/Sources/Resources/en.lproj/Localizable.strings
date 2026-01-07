@@ -25,6 +25,9 @@
 /* Card type label for about card */
 "card.type.about" = "About";
 
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Click %@ to start";
+
 /* Card title for search card */
 "card.title.search" = "Search";
 
@@ -131,7 +134,7 @@
 "about.section.overview" = "Overview";
 
 /* About card view: overview description */
-"about.overview.description" = "Search and read Buddhist scriptures (suttas) in multiple languages with powerful search capabilities and beautiful typography.";
+"about.overview.description" = "Search, read, and hear SuttaCentral-aligned Early Buddhist Text (EBT) scriptures (suttas) offline in multiple languages.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Full-Text Search";

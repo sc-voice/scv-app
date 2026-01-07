@@ -112,6 +112,16 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .foregroundStyle(card.sidebarTitle == "card.search.placeholder"
               .localized || card.sidebarTitle == "card.type.sutta"
               .localized ? .secondary : .primary)
+          if card.cardType == .about {
+            let captionFormat = "card.about.sidebar.caption".localized
+            let parts = captionFormat.components(separatedBy: "%@")
+            let boldPlus = Text("+").font(.system(size: 12, weight: .bold))
+            let captionText = Text(parts[0]) + boldPlus + (parts.count > 1 ? Text(parts[1]) : Text(""))
+            captionText
+              .font(.caption)
+              .lineLimit(1)
+              .foregroundStyle(.secondary)
+          }
         }
       }
 
@@ -171,6 +181,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 Image(systemName: "plus")
                   .font(.title2)
                   .frame(minWidth: 44, minHeight: 44)
+                  .clickMe(.addCard)
               }
               .buttonStyle(.plain)
               .accessibilityLabel("a11y.button.add_card".localized)
@@ -193,6 +204,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 Image(systemName: "magnifyingglass")
                   .font(.title2)
                   .frame(minWidth: 44, minHeight: 44)
+                  .clickMe(.addCard)
               }
               .buttonStyle(.plain)
               .help("Add new search card")

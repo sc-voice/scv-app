@@ -85,10 +85,26 @@ public class CardManager: ICardManager {
 
   public var recentCardId: AnyHashable?
 
+  // MARK: - Shared Instance
+
+  private static var _shared: CardManager?
+
+  /// Global singleton instance automatically set when CardManager is initialized
+  public static var shared: CardManager {
+    guard let shared = _shared else {
+      fatalError(
+        "CardManager.shared accessed before any CardManager instance was created."
+      )
+    }
+    return shared
+  }
+
   // MARK: - Initialization
 
   public init(modelContext: ModelContext) {
     self.modelContext = modelContext
+    // Set self as the shared instance
+    CardManager._shared = self
     // Don't persist to UserDefaults during initialization
     isInitializing = true
 

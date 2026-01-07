@@ -132,27 +132,7 @@ Database uses:
 
 ## 8. Pre-Launch Work
 
-### 8.1 Code Signing & Build ⚠️ CRITICAL
-
-**Status**: Pending
-
-Steps:
-1. [ ] Open `/Users/visakha/dev/scv-app/scv-ios/scv-ios.xcodeproj` in Xcode
-2. [ ] Verify code signing:
-   - Select "scv-ios" target
-   - Signing & Capabilities tab
-   - Team: Select Apple Developer Team account
-   - Signing certificate: Automatic
-3. [ ] Build for App Store:
-   - Product → Archive
-   - Verify build number increments
-   - Upload to App Store Connect
-4. [ ] Confirm settings:
-   - Code signing style: Automatic
-   - Bundle ID: `sc-voice.net.apple.sc-voice` ✓
-   - Marketing version: 1.0 ✓
-
-### 8.2 App Store Connect Listing ⚠️ CRITICAL
+### 8.1 App Store Connect Listing ⚠️ CRITICAL
 
 **Status**: Not started
 
@@ -160,23 +140,27 @@ Steps:
 1. [ ] Create app in App Store Connect:
    - New app (iOS)
    - Bundle ID: `sc-voice.net.apple.sc-voice`
-   - Name: SC-Voice
-   - Category: Reference or Education
-2. [ ] Prepare app description:
+   - Name: scVoice (max 30 characters)
+   - SKU: Unique internal identifier (cannot change after creation)
+   - Primary Category: Reference or Education
+   - Secondary Category: (select appropriate)
+   - Age Rating: (required for parental controls)
+2. [ ] Prepare app description (must accurately reflect app functionality):
    - Summary: "Search and view Buddhist scriptures with multi-language support"
    - Full description: Feature overview, localization support, privacy commitment
    - Keywords: Buddhism, suttas, Pali Canon, meditation, scriptures, dharma
+   - Do NOT include: competitor names, other app names, pricing, or irrelevant keywords
 3. [ ] Upload screenshots:
-   - iPhone 14 Pro Max (6.7"): 5-7 screenshots showing key features
-   - iPad Pro 12.9": 5-7 screenshots showing tablet layout
+   - iPhone (6.5"): 1-10 screenshots showing key features (1284 x 2778 px portrait)
+   - iPad (13"): 1-10 screenshots showing tablet layout (2064 x 2752 px portrait)
    - Screenshots should show: search interface, results, sutta viewing, language selection
 4. [ ] Provide metadata:
    - Support URL: (create contact/support page)
-   - Privacy Policy URL: (create and host privacy policy)
+   - Privacy Policy URL: (will be added after 8.2)
    - Copyright: Friends of SC-Voice (or appropriate)
    - Version release notes: "Version 1.0 initial release"
 
-### 8.3 Compliance & Legal ⚠️ CRITICAL
+### 8.2 Compliance & Legal ⚠️ CRITICAL
 
 **Status**: Partially complete
 
@@ -188,13 +172,13 @@ Steps:
    - [ ] Complete questionnaire in App Store Connect
    - Expected rating: 4+ (no objectionable content)
 
-### 8.4 Pre-Release Testing
+### 8.3 Pre-Release Testing ⚠️ CRITICAL
 
 **Status**: Partially complete (code testing done, device testing pending)
 
 1. [ ] Device testing:
-   - [ ] iPhone 15 Pro (latest iOS): Full workflow test
-   - [ ] iPad (latest iPadOS): Layout and touch targets
+   - [ ] iPhone 15 (6.1"): Full workflow test
+   - [ ] iPad (13"): Layout and touch targets
    - [ ] Test on older iOS versions (minimum iOS 16)
 2. [ ] Functional verification:
    - [ ] Search works with multiple queries
@@ -207,6 +191,26 @@ Steps:
    - [ ] Upload to TestFlight for external testing
    - [ ] Gather feedback on device variations
    - Recommended before first submission
+
+### 8.4 Code Signing & Build ⚠️ CRITICAL
+
+**Status**: Partially complete
+
+Steps:
+1. [x] Open `/Users/visakha/dev/scv-app/scv-ios/scv-ios.xcodeproj` in Xcode
+2. [x] Verify code signing:
+   - Select "scv-ios" target
+   - Signing & Capabilities tab
+   - Team: Select Apple Developer Team account
+   - Signing certificate: Automatic
+3. [ ] Build for App Store:
+   - Product → Archive
+   - Verify build number increments
+   - Upload to App Store Connect
+4. [ ] Confirm settings:
+   - Code signing style: Automatic
+   - Bundle ID: `sc-voice.net.apple.sc-voice` ✓
+   - Marketing version: 1.0 ✓
 
 ---
 

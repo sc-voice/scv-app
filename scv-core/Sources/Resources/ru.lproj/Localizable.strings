@@ -25,6 +25,9 @@
 /* Card type label for about card */
 "card.type.about" = "О программе";
 
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Нажмите %@ чтобы начать";
+
 /* Card title for search card */
 "card.title.search" = "Поиск";
 
@@ -119,7 +122,7 @@
 "about.section.overview" = "Обзор";
 
 /* About card view: overview description */
-"about.overview.description" = "Ищите и читайте буддийские священные писания (сутты) на нескольких языках с мощными возможностями поиска и красивой типографией.";
+"about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме на нескольких языках.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Полнотекстовый поиск";

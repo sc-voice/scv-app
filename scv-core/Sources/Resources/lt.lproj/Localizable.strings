@@ -25,6 +25,9 @@
 /* Card type label for about card */
 "card.type.about" = "Apie";
 
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Spustelėkite %@, kad pradėtumėte";
+
 /* Card title for search card */
 "card.title.search" = "Paieška";
 
@@ -131,7 +134,7 @@
 "about.section.overview" = "Apžvalga";
 
 /* About card view: overview description */
-"about.overview.description" = "Ieškokite ir skaitykite budistų raštus (sutas) keliomis kalbomis naudodami galingas paieškos galimybes ir gražų šriftą.";
+"about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, keliomis kalbomis.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Pilno Teksto Paieška";

@@ -25,6 +25,9 @@
 /* Card type label for about card */
 "card.type.about" = "Acerca de";
 
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Haz clic %@ para comenzar";
+
 /* Card title for search card */
 "card.title.search" = "Búsqueda";
 
@@ -131,7 +134,7 @@
 "about.section.overview" = "Descripción General";
 
 /* About card view: overview description */
-"about.overview.description" = "Busca y lee textos budistas antiguos (suttas) en varios idiomas con poderosas capacidades de búsqueda y hermosa tipografía.";
+"about.overview.description" = "Busca, lee y escucha textos budistas antiguos (suttas) alineados con SuttaCentral sin conexión en varios idiomas.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Búsqueda de Texto Completo";

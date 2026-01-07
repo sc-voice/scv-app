@@ -74,6 +74,16 @@ public extension ICard {
     }
   }
 
+  @MainActor
+  var sidebarCaption: String {
+    switch cardType {
+    case .about:
+      "card.about.sidebar.caption".localized
+    case .search, .sutta:
+      ""
+    }
+  }
+
   /// Returns the display title for the card
   @MainActor
   func title() -> String {
