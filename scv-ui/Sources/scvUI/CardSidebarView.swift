@@ -73,7 +73,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .padding(8)
           }
           .scrollContentBackground(.hidden)
-          .background(ScvBackgroundsView(.space).opacity(backgroundOpacity))
+          .background(ScvBackgroundsView(.nothingness).opacity(backgroundOpacity))
         }
       }
     }

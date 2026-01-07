@@ -117,8 +117,8 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
 {
   @Binding var card: Card
   let cardManager: Manager
+  let isPhone = UIDevice.current.userInterfaceIdiom == .phone
   @EnvironmentObject var themeProvider: ThemeProvider
-  @State private var isSearchPresented: Bool = false
   @State private var tipitakaRefs: [TipitakaRef] = []
   @State private var tipitakaLoading: Bool = false
   @State private var searchQuery: String = ""
@@ -169,7 +169,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       .toolbar {
         ToolbarItem(placement: {
           #if os(iOS)
-            return .principal
+            return isPhone ? .navigationBarTrailing : .principal
           #else
             return .automatic
           #endif
@@ -178,21 +178,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
             .font(.headline)
             .foregroundColor(themeProvider.theme.textColor)
             .lineLimit(1)
-        }
-        ToolbarItem(placement: {
-          #if os(iOS)
-            return .navigationBarTrailing
-          #else
-            return .automatic
-          #endif
-        }()) {
-          Button(action: { isSearchPresented.toggle() }) {
-            Image(systemName: "magnifyingglass")
-              .font(.title2)
-              .frame(minWidth: 44, minHeight: 44)
-          }
-          .buttonStyle(.plain)
-          .accessibilityLabel("a11y.button.search".localized)
         }
       }
 
@@ -212,7 +197,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
     return step2
       .searchable(
         text: $searchQuery,
-        isPresented: $isSearchPresented,
         prompt: "Search",
       )
       .searchSuggestions {
@@ -232,10 +216,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           .searchCompletion(suggestion.lastUsedPhrase)
         }
       }
-      .searchFocused($searchFieldIsFocused)
-      .onChange(of: isSearchPresented) { _, newValue in
-        cc.ok1(#line, "onChange isSearchPresented:", newValue)
-      }
+      //.searchFocused($searchFieldIsFocused)
       .onChange(of: focused) { _, newValue in
         cc.ok1(#line, "onChange focused:", newValue)
       }
@@ -251,7 +232,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           searchQueryBinding: $searchQuery,
           searchTitleBinding: $searchTitle,
         )
-        isSearchPresented = false
         cc.ok1(#line, "onSubmit:", searchQuery)
       }
       .onDisappear {
@@ -269,7 +249,6 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       }
       .onAppear {
         searchQuery = card.searchQuery
-        isSearchPresented = true
         searchFieldIsFocused = true
 
         if let result = card.searchResult, !result.items.isEmpty {
@@ -282,12 +261,11 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
             author: authorAbbr,
           )
           let authorName = authorInfo?.authorName ?? authorAbbr
-          searchTitle = "Search \(langCode) \(authorName)"
+          searchTitle = "\(langCode) \(authorName)"
         }
 
         cc.ok1(#line, "onAppear",
                "searchFieldIsFocused:", searchFieldIsFocused,
-               "isSearchPresented:", isSearchPresented,
                "searchTitle:", searchTitle)
       }
   }
@@ -645,11 +623,30 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   public var body: some View {
-    applySearchModifiers(
-      resultsView
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(0),
-    )
+    if isPhone {
+      ZStack(alignment: .bottom) {
+        applySearchModifiers(
+          resultsView
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(0),
+        )
+        VStack(spacing: 0) {
+          Spacer()
+          Rectangle()
+            .fill(themeProvider.theme.cardBackground)
+            .frame(height: 84)
+        }
+        .ignoresSafeArea()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+      }
+      .ignoresSafeArea()
+    } else {
+      applySearchModifiers(
+        resultsView
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .padding(0),
+      )
+    }
   }
 }
 
