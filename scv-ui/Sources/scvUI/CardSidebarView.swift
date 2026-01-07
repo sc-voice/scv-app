@@ -18,7 +18,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   let cc = ColorConsole(#file, #function, dbg.CardSidebarView.other)
   @EnvironmentObject var themeProvider: ThemeProvider
   let onSettingsTap: (() -> Void)?
-  @State private var backgroundOpacity: Double = 1
+  @State private var backgroundOpacity: Double = 0.8
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   public init(
@@ -56,7 +56,6 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             }
           }
           .scrollContentBackground(.hidden)
-          .background(.black.opacity(0.5))
         } else {
           // iPad: Use ScrollView for custom styling and animations
           ScrollView {
@@ -65,12 +64,13 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 cardRow(card)
               }
             }
-            .background(.black)
+            .background(themeProvider.theme.sideItemBackground)
             .cornerRadius(8)
             .padding(8)
           }
           .scrollContentBackground(.hidden)
-          .background(ScvBackgroundsView(.nothingness).opacity(backgroundOpacity))
+          .background(ScvBackgroundsView(.nothingness)
+            .opacity(backgroundOpacity))
         }
       }
     }
@@ -94,12 +94,13 @@ public struct CardSidebarView<Manager: ICardManager>: View {
 
   // Shared content for both iOS and macOS
   private func cardRowContent(_ card: Manager.ManagedCard) -> some View {
-    let foregroundColor = card.id == cardManager.recentCardId
-      ? themeProvider.theme.textColor
-      : themeProvider.theme.secondaryTextColor
-    let backgroundColor = card.id == cardManager.recentCardId
-      ? themeProvider.theme.backgroundColor
-      : themeProvider.theme.cardBackground
+    let isActive = card.id == cardManager.recentCardId
+    let foregroundColor = isActive
+      ? themeProvider.theme.sideItemActiveForeground
+      : themeProvider.theme.sideItemForeground
+    let backgroundColor = isActive
+      ? themeProvider.theme.sideItemActiveBackground
+      : themeProvider.theme.sideItemBackground
     return HStack(alignment: .firstTextBaseline, spacing: 12) {
       Image(systemName: card.iconName())
       if card.cardType == .sutta {
@@ -110,11 +111,12 @@ public struct CardSidebarView<Manager: ICardManager>: View {
             .font(.headline)
             .lineLimit(1)
             .foregroundStyle(foregroundColor)
-          if card.cardType == .about {
+          if card.cardType == .about, Tips.active(.addCard) {
             let captionFormat = "card.about.sidebar.caption".localized
             let parts = captionFormat.components(separatedBy: "%@")
-            let boldPlus = Text("+").font(.system(size: 12, weight: .bold))
-            let captionText = Text(parts[0]) + boldPlus + (parts.count > 1 ? Text(parts[1]) : Text(""))
+            let boldPlus = Text("\u{FF0B}")
+            let captionText = Text(parts[0]) + boldPlus +
+              (parts.count > 1 ? Text(parts[1]) : Text(""))
             captionText
               .font(.body)
               .lineLimit(1)
@@ -131,31 +133,31 @@ public struct CardSidebarView<Manager: ICardManager>: View {
       }) {
         Image(systemName: "xmark.circle.fill")
           .font(.callout)
-          .foregroundStyle(.secondary)
+          .foregroundStyle(themeProvider.theme.sideItemActiveForeground)
           .frame(minWidth: 44, minHeight: 44)
       }
       .buttonStyle(.plain)
       .accessibilityLabel("a11y.button.delete_card".localized)
     }
     .foregroundStyle(foregroundColor)
-    .backgroundStyle(backgroundColor)
+    .background(backgroundColor)
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  // macOS-only: card row with accent border and selection styling
+  // iPad card row with accent border and selection styling
   private func cardRow(_ card: Manager.ManagedCard) -> some View {
     cardRowContent(card)
-      .padding(12)
-      .padding(.trailing, 0)
       .overlay(
         alignment: .trailing,
         content: {
           if selectedCardId == card.id {
-            themeProvider.theme.accentColor
+            themeProvider.theme.sideItemForeground
               .frame(width: 4)
           }
         },
       )
+      .padding(12)
+      .padding(.trailing, 0)
       .onTapGesture {
         selectedCardId = card.id
         cardManager.selectCard(card)
@@ -219,12 +221,15 @@ public struct CardSidebarView<Manager: ICardManager>: View {
         } // toolbar
         .foregroundStyle(themeProvider.theme.textColor)
       #if os(iOS)
-        .toolbarBackground(themeProvider.theme.toolbarColor, for: .navigationBar)
+        .toolbarBackground(
+          themeProvider.theme.toolbarColor,
+          for: .navigationBar,
+        )
         .toolbarBackground(.visible, for: .navigationBar)
       #endif
         .onAppear {
           withAnimation(reduceMotion ? nil : .linear(duration: 30)) {
-            backgroundOpacity = 0.2
+            backgroundOpacity = 0.4
           }
         }
     } // ZStack
@@ -302,7 +307,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
   private func handleSettingsTap(_ callback: @escaping () -> Void)
     -> () -> Void
   {
-    return callback
+    callback
   }
 }
 

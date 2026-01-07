@@ -89,11 +89,12 @@ public class CardManager: ICardManager {
 
   private static var _shared: CardManager?
 
-  /// Global singleton instance automatically set when CardManager is initialized
+  /// Global singleton instance automatically set when CardManager is
+  /// initialized
   public static var shared: CardManager {
     guard let shared = _shared else {
       fatalError(
-        "CardManager.shared accessed before any CardManager instance was created."
+        "CardManager.shared accessed before any CardManager instance was created.",
       )
     }
     return shared

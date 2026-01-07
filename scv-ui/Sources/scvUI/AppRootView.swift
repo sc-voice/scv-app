@@ -16,9 +16,9 @@ import SwiftUI
 /// Root view for SCV app with card management and NavigationSplitView layout
 public struct AppRootView<Manager: ICardManager>: View {
   #if os(iOS)
-  let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+    let isPhone = UIDevice.current.userInterfaceIdiom == .phone
   #else
-  let isPhone = false
+    let isPhone = false
   #endif
   var cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider

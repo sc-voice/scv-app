@@ -8,7 +8,7 @@
 import scvCore
 import SwiftUI
 #if os(iOS)
-import UIKit
+  import UIKit
 #endif
 
 // MARK: - Quote HTML Parsing
@@ -121,9 +121,9 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @Binding var card: Card
   let cardManager: Manager
   #if os(iOS)
-  let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+    let isPhone = UIDevice.current.userInterfaceIdiom == .phone
   #else
-  let isPhone = false
+    let isPhone = false
   #endif
 
   @EnvironmentObject var themeProvider: ThemeProvider
@@ -224,7 +224,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           .searchCompletion(suggestion.lastUsedPhrase)
         }
       }
-      //.searchFocused($searchFieldIsFocused)
+      // .searchFocused($searchFieldIsFocused)
       .onChange(of: focused) { _, newValue in
         cc.ok1(#line, "onChange focused:", newValue)
       }

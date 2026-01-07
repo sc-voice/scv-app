@@ -50,6 +50,18 @@ public struct Theme {
   /// Focus ring color for keyboard navigation indicators
   public let focusColor: Color
 
+  /// Sidebar item text color
+  public let sideItemForeground: Color
+
+  /// Sidebar item background color
+  public let sideItemBackground: Color
+
+  /// Sidebar active item text color
+  public let sideItemActiveForeground: Color
+
+  /// Sidebar active item background color
+  public let sideItemActiveBackground: Color
+
   public init(
     backgroundColor: Color,
     textColor: Color,
@@ -62,6 +74,10 @@ public struct Theme {
     errorTextColor: Color,
     debugForeground: Color,
     linkColor: Color,
+    sideItemActiveBackground: Color,
+    sideItemActiveForeground: Color,
+    sideItemBackground: Color,
+    sideItemForeground: Color,
     focusColor: Color = .blue,
     iconOpacity: Double = 0.8,
   ) {
@@ -76,6 +92,10 @@ public struct Theme {
     self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
     self.linkColor = linkColor
+    self.sideItemForeground = sideItemForeground
+    self.sideItemBackground = sideItemBackground
+    self.sideItemActiveForeground = sideItemActiveForeground
+    self.sideItemActiveBackground = sideItemActiveBackground
     self.focusColor = focusColor
     self.iconOpacity = iconOpacity
   }
@@ -104,7 +124,8 @@ private let COLOR_BROWN = Color(red: 0.243, green: 0.161,
 /// Grey color for toolbar (light theme)
 private let COLOR_GREY = Color(red: 0.741, green: 0.741, blue: 0.741) // #BDBDBD
 
-/// Dark saffron color for toolbar (dark theme - much darker variant of COLOR_SAFFRON)
+/// Dark saffron color for toolbar (dark theme - much darker variant of
+/// COLOR_SAFFRON)
 private let COLOR_TOOLBAR_SAFFRON = Color(red: 0.35, green: 0.21,
                                           blue: 0.07) // #593611
 
@@ -117,6 +138,19 @@ private let COLOR_ERROR_BRIGHT = Color(red: 1.0, green: 0.2,
 
 /// Dark red color for errors (light theme)
 private let COLOR_ERROR_DARK = Color(red: 0.8, green: 0.0, blue: 0.0) // #CC0000
+
+// momochrome dark palette
+private let COLOR_DARK_BACKGROUND1 = Color(
+  red: 0.071,
+  green: 0.071,
+  blue: 0.071,
+)
+
+private let COLOR_DARK_BACKGROUND2 = Color(red: 0.2, green: 0.2, blue: 0.2)
+
+private let COLOR_DARK_FOREGROUND1 = Color(red: 0.95, green: 0.95, blue: 0.95)
+
+private let COLOR_DARK_FOREGROUND2 = Color(red: 0.7, green: 0.7, blue: 0.7)
 
 /// Application themes
 public enum AppTheme {
@@ -134,8 +168,7 @@ public enum AppTheme {
       // Based on vuetify-opts.mjs lightTheme
       // Uses darker accent and value colors for WCAG AA contrast compliance
       Theme(
-        backgroundColor: Color(red: 0.933, green: 0.933,
-                               blue: 0.933), // #eeeeee (grey.lighten1)
+        backgroundColor: Color(red: 0.933, green: 0.933, blue: 0.933),
         textColor: Color(red: 0.1, green: 0.1, blue: 0.1), // dark text
         secondaryTextColor: Color(red: 0.3, green: 0.3,
                                   blue: 0.3), // medium grey
@@ -147,6 +180,10 @@ public enum AppTheme {
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_BROWN_ACCENT, // #8b4513 (same as accentColor)
+        sideItemActiveBackground: COLOR_DARK_BACKGROUND1,
+        sideItemActiveForeground: COLOR_DARK_FOREGROUND1,
+        sideItemBackground: COLOR_DARK_BACKGROUND2,
+        sideItemForeground: COLOR_DARK_FOREGROUND2,
         focusColor: .blue,
         iconOpacity: 0.8,
       )
@@ -154,11 +191,9 @@ public enum AppTheme {
       // Dark theme: dark backgrounds with light text
       // Based on vuetify-opts.mjs darkTheme
       Theme(
-        backgroundColor: Color(red: 0.071, green: 0.071,
-                               blue: 0.071), // #121212
-        textColor: Color(red: 0.95, green: 0.95, blue: 0.95), // light text
-        secondaryTextColor: Color(red: 0.7, green: 0.7,
-                                  blue: 0.7), // light grey
+        backgroundColor: COLOR_DARK_BACKGROUND1,
+        textColor: COLOR_DARK_FOREGROUND1,
+        secondaryTextColor: COLOR_DARK_FOREGROUND2,
         accentColor: COLOR_SAFFRON, // #ff9933
         cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2),
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
@@ -167,6 +202,10 @@ public enum AppTheme {
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)
+        sideItemActiveBackground: COLOR_DARK_BACKGROUND1,
+        sideItemActiveForeground: COLOR_DARK_FOREGROUND1,
+        sideItemBackground: COLOR_DARK_BACKGROUND2,
+        sideItemForeground: COLOR_DARK_FOREGROUND2,
         focusColor: .blue,
         iconOpacity: 0.8,
       )
