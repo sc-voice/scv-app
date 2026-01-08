@@ -17,6 +17,11 @@ import SwiftUI
 public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   where Manager.ManagedCard == Card
 {
+  #if os(iOS)
+    let isPhone = UIDevice.current.userInterfaceIdiom == .phone
+  #else
+    let isPhone = false
+  #endif
   @Binding var card: Card
   let cardManager: Manager
   @EnvironmentObject var themeProvider: ThemeProvider
@@ -24,8 +29,22 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var segments: [Segment] = []
   @State private var layout: SegmentLayout?
   @State private var availableWidth: CGFloat = 0
+  @State private var toolbarTitle: String = ""
   let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
+
+  private var suttaRef: SuttaRef? {
+    SuttaRef.create(card.suttaReference)
+  }
+
+  private var title: String {
+    if let mlDoc = card.mlDoc, let currentScid = mlDoc.currentScid {
+      if let currentRef = SuttaRef.create(currentScid) {
+        return currentRef.abbreviation()
+      }
+    }
+    return suttaRef?.abbreviation() ?? "suttaRef?"
+  }
 
   public init(
     card: Binding<Card>,
@@ -60,141 +79,202 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     )
   }
 
-  public var body: some View {
-    VStack(alignment: .leading, spacing: 0) { // VStack1
-      // Title Header
-      SuttaHeaderView(
-        card: card,
-        player: player,
-      )
-      .environmentObject(themeProvider)
-      .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
-      .frame(maxWidth: .infinity, alignment: .center)
-      #if os(iOS)
-        .navigationBarHidden(UIDevice.current.userInterfaceIdiom == .pad)
-      #endif
-
-      // Segments Content
-      if let mlDoc = card.mlDoc {
-        GeometryReader { geometry in
-          ScrollViewReader { scrollProxy in
-            // Capture available width and trigger layout calculation
-            let _ = DispatchQueue.main.async {
-              if availableWidth != geometry.size.width {
-                availableWidth = geometry.size.width
-                updateLayout()
+  private func applySuttaModifiers(_ view: some View) -> some View {
+    let step1 = view
+      .toolbar {
+        ToolbarItem(placement: .principal) {
+          HStack {
+            VStack (spacing:2) {
+              Text(title)
+                .font(.headline)
+                .lineLimit(1)
+              if let mlDoc = card.mlDoc {
+                Text(mlDoc.docAuthorName)
+                .font(.headline)
+                .lineLimit(1)
               }
             }
+            .foregroundColor(themeProvider.theme.toolbarForeground)
+            Spacer()
+            if let mlDoc = card.mlDoc {
+              Button(action: {
+                if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
+                  player.load(mlDoc)
+                }
+                player.togglePlayback()
+              }) {
+                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                  .font(.title2)
+                  .foregroundColor(themeProvider.theme.toolbarForeground)
+                  .frame(minWidth: 44, minHeight: 44)
+              }
+              .buttonStyle(.plain)
+              .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
+                .localized : "a11y.button.play_audio".localized)
+              .foregroundColor(themeProvider.theme.toolbarForeground)
+            } else {
+              Image(systemName: "text.page.slash")
+                .font(.title2)
+                .foregroundColor(themeProvider.theme.errorTextColor)
+                .frame(minWidth: 44, minHeight: 44)
+            }
+          }
+          .frame(minWidth: MIN_COLUMN_WIDTH)
+        }
+      }
 
-            if let layout {
-              ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 8) {
-                  ForEach(segments, id: \.scid) { segment in
-                    SegmentView(
-                      segment: segment,
-                      mlDoc: mlDoc,
-                      layout: layout,
-                      player: player,
-                    )
+    let step2: AnyView = {
+      #if os(iOS)
+        return AnyView(step1
+          .toolbarBackground(
+            themeProvider.theme.toolbarBackground,
+            for: .navigationBar,
+          )
+          .toolbarBackground(.visible, for: .navigationBar))
+      #else
+        return AnyView(step1)
+      #endif
+    }()
+
+    return step2
+  }
+
+  public var body: some View {
+    applySuttaModifiers(
+      VStack(alignment: .leading, spacing: 0) { // VStack1
+        // Title Header
+        /*
+        SuttaHeaderView(
+          card: card,
+          player: player,
+        )
+        .environmentObject(themeProvider)
+        .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
+        */
+
+        // Segments Content
+        if let mlDoc = card.mlDoc {
+          GeometryReader { geometry in
+            ScrollViewReader { scrollProxy in
+              // Capture available width and trigger layout calculation
+              let _ = DispatchQueue.main.async {
+                if availableWidth != geometry.size.width {
+                  availableWidth = geometry.size.width
+                  updateLayout()
+                }
+              }
+
+              if let layout {
+                ScrollView(.vertical) {
+                  VStack(alignment: .leading, spacing: 8) {
+                    ForEach(segments, id: \.scid) { segment in
+                      SegmentView(
+                        segment: segment,
+                        mlDoc: mlDoc,
+                        layout: layout,
+                        player: player,
+                      )
+                    }
+                  }
+                  .frame(maxWidth: layout.totalContentWidth)
+                  .padding(.vertical)
+                  .background(themeProvider.theme.cardBackground)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                // .scrollContentBackground(.hidden)
+                // .background(.red)
+                .onAppear {
+                  if let currentScid = mlDoc.currentScid {
+                    // Delay scroll to allow segments to load
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                      withAnimation(reduceMotion ? nil :
+                        .easeInOut(duration: 0.8))
+                      {
+                        // Scroll to two line heights from top
+                        scrollProxy.scrollTo(
+                          currentScid,
+                          anchor: UnitPoint(x: 0.5, y: 0.06),
+                        )
+                        cc.ok1(
+                          #line,
+                          "Scrolled to segment (two line heights from top):",
+                          currentScid,
+                        )
+                      }
+                    }
                   }
                 }
-                .frame(maxWidth: layout.totalContentWidth)
-                .padding(.vertical)
-                .background(themeProvider.theme.cardBackground)
-              }
-              .frame(maxWidth: .infinity, alignment: .center)
-              // .scrollContentBackground(.hidden)
-              // .background(.red)
-              .onAppear {
-                if let currentScid = mlDoc.currentScid {
-                  // Delay scroll to allow segments to load
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                .onChange(of: mlDoc.currentScid) { _, newScid in
+                  if let newScid {
                     withAnimation(reduceMotion ? nil :
                       .easeInOut(duration: 0.8))
                     {
                       // Scroll to two line heights from top
                       scrollProxy.scrollTo(
-                        currentScid,
+                        newScid,
                         anchor: UnitPoint(x: 0.5, y: 0.06),
                       )
                       cc.ok1(
                         #line,
                         "Scrolled to segment (two line heights from top):",
-                        currentScid,
+                        newScid,
                       )
                     }
                   }
                 }
               }
-              .onChange(of: mlDoc.currentScid) { _, newScid in
-                if let newScid {
-                  withAnimation(reduceMotion ? nil :
-                    .easeInOut(duration: 0.8))
-                  {
-                    // Scroll to two line heights from top
-                    scrollProxy.scrollTo(
-                      newScid,
-                      anchor: UnitPoint(x: 0.5, y: 0.06),
-                    )
-                    cc.ok1(
-                      #line,
-                      "Scrolled to segment (two line heights from top):",
-                      newScid,
-                    )
-                  }
-                }
-              }
             }
           }
+        } else {
+          VStack(spacing: 12) {
+            Image(systemName: "text.page.slash")
+              .font(.title)
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
+            Text("No document loaded")
+              .foregroundColor(themeProvider.theme.secondaryTextColor)
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
-      } else {
-        VStack(spacing: 12) {
-          Image(systemName: "text.page.slash")
-            .font(.title)
-            .foregroundColor(themeProvider.theme.secondaryTextColor)
-          Text("No document loaded")
-            .foregroundColor(themeProvider.theme.secondaryTextColor)
+      } // VStack1
+      .onAppear {
+        if let mlDoc = card.mlDoc {
+          segments = mlDoc.segments()
+          updateLayout()
+          // Initialize currentScid to first segment if nil
+          if mlDoc.currentScid == nil, let firstSegment = segments.first {
+            mlDoc.currentScid = firstSegment.scid
+          }
+          cc.ok1(#line, "onAppear \(mlDoc.currentScid ?? "nil")")
+        } else {
+          cc.ok1(#line, "onAppear no mlDoc")
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
       }
-    } // VStack1
-    .onAppear {
-      if let mlDoc = card.mlDoc {
-        segments = mlDoc.segments()
+      .onChange(of: segments) { _, _ in
         updateLayout()
-        // Initialize currentScid to first segment if nil
-        if mlDoc.currentScid == nil, let firstSegment = segments.first {
-          mlDoc.currentScid = firstSegment.scid
+      }
+      .onChange(of: Settings.shared.showPali) { _, _ in
+        updateLayout()
+      }
+      .onChange(of: Settings.shared.showDoc) { _, _ in
+        updateLayout()
+      }
+      .onChange(of: Settings.shared.showRef) { _, _ in
+        updateLayout()
+      }
+      .onChange(of: Settings.shared.maxColumnWidth) { _, _ in
+        updateLayout()
+      }
+      .onDisappear {
+        // Stop playback when sutta card is dismissed
+        // This prevents crashes when a playing sutta card is deleted
+        if player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid {
+          player.pause()
+          player.currentSutta = nil
+          cc.ok1(#line, "Stopped playback on sutta card disappear")
         }
-        cc.ok1(#line, "onAppear \(mlDoc.currentScid ?? "nil")")
-      } else {
-        cc.ok1(#line, "onAppear no mlDoc")
       }
-    }
-    .onChange(of: segments) { _, _ in
-      updateLayout()
-    }
-    .onChange(of: Settings.shared.showPali) { _, _ in
-      updateLayout()
-    }
-    .onChange(of: Settings.shared.showDoc) { _, _ in
-      updateLayout()
-    }
-    .onChange(of: Settings.shared.showRef) { _, _ in
-      updateLayout()
-    }
-    .onChange(of: Settings.shared.maxColumnWidth) { _, _ in
-      updateLayout()
-    }
-    .onDisappear {
-      // Stop playback when sutta card is dismissed
-      // This prevents crashes when a playing sutta card is deleted
-      if player.currentSutta?.sutta_uid == card.mlDoc?.sutta_uid {
-        player.pause()
-        player.currentSutta = nil
-        cc.ok1(#line, "Stopped playback on sutta card disappear")
-      }
-    }
+    )
   }
 
   // MARK: - Private Methods

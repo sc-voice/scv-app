@@ -84,7 +84,7 @@ public struct SettingsView: View {
             .background(themeProvider.theme.backgroundColor)
         } else {
           ScrollView {
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
               // MARK: - Languages Section
 
               CollapsibleSection(
@@ -438,9 +438,10 @@ struct AudioSectionContent: View {
           .frame(minWidth: 44)
         Toggle(
           "settings.play.pali".localized,
-          isOn: $controller.playPali,
+          isOn: .constant(false),
         )
         .foregroundColor(themeProvider.theme.textColor)
+        .disabled(true)
       }
 
       HStack {
@@ -592,9 +593,10 @@ struct DisplaySectionContent: View {
           .frame(minWidth: 44)
         Toggle(
           "settings.show.reference".localized,
-          isOn: $controller.showRef,
+          isOn: .constant(false),
         )
         .foregroundColor(themeProvider.theme.textColor)
+        .disabled(true)
       }
 
       Divider()
