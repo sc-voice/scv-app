@@ -84,14 +84,14 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       .toolbar {
         ToolbarItem(placement: .principal) {
           HStack {
-            VStack (spacing:2) {
+            VStack(spacing: 2) {
               Text(title)
                 .font(.headline)
                 .lineLimit(1)
               if let mlDoc = card.mlDoc {
                 Text(mlDoc.docAuthorName)
-                .font(.headline)
-                .lineLimit(1)
+                  .font(.headline)
+                  .lineLimit(1)
               }
             }
             .foregroundColor(themeProvider.theme.toolbarForeground)
@@ -144,14 +144,14 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       VStack(alignment: .leading, spacing: 0) { // VStack1
         // Title Header
         /*
-        SuttaHeaderView(
-          card: card,
-          player: player,
-        )
-        .environmentObject(themeProvider)
-        .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
-        .frame(maxWidth: .infinity, alignment: .center)
-        */
+         SuttaHeaderView(
+           card: card,
+           player: player,
+         )
+         .environmentObject(themeProvider)
+         .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
+         .frame(maxWidth: .infinity, alignment: .center)
+         */
 
         // Segments Content
         if let mlDoc = card.mlDoc {
@@ -273,7 +273,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           player.currentSutta = nil
           cc.ok1(#line, "Stopped playback on sutta card disappear")
         }
-      }
+      },
     )
   }
 

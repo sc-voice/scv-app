@@ -664,7 +664,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
               .fill(themeProvider.theme.cardBackground)
               .ignoresSafeArea(.container, edges: .bottom)
           }
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom),
         ),
     )
   }

@@ -107,10 +107,10 @@ public struct TipitakaView<Manager: ICardManager>: View {
     VStack {
       List {
         Text("Tipiṭaka")
-        .font(.body)
-        .listRowSeparator(.hidden)
-        .foregroundStyle(themeProvider.theme.toolbarForeground)
-        .listRowBackground(themeProvider.theme.toolbarBackground)
+          .font(.body)
+          .listRowSeparator(.hidden)
+          .foregroundStyle(themeProvider.theme.toolbarForeground)
+          .listRowBackground(themeProvider.theme.toolbarBackground)
         OutlineGroup(sortedTipitakaRefs(tipitakaRefs),
                      children: \.children)
         { ref in
@@ -119,10 +119,10 @@ public struct TipitakaView<Manager: ICardManager>: View {
       }
       .padding(20)
       #if os(iOS)
-      .listRowSpacing(2)
+        .listRowSpacing(2)
       #endif
-      .listStyle(.plain)
-      .scrollContentBackground(.hidden)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     } // VStack
     .background(themeProvider.theme.cardBackground)
     .cornerRadius(16)
