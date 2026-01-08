@@ -33,7 +33,9 @@ public struct Theme {
   public let valueColor: Color
 
   /// Toolbar color
-  public let toolbarColor: Color
+  public let toolbarBackground: Color
+
+  public let toolbarForeground: Color
 
   /// Error text color
   public let errorTextColor: Color
@@ -70,7 +72,8 @@ public struct Theme {
     cardBackground: Color,
     borderColor: Color,
     valueColor: Color,
-    toolbarColor: Color,
+    toolbarBackground: Color,
+    toolbarForeground: Color,
     errorTextColor: Color,
     debugForeground: Color,
     linkColor: Color,
@@ -88,7 +91,8 @@ public struct Theme {
     self.cardBackground = cardBackground
     self.borderColor = borderColor
     self.valueColor = valueColor
-    self.toolbarColor = toolbarColor
+    self.toolbarBackground = toolbarBackground
+    self.toolbarForeground = toolbarForeground
     self.errorTextColor = errorTextColor
     self.debugForeground = debugForeground
     self.linkColor = linkColor
@@ -176,7 +180,8 @@ public enum AppTheme {
         cardBackground: Color(red: 0.8, green: 0.8, blue: 0.8),
         borderColor: Color(red: 0.9, green: 0.9, blue: 0.9), // light grey
         valueColor: COLOR_TEAL_DARK, // #065f73 (5.02:1 contrast ratio)
-        toolbarColor: COLOR_GREY, // #BDBDBD
+        toolbarBackground: COLOR_TOOLBAR_SAFFRON,
+        toolbarForeground: COLOR_DARK_FOREGROUND1,
         errorTextColor: COLOR_ERROR_DARK, // #CC0000
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_BROWN_ACCENT, // #8b4513 (same as accentColor)
@@ -198,7 +203,8 @@ public enum AppTheme {
         cardBackground: Color(red: 0.2, green: 0.2, blue: 0.2),
         borderColor: Color(red: 0.3, green: 0.3, blue: 0.3), // dark grey
         valueColor: COLOR_CYAN, // #00ffff
-        toolbarColor: COLOR_TOOLBAR_SAFFRON, // #cc7a29
+        toolbarBackground: COLOR_TOOLBAR_SAFFRON, // #cc7a29
+        toolbarForeground: COLOR_DARK_FOREGROUND1,
         errorTextColor: COLOR_ERROR_BRIGHT, // #FF3333
         debugForeground: COLOR_FUCHSIA, // #FF00FF
         linkColor: COLOR_SAFFRON, // #ff9933 (same as accentColor)

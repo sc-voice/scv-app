@@ -184,7 +184,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         }()) {
           Text(searchTitle)
             .font(.headline)
-            .foregroundColor(themeProvider.theme.textColor)
+            .foregroundColor(themeProvider.theme.toolbarForeground)
             .lineLimit(1)
         }
       }
@@ -193,7 +193,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       #if os(iOS)
         return AnyView(step1
           .toolbarBackground(
-            themeProvider.theme.toolbarColor,
+            themeProvider.theme.toolbarBackground,
             for: .navigationBar,
           )
           .toolbarBackground(.visible, for: .navigationBar))
@@ -207,6 +207,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         text: $searchQuery,
         prompt: "Search",
       )
+      .preferredColorScheme(.dark)
       .searchSuggestions {
         ForEach(suggestions, id: \.lemma) { suggestion in
           Button(action: {
@@ -373,9 +374,9 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
                   .frame(maxWidth: .infinity, maxHeight: .infinity)
               }
               Spacer()
-            }
+            } // HStack
             Spacer()
-          }
+          } // VStack
           .onAppear {
             loadTipitaka()
           }

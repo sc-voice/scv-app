@@ -27,14 +27,15 @@ public struct TipitakaView<Manager: ICardManager>: View {
   /// Recursively sort TipitakaRef children using SuttaCentralId.compareLow()
   private func sortedTipitakaRefs(_ refs: [TipitakaRef]) -> [TipitakaRef] {
     refs.map { ref in
-      var sortedRef = ref
+      let sortedRef = ref
       if let children = ref.children {
         sortedRef.children = sortedTipitakaRefs(children).sorted { a, b in
           SuttaCentralId.compareLow(a.id, b.id) < 0
         }
       }
       return sortedRef
-    }.sorted { a, b in
+    }
+    .sorted { a, b in
       SuttaCentralId.compareLow(a.id, b.id) < 0
     }
   }
@@ -44,6 +45,30 @@ public struct TipitakaView<Manager: ICardManager>: View {
   private func suttaUidFromPath(_ path: String) -> String? {
     let components = path.split(separator: "/").map(String.init)
     return components.last
+  }
+
+  /// Renders a single row in the OutlineGroup
+  @ViewBuilder
+  private func tipitakaRowContent(_ ref: TipitakaRef) -> some View {
+    HStack {
+      VStack(alignment: .leading, spacing: 2) {
+        Text(ref.name)
+          .font(.body)
+        if let caption = ref.caption {
+          Text(caption)
+            .font(.caption)
+            .foregroundColor(themeProvider.theme.textColor)
+        }
+      }
+      .padding(0)
+    }
+    .padding(0)
+    .contentShape(Rectangle())
+    .onTapGesture {
+      if ref.children == nil || ref.children?.isEmpty == true {
+        handleLeafTap(ref)
+      }
+    }
   }
 
   /// Handles tapping on a leaf node to create and select a sutta card
@@ -79,37 +104,30 @@ public struct TipitakaView<Manager: ICardManager>: View {
   }
 
   public var body: some View {
-    List {
-      Text("Tipiṭaka")
-        .font(.caption)
+    VStack {
+      List {
+        Text("Tipiṭaka")
+        .font(.body)
         .listRowSeparator(.hidden)
-      OutlineGroup(sortedTipitakaRefs(tipitakaRefs),
-                   children: \.children)
-      { ref in
-        HStack {
-          VStack(alignment: .leading, spacing: 2) {
-            Text(ref.name)
-              .font(.body)
-            if let caption = ref.caption {
-              Text(caption)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            }
-          }
-          Spacer()
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-          if ref.children == nil || ref.children?.isEmpty == true {
-            handleLeafTap(ref)
-          }
+        .foregroundStyle(themeProvider.theme.toolbarForeground)
+        .listRowBackground(themeProvider.theme.toolbarBackground)
+        OutlineGroup(sortedTipitakaRefs(tipitakaRefs),
+                     children: \.children)
+        { ref in
+          tipitakaRowContent(ref)
         }
       }
-    }
-    .scrollContentBackground(.hidden)
-    .listStyle(.sidebar)
-  }
-}
+      .padding(20)
+      #if os(iOS)
+      .listRowSpacing(2)
+      #endif
+      .listStyle(.plain)
+      .scrollContentBackground(.hidden)
+    } // VStack
+    .background(themeProvider.theme.cardBackground)
+    .cornerRadius(16)
+  } // View
+} // TipitakaView
 
 // MARK: - Preview
 

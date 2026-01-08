@@ -179,6 +179,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               }
               .buttonStyle(.plain)
               .accessibilityLabel("a11y.button.add_card".localized)
+              .foregroundColor(themeProvider.theme.toolbarForeground)
             }
 
             if let onSettingsTap {
@@ -190,6 +191,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("a11y.button.settings".localized)
+                .foregroundColor(themeProvider.theme.toolbarForeground)
               }
             }
           #else
@@ -203,6 +205,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
               .buttonStyle(.plain)
               .help("Add new search card")
               .accessibilityLabel("a11y.button.add_card".localized)
+              .foregroundColor(themeProvider.theme.toolbarForeground)
             }
 
             if let onSettingsTap {
@@ -215,6 +218,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
                 .buttonStyle(.plain)
                 .help("Settings")
                 .accessibilityLabel("a11y.button.settings".localized)
+                .foregroundColor(themeProvider.theme.toolbarForeground)
               }
             }
           #endif
@@ -222,7 +226,7 @@ public struct CardSidebarView<Manager: ICardManager>: View {
         .foregroundStyle(themeProvider.theme.textColor)
       #if os(iOS)
         .toolbarBackground(
-          themeProvider.theme.toolbarColor,
+          themeProvider.theme.toolbarBackground,
           for: .navigationBar,
         )
         .toolbarBackground(.visible, for: .navigationBar)
