@@ -132,6 +132,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var searchQuery: String = ""
   @State private var suggestions: [PhraseAsset] = []
   @State private var debounceTimer: Timer?
+  @State private var isSearchPresented: Bool = true
   @FocusState private var focused: AppFocus?
   @FocusState private var searchFieldIsFocused: Bool
   @State private var searchTitle: String = "card.title.search".localized
@@ -202,11 +203,24 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       #endif
     }()
 
-    return step2
-      .searchable(
-        text: $searchQuery,
-        prompt: "Search",
-      )
+    #if os(iOS)
+      let searchView = step2
+        .searchable(
+          text: $searchQuery,
+          isPresented: $isSearchPresented,
+          placement: .navigationBarDrawer(displayMode: .always),
+          prompt: "Search",
+        )
+    #else
+      let searchView = step2
+        .searchable(
+          text: $searchQuery,
+          isPresented: $isSearchPresented,
+          prompt: "Search",
+        )
+    #endif
+
+    return searchView
       .preferredColorScheme(.dark)
       .searchSuggestions {
         ForEach(suggestions, id: \.lemma) { suggestion in
@@ -255,6 +269,13 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           card.searchQuery = filtered
         }
         cc.ok1(#line, "onChange card.searchQuery:", filtered)
+      }
+      .onChange(of: card.searchResult?.items.count ?? 0) { _, newValue in
+        // Hide searchable when results are found
+        if newValue > 0 {
+          isSearchPresented = false
+          cc.ok1(#line, "Search results found, hiding searchable")
+        }
       }
       .onAppear {
         searchQuery = card.searchQuery
@@ -632,30 +653,20 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   }
 
   public var body: some View {
-    if isPhone {
-      ZStack(alignment: .bottom) {
-        applySearchModifiers(
-          resultsView
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(0),
-        )
-        VStack(spacing: 0) {
-          Spacer()
-          Rectangle()
-            .fill(themeProvider.theme.cardBackground)
-            .frame(height: 84)
-        }
-        .ignoresSafeArea()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-      }
-      .ignoresSafeArea()
-    } else {
-      applySearchModifiers(
-        resultsView
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .padding(0),
-      )
-    }
+    applySearchModifiers(
+      resultsView
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(0)
+        .background(
+          VStack(spacing: 0) {
+            Spacer()
+            Rectangle()
+              .fill(themeProvider.theme.cardBackground)
+              .ignoresSafeArea(.container, edges: .bottom)
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        ),
+    )
   }
 }
 
