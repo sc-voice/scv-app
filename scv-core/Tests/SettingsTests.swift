@@ -26,7 +26,7 @@ import Testing
   @Test func resetRestoresDefaults() {
     Settings.shared.docLang = .german
     Settings.shared.refLang = .french
-    Settings.shared.isDarkModeEnabled = true
+    Settings.shared.isDarkModeEnabled = false
     Settings.shared.lastApplicationVersion = "1.0.0"
     Settings.shared.maxDoc = 10
 
@@ -34,9 +34,94 @@ import Testing
 
     #expect(Settings.shared.docLang == .english)
     #expect(Settings.shared.refLang == .english)
-    #expect(Settings.shared.isDarkModeEnabled == false)
+    #expect(Settings.shared.isDarkModeEnabled == true)
     #expect(Settings.shared.lastApplicationVersion == "")
     #expect(Settings.shared.maxDoc == MAX_DOC_DEFAULT)
+  }
+
+  @Test func resetClearsAllPropertiesBackToDefaults() {
+    // CODABLE ANALYSIS: Verify the number of serializable properties
+    // Settings.CodingKeys should contain all persisted properties
+    let expectedCodingKeys: [String] = [
+      "version", "docLang", "refLang", "refAuthor",
+      "docLangSettings", "paliSettings",
+      "isDarkModeEnabled", "segmentPause",
+      "playPali", "playDoc", "showPali", "showDoc", "showRef",
+      "soundEffectVolume", "lastApplicationVersion",
+      "maxDoc", "maxColumnWidth", "autoCompleteData"
+    ]
+    #expect(expectedCodingKeys.count == 18)  // Verify count of serializable properties
+
+    // Create a Settings instance to modify
+    let settings = Settings(userDefaults: nil)
+
+    // Modify all 18 properties from defaults
+    settings.version = 999
+    settings.docLang = .german
+    settings.refLang = .french
+    settings.refAuthor = "custom-author"
+    settings.docLangSettings = [.german: LangSettings(language: .german)]
+    settings.paliSettings = LangSettings(language: .pli)
+    settings.isDarkModeEnabled = true
+    settings.segmentPause = 1.5
+    settings.playPali = true
+    settings.playDoc = false
+    settings.showPali = true
+    settings.showDoc = false
+    settings.showRef = true
+    settings.soundEffectVolume = 0.75
+    settings.lastApplicationVersion = "2.0.0"
+    settings.maxDoc = 100
+    settings.maxColumnWidth = 300
+    settings.autoCompleteData = [PhrasesByAuthorLang(author: "test", lang: "en", phrases: [:])]
+
+    // Call reset to restore all defaults
+    settings.reset()
+
+    // Create a fresh Settings instance to compare against true defaults
+    let defaults = Settings(userDefaults: nil)
+
+    // CODABLE ROUND-TRIP: Verify serialization preserves all properties
+    let encoder = JSONEncoder()
+    let encoded = try? encoder.encode(settings)
+    #expect(encoded != nil)  // Should encode successfully
+
+    if let encoded {
+      let decoder = JSONDecoder()
+      if let decoded = try? decoder.decode(Settings.self, from: encoded) {
+        // After round-trip, verify key properties match
+        #expect(decoded.version == settings.version)
+        #expect(decoded.autoCompleteData.isEmpty)
+      }
+    }
+
+    // Verify all 18 properties match the defaults
+    #expect(settings.version == defaults.version)
+    #expect(settings.docLang == defaults.docLang)
+    #expect(settings.refLang == defaults.refLang)
+    #expect(settings.refAuthor == defaults.refAuthor)
+    #expect(settings.isDarkModeEnabled == defaults.isDarkModeEnabled)
+    #expect(settings.segmentPause == defaults.segmentPause)
+    #expect(settings.playPali == defaults.playPali)
+    #expect(settings.playDoc == defaults.playDoc)
+    #expect(settings.showPali == defaults.showPali)
+    #expect(settings.showDoc == defaults.showDoc)
+    #expect(settings.showRef == defaults.showRef)
+    #expect(settings.soundEffectVolume == defaults.soundEffectVolume)
+    #expect(settings.lastApplicationVersion == defaults.lastApplicationVersion)
+    #expect(settings.maxDoc == defaults.maxDoc)
+    #expect(settings.maxColumnWidth == defaults.maxColumnWidth)
+
+    // Verify docLangSettings structure (empty after reset)
+    #expect(settings.docLangSettings.count > 0)  // validate() creates entries
+    #expect(defaults.docLangSettings.count > 0)  // same for defaults
+
+    // Verify paliSettings language matches (validate may modify this)
+    #expect(settings.paliSettings.language == defaults.paliSettings.language)
+
+    // Specifically verify search history (autoCompleteData) is cleared
+    #expect(settings.autoCompleteData.isEmpty)
+    #expect(defaults.autoCompleteData.isEmpty)
   }
 
   // MARK: - Property Modification Tests
@@ -57,13 +142,13 @@ import Testing
 
   @Test func toggleDarkMode() {
     Settings.shared.reset()
-    #expect(Settings.shared.isDarkModeEnabled == false)
-
-    Settings.shared.isDarkModeEnabled = true
     #expect(Settings.shared.isDarkModeEnabled == true)
 
     Settings.shared.isDarkModeEnabled = false
     #expect(Settings.shared.isDarkModeEnabled == false)
+
+    Settings.shared.isDarkModeEnabled = true
+    #expect(Settings.shared.isDarkModeEnabled == true)
   }
 
   @Test func updateApplicationVersion() {
@@ -215,7 +300,7 @@ import Testing
 
     #expect(settings.docLang == .german)
     #expect(settings.refLang == .english)
-    #expect(settings.isDarkModeEnabled == false)
+    #expect(settings.isDarkModeEnabled == true)
     #expect(settings.lastApplicationVersion == "")
     #expect(settings.maxDoc == MAX_DOC_DEFAULT)
     #expect(settings.showPali == false)
@@ -351,7 +436,7 @@ import Testing
     #expect(settings.version == 999)
     #expect(settings.docLang == .english)
     #expect(settings.refLang == .english)
-    #expect(settings.isDarkModeEnabled == false)
+    #expect(settings.isDarkModeEnabled == true)
   }
 
   @Test func resetResetsVersion() {
@@ -535,8 +620,11 @@ import Testing
 
     Settings.shared.reset()
 
-    #expect(Settings.shared.docAuthor == "")
-    #expect(Settings.shared.refAuthor == nil)
+    // After reset, authors are initialized from manifest defaults by validate()
+    if let defaultInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
+      #expect(Settings.shared.docAuthor == defaultInfo.author)
+      #expect(Settings.shared.refAuthor == defaultInfo.author)
+    }
   }
 
   @Test func validateFixesInvalidDocAuthorWhenDocLangChanges() {

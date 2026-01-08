@@ -308,7 +308,7 @@ public class Settings: Codable {
       isDarkModeEnabled = try container.decodeIfPresent(
         Bool.self,
         forKey: .isDarkModeEnabled,
-      ) ?? false
+      ) ?? true
       segmentPause = try container.decodeIfPresent(
         Double.self,
         forKey: .segmentPause,
@@ -358,7 +358,7 @@ public class Settings: Codable {
       refAuthor = nil
       docLangSettings = [:]
       paliSettings = LangSettings(language: .default)
-      isDarkModeEnabled = false
+      isDarkModeEnabled = true
       showPali = false
       showDoc = true
       showRef = false
@@ -519,7 +519,7 @@ public class Settings: Codable {
     refAuthor = nil
     docLangSettings = [:]
     paliSettings = LangSettings(language: .default)
-    isDarkModeEnabled = false
+    isDarkModeEnabled = true
     segmentPause = SEGMENT_PAUSE_DEFAULT
     playPali = false
     playDoc = true
@@ -533,5 +533,6 @@ public class Settings: Codable {
     autoCompleteData = []
     (userDefaults ?? UserDefaults.standard)
       .removeObject(forKey: "com.scv.settings")
+    validate()
   }
 }
