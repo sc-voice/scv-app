@@ -556,7 +556,7 @@ public struct AboutCardView: View {
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
               Button(action: {
-                if let url = URL(string: "https://github.com/sc-voice") {
+                if let url = URL(string: "https://github.com/sc-voice/scv-app/issues") {
                   openURL(url)
                 }
               }) {
