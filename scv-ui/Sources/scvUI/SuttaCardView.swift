@@ -37,13 +37,32 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     SuttaRef.create(card.suttaReference)
   }
 
+  private var isSuttaCentral: Bool {
+    guard let mlDoc = card.mlDoc else { return false }
+    let dbInfo = DatabaseManifest.shared.info(
+      language: mlDoc.docLang,
+      author: mlDoc.docAuthor
+    )
+    guard let authorBaseUrl = dbInfo?.authorBaseUrl else { return false }
+    return authorBaseUrl.lowercased().contains("suttacentral")
+  }
+
   private var title: String {
+    var abbr: String?
+
     if let mlDoc = card.mlDoc, let currentScid = mlDoc.currentScid {
       if let currentRef = SuttaRef.create(currentScid) {
-        return currentRef.abbreviation()
+        abbr = currentRef.abbreviation()
       }
     }
-    return suttaRef?.abbreviation() ?? "suttaRef?"
+    if abbr == nil {
+      abbr = suttaRef?.abbreviation() ?? "suttaRef?"
+    }
+
+    if isSuttaCentral {
+      return "SuttaCentral \(abbr ?? "")"
+    }
+    return abbr ?? "suttaRef?"
   }
 
   public init(
@@ -79,21 +98,37 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     )
   }
 
+  private var suttaCentralUrl: URL? {
+    guard isSuttaCentral, let mlDoc = card.mlDoc else { return nil }
+    let urlString = "https://suttacentral.net/\(mlDoc.sutta_uid)/\(mlDoc.docLang)/\(mlDoc.docAuthor)"
+    return URL(string: urlString)
+  }
+
   private func applySuttaModifiers(_ view: some View) -> some View {
     let step1 = view
       .toolbar {
         ToolbarItem(placement: .principal) {
           HStack {
-            VStack(spacing: 2) {
-              Text(title)
-                .font(.headline)
-                .lineLimit(1)
-              if let mlDoc = card.mlDoc {
-                Text(mlDoc.docAuthorName)
+            VStack(spacing: 0) {
+              if isSuttaCentral, let url = suttaCentralUrl {
+                Link(title, destination: url)
+                  .font(.headline)
+                  .lineLimit(nil)
+                  .foregroundColor(themeProvider.theme.accentColor)
+              } else {
+                Text(title)
                   .font(.headline)
                   .lineLimit(1)
+                  .foregroundColor(themeProvider.theme.toolbarForeground)
               }
-            }
+              if let mlDoc = card.mlDoc {
+                Text(mlDoc.docAuthorName)
+                  .font(.body)
+                  .lineLimit(nil)
+                  .frame(width:MIN_COLUMN_WIDTH)
+              }
+            } // VStack
+            .fixedSize(horizontal: false, vertical: true)
             .foregroundColor(themeProvider.theme.toolbarForeground)
             Spacer()
             if let mlDoc = card.mlDoc {
