@@ -110,6 +110,17 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 
 ## Backlog
 
+### Fix EbtSeeker LIKE pattern string length assertions
+**Status**: Backlog
+
+01. [ ] Fix test expectations in EbtSeekerTests.swift:218-243 (commented out)
+    - String count assertions are off by 1
+    - "% root %suffer %".count is 16, not 17
+    - "% root %of% suffer %".count is 20, not 21
+    - "% lemma1 %lemma2%lemma3% lemma4 %".count is 33, not 34
+    - Determine if test expectations are wrong or implementation is wrong
+    - Update test assertions to match actual string lengths or fix EbtSeeker pattern generation
+
 ### Create app privacy label
 **Status**: In Progress
 

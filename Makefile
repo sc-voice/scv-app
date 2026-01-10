@@ -45,9 +45,15 @@ test-core-verbose: _init _build-core _end
 
 test-ui: _init _test-ui _end
 
-_test-ui: 
+_test-ui:
 	@echo "=== MAKE test-ui..." | tee -a $(LOG_FILE)
 	@cd scv-ui && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+
+test-tools: _init _test-tools _end
+
+_test-tools:
+	@echo "=== MAKE test-tools..." | tee -a $(LOG_FILE)
+	@cd scv-build && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
@@ -269,6 +275,7 @@ help:
 	@echo "  make test-all          Run all package tests and build validation"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make test-tools        Run scv-build tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-content      Verify all manifest databases are present in build"

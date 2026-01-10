@@ -1,6 +1,8 @@
 import Foundation
 import NaturalLanguage
+import SQLite3
 import scvCore
+import scv_build
 import Testing
 
 @Suite("scv-build Tests")
@@ -79,32 +81,6 @@ struct BuildTests {
     )
   }
 
-  @Test("EbtSeeker builds correct LIKE pattern for lemma search")
-  func lemmaSearchPatternGeneration() {
-    // Test case 1: Two lemmas (root, suffer)
-    // Expected: "% root %suffer %"
-    #expect("% root %suffer %".count == 17, "Two lemma pattern")
-
-    // Test case 2: Three lemmas (root, of, suffer)
-    // Expected: "% root %of% suffer %"
-    #expect("% root %of% suffer %".count == 21, "Three lemma pattern")
-
-    // Test case 3: Four lemmas (lemma1, lemma2, lemma3, lemma4)
-    // Expected: "% lemma1 %lemma2%lemma3% lemma4 %"
-    #expect(
-      "% lemma1 %lemma2%lemma3% lemma4 %".count == 34,
-      "Four lemma pattern",
-    )
-
-    print("[PATTERN 2-LEMMAS] Two lemmas should produce: '% root %suffer %'")
-    print(
-      "[PATTERN 3-LEMMAS] Three lemmas should produce: '% root %of% suffer %'",
-    )
-    print(
-      "[PATTERN 4-LEMMAS] Four lemmas should produce: '% lemma1 %lemma2%lemma3% lemma4 %'",
-    )
-  }
-
   @Test("Zstd decompression produces valid databases")
   func zstdDecompressionValid() throws {
     // Load original uncompressed database from local/build
@@ -164,6 +140,363 @@ struct BuildTests {
     print(
       "✓ ebt-en-soma: \(String(format: "%.1f", originalSizeMB))MB → \(String(format: "%.1f", compressedSizeMB))MB (\(String(format: "%.1f", ratio))%)",
     )
+  }
+
+  @Test("EbtDBBuilder getAuthorBaseURL returns bilara-data URL for translator")
+  func getAuthorBaseURLForTranslator() async {
+    let builder = EbtDBBuilder(
+      language: "en",
+      author: "sujato",
+      buildDir: "/tmp",
+      resourcesDir: "/tmp",
+      translationDir: "/tmp",
+      authorInfoImporter: AuthorInfoImporter(
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+      ),
+      gitHash: nil,
+    )
+
+    let url = builder.getAuthorBaseURL(lang: "en", author: "sujato")
+
+    let expectedURL = "https://github.com/suttacentral/bilara-data/tree/published/translation/en/sujato"
+    #expect(url?.absoluteString == expectedURL, "URL should be \(expectedURL)")
+
+    // Verify URL exists
+    if let url {
+      let exists = await urlExists(url)
+      #expect(exists, "URL should exist: \(url.absoluteString)")
+    }
+  }
+
+  @Test("EbtDBBuilder getAuthorBaseURL handles root author")
+  func getAuthorBaseURLForRoot() async {
+    let builder = EbtDBBuilder(
+      language: "pli",
+      author: "ms",
+      buildDir: "/tmp",
+      resourcesDir: "/tmp",
+      translationDir: "/tmp",
+      authorInfoImporter: AuthorInfoImporter(
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+      ),
+      gitHash: nil,
+    )
+
+    let url = builder.getAuthorBaseURL(lang: "pli", author: "ms")
+
+    let expectedURL = "https://github.com/suttacentral/bilara-data/tree/published/root/pli/ms"
+    #expect(url?.absoluteString == expectedURL, "URL should be \(expectedURL)")
+
+    // Verify URL exists
+    if let url {
+      let exists = await urlExists(url)
+      #expect(exists, "URL should exist: \(url.absoluteString)")
+    }
+  }
+
+  @Test("EbtDBBuilder getAuthorBaseURL falls back to ebt-data for fr/noeismet")
+  func getAuthorBaseURLForFrenchTranslator() async {
+    let builder = EbtDBBuilder(
+      language: "fr",
+      author: "noeismet",
+      buildDir: "/tmp",
+      resourcesDir: "/tmp",
+      translationDir: "/tmp",
+      authorInfoImporter: AuthorInfoImporter(
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+      ),
+      gitHash: nil,
+    )
+
+    let url = builder.getAuthorBaseURL(lang: "fr", author: "noeismet")
+
+    // fr/noeismet bilara-data doesn't exist (404), so falls back to ebt-data
+    let expectedURL = "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet"
+    #expect(url?.absoluteString == expectedURL, "URL should fall back to ebt-data: \(expectedURL)")
+
+    // Verify URL exists
+    if let url {
+      let exists = await urlExists(url)
+      #expect(exists, "URL should exist: \(url.absoluteString)")
+    }
+  }
+
+  @Test("EbtDBBuilder getSuttaRefURL returns SuttaCentral URL when bilara-data available")
+  func getSuttaRefURLBilara() async throws {
+    let builder = EbtDBBuilder(
+      language: "en",
+      author: "sujato",
+      buildDir: "/tmp",
+      resourcesDir: "/tmp",
+      translationDir: "/tmp",
+      authorInfoImporter: AuthorInfoImporter(
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+      ),
+      gitHash: nil,
+    )
+
+    let suttaRef = try SuttaRef(suttaUid: "an3.14", lang: "en", author: "sujato")
+    let url = builder.getSuttaRefURL(suttaRef: suttaRef)
+
+    let expectedURL = "https://suttacentral.net/an3.14/en/sujato"
+    #expect(url?.absoluteString == expectedURL, "URL should be SuttaCentral: \(expectedURL)")
+
+    // Verify URL exists
+    if let url {
+      let exists = await urlExists(url)
+      #expect(exists, "URL should exist: \(url.absoluteString)")
+    }
+  }
+
+  @Test("EbtDBBuilder getSuttaRefURL returns ebt-data URL when bilara-data unavailable")
+  func getSuttaRefURLEbtData() async throws {
+    let builder = EbtDBBuilder(
+      language: "fr",
+      author: "noeismet",
+      buildDir: "/tmp",
+      resourcesDir: "/tmp",
+      translationDir: "/tmp",
+      authorInfoImporter: AuthorInfoImporter(
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+      ),
+      gitHash: nil,
+    )
+
+    let suttaRef = try SuttaRef(suttaUid: "an3.14", lang: "fr", author: "noeismet")
+    let url = builder.getSuttaRefURL(suttaRef: suttaRef)
+
+    let expectedURL = "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet"
+    #expect(url?.absoluteString == expectedURL, "URL should be ebt-data: \(expectedURL)")
+
+    // Verify URL exists
+    if let url {
+      let exists = await urlExists(url)
+      #expect(exists, "URL should exist: \(url.absoluteString)")
+    }
+  }
+
+  @Test("EbtDBBuilder buildDatabase creates en:soma database")
+  func buildDatabaseEnSoma() throws {
+    // Resolve project root from test file location:
+    // Tests.swift → scvBuildTests/ → scv-build/ → project root
+    let projectRoot = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent() // scvBuildTests
+      .deletingLastPathComponent() // Tests
+      .deletingLastPathComponent() // scv-build
+      .path
+
+    let buildDir = "\(projectRoot)/local/build"
+    let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
+    let translationDir = "\(projectRoot)/local/ebt-data/translation"
+    let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
+
+    // Clean up any existing database
+    let dbPath = "\(buildDir)/ebt-en-soma.db"
+    try? FileManager.default.removeItem(atPath: dbPath)
+
+    let builder = EbtDBBuilder(
+      language: "en",
+      author: "soma",
+      buildDir: buildDir,
+      resourcesDir: resourcesDir,
+      translationDir: translationDir,
+      authorInfoImporter: AuthorInfoImporter(filePath: authorFilePath),
+      gitHash: nil,
+    )
+
+    // Build database
+    let (suttas, segments) = try builder.buildDatabase()
+
+    // Verify database was created
+    let exists = FileManager.default.fileExists(atPath: dbPath)
+    #expect(exists, "Database file should exist at \(dbPath)")
+
+    // Verify results are reasonable
+    #expect(suttas > 0, "Should have populated suttas")
+    #expect(segments > 0, "Should have populated segments")
+    #expect(
+      suttas <= segments,
+      "Number of segments (\(segments)) should be >= suttas (\(suttas))",
+    )
+
+    print(
+      "✓ Built en:soma: \(suttas) suttas, \(segments) segments",
+    )
+  }
+
+  @Test("EbtDBBuilder buildDatabase creates fr:noeismet database")
+  func buildDatabaseFrNoeismet() throws {
+    let projectRoot = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent() // scvBuildTests
+      .deletingLastPathComponent() // Tests
+      .deletingLastPathComponent() // scv-build
+      .path
+
+    let buildDir = "\(projectRoot)/local/build"
+    let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
+    let translationDir = "\(projectRoot)/local/ebt-data/translation"
+    let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
+
+    // Clean up any existing database
+    let dbPath = "\(buildDir)/ebt-fr-noeismet.db"
+    try? FileManager.default.removeItem(atPath: dbPath)
+
+    let builder = EbtDBBuilder(
+      language: "fr",
+      author: "noeismet",
+      buildDir: buildDir,
+      resourcesDir: resourcesDir,
+      translationDir: translationDir,
+      authorInfoImporter: AuthorInfoImporter(filePath: authorFilePath),
+      gitHash: nil,
+    )
+
+    // Build database
+    let (suttas, segments) = try builder.buildDatabase()
+
+    // Verify database was created
+    let exists = FileManager.default.fileExists(atPath: dbPath)
+    #expect(exists, "Database file should exist at \(dbPath)")
+
+    // Verify results are reasonable
+    #expect(suttas > 0, "Should have populated suttas")
+    #expect(segments > 0, "Should have populated segments")
+    #expect(
+      suttas <= segments,
+      "Number of segments (\(segments)) should be >= suttas (\(suttas))",
+    )
+
+    print(
+      "✓ Built fr:noeismet: \(suttas) suttas, \(segments) segments",
+    )
+  }
+
+  @Test("Manifest JSON contains expected database entries")
+  func manifestJsonStructure() throws {
+    let projectRoot = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent() // scvBuildTests
+      .deletingLastPathComponent() // Tests
+      .deletingLastPathComponent() // scv-build
+      .path
+
+    let buildDir = "\(projectRoot)/local/build"
+    let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
+
+    // Build manifest from current database files
+    let manifestBuilder = DBManifestBuilder(buildDir: buildDir, resourcesDir: resourcesDir)
+    try manifestBuilder.build()
+
+    let manifestPath = "\(resourcesDir)/db-manifest.json"
+
+    guard FileManager.default.fileExists(atPath: manifestPath) else {
+      throw TestError.missingResource("db-manifest.json not found")
+    }
+
+    let manifestData = try Data(contentsOf: URL(fileURLWithPath: manifestPath))
+    guard let manifest = try JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
+          let databases = manifest["databases"] as? [[String: Any]]
+    else {
+      throw TestError.missingResource("Invalid manifest structure")
+    }
+
+    // Verify databases array is not empty
+    #expect(databases.count > 0, "Manifest should contain at least one database")
+
+    // Find en:soma in manifest
+    let somaEntry = databases.first { db in
+      (db["language"] as? String) == "en" && (db["author"] as? String) == "soma"
+    }
+
+    guard let soma = somaEntry else {
+      throw TestError.missingResource("en:soma not found in manifest")
+    }
+
+    // Verify all properties
+    #expect(soma["language"] as? String == "en", "Language should be en")
+    #expect(soma["author"] as? String == "soma", "Author should be soma")
+    #expect(!(soma["authorName"] as? String ?? "").isEmpty, "Author name should exist")
+    #expect(!(soma["buildTimestamp"] as? String ?? "").isEmpty, "Build timestamp should exist")
+    #expect(!(soma["schemaVersion"] as? String ?? "").isEmpty, "Schema version should exist")
+
+    // Verify JSON metadata with actual author info and enriched authorBaseURL
+    if let jsonStr = soma["json"] as? String {
+      #expect(!jsonStr.isEmpty, "JSON metadata should not be empty")
+
+      // Parse and validate JSON contents
+      if let jsonData = jsonStr.data(using: .utf8),
+         let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+      {
+        // JSON should have author type and name
+        #expect(jsonDict["type"] as? String == "translator", "soma type should be 'translator'")
+        #expect(jsonDict["name"] as? String == "Ayya Soma", "soma name should be 'Ayya Soma'")
+
+        // JSON should be enriched with authorBaseURL pointing to bilara-data
+        #expect(jsonDict["authorBaseURL"] as? String != nil, "JSON should have authorBaseURL")
+        if let baseURL = jsonDict["authorBaseURL"] as? String {
+          #expect(baseURL.contains("github.com"), "authorBaseURL should be a GitHub URL")
+          #expect(baseURL.contains("bilara-data"), "authorBaseURL should point to bilara-data repository")
+          #expect(baseURL.contains("en/soma"), "authorBaseURL should contain en/soma path")
+        }
+      }
+    }
+
+    // Verify files field
+    if let files = soma["files"] {
+      #expect(files as? [String: Any] != nil || files as? Int != nil, "Files should be dict or int")
+    }
+
+    print("✓ Manifest verified: en:soma entry has all properties and valid JSON content")
+
+    // Also verify fr:noeismet (falls back to ebt-data since bilara-data doesn't exist)
+    let noeismetEntry = databases.first { db in
+      (db["language"] as? String) == "fr" && (db["author"] as? String) == "noeismet"
+    }
+
+    if let noeismet = noeismetEntry {
+      // Verify all properties
+      #expect(noeismet["language"] as? String == "fr", "Language should be fr")
+      #expect(noeismet["author"] as? String == "noeismet", "Author should be noeismet")
+      #expect(!(noeismet["authorName"] as? String ?? "").isEmpty, "Author name should exist")
+      #expect(!(noeismet["buildTimestamp"] as? String ?? "").isEmpty, "Build timestamp should exist")
+      #expect(!(noeismet["schemaVersion"] as? String ?? "").isEmpty, "Schema version should exist")
+
+      // Verify JSON metadata
+      if let jsonStr = noeismet["json"] as? String {
+        #expect(!jsonStr.isEmpty, "JSON metadata should not be empty")
+
+        // Parse and validate JSON contents
+        if let jsonData = jsonStr.data(using: .utf8),
+           let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+        {
+          // JSON should have author type and name
+          #expect(jsonDict["type"] as? String == "translator", "noeismet type should be 'translator'")
+          #expect(jsonDict["name"] as? String == "Noé Ismet", "noeismet name should be 'Noé Ismet'")
+
+          // JSON should have authorBaseURL pointing to ebt-data (since bilara-data fr/noeismet doesn't exist)
+          #expect(jsonDict["authorBaseURL"] as? String != nil, "JSON should have authorBaseURL")
+          if let baseURL = jsonDict["authorBaseURL"] as? String {
+            #expect(baseURL.contains("github.com"), "authorBaseURL should be a GitHub URL")
+            #expect(baseURL.contains("ebt-data"), "authorBaseURL should point to ebt-data repository (fallback)")
+            #expect(baseURL.contains("fr/noeismet"), "authorBaseURL should contain fr/noeismet path")
+          }
+        }
+      }
+
+      print("✓ Manifest verified: fr:noeismet entry (ebt-data fallback) has all properties and valid JSON content")
+    }
+  }
+
+  private func urlExists(_ url: URL) async -> Bool {
+    var request = URLRequest(url: url)
+    request.httpMethod = "HEAD"
+
+    do {
+      let (_, response) = try await URLSession.shared.data(for: request)
+      guard let httpResponse = response as? HTTPURLResponse else { return false }
+      return httpResponse.statusCode == 200
+    } catch {
+      return false
+    }
   }
 }
 

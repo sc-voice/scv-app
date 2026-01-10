@@ -2,7 +2,7 @@ import Foundation
 import scvCore
 import SQLite3
 
-class EbtDBBuilder {
+public class EbtDBBuilder {
   let language: String
   let author: String
   let buildDir: String
@@ -10,10 +10,10 @@ class EbtDBBuilder {
   let translationDir: String
   let authorInfoImporter: AuthorInfoImporter
   let gitHash: String?
-  private let cc = ColorConsole(#file, #function, dbg.EbtData.other)
+  private let cc = ColorConsole(#file, #function, dbg.EbtDBBuilder.other)
   private var lemmatizer: Lemmatizer?
 
-  init(
+  public init(
     language: String,
     author: String,
     buildDir: String,
@@ -31,7 +31,7 @@ class EbtDBBuilder {
     self.gitHash = gitHash
   }
 
-  func build() throws -> (suttas: Int, segments: Int) {
+  public func buildDatabase() throws -> (suttas: Int, segments: Int) {
     let startTime = Date()
     let dbPath = "\(buildDir)/ebt-\(language)-\(author).db"
     try? FileManager.default.removeItem(atPath: dbPath)
@@ -52,7 +52,25 @@ class EbtDBBuilder {
 
     // Insert metadata
     let authorName = authorInfoImporter.getAuthorName(author)
-    let jsonString = authorInfoImporter.getAuthorJSON(author)
+    var jsonString = authorInfoImporter.getAuthorJSON(author)
+
+    // Enrich JSON with authorBaseURL
+    let authorBaseURL = getAuthorBaseURL(lang: language, author: author)
+    if let jsonStr = jsonString,
+       let jsonData = jsonStr.data(using: .utf8),
+       var jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+    {
+      if let baseURL = authorBaseURL {
+        jsonDict["authorBaseURL"] = baseURL.absoluteString
+      }
+
+      // Serialize back to JSON string
+      if let enrichedData = try? JSONSerialization.data(withJSONObject: jsonDict),
+         let enrichedStr = String(data: enrichedData, encoding: .utf8)
+      {
+        jsonString = enrichedStr
+      }
+    }
 
     try insertMetadata(
       db: db,
@@ -76,9 +94,6 @@ class EbtDBBuilder {
     if var lemmatizer {
       lemmatizer.saveCache()
     }
-
-    // Compress database
-    try compressDatabase(dbPath: dbPath)
 
     let elapsed = Date().timeIntervalSince(startTime)
     cc.ok1(#line, #function, "Elapsed: \(String(format: "%.2f", elapsed))s")
@@ -372,7 +387,7 @@ class EbtDBBuilder {
     }
   }
 
-  private func compressDatabase(dbPath: String) throws {
+  public func compressDatabase(dbPath: String) throws {
     let zstPath = "\(resourcesDir)/ebt-\(language)-\(author).db.zst"
     try? FileManager.default.removeItem(atPath: zstPath)
 
@@ -382,6 +397,12 @@ class EbtDBBuilder {
       "-c",
       "/opt/homebrew/bin/zstd -f -o \(zstPath) \(dbPath)",
     ]
+
+    // Capture stdout/stderr to prevent pipe deadlock
+    let stdoutPipe = Pipe()
+    let stderrPipe = Pipe()
+    process.standardOutput = stdoutPipe
+    process.standardError = stderrPipe
 
     try process.run()
     process.waitUntilExit()
@@ -420,6 +441,115 @@ class EbtDBBuilder {
     let result = lemm.lemmatizeForSqlData(text)
     lemmatizer = lemm // Persist cache mutations back to property
     return result
+  }
+
+  /// Gets the base URL for the author's associated GitHub repository.
+  ///
+  /// Returns the URL to the author's source data in the appropriate repository:
+  /// - For root texts (pli/ms): bilara-data root path
+  /// - For translations: bilara-data translation path
+  /// - If bilara-data doesn't exist: falls back to ebt-data translation path
+  ///
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en", "de", "pli")
+  ///   - author: Author/translator identifier (e.g., "sujato", "ms")
+  /// - Returns: URL to the author's source data repository, or nil if author not found
+  public func getAuthorBaseURL(lang: String, author: String) -> URL? {
+    // Construct bilara-data URL based on type
+    let bilaraDataPath: String
+    if author == "ms" {
+      bilaraDataPath = "root/\(language)/\(author)"
+    } else {
+      bilaraDataPath = "translation/\(language)/\(author)"
+    }
+
+    let bilaraURL = URL(
+      string: "https://github.com/suttacentral/bilara-data/tree/published/\(bilaraDataPath)"
+    )!
+
+    // Check if bilara-data URL exists synchronously
+    if urlExists(bilaraURL) {
+      cc.ok1(#line, #function, bilaraURL.absoluteString)
+      return bilaraURL
+    }
+
+    // Fall back to ebt-data URL
+    let ebtDataURL = URL(
+      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(language)/\(author)"
+    )!
+    cc.ok1(#line, #function, ebtDataURL.absoluteString)
+    return ebtDataURL
+  }
+
+  /// Gets the URL to view a sutta in SuttaCentral or ebt-data repository.
+  ///
+  /// Returns the URL where the sutta can be viewed or accessed:
+  /// - If author base URL is from bilara-data: returns SuttaCentral URL (https://suttacentral.net/...)
+  /// - Otherwise: returns ebt-data repository URL
+  ///
+  /// - Parameter suttaRef: The sutta reference containing suttaUid, language, and author
+  /// - Returns: SuttaCentral URL if bilara-data available, ebt-data URL otherwise, or nil if author not found
+  public func getSuttaRefURL(suttaRef: SuttaRef) -> URL? {
+    guard let author = suttaRef.author else {
+      return nil
+    }
+
+    let baseURL = getAuthorBaseURL(lang: suttaRef.lang, author: author)!
+
+    // Check if base URL is from bilara-data
+    if baseURL.absoluteString.contains("bilara-data") {
+      // Return SuttaCentral URL
+      let suttaCentralURL = URL(
+        string: "https://suttacentral.net/\(suttaRef.suttaUid)/\(suttaRef.lang)/\(author)"
+      )!
+      cc.ok1(#line, #function, suttaCentralURL.absoluteString)
+      return suttaCentralURL
+    }
+
+    // Return ebt-data URL (either from baseURL or fallback)
+    let ebtDataURL = URL(
+      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(suttaRef.lang)/\(author)"
+    )!
+    cc.ok1(#line, #function, ebtDataURL.absoluteString)
+    return ebtDataURL
+  }
+
+  private func urlExists(_ url: URL) -> Bool {
+    var request = URLRequest(url: url)
+    request.httpMethod = "HEAD"
+    request.timeoutInterval = 5.0  // 5 second timeout
+
+    let semaphore = DispatchSemaphore(value: 0)
+    var statusCode: Int? = nil
+
+    let task = URLSession.shared.dataTask(with: request) { _, response, error in
+      defer { semaphore.signal() }
+
+      guard error == nil,
+            let httpResponse = response as? HTTPURLResponse else {
+        return
+      }
+      statusCode = httpResponse.statusCode
+    }
+
+    task.resume()
+
+    // Wait up to 5 seconds for response
+    let result = semaphore.wait(timeout: .now() + 5.0)
+
+    if result == .timedOut {
+      task.cancel()
+      cc.bad1(#line, #function, url.absoluteString)
+      return false
+    }
+
+    let exists = statusCode == 200
+    if exists {
+      cc.ok1(#line, #function, url.absoluteString)
+    } else {
+      cc.bad1(#line, #function, url.absoluteString)
+    }
+    return exists
   }
 }
 

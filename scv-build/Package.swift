@@ -10,16 +10,24 @@ let package = Package(
     .package(path: "../scv-core"),
   ],
   targets: [
-    .executableTarget(
-      name: "scv-build",
+    .target(
+      name: "scvBuildLib",
       dependencies: [
         .product(name: "scvCore", package: "scv-core"),
       ],
       path: "Sources/scvBuild",
     ),
+    .executableTarget(
+      name: "scv-build",
+      dependencies: [
+        .target(name: "scvBuildLib"),
+      ],
+      path: "Sources/scvBuildCLI",
+    ),
     .testTarget(
       name: "scvBuildTests",
       dependencies: [
+        .target(name: "scvBuildLib"),
         .product(name: "scvCore", package: "scv-core"),
       ],
     ),

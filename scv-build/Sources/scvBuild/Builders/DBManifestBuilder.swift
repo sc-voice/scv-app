@@ -1,16 +1,16 @@
 import Foundation
 import SQLite3
 
-class DBManifestBuilder {
+public class DBManifestBuilder {
   let buildDir: String
   let resourcesDir: String
 
-  init(buildDir: String, resourcesDir: String) {
+  public init(buildDir: String, resourcesDir: String) {
     self.buildDir = buildDir
     self.resourcesDir = resourcesDir
   }
 
-  func build() throws {
+  public func build() throws {
     print("Building db-manifest.json...")
 
     guard let buildFiles = try? FileManager.default

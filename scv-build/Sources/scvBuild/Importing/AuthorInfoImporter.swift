@@ -1,19 +1,19 @@
 import Foundation
 
-class AuthorInfoImporter {
+public class AuthorInfoImporter {
   private let filePath: String
   private var cache: [String: [String: Any]]?
 
-  init(filePath: String) {
+  public init(filePath: String) {
     self.filePath = filePath
   }
 
-  func getAuthorName(_ author: String) -> String {
+  public func getAuthorName(_ author: String) -> String {
     let dict = loadAuthorDict()
     return (dict[author]?["name"] as? String) ?? author
   }
 
-  func getAuthorJSON(_ author: String) -> String? {
+  public func getAuthorJSON(_ author: String) -> String? {
     let dict = loadAuthorDict()
     guard let authorInfo = dict[author] else { return nil }
     guard let jsonData = try? JSONSerialization

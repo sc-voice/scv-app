@@ -1,26 +1,29 @@
 import Foundation
+import scvCore
 
-enum BuildDBError: Error {
+public enum BuildDBError: Error {
   case noArgumentsProvided
   case invalidFormat(String)
   case buildFailed(String)
 }
 
-class BuildDBCommand {
+public enum RunCommand {
+  case buildDatabases([(lang: String, author: String)])
+  case rebuildFromManifest
+  case buildManifest
+  case listManifest
+  case listMetadata(lang: String, author: String)
+}
+
+public class BuildDBCommand {
   private let projectRoot: String
   private let translationDir: String
   private let authorFilePath: String
   private let buildDir: String
   private let resourcesDir: String
 
-  init() {
-    projectRoot = ProcessInfo.processInfo.environment["PROJECT_ROOT"] ??
-      URL(fileURLWithPath: #file)
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .path
+  public init(projectRoot: String) {
+    self.projectRoot = projectRoot
 
     translationDir = "\(projectRoot)/local/ebt-data/translation"
     authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
@@ -38,22 +41,51 @@ class BuildDBCommand {
     )
   }
 
-  func run() throws {
+  public func run() throws {
     let args = CommandLine.arguments.dropFirst()
+    cc.ok2(#line, #function, args)
 
     if args.isEmpty {
       printUsage()
       return
     }
 
+    let command = try parseArguments(Array(args))
+    cc.ok2(#line, #function, command)
+
+    switch command {
+    case .buildDatabases(let authors):
+      try buildSelectedDatabases(authors)
+      try compressSelectedDatabases(authors)
+    case .rebuildFromManifest:
+      let manifestBuilder = createManifestBuilder()
+      let authors = try manifestBuilder.readManifest()
+      print(
+        "Rebuilding databases from manifest: \(authors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))",
+      )
+      try buildSelectedDatabases(authors)
+      try compressSelectedDatabases(authors)
+    case .buildManifest:
+      try createManifestBuilder().build()
+    case .listManifest:
+      try createManifestBuilder().listManifest()
+    case .listMetadata(let lang, let author):
+      try createManifestBuilder().listMetadata(lang: lang, author: author)
+    }
+    cc.ok1(#line, #function, command)
+  }
+
+  // MARK: - Argument Parsing
+
+  public func parseArguments(_ args: [String]) throws -> RunCommand {
     var selectedAuthors: [(lang: String, author: String)] = []
     var buildManifest = false
     var listManifest = false
     var rebuildFromManifest = false
     var listMetadata: (lang: String, author: String)? = nil
 
-    var i = args.startIndex
-    while i < args.endIndex {
+    var i = 0
+    while i < args.count {
       let arg = args[i]
 
       if arg == "--build-manifest" {
@@ -63,108 +95,63 @@ class BuildDBCommand {
       } else if arg == "--rebuild-from-manifest" {
         rebuildFromManifest = true
       } else if arg == "--list-metadata" {
-        i = args.index(after: i)
-        guard i < args.endIndex else {
+        i += 1
+        guard i < args.count else {
           throw BuildDBError.invalidFormat(
             "ERROR: --list-metadata requires lang:author argument",
           )
         }
-        let parts = args[i].split(separator: ":").map(String.init)
-        guard parts.count == 2 else {
-          throw BuildDBError.invalidFormat(
-            "ERROR: Invalid format '\(args[i])'. Expected 'lang:author'",
-          )
-        }
-        listMetadata = (lang: parts[0], author: parts[1])
+        listMetadata = try parseAuthorPair(args[i])
       } else {
-        let parts = arg.split(separator: ":").map(String.init)
-        if parts.count == 2 {
-          selectedAuthors.append((lang: parts[0], author: parts[1]))
-        } else {
-          throw BuildDBError.invalidFormat(
-            "ERROR: Invalid format '\(arg)'. Expected 'lang:author' or --list-metadata lang:author",
-          )
-        }
+        selectedAuthors.append(try parseAuthorPair(arg))
       }
-      i = args.index(after: i)
+      i += 1
     }
 
+    // Determine command from flags
     if rebuildFromManifest {
-      let manifestBuilder = DBManifestBuilder(
-        buildDir: buildDir,
-        resourcesDir: resourcesDir,
-      )
-      selectedAuthors = try manifestBuilder.readManifest()
-
-      // Always ensure pli:ms is included
-      let pliMsEntry = (lang: "pli", author: "ms")
-      if !selectedAuthors
-        .contains(where: {
-          $0.lang == pliMsEntry.lang && $0.author == pliMsEntry.author
-        })
-      {
-        selectedAuthors.append(pliMsEntry)
-      }
-
-      print(
-        "Rebuilding databases from manifest: \(selectedAuthors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))",
-      )
-      // Fall through to build logic below
-    } else if buildManifest {
-      let manifestBuilder = DBManifestBuilder(
-        buildDir: buildDir,
-        resourcesDir: resourcesDir,
-      )
-      try manifestBuilder.build()
-      return
-    } else if listManifest {
-      let manifestBuilder = DBManifestBuilder(
-        buildDir: buildDir,
-        resourcesDir: resourcesDir,
-      )
-      try manifestBuilder.listManifest()
-      return
+      return .rebuildFromManifest
     }
-
+    if buildManifest {
+      return .buildManifest
+    }
+    if listManifest {
+      return .listManifest
+    }
     if let meta = listMetadata {
-      let manifestBuilder = DBManifestBuilder(
-        buildDir: buildDir,
-        resourcesDir: resourcesDir,
-      )
-      try manifestBuilder.listMetadata(lang: meta.lang, author: meta.author)
-      return
+      return .listMetadata(lang: meta.lang, author: meta.author)
     }
 
-    if selectedAuthors.isEmpty {
+    guard !selectedAuthors.isEmpty else {
       throw BuildDBError.noArgumentsProvided
     }
 
-    // Always ensure pli:ms is included
-    let pliMsEntry = (lang: "pli", author: "ms")
-    if !selectedAuthors
-      .contains(where: {
-        $0.lang == pliMsEntry.lang && $0.author == pliMsEntry.author
-      })
-    {
-      selectedAuthors.append(pliMsEntry)
+    return .buildDatabases(selectedAuthors)
+  }
+
+  public func parseAuthorPair(_ arg: String) throws -> (lang: String, author: String) {
+    let parts = arg.split(separator: ":").map(String.init)
+    guard parts.count == 2 else {
+      throw BuildDBError.invalidFormat(
+        "ERROR: Invalid format '\(arg)'. Expected 'lang:author'",
+      )
     }
+    return (lang: parts[0], author: parts[1])
+  }
 
-    print(
-      "Building selected databases: \(selectedAuthors.map { "\($0.lang)/\($0.author)" }.joined(separator: ", "))",
-    )
+  // MARK: - Database Building
 
+  public func buildSelectedDatabases(_ authors: [(lang: String, author: String)]) throws {
+    let gitHash = getEbtDataGitHash() ?? "gitHash?"
+    cc.ok2(#line, #function, "gitHash:\(gitHash)")
     let authorInfoImporter = AuthorInfoImporter(filePath: authorFilePath)
-    let gitHash = getEbtDataGitHash()
 
     var totalSuttas = 0
     var totalSegments = 0
     var builtCount = 0
 
-    for (lang, author) in selectedAuthors {
-      // Use root directory for pli:ms, translation directory for others
-      let builderTranslationDir = (lang == "pli" && author == "ms")
-        ? "\(projectRoot)/local/ebt-data/root"
-        : translationDir
+    for (lang, author) in authors {
+      let builderTranslationDir = getTranslationDirectory(lang: lang, author: author)
 
       let builder = EbtDBBuilder(
         language: lang,
@@ -177,19 +164,57 @@ class BuildDBCommand {
       )
 
       do {
-        let (suttas, segments) = try builder.build()
+        let (suttas, segments) = try builder.buildDatabase()
         totalSuttas += suttas
         totalSegments += segments
         builtCount += 1
+        cc.ok2(#line, #function, lang, author, segments)
       } catch {
-        print("  ERROR: Failed to build \(lang):\(author): \(error)")
+        cc.bad2(#line, #function, lang, author, error)
       }
     }
 
-    let elapsed = 0.0 // TODO: Add timing
-    print("\nSUCCESS: Built \(builtCount) author databases")
-    print("  Total: \(totalSuttas) suttas, \(totalSegments) segments")
-    print("  Time elapsed: \(String(format: "%.2f", elapsed))s")
+    cc.ok1(#line, #function, "totalSutta:\(totalSuttas)", "totalSegments:\(totalSegments)")
+  }
+
+  public func compressSelectedDatabases(_ authors: [(lang: String, author: String)]) throws {
+    for (lang, author) in authors {
+      let dbPath = "\(buildDir)/ebt-\(lang)-\(author).db"
+      cc.ok2(#line, #function, dbPath)
+      let builder = EbtDBBuilder(
+        language: lang,
+        author: author,
+        buildDir: buildDir,
+        resourcesDir: resourcesDir,
+        translationDir: getTranslationDirectory(lang: lang, author: author),
+        authorInfoImporter: AuthorInfoImporter(filePath: authorFilePath),
+        gitHash: getEbtDataGitHash(),
+      )
+
+      do {
+        try builder.compressDatabase(dbPath: dbPath)
+        cc.ok1(#line, #function, dbPath)
+      } catch {
+        cc.bad1(#line, #function, dbPath, error)
+      }
+    }
+  }
+
+  public func getTranslationDirectory(lang: String, author: String) -> String {
+    // Use root directory for pli:ms, translation directory for others
+    if lang == "pli" && author == "ms" {
+      return "\(projectRoot)/local/ebt-data/root"
+    }
+    return translationDir
+  }
+
+  // MARK: - Manifest Operations
+
+  private func createManifestBuilder() -> DBManifestBuilder {
+    DBManifestBuilder(
+      buildDir: buildDir,
+      resourcesDir: resourcesDir,
+    )
   }
 
   private func printUsage() {

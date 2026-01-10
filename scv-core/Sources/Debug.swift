@@ -37,6 +37,10 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct EbtDBBuilder: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct EbtQuery: Sendable {
     public static let other: Int = 0
   }

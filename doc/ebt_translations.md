@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-01-06
+**Last updated:** 2026-01-09
 
 ## Overview
 
