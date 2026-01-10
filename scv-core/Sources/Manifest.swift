@@ -104,6 +104,7 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
   public let files: FilesBreakdown
   public let gitHash: String?
   public let json: String?
+  public let authorBaseUrl: String?
 
   enum CodingKeys: String, CodingKey {
     case language
@@ -113,6 +114,7 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     case files
     case gitHash
     case json
+    case authorBaseUrl
   }
 
   public init(
@@ -123,6 +125,7 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     files: FilesBreakdown,
     gitHash: String? = nil,
     json: String? = nil,
+    authorBaseUrl: String? = nil,
   ) {
     id = "\(language)/\(author)"
     self.language = language
@@ -132,6 +135,8 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     self.files = files
     self.gitHash = gitHash
     self.json = json
+    // Extract authorBaseUrl from direct parameter or from json field
+    self.authorBaseUrl = authorBaseUrl ?? DatabaseInfo.extractAuthorBaseUrlFromJson(json)
   }
 
   public init(from decoder: Decoder) throws {
@@ -162,7 +167,22 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     }
     gitHash = try container.decodeIfPresent(String.self, forKey: .gitHash)
     json = try container.decodeIfPresent(String.self, forKey: .json)
+
+    // Extract authorBaseUrl from direct field or from json field
+    authorBaseUrl = try container.decodeIfPresent(String.self, forKey: .authorBaseUrl)
+      ?? DatabaseInfo.extractAuthorBaseUrlFromJson(json)
+
     id = "\(language)/\(author)"
+  }
+
+  /// Extract authorBaseUrl from json field if present
+  private static func extractAuthorBaseUrlFromJson(_ jsonStr: String?) -> String? {
+    guard let jsonStr else { return nil }
+    guard let jsonData = jsonStr.data(using: .utf8) else { return nil }
+    guard let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+      return nil
+    }
+    return jsonDict["authorBaseURL"] as? String
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -177,6 +197,9 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     }
     if let json {
       try container.encode(json, forKey: .json)
+    }
+    if let authorBaseUrl {
+      try container.encode(authorBaseUrl, forKey: .authorBaseUrl)
     }
   }
 }
