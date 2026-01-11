@@ -131,7 +131,7 @@ struct EbtDataTests {
       Issue.record("Failed to create SuttaRef")
       return
     }
-    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+    let mlDoc = await EbtData.getMLDocument(suttaRef: suttaRef)
 
     #expect(mlDoc != nil)
     guard let mlDoc else { return }
@@ -177,7 +177,7 @@ struct EbtDataTests {
       Issue.record("Failed to create SuttaRef")
       return
     }
-    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+    let mlDoc = await EbtData.getMLDocument(suttaRef: suttaRef)
 
     #expect(mlDoc != nil)
     guard let mlDoc else { return }
@@ -206,7 +206,7 @@ struct EbtDataTests {
     let expectedVersion = String(EbtData.schemaVersion)
 
     // Query database for actual schema_version
-    let dbVersion = try await EbtData.shared.getDatabaseSchemaVersion(
+    let dbVersion = try await EbtData.getDatabaseSchemaVersion(
       lang: "en",
       author: "soma",
     )
@@ -269,7 +269,7 @@ struct EbtDataTests {
       return
     }
 
-    let mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+    let mlDoc = await EbtData.getMLDocument(suttaRef: suttaRef)
 
     #expect(mlDoc != nil)
     guard let mlDoc else { return }
@@ -299,7 +299,7 @@ struct EbtDataTests {
   @Test("EN lemma search: root of suffering performance")
   func enLemmaSearchPerformance() async throws {
     // Get seeker to access lemmatization
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "en",
       author: "sujato",
     )
@@ -334,7 +334,7 @@ struct EbtDataTests {
     }
 
     // Ensure database is loaded into cache
-    _ = try? await EbtData.shared.getSeeker(lang: "en", author: "sujato")
+    _ = try? await EbtData.getSeeker(lang: "en", author: "sujato")
 
     // Verify with correct gitHash should succeed
     let matches = await EbtData.shared.verifyDatabaseInfo(dbInfo)
@@ -353,7 +353,7 @@ struct EbtDataTests {
     }
 
     // Ensure database is loaded into cache
-    _ = try? await EbtData.shared.getSeeker(lang: "en", author: "sujato")
+    _ = try? await EbtData.getSeeker(lang: "en", author: "sujato")
 
     // Create a modified DatabaseInfo with different gitHash
     let modifiedInfo = DatabaseInfo(
@@ -374,8 +374,8 @@ struct EbtDataTests {
   @Test("verifyCachedDBs detects mismatches and repairs cache")
   func verifyCachedDBsDetectsMismatches() async {
     // Ensure key databases are loaded into cache
-    _ = try? await EbtData.shared.getSeeker(lang: "en", author: "sujato")
-    _ = try? await EbtData.shared.getSeeker(lang: "pli", author: "ms")
+    _ = try? await EbtData.getSeeker(lang: "en", author: "sujato")
+    _ = try? await EbtData.getSeeker(lang: "pli", author: "ms")
 
     // Verify all cached databases match manifest
     // repair=true (default) will clear any mismatched databases from cache
@@ -389,5 +389,28 @@ struct EbtDataTests {
     // Only cached databases with stale git_hash are mismatched
     // In this test, loaded databases match, so mismatched list should be empty
     #expect(mismatched.isEmpty)
+  }
+
+  @Test("forLangAuthor factory creates instance for pli/ms")
+  func forLangAuthorCreatesPliMs() async {
+    let db = await EbtData.forLangAuthor(lang: "pli", author: "ms")
+    #expect(db != nil)
+    #expect(db?.lang == "pli")
+    #expect(db?.author == "ms")
+  }
+
+  @Test("forLangAuthor factory caches instances")
+  func forLangAuthorCachesInstances() async {
+    let db1 = await EbtData.forLangAuthor(lang: "en", author: "sujato")
+    let db2 = await EbtData.forLangAuthor(lang: "en", author: "sujato")
+    #expect(db1 !== nil)
+    #expect(db2 !== nil)
+    #expect(db1 === db2)
+  }
+
+  @Test("forLangAuthor factory handles invalid author gracefully")
+  func forLangAuthorInvalidAuthor() async {
+    let db = await EbtData.forLangAuthor(lang: "en", author: "nonexistent-author-xyz")
+    #expect(db == nil)
   }
 }

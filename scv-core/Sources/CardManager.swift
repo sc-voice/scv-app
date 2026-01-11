@@ -337,7 +337,7 @@ public class CardManager: ICardManager {
       newCard.searchQuery = searchQuery
     }
     cc.ok2(#line, #function, "getMLDocument...")
-    newCard.mlDoc = await EbtData.shared.getMLDocument(suttaRef: suttaRef)
+    newCard.mlDoc = await EbtData.getMLDocument(suttaRef: suttaRef)
 
     // Save the updated card properties
     do {

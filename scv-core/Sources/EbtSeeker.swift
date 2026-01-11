@@ -179,7 +179,7 @@ public actor EbtSeeker {
     }
 
     // Delegate SQL execution to EbtData (includes LIKE pattern building)
-    let result = await EbtData.shared.searchLemma(
+    let result = await EbtData.searchLemma(
       lang: lang,
       author: author,
       lemmaWords: lemmaWords,
@@ -207,7 +207,7 @@ public actor EbtSeeker {
     method: SearchMethod,
   ) async throws -> String? {
     // Get all segments for this sutta from data layer
-    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
+    let segments = await EbtData.segmentsOfSuttaRef(suttaRef)
 
     // Find first matching segment
     for segment in segments {
@@ -234,13 +234,13 @@ public actor EbtSeeker {
   /// Query total segment count for this sutta
   func querySegmentCount(suttaRef: SuttaRef) async throws -> Int? {
     // Get all segments and count them
-    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
+    let segments = await EbtData.segmentsOfSuttaRef(suttaRef)
     return segments.isEmpty ? nil : segments.count
   }
 
   func queryHeader(suttaRef: SuttaRef) async throws -> [Segment] {
     // Get all segments for this sutta
-    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
+    let segments = await EbtData.segmentsOfSuttaRef(suttaRef)
 
     // Filter for header segments (scid LIKE "%:0%")
     return segments.filter { segment in
@@ -442,7 +442,7 @@ public struct SeekerResult: Sendable, Codable {
   public mutating func populateItems() async -> Bool {
     for i in items.indices {
       do {
-        let seeker = try await EbtData.shared.getSeeker(
+        let seeker = try await EbtData.getSeeker(
           suttaRef: items[i].suttaRef,
         )
         _ = try await items[i].populate(

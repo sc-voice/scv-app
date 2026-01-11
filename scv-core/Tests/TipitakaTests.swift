@@ -213,7 +213,7 @@ struct TipitakaTests {
   }
 
   @Test func authorTipitakaSoma() async throws {
-    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+    let suttaUids = await EbtData.suttaUidsForAuthor(
       lang: "en",
       author: "soma",
     )
@@ -265,7 +265,7 @@ struct TipitakaTests {
   }
 
   @Test func authorTipitakaBrahmali() async throws {
-    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+    let suttaUids = await EbtData.suttaUidsForAuthor(
       lang: "en",
       author: "brahmali",
     )
@@ -338,7 +338,7 @@ struct TipitakaTests {
   }
 
   @Test func authorTipitakaJohnKelly() async throws {
-    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+    let suttaUids = await EbtData.suttaUidsForAuthor(
       lang: "en",
       author: "kelly",
     )
@@ -400,7 +400,7 @@ struct TipitakaTests {
     // Phase 1: Fetch sutta UIDs
     print("\nPhase 1: Fetch sutta UIDs")
     let phaseStartTime = CFAbsoluteTimeGetCurrent()
-    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+    let suttaUids = await EbtData.suttaUidsForAuthor(
       lang: "en",
       author: "sujato",
     )

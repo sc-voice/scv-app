@@ -120,7 +120,7 @@ struct EbtQueryTests {
 
   @Test("EbtSeeker lemmatize 'men shaving heads' in English")
   func seekerLemmatizeMenShavingHeads() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "en",
       author: "brahmali",
     )
@@ -137,7 +137,7 @@ struct EbtQueryTests {
 
   @Test("EbtSeeker lemmatize mn1:171.4 segment text")
   func seekerLemmatizeMn1Segment() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "en",
       author: "sujato",
     )
@@ -156,7 +156,7 @@ struct EbtQueryTests {
 
   @Test("EbtSeeker lemmatize dn16:2.3.9 segment text")
   func seekerLemmatizeDn16Segment() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "en",
       author: "sujato",
     )
@@ -433,7 +433,7 @@ struct EbtQueryTests {
     )
 
     // Populate segment data directly via populate()
-    let seeker = try await EbtData.shared.getSeeker(suttaRef: item0.suttaRef)
+    let seeker = try await EbtData.getSeeker(suttaRef: item0.suttaRef)
     _ = try await item0.populate(
       seeker: seeker,
       query: result.metadata.query,

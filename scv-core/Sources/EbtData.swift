@@ -9,6 +9,10 @@ public actor EbtData {
   public let cc = ColorConsole(#file, #function, dbg.EbtData.other)
   public static let shared = EbtData()
 
+  public nonisolated let lang:String?
+  public nonisolated let author:String?
+  private let db:OpaquePointer?
+
   /// Database schema version - increment when changing how data is interpreted
   /// Must match schema_version in database metadata table
   /// V5: Added files field with breakdown (sutta/vinaya/abhidhamma/other
@@ -43,7 +47,162 @@ public actor EbtData {
   private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
     .shared
 
-  private init() {}
+  private nonisolated(unsafe) static var instanceCache: [String:EbtData] = [:]
+
+  // Factory for instance tied to lang/author database
+  public static func forLangAuthor(lang:String?, author:String?,
+    settings:Settings = Settings.shared) async -> EbtData?
+  {
+    let cc = ColorConsole(#file, #function, dbg.EbtData.other)
+    let langActual = lang ?? settings.docLang.rawValue ?? "en"
+    let authorActual = author ?? manifestCache.defaultAuthorForLanguage(langActual)?.author ?? ""
+    let cacheKey = "\(langActual)/\(authorActual)"
+    var e7a = instanceCache[cacheKey]
+    if e7a != nil {
+      cc.ok1(#line, #function, langActual, authorActual, "(cached)")
+      return e7a
+    }
+
+    do {
+      try await EbtData.shared.ensureDatabase(lang: langActual, author: authorActual)
+    } catch {
+      cc.bad1(#line, #function, langActual, authorActual, error.localizedDescription)
+      return nil
+    }
+
+    let db = EbtData.shared.databases[cacheKey]
+    e7a = EbtData(lang:langActual, author:authorActual, db:db)
+    instanceCache[cacheKey] = e7a
+
+    cc.ok1(#line, #function, langActual, authorActual, "(new)")
+    return e7a
+  }
+
+  /// Static convenience method to get MLDocument for a SuttaRef
+  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Returns: MLDocument with segments populated, or nil if not found or instance creation fails
+  public static func getMLDocument(suttaRef: SuttaRef) async -> MLDocument? {
+    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+      return nil
+    }
+    return await ebtData.getMLDocument(suttaRef: suttaRef)
+  }
+
+  /// Static convenience method to get segments for a SuttaRef
+  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Returns: Array of Segment objects for the sutta, or empty array if not found
+  public static func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async -> [Segment] {
+    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+      return []
+    }
+    return await ebtData.segmentsOfSuttaRef(suttaRef)
+  }
+
+  /// Static convenience method to check if a SuttaRef exists
+  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Returns: true if sutta exists in database, false otherwise
+  public static func suttaRefExists(suttaRef: SuttaRef) async -> Bool {
+    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+      return false
+    }
+    return await ebtData.querySuttaRefExists(suttaRef: suttaRef)
+  }
+
+  /// Static convenience method to get EbtSeeker for a specific language and author
+  /// Uses factory to create/retrieve instance for the lang/author pair
+  /// - Parameters:
+  ///   - lang: Language code
+  ///   - author: Author/translator code
+  /// - Returns: EbtSeeker instance, or throws if instance creation fails
+  public static func getSeeker(lang: String, author: String) async throws -> EbtSeeker {
+    guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+    return try await ebtData.getSeeker(lang: lang, author: author)
+  }
+
+  /// Static convenience method to get EbtSeeker for a SuttaRef
+  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Returns: EbtSeeker instance, or throws if instance creation fails
+  public static func getSeeker(suttaRef: SuttaRef) async throws -> EbtSeeker {
+    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+      throw EbtDataError.cannotOpenDatabase(lang: suttaRef.lang ?? "unknown", author: suttaRef.author ?? "unknown")
+    }
+    return try await ebtData.getSeeker(suttaRef: suttaRef)
+  }
+
+  /// Static convenience method to get database schema version for a language/author pair
+  /// Uses factory to create/retrieve instance for the lang/author pair
+  /// - Parameters:
+  ///   - lang: Language code
+  ///   - author: Author/translator code
+  /// - Returns: Schema version string, or throws if instance creation fails
+  public static func getDatabaseSchemaVersion(lang: String, author: String) async throws -> String {
+    guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+    return try await ebtData.getDatabaseSchemaVersion(lang: lang, author: author)
+  }
+
+  /// Static convenience method to get sutta UIDs for a language/author pair
+  /// Uses factory to create/retrieve instance for the lang/author pair
+  /// - Parameters:
+  ///   - lang: Language code
+  ///   - author: Author/translator code
+  /// - Returns: Array of sutta UIDs, or empty array if instance creation fails
+  public static func suttaUidsForAuthor(lang: String, author: String) async -> [String] {
+    guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
+      return []
+    }
+    return await ebtData.suttaUidsForAuthor(lang: lang, author: author)
+  }
+
+  /// Static convenience method to search for lemmatized phrases
+  /// Uses factory to create/retrieve instance for the lang/author pair
+  /// - Parameters:
+  ///   - lang: Language code
+  ///   - author: Author/translator code
+  ///   - lemmaWords: Array of lemmatized words to search for
+  ///   - query: Original query string for metadata
+  ///   - maxDoc: Maximum results limit
+  /// - Returns: SeekerResult with matching suttas, or empty result if instance creation fails
+  public static func searchLemma(
+    lang: String,
+    author: String,
+    lemmaWords: [String],
+    query: String,
+    maxDoc: Int = MAX_DOC_DEFAULT,
+  ) async -> SeekerResult {
+    guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
+      return SeekerResult(
+        metadata: SearchMetadata(
+          query: query,
+          method: .lemma,
+          elapsedTime: 0,
+          docLang: lang,
+          docAuthor: author,
+        ),
+        items: [],
+      )
+    }
+    return await ebtData.searchLemma(
+      lang: lang,
+      author: author,
+      lemmaWords: lemmaWords,
+      query: query,
+      maxDoc: maxDoc,
+    )
+  }
+
+  private init(lang:String? = nil, author:String? = nil, db:OpaquePointer? = nil) {
+    self.lang = lang
+    self.author = author
+    self.db = db
+  }
 
   // MARK: - Manifest Access
 
@@ -1139,7 +1298,7 @@ public actor EbtData {
   /// Check if a sutta reference exists in its database
   /// - Parameter suttaRef: The sutta reference to check
   /// - Returns: true if sutta exists, false if not or database not found
-  public func querySuttaRefExists(suttaRef: SuttaRef) async -> Bool {
+  private func querySuttaRefExists(suttaRef: SuttaRef) async -> Bool {
     do {
       // Get database for this language/author
       let author = suttaRef.author ?? ""
@@ -1167,18 +1326,10 @@ public actor EbtData {
       )
 
       let exists = sqlite3_step(stmt) == SQLITE_ROW
-      cc.ok1(
-        #line,
-        #function,
-        "querySuttaRefExists(\(suttaRef.toString())): suttaUid=\(suttaRef.suttaUid), exists=\(exists)",
-      )
+      cc.ok1( #line, #function, suttaRef.toString(), "OK")
       return exists
     } catch {
-      cc.bad1(
-        #line,
-        #function,
-        "querySuttaRefExists(\(suttaRef.toString())) threw: \(error)",
-      )
+      cc.bad1( #line, #function, suttaRef.toString(), "\(error)")
       return false
     }
   }

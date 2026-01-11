@@ -8871,7 +8871,7 @@ public struct Tipitaka {
   {
     let cc = ColorConsole(#file, #function, dbg.Tipitaka.other)
 
-    var suttaUids = await EbtData.shared.suttaUidsForAuthor(
+    var suttaUids = await EbtData.suttaUidsForAuthor(
       lang: lang,
       author: author,
     )

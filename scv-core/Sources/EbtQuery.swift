@@ -88,8 +88,7 @@ public class EbtQuery {
 
       for suttaRef in suttaRefs {
         if suttaRef != nil {
-          let exists = await EbtData.shared
-            .querySuttaRefExists(suttaRef: suttaRef)
+          let exists = await EbtData.suttaRefExists(suttaRef: suttaRef)
           if exists {
             let item = SeekerResultItem(
               suttaRef: suttaRef,
@@ -129,7 +128,7 @@ public class EbtQuery {
     } else {
       // Lemma search uses single seeker
       do {
-        let seeker = try await EbtData.shared.getSeeker(
+        let seeker = try await EbtData.getSeeker(
           lang: docLang,
           author: docAuthor,
         )

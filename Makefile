@@ -1,4 +1,4 @@
-.PHONY: _init test test-all test-core test-core-verbose test-ui test-build\
+.PHONY: _init test test-app test-core test-core-verbose test-ui test-build\
 				test-zstd-integration test-nlp test-content\
 				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before\
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
@@ -30,9 +30,9 @@ scv-core/Sources/Resources/ebt-en-soma.db.zst:
 	@echo "Building test database..."
 	@scripts/build-ebt-data en:soma
 
-test-all: _init _test-all _end
+test-app: _init _test-app _end
 
-_test-all: scv-core/Sources/Resources/ebt-en-soma.db.zst _test-core _test-ui _test-content
+_test-app: scv-core/Sources/Resources/ebt-en-soma.db.zst _test-core _test-ui _test-content
 
 test-core: _init _test-core _end
 
@@ -156,7 +156,7 @@ _rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@$(MAKE) _clean 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a $(LOG_FILE)
-	@$(MAKE) _test-all 2>&1 | tee -a $(LOG_FILE); \
+	@$(MAKE) _test-app 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
 
@@ -271,8 +271,8 @@ help:
 	@echo "SC-Voice Build Targets"
 	@echo ""
 	@echo "  make rebuild           Update version, clean, build and test and all packages"
-	@echo "  make test              Run all package tests (shortcut for test-all)"
-	@echo "  make test-all          Run all package tests and build validation"
+	@echo "  make test              Run all package tests (shortcut for test-app)"
+	@echo "  make test-app          Run all application tests"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
 	@echo "  make test-tools        Run scv-build tests serially"

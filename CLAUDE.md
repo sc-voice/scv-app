@@ -83,9 +83,14 @@ Claude must be explicit and intentional about working directory for EVERY comman
 
 ## Testing
 
-Run comprehesive tests with:
+To test build tools:
 ```bash
-make test-all
+make test-tools
+```
+
+To test application:
+```bash
+make test-app
 ```
 
 **Important:** Tests must run **serially** (not in parallel) because scv-core uses a global mutable localization bundle for testing. The `withLocalizationBundle()` helper in CardTests.swift swaps bundles to test multiple languages, which causes conflicts if tests run in parallel.

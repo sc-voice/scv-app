@@ -16,9 +16,9 @@ struct EbtSeekerTests {
   @Test("getSeeker with invalid author throws error")
   func getSeekerInvalidAuthor() async throws {
     do {
-      _ = try await EbtData.shared.getSeeker(lang: "en", author: "nonexistent")
+      _ = try await EbtData.getSeeker(lang: "en", author: "nonexistent")
       #expect(Bool(false), "Should have thrown error for invalid author")
-    } catch EbtDataError.databaseNotFound {
+    } catch EbtDataError.cannotOpenDatabase {
       // Expected error
     }
   }
@@ -26,16 +26,16 @@ struct EbtSeekerTests {
   @Test("getSeeker with invalid lang throws error")
   func getSeekerInvalidLang() async throws {
     do {
-      _ = try await EbtData.shared.getSeeker(lang: "xx", author: "sujato")
+      _ = try await EbtData.getSeeker(lang: "xx", author: "sujato")
       #expect(Bool(false), "Should have thrown error for invalid lang")
-    } catch EbtDataError.databaseNotFound {
+    } catch EbtDataError.cannotOpenDatabase {
       // Expected error
     }
   }
 
   @Test("DE lemma search benchmark: all 38 results with exact scores")
   func deLemmaSearchBenchmark() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "de",
       author: "sabbamitta",
     )
@@ -104,7 +104,7 @@ struct EbtSeekerTests {
 
   @Test("EbtSeeker.lemmatize() DE phrases")
   func lemmatizeDEPhrases() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "de",
       author: "sabbamitta",
     )
@@ -145,7 +145,7 @@ struct EbtSeekerTests {
 
   @Test("searchLemma with LIKE special characters (SQL injection protection)")
   func lemmaSearchSQLInjectionProtection() async throws {
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "de",
       author: "sabbamitta",
     )
@@ -197,7 +197,7 @@ struct EbtSeekerTests {
   @Test("EN lemma search: root of suffering performance")
   func enLemmaSearchPerformance() async throws {
     // Preload database before timing
-    let seeker = try await EbtData.shared.getSeeker(
+    let seeker = try await EbtData.getSeeker(
       lang: "en",
       author: "sujato",
     )

@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - Constants
 
-let MAX_DOC_DEFAULT = 50
+public let MAX_DOC_DEFAULT = 50
 public let SEGMENT_PAUSE_DEFAULT = 0.5
 public let SOUND_EFFECT_VOLUME_DEFAULT: Float = 0.5
 
