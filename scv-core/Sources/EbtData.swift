@@ -1037,6 +1037,92 @@ public actor EbtData {
     }
   }
 
+  /// Returns value for a single metaprop key
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en", "de")
+  ///   - author: Author identifier (e.g., "sujato")
+  ///   - key: Metaprop key to retrieve (e.g., "git_hash", "build_timestamp")
+  /// - Returns: Metaprop value as String, or nil if key not found
+  public func getMetaprop(lang: String, author: String, key: String) -> String? {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let dbKey = "\(lang)/\(author)"
+      guard let db = databases[dbKey] else {
+        cc.bad1(#line, #function, "database not found:", lang, author)
+        return nil
+      }
+
+      let query = "SELECT value FROM metaprops WHERE key = ? LIMIT 1"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        cc.bad1(#line, #function, "sqlite3_prepare_v2 failed")
+        return nil
+      }
+
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (key as NSString).utf8String, -1, nil)
+
+      if sqlite3_step(stmt) == SQLITE_ROW {
+        if let valueC = sqlite3_column_text(stmt, 0) {
+          let value = String(cString: valueC)
+          cc.ok2(#line, #function, key, "=", value)
+          return value
+        }
+      }
+
+      cc.bad1(#line, #function, "key not found:", key)
+      return nil
+    } catch {
+      cc.bad1(#line, #function, error.localizedDescription)
+      return nil
+    }
+  }
+
+  /// Returns all metaprops as key/value dictionary
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en", "de")
+  ///   - author: Author identifier (e.g., "sujato")
+  /// - Returns: Dictionary of all metaprop keys and values, empty dict if table empty or not found
+  public func getAllMetaprops(lang: String, author: String) -> [String: String] {
+    do {
+      try ensureDatabase(lang: lang, author: author)
+      let dbKey = "\(lang)/\(author)"
+      guard let db = databases[dbKey] else {
+        cc.bad1(#line, #function, "failed to get database for", lang, author)
+        return [:]
+      }
+
+      let query = "SELECT key, value FROM metaprops"
+      var stmt: OpaquePointer?
+
+      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        cc.bad1(#line, #function, "sqlite3_prepare_v2 failed")
+        return [:]
+      }
+
+      defer { sqlite3_finalize(stmt) }
+
+      var metaprops: [String: String] = [:]
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        if let keyC = sqlite3_column_text(stmt, 0),
+           let valueC = sqlite3_column_text(stmt, 1)
+        {
+          let key = String(cString: keyC)
+          let value = String(cString: valueC)
+          metaprops[key] = value
+        }
+      }
+
+      cc.ok1(#line, #function, "retrieved", metaprops.count, "metaprops")
+      return metaprops
+    } catch {
+      cc.bad1(#line, #function, error.localizedDescription)
+      return [:]
+    }
+  }
+
   /// Returns all suttaUids available for specific author
   public func suttaUidsForAuthor(lang: String,
                                  author: String) async -> [String]

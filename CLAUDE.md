@@ -115,6 +115,17 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 
 ## Backlog
 
+### Plan incremental migration from metadata to metaprops
+**Status**: Backlog
+
+01. [ ] Design migration strategy to transition from fixed-column metadata table to schema-free metaprops table
+    - Identify which queries currently read metadata table
+    - Plan which fields migrate first vs. which remain as long-term compatibility
+    - Determine backwards-compatibility strategy for app versions
+    - Document deprecation timeline for metadata table
+    - See: scv-core/Sources/EbtData.swift getMetaprop/getAllMetaprops methods (lines 1040-1124)
+    - See: scv-build/Sources/scvBuild/Builders/EbtDBBuilder.swift metaprops population (lines 55-137)
+
 ### Fix EbtSeeker LIKE pattern string length assertions
 **Status**: Backlog
 

@@ -19,6 +19,26 @@ public class DBManifestBuilder {
       throw ManifestError.cannotReadBuildDir
     }
 
+    // Read existing manifest to preserve curated fields
+    let manifestPath = "\(resourcesDir)/db-manifest.json"
+    var existingDatabases: [String: [String: Any]] = [:]
+    if FileManager.default.fileExists(atPath: manifestPath) {
+      if let manifestData = try? Data(contentsOf: URL(fileURLWithPath: manifestPath)),
+         let manifestJSON = try? JSONSerialization
+         .jsonObject(with: manifestData) as? [String: Any],
+         let databases = manifestJSON["databases"] as? [[String: Any]]
+      {
+        for db in databases {
+          if let lang = db["language"] as? String,
+             let author = db["author"] as? String
+          {
+            let key = "\(lang):\(author)"
+            existingDatabases[key] = db
+          }
+        }
+      }
+    }
+
     var manifestDatabases: [[String: Any]] = []
 
     for file in buildFiles.sorted() {
@@ -39,7 +59,24 @@ public class DBManifestBuilder {
         continue
       }
 
-      if let metadata = extractMetadata(from: dbPath) {
+      if var metadata = extractMetadata(from: dbPath) {
+        // Preserve curated fields from existing manifest
+        let key = "\(lang):\(author)"
+        if let existing = existingDatabases[key] {
+          // Keep existing language, author, authorName, authorUrl
+          if let existingLang = existing["language"] {
+            metadata["language"] = existingLang
+          }
+          if let existingAuthor = existing["author"] {
+            metadata["author"] = existingAuthor
+          }
+          if let existingAuthorName = existing["authorName"] {
+            metadata["authorName"] = existingAuthorName
+          }
+          if let existingAuthorUrl = existing["authorUrl"] {
+            metadata["authorUrl"] = existingAuthorUrl
+          }
+        }
         manifestDatabases.append(metadata)
       }
     }
@@ -54,8 +91,24 @@ public class DBManifestBuilder {
 
       if FileManager.default.fileExists(atPath: pliMsDbPath),
          FileManager.default.fileExists(atPath: pliMsZstPath),
-         let metadata = extractMetadata(from: pliMsDbPath)
+         var metadata = extractMetadata(from: pliMsDbPath)
       {
+        // Preserve curated fields for pli:ms if it exists
+        let key = "pli:ms"
+        if let existing = existingDatabases[key] {
+          if let existingLang = existing["language"] {
+            metadata["language"] = existingLang
+          }
+          if let existingAuthor = existing["author"] {
+            metadata["author"] = existingAuthor
+          }
+          if let existingAuthorName = existing["authorName"] {
+            metadata["authorName"] = existingAuthorName
+          }
+          if let existingAuthorUrl = existing["authorUrl"] {
+            metadata["authorUrl"] = existingAuthorUrl
+          }
+        }
         manifestDatabases.append(metadata)
         print("  Added pli:ms to manifest")
       }
@@ -65,12 +118,11 @@ public class DBManifestBuilder {
     let manifest: [String: Any] = ["databases": manifestDatabases]
     guard let jsonData = try? JSONSerialization.data(
       withJSONObject: manifest,
-      options: .prettyPrinted,
+      options: [.prettyPrinted, .withoutEscapingSlashes],
     ) else {
       throw ManifestError.cannotSerializeJSON
     }
 
-    let manifestPath = "\(resourcesDir)/db-manifest.json"
     do {
       try jsonData.write(to: URL(fileURLWithPath: manifestPath))
       print(

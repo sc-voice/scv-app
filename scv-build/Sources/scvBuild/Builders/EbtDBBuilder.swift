@@ -10,6 +10,7 @@ public class EbtDBBuilder {
   let translationDir: String
   let authorInfoImporter: AuthorInfoImporter
   let gitHash: String?
+  let gitHashTimestamp: String?
   private let cc = ColorConsole(#file, #function, dbg.EbtDBBuilder.other)
   private var lemmatizer: Lemmatizer?
 
@@ -21,6 +22,7 @@ public class EbtDBBuilder {
     translationDir: String,
     authorInfoImporter: AuthorInfoImporter,
     gitHash: String?,
+    gitHashTimestamp: String? = nil,
   ) {
     self.language = language
     self.author = author
@@ -29,6 +31,7 @@ public class EbtDBBuilder {
     self.translationDir = translationDir
     self.authorInfoImporter = authorInfoImporter
     self.gitHash = gitHash
+    self.gitHashTimestamp = gitHashTimestamp
   }
 
   public func buildDatabase() throws -> (suttas: Int, segments: Int) {
@@ -49,6 +52,11 @@ public class EbtDBBuilder {
 
     // Create schema
     try createSchema(db: db)
+
+    // Insert basic metaprops after schema created
+    try insertMetaprop(db: db, key: "language", value: language)
+    try insertMetaprop(db: db, key: "author", value: author)
+    try insertMetaprop(db: db, key: "schema_version", value: String(EbtData.schemaVersion))
 
     // Insert metadata
     let authorName = authorInfoImporter.getAuthorName(author)
@@ -81,6 +89,26 @@ public class EbtDBBuilder {
       jsonString: jsonString,
     )
 
+    // Insert author metaprops
+    try insertMetaprop(db: db, key: "author_name", value: authorName)
+
+    // Extract author_type from author JSON if available
+    if let jsonStr = jsonString,
+       let jsonData = jsonStr.data(using: .utf8),
+       let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+       let authorType = jsonDict["type"] as? String
+    {
+      try insertMetaprop(db: db, key: "author_type", value: authorType)
+    }
+
+    // Insert git metaprops
+    if let hash = gitHash {
+      try insertMetaprop(db: db, key: "git_hash", value: hash)
+    }
+    if let timestamp = gitHashTimestamp {
+      try insertMetaprop(db: db, key: "git_hash_timestamp", value: timestamp)
+    }
+
     // Import translation files
     let importer = EbtFileImporter(
       language: language,
@@ -88,12 +116,22 @@ public class EbtDBBuilder {
       translationDir: translationDir,
     )
 
-    let (suttas, segments) = try importFiles(db: db, importer: importer)
+    let (suttas, segments, fileCounts) = try importFiles(db: db, importer: importer)
+
+    // Insert file count metaprops
+    try insertMetaprop(db: db, key: "files_sutta", value: String(fileCounts["sutta"] ?? 0))
+    try insertMetaprop(db: db, key: "files_vinaya", value: String(fileCounts["vinaya"] ?? 0))
+    try insertMetaprop(db: db, key: "files_other", value: String(fileCounts["other"] ?? 0))
 
     // Save lemmatizer cache after importing all segments
     if var lemmatizer {
       lemmatizer.saveCache()
     }
+
+    // Insert build timestamp metaprop
+    let dateFormatter = ISO8601DateFormatter()
+    let buildTimestamp = dateFormatter.string(from: Date())
+    try insertMetaprop(db: db, key: "build_timestamp", value: buildTimestamp)
 
     let elapsed = Date().timeIntervalSince(startTime)
     cc.ok1(#line, #function, "Elapsed: \(String(format: "%.2f", elapsed))s")
@@ -114,6 +152,11 @@ public class EbtDBBuilder {
       json TEXT,
       schema_version TEXT,
       PRIMARY KEY (language, author)
+    );
+
+    CREATE TABLE metaprops (
+      key TEXT PRIMARY KEY,
+      value TEXT
     );
 
     CREATE TABLE suttas (
@@ -187,10 +230,37 @@ public class EbtDBBuilder {
     sqlite3_finalize(stmt)
   }
 
+  /// Inserts individual metaprop key/value pair into metaprops table
+  /// Uses INSERT OR REPLACE to allow updating existing properties
+  /// - Parameters:
+  ///   - db: SQLite database pointer
+  ///   - key: Property key (e.g., "language", "git_hash")
+  ///   - value: Property value as string
+  private func insertMetaprop(
+    db: OpaquePointer?,
+    key: String,
+    value: String,
+  ) throws {
+    let statement = "INSERT OR REPLACE INTO metaprops (key, value) VALUES (?, ?)"
+    var stmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, statement, -1, &stmt, nil) == SQLITE_OK else {
+      throw BuildError.cannotPrepareStatement
+    }
+
+    sqlite3_bind_text(stmt, 1, (key as NSString).utf8String, -1, nil)
+    sqlite3_bind_text(stmt, 2, (value as NSString).utf8String, -1, nil)
+
+    if sqlite3_step(stmt) != SQLITE_DONE {
+      sqlite3_finalize(stmt)
+      throw BuildError.metadataInsertFailed
+    }
+    sqlite3_finalize(stmt)
+  }
+
   private func importFiles(
     db: OpaquePointer?,
     importer: EbtFileImporter,
-  ) throws -> (suttas: Int, segments: Int) {
+  ) throws -> (suttas: Int, segments: Int, fileCounts: [String: Int]) {
     let files = try importer.findTranslationFiles()
 
     let insertSuttaStatement = "INSERT OR IGNORE INTO suttas (suttaUid, total_segments) VALUES (?, ?)"
@@ -325,7 +395,7 @@ public class EbtDBBuilder {
       "\(totalSuttas) suttas, \(totalSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)",
     )
 
-    return (suttas: totalSuttas, segments: totalSegments)
+    return (suttas: totalSuttas, segments: totalSegments, fileCounts: fileCounts)
   }
 
   /// Classifies text type based on file path directory
@@ -545,9 +615,9 @@ public class EbtDBBuilder {
 
     let exists = statusCode == 200
     if exists {
-      cc.ok1(#line, #function, url.absoluteString)
+      cc.ok1(#line, #function, "exists:", url.absoluteString)
     } else {
-      cc.bad1(#line, #function, url.absoluteString)
+      cc.ok1(#line, #function, "!exists:", url.absoluteString)
     }
     return exists
   }

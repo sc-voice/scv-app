@@ -143,7 +143,8 @@ public class BuildDBCommand {
 
   public func buildSelectedDatabases(_ authors: [(lang: String, author: String)]) throws {
     let gitHash = getEbtDataGitHash() ?? "gitHash?"
-    cc.ok2(#line, #function, "gitHash:\(gitHash)")
+    let gitHashTimestamp = getEbtDataGitHashTimestamp() ?? "gitHashTimestamp?"
+    cc.ok2(#line, #function, "gitHash:\(gitHash)", "gitHashTimestamp:\(gitHashTimestamp)")
     let authorInfoImporter = AuthorInfoImporter(filePath: authorFilePath)
 
     var totalSuttas = 0
@@ -161,6 +162,7 @@ public class BuildDBCommand {
         translationDir: builderTranslationDir,
         authorInfoImporter: authorInfoImporter,
         gitHash: gitHash,
+        gitHashTimestamp: gitHashTimestamp,
       )
 
       do {
@@ -257,6 +259,33 @@ public class BuildDBCommand {
         .trimmingCharacters(in: .whitespacesAndNewlines)
       {
         return hash.isEmpty ? nil : hash
+      }
+    } catch {
+      return nil
+    }
+    return nil
+  }
+
+  /// Gets the commit timestamp of ebt-data repository HEAD
+  /// Returns ISO 8601 formatted timestamp string
+  /// - Returns: ISO 8601 timestamp string (e.g., "2025-12-19T04:13:06Z") or nil if unavailable
+  private func getEbtDataGitHashTimestamp() -> String? {
+    let task = Process()
+    task.launchPath = "/bin/bash"
+    task.arguments = [
+      "-c",
+      "cd \(projectRoot)/local/ebt-data && git log -1 --format=%ci HEAD 2>/dev/null",
+    ]
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    do {
+      try task.run()
+      task.waitUntilExit()
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      if let timestamp = String(data: data, encoding: .utf8)?
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+      {
+        return timestamp.isEmpty ? nil : timestamp
       }
     } catch {
       return nil

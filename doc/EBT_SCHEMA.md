@@ -11,9 +11,61 @@ SC-Voice uses per-author SQLite databases to store Buddhist scripture translatio
 
 ## Database Schema
 
-### 1. metadata table
-Stores information about the translation and build process.
+### 1. metaprops table (NEW)
+Schema-free key/value store for database properties. Replaces fixed-column metadata table to enable adding new properties without schema migrations.
 
+```sql
+CREATE TABLE metaprops (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+```
+
+**Required keys (always present):**
+- `language`: Language code (e.g., "en", "de", "fr")
+- `author`: Author identifier (e.g., "sujato", "sabbamitta")
+- `author_name`: Human-readable author name
+- `author_type`: Author type ("root" or "translator")
+- `git_hash`: Git commit hash of ebt-data repository HEAD
+- `git_hash_timestamp`: ISO 8601 timestamp of ebt-data commit
+- `build_timestamp`: ISO 8601 timestamp when database was built
+- `schema_version`: Database schema version number
+- `files_sutta`: Integer count of sutta files
+- `files_vinaya`: Integer count of vinaya files
+- `files_other`: Integer count of other files
+
+**Optional keys (present only if available):**
+- `author_url`: URL for author info page (if available)
+
+**Example:**
+```
+key                | value
+-------------------|----------------------------
+language           | en
+author             | sujato
+author_name        | Bhikkhu Sujato
+author_type        | translator
+git_hash           | e698ed7a40cd12509f88e1ddc
+git_hash_timestamp | 2025-12-19T04:13:06Z
+build_timestamp    | 2025-12-19T04:13:06Z
+schema_version     | 7
+files_sutta        | 4167
+files_vinaya       | 0
+files_other        | 0
+```
+
+**Benefits:**
+- New properties can be added without schema migrations
+- Each database is self-contained with its own metadata
+- Easy to query: `SELECT value FROM metaprops WHERE key='git_hash'`
+- Easy to update: `INSERT OR REPLACE INTO metaprops VALUES (?, ?)`
+
+---
+
+### 2. metadata table (DEPRECATED)
+**Migration**: This table is being replaced by `metaprops`. Databases will support both tables during transition period, with gradual migration to metaprops. Once all code uses metaprops, this table will be dropped.
+
+Original schema (for reference):
 ```sql
 CREATE TABLE metadata (
   language TEXT,
@@ -29,27 +81,14 @@ CREATE TABLE metadata (
 );
 ```
 
-**Columns:**
-- `language`: Language code (e.g., "en", "de", "fr")
-- `author`: Author identifier (e.g., "sujato", "sabbamitta")
-- `author_name`: Human-readable author name
-- `git_hash`: Git commit hash of ebt-data repository (nullable)
-- `build_timestamp`: ISO 8601 timestamp when database was built
-- `files`: Count of source translation files included in this database
-- `files_breakdown`: JSON string with file count breakdown by type (sutta, vinaya, abhidhamma, other)
-- `json`: Optional JSON metadata about the author (nullable)
-- `schema_version`: Database schema version number (e.g., "6")
-
-**Example:**
-```
-language  | author  | author_name | git_hash | build_timestamp | files | files_breakdown | schema_version | json
-----------|---------|-------------|----------|-----------------|-------|-----------------|----------------|------
-en        | sujato  | Bhikkhu S.  | abc123   | 2024-11-20...   | 150   | {"total":150... | 6              | {...}
-```
+**Why replaced:**
+- Fixed columns require schema migrations to add new properties
+- metaprops key/value model avoids schema changes
+- Reduces coupling between app and database schema versions
 
 ---
 
-### 2. suttas table
+### 3. suttas table
 Index of all suttas (scripture documents) in the database.
 
 ```sql
@@ -77,7 +116,7 @@ dn1      | 152
 
 ---
 
-### 3. segments table
+### 4. segments table
 Individual text segments of suttas, with lemmatized forms for advanced search.
 
 ```sql

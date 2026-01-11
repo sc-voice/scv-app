@@ -310,6 +310,134 @@ struct BuildTests {
     )
   }
 
+  @Test("EbtDBBuilder buildDatabase populates metaprops table")
+  func buildDatabasePopulatesMetaprops() throws {
+    let projectRoot = URL(fileURLWithPath: #file)
+      .deletingLastPathComponent() // scvBuildTests
+      .deletingLastPathComponent() // Tests
+      .deletingLastPathComponent() // scv-build
+      .path
+
+    let buildDir = "\(projectRoot)/local/build"
+    let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
+    let translationDir = "\(projectRoot)/local/ebt-data/translation"
+    let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
+
+    // Clean up any existing database
+    let dbPath = "\(buildDir)/ebt-fr-noeismet.db"
+    try? FileManager.default.removeItem(atPath: dbPath)
+
+    let builder = EbtDBBuilder(
+      language: "fr",
+      author: "noeismet",
+      buildDir: buildDir,
+      resourcesDir: resourcesDir,
+      translationDir: translationDir,
+      authorInfoImporter: AuthorInfoImporter(filePath: authorFilePath),
+      gitHash: "abc123def456",
+      gitHashTimestamp: "2025-12-19T04:13:06Z",
+    )
+
+    // Build database
+    _ = try builder.buildDatabase()
+
+    // Verify metaprops table exists and has required keys
+    var db: OpaquePointer?
+    let openResult = sqlite3_open_v2(
+      dbPath,
+      &db,
+      SQLITE_OPEN_READONLY,
+      nil
+    )
+    defer { sqlite3_close(db) }
+
+    guard openResult == SQLITE_OK, let db = db else {
+      throw TestError.missingResource("Cannot open database at \(dbPath)")
+    }
+
+    // Check metaprops table exists
+    let tableCheckQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name='metaprops'"
+    var stmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, tableCheckQuery, -1, &stmt, nil) == SQLITE_OK else {
+      throw TestError.missingResource("Cannot prepare table check query")
+    }
+    defer { sqlite3_finalize(stmt) }
+
+    guard sqlite3_step(stmt) == SQLITE_ROW else {
+      throw TestError.missingResource("metaprops table not found in database")
+    }
+
+    // Verify required keys are present
+    let requiredKeys = [
+      "language",
+      "author",
+      "author_name",
+      "author_type",
+      "git_hash",
+      "git_hash_timestamp",
+      "build_timestamp",
+      "schema_version",
+      "files_sutta",
+      "files_vinaya",
+      "files_other",
+    ]
+
+    for key in requiredKeys {
+      let keyQuery = "SELECT value FROM metaprops WHERE key = ?"
+      var keyStmt: OpaquePointer?
+      guard sqlite3_prepare_v2(db, keyQuery, -1, &keyStmt, nil) == SQLITE_OK else {
+        throw TestError.missingResource("Cannot prepare key query for \(key)")
+      }
+      defer { sqlite3_finalize(keyStmt) }
+
+      sqlite3_bind_text(keyStmt, 1, (key as NSString).utf8String, -1, nil)
+
+      guard sqlite3_step(keyStmt) == SQLITE_ROW else {
+        throw TestError.missingResource("Metaprop key '\(key)' not found in database")
+      }
+
+      // Verify value is not NULL and not empty
+      guard let valueC = sqlite3_column_text(keyStmt, 0) else {
+        throw TestError.missingResource("Metaprop key '\(key)' has NULL value")
+      }
+      let value = String(cString: valueC)
+      #expect(!value.isEmpty, "Metaprop key '\(key)' should not be empty")
+    }
+
+    // Verify specific values
+    var metapropValues: [String: String] = [:]
+    let allKeysQuery = "SELECT key, value FROM metaprops"
+    var allStmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, allKeysQuery, -1, &allStmt, nil) == SQLITE_OK else {
+      throw TestError.missingResource("Cannot prepare all keys query")
+    }
+    defer { sqlite3_finalize(allStmt) }
+
+    while sqlite3_step(allStmt) == SQLITE_ROW {
+      guard let keyC = sqlite3_column_text(allStmt, 0),
+            let valueC = sqlite3_column_text(allStmt, 1)
+      else {
+        continue
+      }
+      let key = String(cString: keyC)
+      let value = String(cString: valueC)
+      metapropValues[key] = value
+    }
+
+    #expect(metapropValues["language"] == "fr", "Language should be 'fr'")
+    #expect(metapropValues["author"] == "noeismet", "Author should be 'noeismet'")
+    #expect(!metapropValues["author_name"]!.isEmpty, "Author name should be populated")
+    #expect(metapropValues["git_hash"] == "abc123def456", "Git hash should match builder input")
+    #expect(
+      metapropValues["git_hash_timestamp"] == "2025-12-19T04:13:06Z",
+      "Git hash timestamp should match builder input"
+    )
+
+    print(
+      "✓ Metaprops table verified: \(metapropValues.count) properties populated",
+    )
+  }
+
   @Test("Manifest JSON contains expected database entries")
   func manifestJsonStructure() throws {
     let projectRoot = URL(fileURLWithPath: #file)
