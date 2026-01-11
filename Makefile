@@ -67,14 +67,7 @@ test-content: _init _test-content _end
 
 _test-content:
 	@echo "=== MAKE test-content..." | tee -a $(LOG_FILE)
-	@MISSING=$$(swift scripts/verify-manifest.swift 2>&1); \
-	if [ -n "$$MISSING" ]; then \
-		echo "❌ Missing databases:" | tee -a $(LOG_FILE); \
-		echo "$$MISSING" | tee -a $(LOG_FILE); \
-		exit 1; \
-	else \
-		echo "✓ All manifest databases are present" | tee -a $(LOG_FILE); \
-	fi
+	@cd scv-build && PROJECT_ROOT=$(CURDIR) swift run verify-manifest 2>&1 | tee -a $(CURDIR)/local/build/make.log
 
 # build-macros:
 # 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true

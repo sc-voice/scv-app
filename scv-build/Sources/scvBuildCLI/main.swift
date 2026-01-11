@@ -1,5 +1,5 @@
 import Foundation
-import scvBuildLib
+import scv_build
 
 @main
 struct BuildCLI {

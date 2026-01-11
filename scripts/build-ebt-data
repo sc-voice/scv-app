@@ -6,7 +6,7 @@
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PROJECT_ROOT
 
-BUILD_EXEC="$PROJECT_ROOT/scv-build/.build/debug/scv-build"
+BUILD_EXEC="$PROJECT_ROOT/scv-build/.build/debug/scv-build-cli"
 
 # Build scv-build only if executable doesn't exist
 if [ ! -f "$BUILD_EXEC" ]; then
@@ -14,5 +14,5 @@ if [ ! -f "$BUILD_EXEC" ]; then
   (cd "$PROJECT_ROOT/scv-build" && swift build 2>&1 | grep -E "(error|warning:|Build complete)" || true)
 fi
 
-# Run scv-build with forwarded arguments
+# Run scv-build-cli with forwarded arguments
 "$BUILD_EXEC" "$@"

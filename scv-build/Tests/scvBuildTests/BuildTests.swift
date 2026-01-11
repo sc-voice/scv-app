@@ -81,67 +81,6 @@ struct BuildTests {
     )
   }
 
-  @Test("Zstd decompression produces valid databases")
-  func zstdDecompressionValid() throws {
-    // Load original uncompressed database from local/build
-    let buildDir = URL(fileURLWithPath: #filePath)
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .appendingPathComponent("local")
-      .appendingPathComponent("build")
-
-    let originalURL = buildDir.appendingPathComponent("ebt-en-soma.db")
-
-    guard FileManager.default.fileExists(atPath: originalURL.path) else {
-      print("⚠️  Skipping Zstd test - ebt-en-soma.db not found in local/build")
-      return
-    }
-
-    let originalData = try Data(contentsOf: originalURL)
-    let originalSize = originalData.count
-
-    // Load compressed database from scv-core bundle
-    let compressedURL = URL(fileURLWithPath: buildDir.path)
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .appendingPathComponent("scv-core")
-      .appendingPathComponent(".build")
-      .appendingPathComponent("arm64-apple-macosx")
-      .appendingPathComponent("debug")
-      .appendingPathComponent("scv-core_scvCore.bundle")
-      .appendingPathComponent("ebt-en-soma.db.zst")
-
-    guard FileManager.default.fileExists(atPath: compressedURL.path) else {
-      throw TestError
-        .missingResource("ebt-en-soma.db.zst not in scv-core bundle")
-    }
-
-    let compressedData = try Data(contentsOf: compressedURL)
-
-    // Decompress
-    let decompressedData = try ZstdDecompression.decompress(compressedData)
-
-    // Verify
-    #expect(
-      decompressedData == originalData,
-      "Decompressed data should match original",
-    )
-    #expect(
-      decompressedData.count == originalSize,
-      "Decompressed size should match original size",
-    )
-
-    let compressedSizeMB = Double(compressedData.count) / (1024 * 1024)
-    let originalSizeMB = Double(originalSize) / (1024 * 1024)
-    let ratio = Double(compressedData.count) / Double(originalSize) * 100
-
-    print(
-      "✓ ebt-en-soma: \(String(format: "%.1f", originalSizeMB))MB → \(String(format: "%.1f", compressedSizeMB))MB (\(String(format: "%.1f", ratio))%)",
-    )
-  }
-
   @Test("EbtDBBuilder getAuthorBaseURL returns bilara-data URL for translator")
   func getAuthorBaseURLForTranslator() async {
     let builder = EbtDBBuilder(

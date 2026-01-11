@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import scvCore
 import scv_build
 
 @Suite("BuildDBCommand Tests")
@@ -275,16 +276,34 @@ struct BuildDBCommandTests {
 
   // MARK: - compressSelectedDatabases Tests
 
-  @Test("compressSelectedDatabases compresses en:soma database")
+  @Test("compressSelectedDatabases compresses and decompresses en:soma database")
   func compressSelectedDatabasesEnSoma() throws {
     let projectRoot = getProjectRoot()
     let fileManager = FileManager.default
+    let dbPath = "\(projectRoot)/local/build/ebt-en-soma.db"
     let zstPath = "\(projectRoot)/scv-core/Sources/Resources/ebt-en-soma.db.zst"
+
+    // Skip if source DB doesn't exist
+    guard fileManager.fileExists(atPath: dbPath) else {
+      print("⚠️ Skipping compression test - ebt-en-soma.db not found")
+      return
+    }
+
     try? fileManager.removeItem(atPath: zstPath)
 
     let cmd = BuildDBCommand(projectRoot: projectRoot)
     try cmd.compressSelectedDatabases([(lang: "en", author: "soma")])
 
     #expect(fileManager.fileExists(atPath: zstPath))
+
+    // Verify the compressed file can be decompressed
+    let originalData = try Data(contentsOf: URL(fileURLWithPath: dbPath))
+    let compressedData = try Data(contentsOf: URL(fileURLWithPath: zstPath))
+    let decompressedData = try ZstdDecompression.decompress(compressedData)
+
+    #expect(
+      decompressedData == originalData,
+      "Decompressed data should match original",
+    )
   }
 }

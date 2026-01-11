@@ -11,23 +11,30 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "scvBuildLib",
+      name: "scv-build",
       dependencies: [
         .product(name: "scvCore", package: "scv-core"),
       ],
       path: "Sources/scvBuild",
     ),
     .executableTarget(
-      name: "scv-build",
+      name: "scv-build-cli",
       dependencies: [
-        .target(name: "scvBuildLib"),
+        .target(name: "scv-build"),
       ],
       path: "Sources/scvBuildCLI",
+    ),
+    .executableTarget(
+      name: "verify-manifest",
+      dependencies: [
+        .product(name: "scvCore", package: "scv-core"),
+      ],
+      path: "Sources/verify-manifest",
     ),
     .testTarget(
       name: "scvBuildTests",
       dependencies: [
-        .target(name: "scvBuildLib"),
+        .target(name: "scv-build"),
         .product(name: "scvCore", package: "scv-core"),
       ],
     ),
