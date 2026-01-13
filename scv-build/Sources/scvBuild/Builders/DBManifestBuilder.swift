@@ -23,10 +23,11 @@ public class DBManifestBuilder {
     let manifestPath = "\(resourcesDir)/db-manifest.json"
     var existingDatabases: [String: [String: Any]] = [:]
     if FileManager.default.fileExists(atPath: manifestPath) {
-      if let manifestData = try? Data(contentsOf: URL(fileURLWithPath: manifestPath)),
-         let manifestJSON = try? JSONSerialization
-         .jsonObject(with: manifestData) as? [String: Any],
-         let databases = manifestJSON["databases"] as? [[String: Any]]
+      if let manifestData =
+        try? Data(contentsOf: URL(fileURLWithPath: manifestPath)),
+        let manifestJSON = try? JSONSerialization
+        .jsonObject(with: manifestData) as? [String: Any],
+        let databases = manifestJSON["databases"] as? [[String: Any]]
       {
         for db in databases {
           if let lang = db["language"] as? String,

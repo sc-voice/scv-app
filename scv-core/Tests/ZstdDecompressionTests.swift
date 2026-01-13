@@ -71,6 +71,7 @@ struct ZstdDecompressionTests {
 
       let compressedSize = try compressed.withUnsafeMutableBytes { compBuffer in
         guard let compPtr = compBuffer.baseAddress else {
+          cc.bad1(#line, #function, "CompressionError", -1)
           throw NSError(domain: "CompressionError", code: -1)
         }
 
@@ -84,7 +85,9 @@ struct ZstdDecompressionTests {
         )
 
         guard ZSTD_isError(result) == 0 else {
-          throw NSError(domain: "CompressionError", code: Int(result))
+          let code = Int(result)
+          cc.bad1(#line, #function, "CompressionError \(code)")
+          throw NSError(domain: "CompressionError", code: code)
         }
 
         return result

@@ -132,7 +132,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
   @State private var searchQuery: String = ""
   @State private var suggestions: [PhraseAsset] = []
   @State private var debounceTimer: Timer?
-  @State private var isSearchPresented: Bool = true
+  @State private var isSearchPresented: Bool = false
   @FocusState private var focused: AppFocus?
   @FocusState private var searchFieldIsFocused: Bool
   @State private var searchTitle: String = "card.title.search".localized
@@ -278,25 +278,31 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
         }
       }
       .onAppear {
-        searchQuery = card.searchQuery
-        searchFieldIsFocused = true
+        do {
+          searchQuery = card.searchQuery
+          cc.ok2(#line, #function, searchQuery)
 
-        if let result = card.searchResult, !result.items.isEmpty {
-          searchTitle = card.searchQuery + " (\(result.items.count))"
-        } else {
-          let langCode = Settings.shared.docLang.code.uppercased()
-          let authorAbbr = Settings.shared.docAuthor
-          let authorInfo = DatabaseManifest.shared.info(
-            language: Settings.shared.docLang.code,
-            author: authorAbbr,
-          )
-          let authorName = authorInfo?.authorName ?? authorAbbr
-          searchTitle = "\(langCode) \(authorName)"
+          if let result = card.searchResult, !result.items.isEmpty {
+            searchTitle = card.searchQuery + " (\(result.items.count))"
+          } else {
+            let langCode = Settings.shared.docLang.code.uppercased()
+            let authorAbbr = Settings.shared.docAuthor
+            let authorInfo = DatabaseManifest.shared.info(
+              language: Settings.shared.docLang.code,
+              author: authorAbbr,
+            )
+            let authorName = authorInfo?.authorName ?? authorAbbr
+            searchTitle = "\(langCode) \(authorName)"
+            isSearchPresented = true
+            searchFieldIsFocused = true
+          }
+
+          cc.ok1(#line, #function, searchTitle,
+                 "searchFieldIsFocused:", searchFieldIsFocused,
+                 "searchTitle:", searchTitle)
+        } catch {
+          cc.bad1(#line, #function)
         }
-
-        cc.ok1(#line, "onAppear",
-               "searchFieldIsFocused:", searchFieldIsFocused,
-               "searchTitle:", searchTitle)
       }
   }
 
@@ -399,7 +405,13 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
             Spacer()
           } // VStack
           .onAppear {
-            loadTipitaka()
+            do {
+              cc.ok2(#line, #function, "loadTipitaka...")
+              loadTipitaka()
+              cc.ok1(#line, #function, "loadTipitaka")
+            } catch {
+              cc.bad1(#line, #function, "loadTipitaka?", error)
+            }
           }
         },
       )

@@ -56,7 +56,11 @@ public class EbtDBBuilder {
     // Insert basic metaprops after schema created
     try insertMetaprop(db: db, key: "language", value: language)
     try insertMetaprop(db: db, key: "author", value: author)
-    try insertMetaprop(db: db, key: "schema_version", value: String(EbtData.schemaVersion))
+    try insertMetaprop(
+      db: db,
+      key: "schema_version",
+      value: String(EbtData.schemaVersion),
+    )
 
     // Insert metadata
     let authorName = authorInfoImporter.getAuthorName(author)
@@ -66,15 +70,17 @@ public class EbtDBBuilder {
     let authorBaseURL = getAuthorBaseURL(lang: language, author: author)
     if let jsonStr = jsonString,
        let jsonData = jsonStr.data(using: .utf8),
-       var jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+       var jsonDict = try? JSONSerialization
+       .jsonObject(with: jsonData) as? [String: Any]
     {
       if let baseURL = authorBaseURL {
         jsonDict["authorBaseURL"] = baseURL.absoluteString
       }
 
       // Serialize back to JSON string
-      if let enrichedData = try? JSONSerialization.data(withJSONObject: jsonDict),
-         let enrichedStr = String(data: enrichedData, encoding: .utf8)
+      if let enrichedData = try? JSONSerialization
+        .data(withJSONObject: jsonDict),
+        let enrichedStr = String(data: enrichedData, encoding: .utf8)
       {
         jsonString = enrichedStr
       }
@@ -95,7 +101,8 @@ public class EbtDBBuilder {
     // Extract author_type from author JSON if available
     if let jsonStr = jsonString,
        let jsonData = jsonStr.data(using: .utf8),
-       let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+       let jsonDict = try? JSONSerialization
+       .jsonObject(with: jsonData) as? [String: Any],
        let authorType = jsonDict["type"] as? String
     {
       try insertMetaprop(db: db, key: "author_type", value: authorType)
@@ -116,12 +123,27 @@ public class EbtDBBuilder {
       translationDir: translationDir,
     )
 
-    let (suttas, segments, fileCounts) = try importFiles(db: db, importer: importer)
+    let (suttas, segments, fileCounts) = try importFiles(
+      db: db,
+      importer: importer,
+    )
 
     // Insert file count metaprops
-    try insertMetaprop(db: db, key: "files_sutta", value: String(fileCounts["sutta"] ?? 0))
-    try insertMetaprop(db: db, key: "files_vinaya", value: String(fileCounts["vinaya"] ?? 0))
-    try insertMetaprop(db: db, key: "files_other", value: String(fileCounts["other"] ?? 0))
+    try insertMetaprop(
+      db: db,
+      key: "files_sutta",
+      value: String(fileCounts["sutta"] ?? 0),
+    )
+    try insertMetaprop(
+      db: db,
+      key: "files_vinaya",
+      value: String(fileCounts["vinaya"] ?? 0),
+    )
+    try insertMetaprop(
+      db: db,
+      key: "files_other",
+      value: String(fileCounts["other"] ?? 0),
+    )
 
     // Save lemmatizer cache after importing all segments
     if var lemmatizer {
@@ -395,7 +417,11 @@ public class EbtDBBuilder {
       "\(totalSuttas) suttas, \(totalSegments) segments (\(String(format: "%.1f", dbSizeMB)) MB)",
     )
 
-    return (suttas: totalSuttas, segments: totalSegments, fileCounts: fileCounts)
+    return (
+      suttas: totalSuttas,
+      segments: totalSegments,
+      fileCounts: fileCounts,
+    )
   }
 
   /// Classifies text type based on file path directory
@@ -523,18 +549,18 @@ public class EbtDBBuilder {
   /// - Parameters:
   ///   - lang: Language code (e.g., "en", "de", "pli")
   ///   - author: Author/translator identifier (e.g., "sujato", "ms")
-  /// - Returns: URL to the author's source data repository, or nil if author not found
-  public func getAuthorBaseURL(lang: String, author: String) -> URL? {
+  /// - Returns: URL to the author's source data repository, or nil if author
+  /// not found
+  public func getAuthorBaseURL(lang _: String, author: String) -> URL? {
     // Construct bilara-data URL based on type
-    let bilaraDataPath: String
-    if author == "ms" {
-      bilaraDataPath = "root/\(language)/\(author)"
+    let bilaraDataPath = if author == "ms" {
+      "root/\(language)/\(author)"
     } else {
-      bilaraDataPath = "translation/\(language)/\(author)"
+      "translation/\(language)/\(author)"
     }
 
     let bilaraURL = URL(
-      string: "https://github.com/suttacentral/bilara-data/tree/published/\(bilaraDataPath)"
+      string: "https://github.com/suttacentral/bilara-data/tree/published/\(bilaraDataPath)",
     )!
 
     // Check if bilara-data URL exists synchronously
@@ -545,7 +571,7 @@ public class EbtDBBuilder {
 
     // Fall back to ebt-data URL
     let ebtDataURL = URL(
-      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(language)/\(author)"
+      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(language)/\(author)",
     )!
     cc.ok1(#line, #function, ebtDataURL.absoluteString)
     return ebtDataURL
@@ -554,11 +580,14 @@ public class EbtDBBuilder {
   /// Gets the URL to view a sutta in SuttaCentral or ebt-data repository.
   ///
   /// Returns the URL where the sutta can be viewed or accessed:
-  /// - If author base URL is from bilara-data: returns SuttaCentral URL (https://suttacentral.net/...)
+  /// - If author base URL is from bilara-data: returns SuttaCentral URL
+  /// (https://suttacentral.net/...)
   /// - Otherwise: returns ebt-data repository URL
   ///
-  /// - Parameter suttaRef: The sutta reference containing suttaUid, language, and author
-  /// - Returns: SuttaCentral URL if bilara-data available, ebt-data URL otherwise, or nil if author not found
+  /// - Parameter suttaRef: The sutta reference containing suttaUid, language,
+  /// and author
+  /// - Returns: SuttaCentral URL if bilara-data available, ebt-data URL
+  /// otherwise, or nil if author not found
   public func getSuttaRefURL(suttaRef: SuttaRef) -> URL? {
     guard let author = suttaRef.author else {
       return nil
@@ -570,7 +599,7 @@ public class EbtDBBuilder {
     if baseURL.absoluteString.contains("bilara-data") {
       // Return SuttaCentral URL
       let suttaCentralURL = URL(
-        string: "https://suttacentral.net/\(suttaRef.suttaUid)/\(suttaRef.lang)/\(author)"
+        string: "https://suttacentral.net/\(suttaRef.suttaUid)/\(suttaRef.lang)/\(author)",
       )!
       cc.ok1(#line, #function, suttaCentralURL.absoluteString)
       return suttaCentralURL
@@ -578,7 +607,7 @@ public class EbtDBBuilder {
 
     // Return ebt-data URL (either from baseURL or fallback)
     let ebtDataURL = URL(
-      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(suttaRef.lang)/\(author)"
+      string: "https://github.com/ebt-site/ebt-data/tree/published/translation/\(suttaRef.lang)/\(author)",
     )!
     cc.ok1(#line, #function, ebtDataURL.absoluteString)
     return ebtDataURL
@@ -587,7 +616,7 @@ public class EbtDBBuilder {
   private func urlExists(_ url: URL) -> Bool {
     var request = URLRequest(url: url)
     request.httpMethod = "HEAD"
-    request.timeoutInterval = 5.0  // 5 second timeout
+    request.timeoutInterval = 5.0 // 5 second timeout
 
     let semaphore = DispatchSemaphore(value: 0)
     var statusCode: Int? = nil
@@ -596,7 +625,8 @@ public class EbtDBBuilder {
       defer { semaphore.signal() }
 
       guard error == nil,
-            let httpResponse = response as? HTTPURLResponse else {
+            let httpResponse = response as? HTTPURLResponse
+      else {
         return
       }
       statusCode = httpResponse.statusCode

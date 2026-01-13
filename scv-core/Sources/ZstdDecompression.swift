@@ -20,6 +20,7 @@ public enum ZstdDecompression {
 
     try compressedData.withUnsafeBytes { compressedBuffer in
       guard let compressedPtr = compressedBuffer.baseAddress else {
+        cc.bad1(#line, #function, "invalidData")
         throw Error.invalidData
       }
 

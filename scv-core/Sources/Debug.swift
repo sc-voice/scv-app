@@ -1,19 +1,23 @@
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
+  public struct AboutCardView: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct App: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct AppController: Sendable {
-    public static let other: Int = 0
-  }
-
-  public struct AudioEffects: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct AppRootView: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct AudioEffects: Sendable {
     public static let other: Int = 0
   }
 
@@ -22,11 +26,11 @@ public struct dbg: Sendable {
   }
 
   public struct CardManager: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct CardSidebarView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct ContentView: Sendable {
@@ -34,7 +38,7 @@ public struct dbg: Sendable {
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 1
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -50,23 +54,11 @@ public struct dbg: Sendable {
     public static let search: Int = 0
   }
 
-  public struct Lemmatizer: Sendable {
-    public static let other: Int = 0
-  }
-
-  public struct SearchCardView: Sendable {
+  public struct IOSView: Sendable {
     public static let other: Int = 2
   }
 
-  public struct IOSView: Sendable {
-    public static let other: Int = 0
-  }
-
-  public struct DemoIOSApp: Sendable {
-    public static let other: Int = 0
-  }
-
-  public struct Settings: Sendable {
+  public struct Lemmatizer: Sendable {
     public static let other: Int = 0
   }
 
@@ -74,11 +66,23 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct SCVApp: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct SearchCardView: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct SegmentLayout: Sendable {
     public static let other: Int = 0
   }
 
   public struct SegmentView: Sendable {
+    public static let other: Int = 0
+  }
+
+  public struct Settings: Sendable {
     public static let other: Int = 0
   }
 
@@ -90,12 +94,8 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
-  public struct SCVApp: Sendable {
-    public static let other: Int = 0
-  }
-
-  public struct scvUITests: Sendable {
-    public static let other: Int = 0
+  public struct SuttaCardView: Sendable {
+    public static let other: Int = 2
   }
 
   public struct SuttaRef: Sendable {
@@ -103,14 +103,18 @@ public struct dbg: Sendable {
   }
 
   public struct Tipitaka: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct TipitakaView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct ZStd: Sendable {
+    public static let other: Int = 2
+  }
+
+  public struct scvUITests: Sendable {
     public static let other: Int = 0
   }
 }

@@ -122,7 +122,7 @@
 "about.section.overview" = "Aperçu";
 
 /* About card view: overview description */
-"about.overview.description" = "Recherchez, lisez et écoutez les textes bouddhistes anciens (suttas) alignés avec SuttaCentral hors ligne dans plusieurs langues.";
+"about.overview.description" = "Recherchez, lisez et écoutez les textes bouddhistes anciens (suttas) alignés avec SuttaCentral hors ligne pour les auteurs sélectionnés dans plusieurs langues.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Recherche en texte intégral";

@@ -54,7 +54,7 @@ public class BuildDBCommand {
     cc.ok2(#line, #function, command)
 
     switch command {
-    case .buildDatabases(let authors):
+    case let .buildDatabases(authors):
       try buildSelectedDatabases(authors)
       try compressSelectedDatabases(authors)
     case .rebuildFromManifest:
@@ -69,7 +69,7 @@ public class BuildDBCommand {
       try createManifestBuilder().build()
     case .listManifest:
       try createManifestBuilder().listManifest()
-    case .listMetadata(let lang, let author):
+    case let .listMetadata(lang, author):
       try createManifestBuilder().listMetadata(lang: lang, author: author)
     }
     cc.ok1(#line, #function, command)
@@ -103,7 +103,7 @@ public class BuildDBCommand {
         }
         listMetadata = try parseAuthorPair(args[i])
       } else {
-        selectedAuthors.append(try parseAuthorPair(arg))
+        try selectedAuthors.append(parseAuthorPair(arg))
       }
       i += 1
     }
@@ -129,7 +129,9 @@ public class BuildDBCommand {
     return .buildDatabases(selectedAuthors)
   }
 
-  public func parseAuthorPair(_ arg: String) throws -> (lang: String, author: String) {
+  public func parseAuthorPair(_ arg: String) throws
+    -> (lang: String, author: String)
+  {
     let parts = arg.split(separator: ":").map(String.init)
     guard parts.count == 2 else {
       throw BuildDBError.invalidFormat(
@@ -141,10 +143,18 @@ public class BuildDBCommand {
 
   // MARK: - Database Building
 
-  public func buildSelectedDatabases(_ authors: [(lang: String, author: String)]) throws {
+  public func buildSelectedDatabases(_ authors: [(
+    lang: String,
+    author: String,
+  )]) throws {
     let gitHash = getEbtDataGitHash() ?? "gitHash?"
     let gitHashTimestamp = getEbtDataGitHashTimestamp() ?? "gitHashTimestamp?"
-    cc.ok2(#line, #function, "gitHash:\(gitHash)", "gitHashTimestamp:\(gitHashTimestamp)")
+    cc.ok2(
+      #line,
+      #function,
+      "gitHash:\(gitHash)",
+      "gitHashTimestamp:\(gitHashTimestamp)",
+    )
     let authorInfoImporter = AuthorInfoImporter(filePath: authorFilePath)
 
     var totalSuttas = 0
@@ -152,7 +162,10 @@ public class BuildDBCommand {
     var builtCount = 0
 
     for (lang, author) in authors {
-      let builderTranslationDir = getTranslationDirectory(lang: lang, author: author)
+      let builderTranslationDir = getTranslationDirectory(
+        lang: lang,
+        author: author,
+      )
 
       let builder = EbtDBBuilder(
         language: lang,
@@ -176,10 +189,18 @@ public class BuildDBCommand {
       }
     }
 
-    cc.ok1(#line, #function, "totalSutta:\(totalSuttas)", "totalSegments:\(totalSegments)")
+    cc.ok1(
+      #line,
+      #function,
+      "totalSutta:\(totalSuttas)",
+      "totalSegments:\(totalSegments)",
+    )
   }
 
-  public func compressSelectedDatabases(_ authors: [(lang: String, author: String)]) throws {
+  public func compressSelectedDatabases(_ authors: [(
+    lang: String,
+    author: String,
+  )]) throws {
     for (lang, author) in authors {
       let dbPath = "\(buildDir)/ebt-\(lang)-\(author).db"
       cc.ok2(#line, #function, dbPath)
@@ -204,7 +225,7 @@ public class BuildDBCommand {
 
   public func getTranslationDirectory(lang: String, author: String) -> String {
     // Use root directory for pli:ms, translation directory for others
-    if lang == "pli" && author == "ms" {
+    if lang == "pli", author == "ms" {
       return "\(projectRoot)/local/ebt-data/root"
     }
     return translationDir
@@ -268,7 +289,8 @@ public class BuildDBCommand {
 
   /// Gets the commit timestamp of ebt-data repository HEAD
   /// Returns ISO 8601 formatted timestamp string
-  /// - Returns: ISO 8601 timestamp string (e.g., "2025-12-19T04:13:06Z") or nil if unavailable
+  /// - Returns: ISO 8601 timestamp string (e.g., "2025-12-19T04:13:06Z") or nil
+  /// if unavailable
   private func getEbtDataGitHashTimestamp() -> String? {
     let task = Process()
     task.launchPath = "/bin/bash"

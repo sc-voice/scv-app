@@ -95,12 +95,7 @@ public struct AppRootView<Manager: ICardManager>: View {
         .navigationSplitViewStyle(.balanced)
         #endif
         .onAppear {
-          cc.ok1(
-            #line,
-            "AppRootView initialized with",
-            cardManager.allCards.count,
-            "cards",
-          )
+          cc.ok2(#line, #function, cardManager.allCards.count, "cards")
           // Listen for keyboard notifications
           #if os(iOS)
             NotificationCenter.default.addObserver(
@@ -111,7 +106,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               // Known iOS 18 issue: ~7s delay between search focus request and
               // keyboard appearance
               // See: https://www.hackingwithswift.com/forums/swiftui/modifier-searchable-slow-on-ios-18-x/28323
-              cc.ok2(#line, "UIKeyboardWillShow notification received")
+              cc.ok2(#line, #function, "UIKeyboardWillShow")
             }
 
             NotificationCenter.default.addObserver(
@@ -119,10 +114,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               object: nil,
               queue: .main,
             ) { _ in
-              cc.ok1(
-                #line,
-                "UIKeyboardDidShow notification received - keyboard is interactive",
-              )
+              cc.ok2( #line, #function, "UIKeyboardDidShow")
             }
           #endif
 
@@ -135,7 +127,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               DispatchQueue.main.async { sem.signal() } // simple probe
               // Wait up to 100ms for main thread to execute
               if sem.wait(timeout: .now() + 0.1) == .success {
-                cc.ok1(#line, "MainThread now responsive")
+                cc.ok1(#line, #function, "MainThread now responsive")
                 mainActorBusy = false
                 // Dismiss splash screen once MainActor is responsive
                 DispatchQueue.main.async {
@@ -149,10 +141,18 @@ public struct AppRootView<Manager: ICardManager>: View {
           // View hierarchy is now stabilized; SearchCardView will manage search
           // focus
         }
+        .task {
+          let lang = Settings.shared.docLang
+          let author = Settings.shared.docAuthor
+          cc.ok2(#line, #function, lang, author, "EbtData.forLangAuthor()...")
+          guard let ebtData = await EbtData.forLangAuthor(lang: lang.rawValue, author: author) else { return }
+          let git_hash_timestamp = await ebtData.getMetaprop(lang: lang.rawValue, author: author, key: "git_hash_timestamp")
+          cc.ok1(#line, #function, "content:", git_hash_timestamp ?? "nil")
+        }
         .onChange(of: cardManager.selectedCardId) {
           let idString = cardManager.selectedCardId
             .map { String(describing: $0) } ?? "nil"
-          cc.ok2(#line, "selectedCardId:", idString)
+          cc.ok2(#line, #function, "selectedCardId:", idString)
         }
         .sheet(isPresented: $showSettings) {
           SettingsView(controller: settingsController)
@@ -175,9 +175,7 @@ public struct AppRootView<Manager: ICardManager>: View {
                           cardBinding: Binding<Manager.ManagedCard>?)
     -> some View
   {
-    let _ = cc.ok2(
-      #line,
-      #function,
+    let _ = cc.ok2( #line, #function,
       "selectedCardId:",
       cardManager.selectedCardId as Any,
       "cardId:",

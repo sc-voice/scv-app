@@ -136,7 +136,8 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     self.gitHash = gitHash
     self.json = json
     // Extract authorBaseUrl from direct parameter or from json field
-    self.authorBaseUrl = authorBaseUrl ?? DatabaseInfo.extractAuthorBaseUrlFromJson(json)
+    self.authorBaseUrl = authorBaseUrl ?? DatabaseInfo
+      .extractAuthorBaseUrlFromJson(json)
   }
 
   public init(from decoder: Decoder) throws {
@@ -169,17 +170,24 @@ public struct DatabaseInfo: Codable, Identifiable, Sendable, Equatable {
     json = try container.decodeIfPresent(String.self, forKey: .json)
 
     // Extract authorBaseUrl from direct field or from json field
-    authorBaseUrl = try container.decodeIfPresent(String.self, forKey: .authorBaseUrl)
+    authorBaseUrl = try container.decodeIfPresent(
+      String.self,
+      forKey: .authorBaseUrl,
+    )
       ?? DatabaseInfo.extractAuthorBaseUrlFromJson(json)
 
     id = "\(language)/\(author)"
   }
 
   /// Extract authorBaseUrl from json field if present
-  private static func extractAuthorBaseUrlFromJson(_ jsonStr: String?) -> String? {
+  private static func extractAuthorBaseUrlFromJson(_ jsonStr: String?)
+    -> String?
+  {
     guard let jsonStr else { return nil }
     guard let jsonData = jsonStr.data(using: .utf8) else { return nil }
-    guard let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+    guard let jsonDict = try? JSONSerialization
+      .jsonObject(with: jsonData) as? [String: Any]
+    else {
       return nil
     }
     return jsonDict["authorBaseURL"] as? String

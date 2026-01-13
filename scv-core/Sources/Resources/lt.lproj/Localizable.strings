@@ -134,7 +134,7 @@
 "about.section.overview" = "Apžvalga";
 
 /* About card view: overview description */
-"about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, keliomis kalbomis.";
+"about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Pilno Teksto Paieška";

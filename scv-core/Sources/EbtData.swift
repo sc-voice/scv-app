@@ -9,9 +9,9 @@ public actor EbtData {
   public let cc = ColorConsole(#file, #function, dbg.EbtData.other)
   public static let shared = EbtData()
 
-  public nonisolated let lang:String?
-  public nonisolated let author:String?
-  private let db:OpaquePointer?
+  public nonisolated let lang: String?
+  public nonisolated let author: String?
+  private let db: OpaquePointer?
 
   /// Database schema version - increment when changing how data is interpreted
   /// Must match schema_version in database metadata table
@@ -47,15 +47,17 @@ public actor EbtData {
   private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
     .shared
 
-  private nonisolated(unsafe) static var instanceCache: [String:EbtData] = [:]
+  private nonisolated(unsafe) static var instanceCache: [String: EbtData] = [:]
 
   // Factory for instance tied to lang/author database
-  public static func forLangAuthor(lang:String?, author:String?,
-    settings:Settings = Settings.shared) async -> EbtData?
+  public static func forLangAuthor(lang: String?, author: String?,
+                                   settings: Settings = Settings
+                                     .shared) async -> EbtData?
   {
     let cc = ColorConsole(#file, #function, dbg.EbtData.other)
     let langActual = lang ?? settings.docLang.rawValue ?? "en"
-    let authorActual = author ?? manifestCache.defaultAuthorForLanguage(langActual)?.author ?? ""
+    let authorActual = author ?? manifestCache
+      .defaultAuthorForLanguage(langActual)?.author ?? ""
     let cacheKey = "\(langActual)/\(authorActual)"
     var e7a = instanceCache[cacheKey]
     if e7a != nil {
@@ -64,14 +66,23 @@ public actor EbtData {
     }
 
     do {
-      try await EbtData.shared.ensureDatabase(lang: langActual, author: authorActual)
+      try await EbtData.shared.ensureDatabase(
+        lang: langActual,
+        author: authorActual,
+      )
     } catch {
-      cc.bad1(#line, #function, langActual, authorActual, error.localizedDescription)
+      cc.bad1(
+        #line,
+        #function,
+        langActual,
+        authorActual,
+        error.localizedDescription,
+      )
       return nil
     }
 
     let db = EbtData.shared.databases[cacheKey]
-    e7a = EbtData(lang:langActual, author:authorActual, db:db)
+    e7a = EbtData(lang: langActual, author: authorActual, db: db)
     instanceCache[cacheKey] = e7a
 
     cc.ok1(#line, #function, langActual, authorActual, "(new)")
@@ -80,10 +91,15 @@ public actor EbtData {
 
   /// Static convenience method to get MLDocument for a SuttaRef
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
-  /// - Returns: MLDocument with segments populated, or nil if not found or instance creation fails
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
+  /// identifier
+  /// - Returns: MLDocument with segments populated, or nil if not found or
+  /// instance creation fails
   public static func getMLDocument(suttaRef: SuttaRef) async -> MLDocument? {
-    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+    guard let ebtData = await forLangAuthor(
+      lang: suttaRef.lang,
+      author: suttaRef.author,
+    ) else {
       return nil
     }
     return await ebtData.getMLDocument(suttaRef: suttaRef)
@@ -91,10 +107,17 @@ public actor EbtData {
 
   /// Static convenience method to get segments for a SuttaRef
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
-  /// - Returns: Array of Segment objects for the sutta, or empty array if not found
-  public static func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async -> [Segment] {
-    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
+  /// identifier
+  /// - Returns: Array of Segment objects for the sutta, or empty array if not
+  /// found
+  public static func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async
+    -> [Segment]
+  {
+    guard let ebtData = await forLangAuthor(
+      lang: suttaRef.lang,
+      author: suttaRef.author,
+    ) else {
       return []
     }
     return await ebtData.segmentsOfSuttaRef(suttaRef)
@@ -102,22 +125,29 @@ public actor EbtData {
 
   /// Static convenience method to check if a SuttaRef exists
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
+  /// identifier
   /// - Returns: true if sutta exists in database, false otherwise
   public static func suttaRefExists(suttaRef: SuttaRef) async -> Bool {
-    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
+    guard let ebtData = await forLangAuthor(
+      lang: suttaRef.lang,
+      author: suttaRef.author,
+    ) else {
       return false
     }
     return await ebtData.querySuttaRefExists(suttaRef: suttaRef)
   }
 
-  /// Static convenience method to get EbtSeeker for a specific language and author
+  /// Static convenience method to get EbtSeeker for a specific language and
+  /// author
   /// Uses factory to create/retrieve instance for the lang/author pair
   /// - Parameters:
   ///   - lang: Language code
   ///   - author: Author/translator code
   /// - Returns: EbtSeeker instance, or throws if instance creation fails
-  public static func getSeeker(lang: String, author: String) async throws -> EbtSeeker {
+  public static func getSeeker(lang: String,
+                               author: String) async throws -> EbtSeeker
+  {
     guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
@@ -126,26 +156,40 @@ public actor EbtData {
 
   /// Static convenience method to get EbtSeeker for a SuttaRef
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta identifier
+  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
+  /// identifier
   /// - Returns: EbtSeeker instance, or throws if instance creation fails
   public static func getSeeker(suttaRef: SuttaRef) async throws -> EbtSeeker {
-    guard let ebtData = await forLangAuthor(lang: suttaRef.lang, author: suttaRef.author) else {
-      throw EbtDataError.cannotOpenDatabase(lang: suttaRef.lang ?? "unknown", author: suttaRef.author ?? "unknown")
+    guard let ebtData = await forLangAuthor(
+      lang: suttaRef.lang,
+      author: suttaRef.author,
+    ) else {
+      throw EbtDataError.cannotOpenDatabase(
+        lang: suttaRef.lang ?? "unknown",
+        author: suttaRef.author ?? "unknown",
+      )
     }
     return try await ebtData.getSeeker(suttaRef: suttaRef)
   }
 
-  /// Static convenience method to get database schema version for a language/author pair
+  /// Static convenience method to get database schema version for a
+  /// language/author pair
   /// Uses factory to create/retrieve instance for the lang/author pair
   /// - Parameters:
   ///   - lang: Language code
   ///   - author: Author/translator code
   /// - Returns: Schema version string, or throws if instance creation fails
-  public static func getDatabaseSchemaVersion(lang: String, author: String) async throws -> String {
+  public static func getDatabaseSchemaVersion(
+    lang: String,
+    author: String,
+  ) async throws -> String {
     guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
-    return try await ebtData.getDatabaseSchemaVersion(lang: lang, author: author)
+    return try await ebtData.getDatabaseSchemaVersion(
+      lang: lang,
+      author: author,
+    )
   }
 
   /// Static convenience method to get sutta UIDs for a language/author pair
@@ -154,7 +198,9 @@ public actor EbtData {
   ///   - lang: Language code
   ///   - author: Author/translator code
   /// - Returns: Array of sutta UIDs, or empty array if instance creation fails
-  public static func suttaUidsForAuthor(lang: String, author: String) async -> [String] {
+  public static func suttaUidsForAuthor(lang: String,
+                                        author: String) async -> [String]
+  {
     guard let ebtData = await forLangAuthor(lang: lang, author: author) else {
       return []
     }
@@ -169,7 +215,8 @@ public actor EbtData {
   ///   - lemmaWords: Array of lemmatized words to search for
   ///   - query: Original query string for metadata
   ///   - maxDoc: Maximum results limit
-  /// - Returns: SeekerResult with matching suttas, or empty result if instance creation fails
+  /// - Returns: SeekerResult with matching suttas, or empty result if instance
+  /// creation fails
   public static func searchLemma(
     lang: String,
     author: String,
@@ -198,7 +245,11 @@ public actor EbtData {
     )
   }
 
-  private init(lang:String? = nil, author:String? = nil, db:OpaquePointer? = nil) {
+  private init(
+    lang: String? = nil,
+    author: String? = nil,
+    db: OpaquePointer? = nil,
+  ) {
     self.lang = lang
     self.author = author
     self.db = db
@@ -316,21 +367,23 @@ public actor EbtData {
   /// Returns path to decompressed database in Caches, decompressing if needed
   private func ensureDecompressed(lang: String, author: String) throws -> URL {
     let fileName = "ebt-\(lang)-\(author).db"
+    cc.ok2(#line, #function, fileName)
     let cacheURL = FileManager.default.urls(
       for: .cachesDirectory,
       in: .userDomainMask,
     )[0]
     let dbURL = cacheURL.appendingPathComponent(fileName)
+    cc.ok2(#line, #function, "cacheURL", cacheURL, "dbURL", dbURL)
 
     // Check if already decompressed in Caches
     if FileManager.default.fileExists(atPath: dbURL.path) {
       // Validate schema version and git hash
       if isValidCache(dbURL: dbURL, lang: lang, author: author) {
-        cc.ok1(#line, "cached:", fileName)
+        cc.ok1(#line, #function, "cached:", fileName)
         return dbURL
       } else {
         // Cache invalid (old schema or stale content), delete it
-        cc.ok2(#line, "Invalid cache detected, deleting:", fileName)
+        cc.ok2(#line, #function, "Invalid cache detected, deleting:", fileName)
         try? FileManager.default.removeItem(at: dbURL)
       }
     }
@@ -340,19 +393,24 @@ public actor EbtData {
       forResource: "ebt-\(lang)-\(author)",
       withExtension: "db.zst",
     ) else {
-      cc.bad1(#line, fileName + ".zst not found:")
+      cc.bad1(#line, #function, fileName + ".zst not found:")
       throw EbtDataError.databaseNotFound(lang: lang, author: author)
     }
+    cc.ok2(#line, #function, "zstURL:\(zstURL)")
 
     // Read compressed data from bundle
     let compressedData = try Data(contentsOf: zstURL)
 
+    cc.ok2(#line, #function, "ZstdDecompression.decompress()", 
+      "\(compressedData.count)B")
+
     // Decompress using libzstd
     let decompressedData = try ZstdDecompression.decompress(compressedData)
+    cc.ok2(#line, #function, "ZstdDecompression.write:", dbURL)
 
     // Write decompressed database to Caches
     try decompressedData.write(to: dbURL)
-    cc.ok1(#line, fileName, "OK")
+    cc.ok1(#line, #function, fileName, "OK")
 
     return dbURL
   }
@@ -364,7 +422,7 @@ public actor EbtData {
   private func ensureDatabase(lang: String, author: String) throws {
     let key = "\(lang)/\(author)"
     guard databases[key] == nil else { return }
-    cc.ok2(#line, "ensureDatabase key:", key)
+    cc.ok2(#line, #function, "key:", key)
 
     // Ensure decompressed database exists in Caches
     let dbURL = try ensureDecompressed(lang: lang, author: author)
@@ -378,7 +436,7 @@ public actor EbtData {
     )
 
     guard result == SQLITE_OK else {
-      cc.bad1(#line, "cannotOpenDatabase")
+      cc.bad1(#line, #function, "cannotOpenDatabase")
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
 
@@ -386,7 +444,7 @@ public actor EbtData {
 
     // Log database metadata
     logDatabaseMetadata(lang: lang, author: author)
-    cc.ok1(#line, "ensureDatabase OK")
+    cc.ok1(#line, #function, "OK")
   }
 
   /// Gets database pointer for language/author, ensuring it's loaded
@@ -402,10 +460,7 @@ public actor EbtData {
     let key = "\(lang)/\(author)"
     try ensureDatabase(lang: lang, author: author)
     guard let db = databases[key] else {
-      cc.bad1(
-        #line,
-        "getDatabaseForLangAuthor: database not found for \(key)",
-      )
+      cc.bad1(#line, #function, "database not found", key)
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
     return db
@@ -426,11 +481,7 @@ public actor EbtData {
       {
         resolvedAuthor = defaultInfo.author
       } else {
-        cc.bad1(
-          #line,
-          #function,
-          "no default author found for language \(lang)",
-        )
+        cc.bad1(#line, #function, lang, "default author?")
         throw EbtDataError.cannotOpenDatabase(lang: lang, author: "")
       }
     }
@@ -525,7 +576,6 @@ public actor EbtData {
   /// identifier
   /// - Returns: MLDocument with segments populated, or nil if not found
   public func getDocument(suttaRef: SuttaRef) -> MLDocument? {
-    let elapsedAtStart = CFAbsoluteTimeGetCurrent()
     guard let author = suttaRef.author else {
       cc.bad1(#line, #function, "missing author")
       return nil
@@ -537,7 +587,7 @@ public actor EbtData {
       try ensureDatabase(lang: lang, author: author)
       let key = "\(lang)/\(author)"
       guard let db = databases[key] else {
-        cc.bad1(#line, #function, "database not found for key:", key)
+        cc.bad1(#line, #function, key, "database?")
         return nil
       }
 
@@ -575,7 +625,7 @@ public actor EbtData {
       }
 
       guard !segMap.isEmpty else {
-        cc.bad1(#line, #function, "no segments found for:", suttaId)
+        cc.bad1(#line, #function, suttaId, "segments?")
         return nil
       }
 
@@ -589,8 +639,7 @@ public actor EbtData {
         docAuthorName: authorName,
       )
 
-      let msElapsed = Int((CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000)
-      cc.ok1(#line, #function, msElapsed, "ms for", suttaId)
+      cc.ok1(#line, #function, suttaId, "OK")
       return mlDoc
     } catch {
       cc.bad1(#line, #function, error.localizedDescription)
@@ -1043,7 +1092,9 @@ public actor EbtData {
   ///   - author: Author identifier (e.g., "sujato")
   ///   - key: Metaprop key to retrieve (e.g., "git_hash", "build_timestamp")
   /// - Returns: Metaprop value as String, or nil if key not found
-  public func getMetaprop(lang: String, author: String, key: String) -> String? {
+  public func getMetaprop(lang: String, author: String,
+                          key: String) -> String?
+  {
     do {
       try ensureDatabase(lang: lang, author: author)
       let dbKey = "\(lang)/\(author)"
@@ -1067,12 +1118,12 @@ public actor EbtData {
       if sqlite3_step(stmt) == SQLITE_ROW {
         if let valueC = sqlite3_column_text(stmt, 0) {
           let value = String(cString: valueC)
-          cc.ok2(#line, #function, key, "=", value)
+          cc.ok1(#line, #function, key, "=", value)
           return value
         }
       }
 
-      cc.bad1(#line, #function, "key not found:", key)
+      cc.bad1(#line, #function, key, "key?")
       return nil
     } catch {
       cc.bad1(#line, #function, error.localizedDescription)
@@ -1084,8 +1135,11 @@ public actor EbtData {
   /// - Parameters:
   ///   - lang: Language code (e.g., "en", "de")
   ///   - author: Author identifier (e.g., "sujato")
-  /// - Returns: Dictionary of all metaprop keys and values, empty dict if table empty or not found
-  public func getAllMetaprops(lang: String, author: String) -> [String: String] {
+  /// - Returns: Dictionary of all metaprop keys and values, empty dict if table
+  /// empty or not found
+  public func getAllMetaprops(lang: String,
+                              author: String) -> [String: String]
+  {
     do {
       try ensureDatabase(lang: lang, author: author)
       let dbKey = "\(lang)/\(author)"
@@ -1128,6 +1182,7 @@ public actor EbtData {
                                  author: String) async -> [String]
   {
     do {
+      cc.ok2(#line, #function, lang, author)
       try ensureDatabase(lang: lang, author: author)
       let key = "\(lang)/\(author)"
       guard let db = databases[key] else { return [] }
@@ -1136,6 +1191,7 @@ public actor EbtData {
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+        cc.bad1(#line, #function, "!SQLITE_OK")
         return []
       }
 
@@ -1149,8 +1205,10 @@ public actor EbtData {
         }
       }
 
+      cc.ok1(#line, #function, lang, author, "[\(suttaUids.count) suttas]")
       return suttaUids
     } catch {
+      cc.bad1(#line, #function, error)
       return []
     }
   }
@@ -1412,10 +1470,10 @@ public actor EbtData {
       )
 
       let exists = sqlite3_step(stmt) == SQLITE_ROW
-      cc.ok1( #line, #function, suttaRef.toString(), "OK")
+      cc.ok1(#line, #function, suttaRef.toString(), "OK")
       return exists
     } catch {
-      cc.bad1( #line, #function, suttaRef.toString(), "\(error)")
+      cc.bad1(#line, #function, suttaRef.toString(), "\(error)")
       return false
     }
   }

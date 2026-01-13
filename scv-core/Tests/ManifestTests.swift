@@ -14,7 +14,10 @@ import Testing
   @Test("DatabaseManifest.shared contains expected databases")
   func sharedManifestNotEmpty() {
     let manifest = DatabaseManifest.shared
-    #expect(manifest.databases.count > 0, "Manifest should contain at least one database")
+    #expect(
+      manifest.databases.count > 0,
+      "Manifest should contain at least one database",
+    )
   }
 
   @Test("availableLanguages() returns non-empty list")
@@ -36,7 +39,10 @@ import Testing
       #expect(info.language == "en", "Language should be en")
       #expect(info.author == "sujato", "Author should be sujato")
       #expect(!info.authorName.isEmpty, "Author name should not be empty")
-      #expect(!info.buildTimestamp.isEmpty, "Build timestamp should not be empty")
+      #expect(
+        !info.buildTimestamp.isEmpty,
+        "Build timestamp should not be empty",
+      )
       #expect(info.id == "en/sujato", "ID should be en/sujato")
     }
   }
@@ -51,7 +57,10 @@ import Testing
       #expect(info.language == "fr", "Language should be fr")
       #expect(info.author == "noeismet", "Author should be noeismet")
       #expect(!info.authorName.isEmpty, "Author name should not be empty")
-      #expect(!info.buildTimestamp.isEmpty, "Build timestamp should not be empty")
+      #expect(
+        !info.buildTimestamp.isEmpty,
+        "Build timestamp should not be empty",
+      )
       #expect(info.id == "fr/noeismet", "ID should be fr/noeismet")
     }
   }
@@ -72,11 +81,11 @@ import Testing
     #expect(authors.count > 0, "Should find at least one English author")
     #expect(
       authors.contains { $0.author == "sujato" },
-      "Should contain sujato"
+      "Should contain sujato",
     )
     #expect(
       authors.allSatisfy { $0.language == "en" },
-      "All entries should be English"
+      "All entries should be English",
     )
   }
 
@@ -88,11 +97,11 @@ import Testing
     #expect(authors.count > 0, "Should find at least one French author")
     #expect(
       authors.contains { $0.author == "noeismet" },
-      "Should contain noeismet"
+      "Should contain noeismet",
     )
     #expect(
       authors.allSatisfy { $0.language == "fr" },
-      "All entries should be French"
+      "All entries should be French",
     )
   }
 
@@ -112,10 +121,10 @@ import Testing
     #expect(authors.count > 0, "Should find at least one English author")
 
     // Verify sorting order (descending by file count)
-    for i in 0..<authors.count - 1 {
+    for i in 0 ..< authors.count - 1 {
       #expect(
         authors[i].files.total >= authors[i + 1].files.total,
-        "Authors should be sorted by file count descending"
+        "Authors should be sorted by file count descending",
       )
     }
   }
@@ -181,7 +190,11 @@ import Testing
   @Test("suttaRefExists() returns false for non-existent database")
   func suttaRefExistsNonExistent() throws {
     let manifest = DatabaseManifest.shared
-    let suttaRef = try SuttaRef(suttaUid: "mn1", lang: "xx", author: "nonexistent")
+    let suttaRef = try SuttaRef(
+      suttaUid: "mn1",
+      lang: "xx",
+      author: "nonexistent",
+    )
 
     let exists = manifest.suttaRefExists(suttaRef)
     #expect(exists == false, "Should return false for non-existent database")
@@ -194,7 +207,13 @@ import Testing
       author: "sujato",
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(sutta: 100, vinaya: 50, abhidhamma: 75, other: 10, total: 235)
+      files: FilesBreakdown(
+        sutta: 100,
+        vinaya: 50,
+        abhidhamma: 75,
+        other: 10,
+        total: 235,
+      ),
     )
 
     #expect(info.id == "en/sujato", "ID should be language/author format")
@@ -202,7 +221,13 @@ import Testing
 
   @Test("FilesBreakdown properties are accessible")
   func filesBreakdownProperties() {
-    let files = FilesBreakdown(sutta: 100, vinaya: 50, abhidhamma: 75, other: 10, total: 235)
+    let files = FilesBreakdown(
+      sutta: 100,
+      vinaya: 50,
+      abhidhamma: 75,
+      other: 10,
+      total: 235,
+    )
 
     #expect(files.sutta == 100, "Sutta count should be 100")
     #expect(files.vinaya == 50, "Vinaya count should be 50")
@@ -229,7 +254,7 @@ import Testing
       author: "sujato",
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(total: 235)
+      files: FilesBreakdown(total: 235),
     )
 
     let info2 = DatabaseInfo(
@@ -237,7 +262,7 @@ import Testing
       author: "sujato",
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(total: 235)
+      files: FilesBreakdown(total: 235),
     )
 
     // Both should have same ID
@@ -251,7 +276,7 @@ import Testing
       author: "sujato",
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(total: 235)
+      files: FilesBreakdown(total: 235),
     )
 
     let info2 = DatabaseInfo(
@@ -259,7 +284,7 @@ import Testing
       author: "sujato",
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(total: 235)
+      files: FilesBreakdown(total: 235),
     )
 
     let info3 = DatabaseInfo(
@@ -267,7 +292,7 @@ import Testing
       author: "soma",
       authorName: "Ayya Soma",
       buildTimestamp: "2025-01-09T00:00:00Z",
-      files: FilesBreakdown(total: 100)
+      files: FilesBreakdown(total: 100),
     )
 
     #expect(info1 == info2, "Same content should be equal")
@@ -276,7 +301,8 @@ import Testing
 
   @Test("DatabaseInfo files field backward compatibility")
   func databaseInfoBackwardCompatibility() throws {
-    // Test that DatabaseInfo can handle both FilesBreakdown and legacy Int format
+    // Test that DatabaseInfo can handle both FilesBreakdown and legacy Int
+    // format
     let jsonLegacy = """
     {
       "language": "en",
@@ -293,7 +319,10 @@ import Testing
 
     #expect(info.language == "en", "Language should decode correctly")
     #expect(info.author == "sujato", "Author should decode correctly")
-    #expect(info.files.total == 235, "Legacy files int should convert to FilesBreakdown.total")
+    #expect(
+      info.files.total == 235,
+      "Legacy files int should convert to FilesBreakdown.total",
+    )
   }
 
   @Test("DatabaseInfo extracts authorBaseUrl from json field")
@@ -313,10 +342,15 @@ import Testing
     let data = jsonWithUrl.data(using: .utf8)!
     let info = try decoder.decode(DatabaseInfo.self, from: data)
 
-    #expect(info.authorBaseUrl != nil, "authorBaseUrl should be extracted from json field")
     #expect(
-      info.authorBaseUrl == "https://github.com/suttacentral/bilara-data/tree/published/translation/en/sujato",
-      "authorBaseUrl should match expected GitHub URL"
+      info.authorBaseUrl != nil,
+      "authorBaseUrl should be extracted from json field",
+    )
+    #expect(
+      info
+        .authorBaseUrl ==
+        "https://github.com/suttacentral/bilara-data/tree/published/translation/en/sujato",
+      "authorBaseUrl should match expected GitHub URL",
     )
   }
 
@@ -343,7 +377,7 @@ import Testing
 
     #expect(
       info.authorBaseUrl == directUrl,
-      "Direct authorBaseUrl field should take precedence over json field"
+      "Direct authorBaseUrl field should take precedence over json field",
     )
   }
 
@@ -364,7 +398,10 @@ import Testing
     let data = jsonWithoutUrl.data(using: .utf8)!
     let info = try decoder.decode(DatabaseInfo.self, from: data)
 
-    #expect(info.authorBaseUrl == nil, "authorBaseUrl should be nil when not in json")
+    #expect(
+      info.authorBaseUrl == nil,
+      "authorBaseUrl should be nil when not in json",
+    )
   }
 
   @Test("DatabaseInfo init with authorBaseUrl parameter")
@@ -376,10 +413,13 @@ import Testing
       authorName: "Bhikkhu Sujato",
       buildTimestamp: "2025-01-09T00:00:00Z",
       files: FilesBreakdown(total: 235),
-      authorBaseUrl: url
+      authorBaseUrl: url,
     )
 
-    #expect(info.authorBaseUrl == url, "authorBaseUrl should be set from init parameter")
+    #expect(
+      info.authorBaseUrl == url,
+      "authorBaseUrl should be set from init parameter",
+    )
   }
 
   @Test("info(language:author:) includes authorBaseUrl for en/sujato")
@@ -394,7 +434,7 @@ import Testing
       let expectedUrl = "https://github.com/suttacentral/bilara-data/tree/published/translation/en/sujato"
       #expect(
         info.authorBaseUrl == expectedUrl,
-        "authorBaseUrl should be bilara-data URL for en/sujato: \(expectedUrl)"
+        "authorBaseUrl should be bilara-data URL for en/sujato: \(expectedUrl)",
       )
     }
   }
@@ -406,12 +446,15 @@ import Testing
 
     #expect(info != nil, "Should find fr/noeismet in manifest")
     if let info {
-      #expect(info.authorBaseUrl != nil, "fr/noeismet should have authorBaseUrl")
+      #expect(
+        info.authorBaseUrl != nil,
+        "fr/noeismet should have authorBaseUrl",
+      )
       // fr/noeismet falls back to ebt-data (not bilara-data)
       let expectedUrl = "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet"
       #expect(
         info.authorBaseUrl == expectedUrl,
-        "authorBaseUrl should be ebt-data URL for fr/noeismet: \(expectedUrl)"
+        "authorBaseUrl should be ebt-data URL for fr/noeismet: \(expectedUrl)",
       )
     }
   }

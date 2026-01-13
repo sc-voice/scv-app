@@ -122,7 +122,7 @@
 "about.section.overview" = "Обзор";
 
 /* About card view: overview description */
-"about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме на нескольких языках.";
+"about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме для выбранных авторов на нескольких языках.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Полнотекстовый поиск";

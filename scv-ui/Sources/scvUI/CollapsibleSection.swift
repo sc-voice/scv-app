@@ -98,6 +98,7 @@ public struct CollapsibleSection<Content: View, SummaryContent: View>: View {
         .padding(.horizontal, 16)
         .background(themeProvider.theme.cardBackground)
       }
+      .buttonStyle(.plain)
 
       // MARK: - Divider
 

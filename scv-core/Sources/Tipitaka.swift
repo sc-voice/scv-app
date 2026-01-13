@@ -8871,104 +8871,107 @@ public struct Tipitaka {
   {
     let cc = ColorConsole(#file, #function, dbg.Tipitaka.other)
 
-    var suttaUids = await EbtData.suttaUidsForAuthor(
-      lang: lang,
-      author: author,
-    )
-    cc.ok2(#line, "suttaUidsForAuthor", suttaUids.count)
+    do {
+      var suttaUids = await EbtData.suttaUidsForAuthor(
+        lang: lang,
+        author: author,
+      )
+      cc.ok2(#line, #function, suttaUids.count, "suttaUids")
 
-    // cc.ok2(#line, "suttaUids.sort...")
-    // suttaUids.sort { SuttaCentralId.compareLow($0, $1) < 0 }
+      // cc.ok2(#line, "suttaUids.sort...")
+      // suttaUids.sort { SuttaCentralId.compareLow($0, $1) < 0 }
 
-    cc.ok2(#line, "pathsToInclude...")
-    var pathsToInclude: [String] = []
-    var pathSet: Set<String> = []
-    var pathToSuttaUid: [String: String] = [:]
-    for suttaUid in suttaUids {
-      if let parentPath = parentPath(suttaUid: suttaUid) {
-        if !pathSet.contains(parentPath) {
-          pathsToInclude.append(parentPath)
-          pathSet.insert(parentPath)
-        }
-        let leafPath = parentPath + "/" + suttaUid
-        if !pathSet.contains(leafPath) {
-          pathsToInclude.append(leafPath)
-          pathSet.insert(leafPath)
-          pathToSuttaUid[leafPath] = suttaUid
+      var pathsToInclude: [String] = []
+      var pathSet: Set<String> = []
+      var pathToSuttaUid: [String: String] = [:]
+      for suttaUid in suttaUids {
+        if let parentPath = parentPath(suttaUid: suttaUid) {
+          if !pathSet.contains(parentPath) {
+            pathsToInclude.append(parentPath)
+            pathSet.insert(parentPath)
+          }
+          let leafPath = parentPath + "/" + suttaUid
+          if !pathSet.contains(leafPath) {
+            pathsToInclude.append(leafPath)
+            pathSet.insert(leafPath)
+            pathToSuttaUid[leafPath] = suttaUid
+          }
         }
       }
+
+      var allPaths: [String] = []
+      var allPathsSet: Set<String> = []
+      for path in pathsToInclude {
+        if !allPathsSet.contains(path) {
+          allPaths.append(path)
+          allPathsSet.insert(path)
+        }
+        var current = path
+        while !current.isEmpty, current != "/" {
+          let parent = (current as NSString).deletingLastPathComponent
+          if parent.isEmpty || parent == "/" {
+            break
+          }
+          if !allPathsSet.contains(parent) {
+            allPaths.append(parent)
+            allPathsSet.insert(parent)
+          }
+          current = parent
+        }
+      }
+      //// Sort by depth (deepest first) to ensure parents exist before children
+      /// are added
+      // allPaths.sort { $0.split(separator: "/").count > $1.split(separator:
+      // "/").count }
+      allPaths.sort()
+
+      var nodesByPath: [String: TipitakaRef] = [:]
+      var rootChildren: [TipitakaRef] = []
+      for path in allPaths {
+        // For leaf nodes (suttaUids), use abbreviation; otherwise use path
+        // component
+        let name: String
+        let caption: String
+        if let suttaUid = pathToSuttaUid[path],
+           let suttaRef = SuttaRef.create(suttaUid)
+        {
+          name = suttaRef.abbreviation()
+          caption = Tipitaka.tipitakaName(suttaRef: suttaRef)
+        } else {
+          let pathPart = (path as NSString).lastPathComponent
+          name = Tipitaka.tipitakaName(id: pathPart)
+          caption = ""
+        }
+        let node = TipitakaRef(id: path, name: name, caption: caption)
+        nodesByPath[path] = node
+
+        let parentPath = (path as NSString).deletingLastPathComponent
+        if let parent = nodesByPath[parentPath] {
+          // Parent exists - add this node as child (direct reference, no copy
+          // needed)
+          if parent.children == nil {
+            parent.children = []
+          }
+          parent.children?.append(node)
+        } else {
+          // Parent doesn't exist - this is a root node
+          rootChildren.append(node)
+        }
+      }
+
+      // Create synthetic root with sections as children
+      let result = TipitakaRef(
+        id: "/tipitaka",
+        name: "Tipiṭaka",
+        caption: "Buddhist Canon",
+        children: rootChildren.sorted { $0.id < $1.id },
+      )
+
+      cc.ok1(#line, #function, result)
+      return result
+    } catch {
+      cc.bad1(#line, #function, error)
     }
-
-    var allPaths: [String] = []
-    var allPathsSet: Set<String> = []
-    for path in pathsToInclude {
-      if !allPathsSet.contains(path) {
-        allPaths.append(path)
-        allPathsSet.insert(path)
-      }
-      var current = path
-      while !current.isEmpty, current != "/" {
-        let parent = (current as NSString).deletingLastPathComponent
-        if parent.isEmpty || parent == "/" {
-          break
-        }
-        if !allPathsSet.contains(parent) {
-          allPaths.append(parent)
-          allPathsSet.insert(parent)
-        }
-        current = parent
-      }
-    }
-    //// Sort by depth (deepest first) to ensure parents exist before children
-    /// are added
-    // allPaths.sort { $0.split(separator: "/").count > $1.split(separator:
-    // "/").count }
-    allPaths.sort()
-
-    var nodesByPath: [String: TipitakaRef] = [:]
-    var rootChildren: [TipitakaRef] = []
-    for path in allPaths {
-      // For leaf nodes (suttaUids), use abbreviation; otherwise use path
-      // component
-      let name: String
-      let caption: String
-      if let suttaUid = pathToSuttaUid[path],
-         let suttaRef = SuttaRef.create(suttaUid)
-      {
-        name = suttaRef.abbreviation()
-        caption = Tipitaka.tipitakaName(suttaRef: suttaRef)
-      } else {
-        let pathPart = (path as NSString).lastPathComponent
-        name = Tipitaka.tipitakaName(id: pathPart)
-        caption = ""
-      }
-      let node = TipitakaRef(id: path, name: name, caption: caption)
-      nodesByPath[path] = node
-
-      let parentPath = (path as NSString).deletingLastPathComponent
-      if let parent = nodesByPath[parentPath] {
-        // Parent exists - add this node as child (direct reference, no copy
-        // needed)
-        if parent.children == nil {
-          parent.children = []
-        }
-        parent.children?.append(node)
-      } else {
-        // Parent doesn't exist - this is a root node
-        rootChildren.append(node)
-      }
-    }
-
-    // Create synthetic root with sections as children
-    let result = TipitakaRef(
-      id: "/tipitaka",
-      name: "Tipiṭaka",
-      caption: "Buddhist Canon",
-      children: rootChildren.sorted { $0.id < $1.id },
-    )
-
-    cc.ok1(#line, "result", result)
-    return result
   }
 
   /// Returns the Pali document name (segment 0.3) for a sutta

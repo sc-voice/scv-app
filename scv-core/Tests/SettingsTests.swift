@@ -48,9 +48,10 @@ import Testing
       "isDarkModeEnabled", "segmentPause",
       "playPali", "playDoc", "showPali", "showDoc", "showRef",
       "soundEffectVolume", "lastApplicationVersion",
-      "maxDoc", "maxColumnWidth", "autoCompleteData"
+      "maxDoc", "maxColumnWidth", "autoCompleteData",
     ]
-    #expect(expectedCodingKeys.count == 18)  // Verify count of serializable properties
+    #expect(expectedCodingKeys
+      .count == 18) // Verify count of serializable properties
 
     // Create a Settings instance to modify
     let settings = Settings(userDefaults: nil)
@@ -73,7 +74,11 @@ import Testing
     settings.lastApplicationVersion = "2.0.0"
     settings.maxDoc = 100
     settings.maxColumnWidth = 300
-    settings.autoCompleteData = [PhrasesByAuthorLang(author: "test", lang: "en", phrases: [:])]
+    settings.autoCompleteData = [PhrasesByAuthorLang(
+      author: "test",
+      lang: "en",
+      phrases: [:],
+    )]
 
     // Call reset to restore all defaults
     settings.reset()
@@ -84,7 +89,7 @@ import Testing
     // CODABLE ROUND-TRIP: Verify serialization preserves all properties
     let encoder = JSONEncoder()
     let encoded = try? encoder.encode(settings)
-    #expect(encoded != nil)  // Should encode successfully
+    #expect(encoded != nil) // Should encode successfully
 
     if let encoded {
       let decoder = JSONDecoder()
@@ -113,8 +118,8 @@ import Testing
     #expect(settings.maxColumnWidth == defaults.maxColumnWidth)
 
     // Verify docLangSettings structure (empty after reset)
-    #expect(settings.docLangSettings.count > 0)  // validate() creates entries
-    #expect(defaults.docLangSettings.count > 0)  // same for defaults
+    #expect(settings.docLangSettings.count > 0) // validate() creates entries
+    #expect(defaults.docLangSettings.count > 0) // same for defaults
 
     // Verify paliSettings language matches (validate may modify this)
     #expect(settings.paliSettings.language == defaults.paliSettings.language)
@@ -621,7 +626,9 @@ import Testing
     Settings.shared.reset()
 
     // After reset, authors are initialized from manifest defaults by validate()
-    if let defaultInfo = DatabaseManifest.shared.defaultAuthorForLanguage("en") {
+    if let defaultInfo = DatabaseManifest.shared
+      .defaultAuthorForLanguage("en")
+    {
       #expect(Settings.shared.docAuthor == defaultInfo.author)
       #expect(Settings.shared.refAuthor == defaultInfo.author)
     }

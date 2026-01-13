@@ -410,7 +410,10 @@ struct EbtDataTests {
 
   @Test("forLangAuthor factory handles invalid author gracefully")
   func forLangAuthorInvalidAuthor() async {
-    let db = await EbtData.forLangAuthor(lang: "en", author: "nonexistent-author-xyz")
+    let db = await EbtData.forLangAuthor(
+      lang: "en",
+      author: "nonexistent-author-xyz",
+    )
     #expect(db == nil)
   }
 }

@@ -30,7 +30,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var layout: SegmentLayout?
   @State private var availableWidth: CGFloat = 0
   @State private var toolbarTitle: String = ""
-  let cc = ColorConsole(#file, #function, dbg.SearchCardView.other)
+  let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
   private var suttaRef: SuttaRef? {
@@ -41,7 +41,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     guard let mlDoc = card.mlDoc else { return false }
     let dbInfo = DatabaseManifest.shared.info(
       language: mlDoc.docLang,
-      author: mlDoc.docAuthor
+      author: mlDoc.docAuthor,
     )
     guard let authorBaseUrl = dbInfo?.authorBaseUrl else { return false }
     return authorBaseUrl.lowercased().contains("suttacentral")
@@ -125,7 +125,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 Text(mlDoc.docAuthorName)
                   .font(.body)
                   .lineLimit(nil)
-                  .frame(width:MIN_COLUMN_WIDTH)
+                  .frame(width: MIN_COLUMN_WIDTH)
               }
             } // VStack
             .fixedSize(horizontal: false, vertical: true)
@@ -220,24 +220,25 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 // .scrollContentBackground(.hidden)
                 // .background(.red)
                 .onAppear {
-                  if let currentScid = mlDoc.currentScid {
-                    // Delay scroll to allow segments to load
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                      withAnimation(reduceMotion ? nil :
-                        .easeInOut(duration: 0.8))
-                      {
-                        // Scroll to two line heights from top
-                        scrollProxy.scrollTo(
-                          currentScid,
-                          anchor: UnitPoint(x: 0.5, y: 0.06),
-                        )
-                        cc.ok1(
-                          #line,
-                          "Scrolled to segment (two line heights from top):",
-                          currentScid,
-                        )
+                  do {
+                    cc.ok2(#line, #function, card.suttaReference)
+                    if let currentScid = mlDoc.currentScid {
+                      // Delay scroll to allow segments to load
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(reduceMotion ? nil :
+                          .easeInOut(duration: 0.8))
+                        {
+                          // Scroll to two line heights from top
+                          scrollProxy.scrollTo(
+                            currentScid,
+                            anchor: UnitPoint(x: 0.5, y: 0.06),
+                          )
+                          cc.ok1(#line, "scrollTo:", currentScid)
+                        }
                       }
                     }
+                  } catch {
+                    cc.bad1(#line, #function, card.suttaReference, error)
                   }
                 }
                 .onChange(of: mlDoc.currentScid) { _, newScid in

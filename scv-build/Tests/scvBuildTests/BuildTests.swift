@@ -1,8 +1,8 @@
 import Foundation
 import NaturalLanguage
-import SQLite3
-import scvCore
 import scv_build
+import scvCore
+import SQLite3
 import Testing
 
 @Suite("scv-build Tests")
@@ -90,7 +90,7 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
       ),
       gitHash: nil,
     )
@@ -116,7 +116,7 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
       ),
       gitHash: nil,
     )
@@ -142,7 +142,7 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
       ),
       gitHash: nil,
     )
@@ -151,7 +151,10 @@ struct BuildTests {
 
     // fr/noeismet bilara-data doesn't exist (404), so falls back to ebt-data
     let expectedURL = "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet"
-    #expect(url?.absoluteString == expectedURL, "URL should fall back to ebt-data: \(expectedURL)")
+    #expect(
+      url?.absoluteString == expectedURL,
+      "URL should fall back to ebt-data: \(expectedURL)",
+    )
 
     // Verify URL exists
     if let url {
@@ -160,7 +163,9 @@ struct BuildTests {
     }
   }
 
-  @Test("EbtDBBuilder getSuttaRefURL returns SuttaCentral URL when bilara-data available")
+  @Test(
+    "EbtDBBuilder getSuttaRefURL returns SuttaCentral URL when bilara-data available",
+  )
   func getSuttaRefURLBilara() async throws {
     let builder = EbtDBBuilder(
       language: "en",
@@ -169,16 +174,23 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
       ),
       gitHash: nil,
     )
 
-    let suttaRef = try SuttaRef(suttaUid: "an3.14", lang: "en", author: "sujato")
+    let suttaRef = try SuttaRef(
+      suttaUid: "an3.14",
+      lang: "en",
+      author: "sujato",
+    )
     let url = builder.getSuttaRefURL(suttaRef: suttaRef)
 
     let expectedURL = "https://suttacentral.net/an3.14/en/sujato"
-    #expect(url?.absoluteString == expectedURL, "URL should be SuttaCentral: \(expectedURL)")
+    #expect(
+      url?.absoluteString == expectedURL,
+      "URL should be SuttaCentral: \(expectedURL)",
+    )
 
     // Verify URL exists
     if let url {
@@ -187,7 +199,9 @@ struct BuildTests {
     }
   }
 
-  @Test("EbtDBBuilder getSuttaRefURL returns ebt-data URL when bilara-data unavailable")
+  @Test(
+    "EbtDBBuilder getSuttaRefURL returns ebt-data URL when bilara-data unavailable",
+  )
   func getSuttaRefURLEbtData() async throws {
     let builder = EbtDBBuilder(
       language: "fr",
@@ -196,16 +210,23 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json"
+        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
       ),
       gitHash: nil,
     )
 
-    let suttaRef = try SuttaRef(suttaUid: "an3.14", lang: "fr", author: "noeismet")
+    let suttaRef = try SuttaRef(
+      suttaUid: "an3.14",
+      lang: "fr",
+      author: "noeismet",
+    )
     let url = builder.getSuttaRefURL(suttaRef: suttaRef)
 
     let expectedURL = "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet"
-    #expect(url?.absoluteString == expectedURL, "URL should be ebt-data: \(expectedURL)")
+    #expect(
+      url?.absoluteString == expectedURL,
+      "URL should be ebt-data: \(expectedURL)",
+    )
 
     // Verify URL exists
     if let url {
@@ -347,18 +368,19 @@ struct BuildTests {
       dbPath,
       &db,
       SQLITE_OPEN_READONLY,
-      nil
+      nil,
     )
     defer { sqlite3_close(db) }
 
-    guard openResult == SQLITE_OK, let db = db else {
+    guard openResult == SQLITE_OK, let db else {
       throw TestError.missingResource("Cannot open database at \(dbPath)")
     }
 
     // Check metaprops table exists
     let tableCheckQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name='metaprops'"
     var stmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, tableCheckQuery, -1, &stmt, nil) == SQLITE_OK else {
+    guard sqlite3_prepare_v2(db, tableCheckQuery, -1, &stmt, nil) == SQLITE_OK
+    else {
       throw TestError.missingResource("Cannot prepare table check query")
     }
     defer { sqlite3_finalize(stmt) }
@@ -385,7 +407,8 @@ struct BuildTests {
     for key in requiredKeys {
       let keyQuery = "SELECT value FROM metaprops WHERE key = ?"
       var keyStmt: OpaquePointer?
-      guard sqlite3_prepare_v2(db, keyQuery, -1, &keyStmt, nil) == SQLITE_OK else {
+      guard sqlite3_prepare_v2(db, keyQuery, -1, &keyStmt, nil) == SQLITE_OK
+      else {
         throw TestError.missingResource("Cannot prepare key query for \(key)")
       }
       defer { sqlite3_finalize(keyStmt) }
@@ -393,7 +416,8 @@ struct BuildTests {
       sqlite3_bind_text(keyStmt, 1, (key as NSString).utf8String, -1, nil)
 
       guard sqlite3_step(keyStmt) == SQLITE_ROW else {
-        throw TestError.missingResource("Metaprop key '\(key)' not found in database")
+        throw TestError
+          .missingResource("Metaprop key '\(key)' not found in database")
       }
 
       // Verify value is not NULL and not empty
@@ -408,7 +432,8 @@ struct BuildTests {
     var metapropValues: [String: String] = [:]
     let allKeysQuery = "SELECT key, value FROM metaprops"
     var allStmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, allKeysQuery, -1, &allStmt, nil) == SQLITE_OK else {
+    guard sqlite3_prepare_v2(db, allKeysQuery, -1, &allStmt, nil) == SQLITE_OK
+    else {
       throw TestError.missingResource("Cannot prepare all keys query")
     }
     defer { sqlite3_finalize(allStmt) }
@@ -425,12 +450,21 @@ struct BuildTests {
     }
 
     #expect(metapropValues["language"] == "fr", "Language should be 'fr'")
-    #expect(metapropValues["author"] == "noeismet", "Author should be 'noeismet'")
-    #expect(!metapropValues["author_name"]!.isEmpty, "Author name should be populated")
-    #expect(metapropValues["git_hash"] == "abc123def456", "Git hash should match builder input")
+    #expect(
+      metapropValues["author"] == "noeismet",
+      "Author should be 'noeismet'",
+    )
+    #expect(
+      !metapropValues["author_name"]!.isEmpty,
+      "Author name should be populated",
+    )
+    #expect(
+      metapropValues["git_hash"] == "abc123def456",
+      "Git hash should match builder input",
+    )
     #expect(
       metapropValues["git_hash_timestamp"] == "2025-12-19T04:13:06Z",
-      "Git hash timestamp should match builder input"
+      "Git hash timestamp should match builder input",
     )
 
     print(
@@ -450,7 +484,10 @@ struct BuildTests {
     let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
 
     // Build manifest from current database files
-    let manifestBuilder = DBManifestBuilder(buildDir: buildDir, resourcesDir: resourcesDir)
+    let manifestBuilder = DBManifestBuilder(
+      buildDir: buildDir,
+      resourcesDir: resourcesDir,
+    )
     try manifestBuilder.build()
 
     let manifestPath = "\(resourcesDir)/db-manifest.json"
@@ -460,14 +497,18 @@ struct BuildTests {
     }
 
     let manifestData = try Data(contentsOf: URL(fileURLWithPath: manifestPath))
-    guard let manifest = try JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
-          let databases = manifest["databases"] as? [[String: Any]]
+    guard let manifest = try JSONSerialization
+      .jsonObject(with: manifestData) as? [String: Any],
+      let databases = manifest["databases"] as? [[String: Any]]
     else {
       throw TestError.missingResource("Invalid manifest structure")
     }
 
     // Verify databases array is not empty
-    #expect(databases.count > 0, "Manifest should contain at least one database")
+    #expect(
+      databases.count > 0,
+      "Manifest should contain at least one database",
+    )
 
     // Find en:soma in manifest
     let somaEntry = databases.first { db in
@@ -481,9 +522,18 @@ struct BuildTests {
     // Verify all properties
     #expect(soma["language"] as? String == "en", "Language should be en")
     #expect(soma["author"] as? String == "soma", "Author should be soma")
-    #expect(!(soma["authorName"] as? String ?? "").isEmpty, "Author name should exist")
-    #expect(!(soma["buildTimestamp"] as? String ?? "").isEmpty, "Build timestamp should exist")
-    #expect(!(soma["schemaVersion"] as? String ?? "").isEmpty, "Schema version should exist")
+    #expect(
+      !(soma["authorName"] as? String ?? "").isEmpty,
+      "Author name should exist",
+    )
+    #expect(
+      !(soma["buildTimestamp"] as? String ?? "").isEmpty,
+      "Build timestamp should exist",
+    )
+    #expect(
+      !(soma["schemaVersion"] as? String ?? "").isEmpty,
+      "Schema version should exist",
+    )
 
     // Verify JSON metadata with actual author info and enriched authorBaseURL
     if let jsonStr = soma["json"] as? String {
@@ -491,41 +541,80 @@ struct BuildTests {
 
       // Parse and validate JSON contents
       if let jsonData = jsonStr.data(using: .utf8),
-         let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+         let jsonDict = try? JSONSerialization
+         .jsonObject(with: jsonData) as? [String: Any]
       {
         // JSON should have author type and name
-        #expect(jsonDict["type"] as? String == "translator", "soma type should be 'translator'")
-        #expect(jsonDict["name"] as? String == "Ayya Soma", "soma name should be 'Ayya Soma'")
+        #expect(
+          jsonDict["type"] as? String == "translator",
+          "soma type should be 'translator'",
+        )
+        #expect(
+          jsonDict["name"] as? String == "Ayya Soma",
+          "soma name should be 'Ayya Soma'",
+        )
 
         // JSON should be enriched with authorBaseURL pointing to bilara-data
-        #expect(jsonDict["authorBaseURL"] as? String != nil, "JSON should have authorBaseURL")
+        #expect(
+          jsonDict["authorBaseURL"] as? String != nil,
+          "JSON should have authorBaseURL",
+        )
         if let baseURL = jsonDict["authorBaseURL"] as? String {
-          #expect(baseURL.contains("github.com"), "authorBaseURL should be a GitHub URL")
-          #expect(baseURL.contains("bilara-data"), "authorBaseURL should point to bilara-data repository")
-          #expect(baseURL.contains("en/soma"), "authorBaseURL should contain en/soma path")
+          #expect(
+            baseURL.contains("github.com"),
+            "authorBaseURL should be a GitHub URL",
+          )
+          #expect(
+            baseURL.contains("bilara-data"),
+            "authorBaseURL should point to bilara-data repository",
+          )
+          #expect(
+            baseURL.contains("en/soma"),
+            "authorBaseURL should contain en/soma path",
+          )
         }
       }
     }
 
     // Verify files field
     if let files = soma["files"] {
-      #expect(files as? [String: Any] != nil || files as? Int != nil, "Files should be dict or int")
+      #expect(
+        files as? [String: Any] != nil || files as? Int != nil,
+        "Files should be dict or int",
+      )
     }
 
-    print("✓ Manifest verified: en:soma entry has all properties and valid JSON content")
+    print(
+      "✓ Manifest verified: en:soma entry has all properties and valid JSON content",
+    )
 
-    // Also verify fr:noeismet (falls back to ebt-data since bilara-data doesn't exist)
+    // Also verify fr:noeismet (falls back to ebt-data since bilara-data doesn't
+    // exist)
     let noeismetEntry = databases.first { db in
-      (db["language"] as? String) == "fr" && (db["author"] as? String) == "noeismet"
+      (db[
+        "language",
+      ] as? String) == "fr" && (db["author"] as? String) == "noeismet"
     }
 
     if let noeismet = noeismetEntry {
       // Verify all properties
       #expect(noeismet["language"] as? String == "fr", "Language should be fr")
-      #expect(noeismet["author"] as? String == "noeismet", "Author should be noeismet")
-      #expect(!(noeismet["authorName"] as? String ?? "").isEmpty, "Author name should exist")
-      #expect(!(noeismet["buildTimestamp"] as? String ?? "").isEmpty, "Build timestamp should exist")
-      #expect(!(noeismet["schemaVersion"] as? String ?? "").isEmpty, "Schema version should exist")
+      #expect(
+        noeismet["author"] as? String == "noeismet",
+        "Author should be noeismet",
+      )
+      #expect(
+        !(noeismet["authorName"] as? String ?? "").isEmpty,
+        "Author name should exist",
+      )
+      #expect(
+        !(noeismet["buildTimestamp"] as? String ?? "").isEmpty,
+        "Build timestamp should exist",
+      )
+      #expect(
+        !(noeismet["schemaVersion"] as? String ?? "").isEmpty,
+        "Schema version should exist",
+      )
 
       // Verify JSON metadata
       if let jsonStr = noeismet["json"] as? String {
@@ -533,23 +622,45 @@ struct BuildTests {
 
         // Parse and validate JSON contents
         if let jsonData = jsonStr.data(using: .utf8),
-           let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+           let jsonDict = try? JSONSerialization
+           .jsonObject(with: jsonData) as? [String: Any]
         {
           // JSON should have author type and name
-          #expect(jsonDict["type"] as? String == "translator", "noeismet type should be 'translator'")
-          #expect(jsonDict["name"] as? String == "Noé Ismet", "noeismet name should be 'Noé Ismet'")
+          #expect(
+            jsonDict["type"] as? String == "translator",
+            "noeismet type should be 'translator'",
+          )
+          #expect(
+            jsonDict["name"] as? String == "Noé Ismet",
+            "noeismet name should be 'Noé Ismet'",
+          )
 
-          // JSON should have authorBaseURL pointing to ebt-data (since bilara-data fr/noeismet doesn't exist)
-          #expect(jsonDict["authorBaseURL"] as? String != nil, "JSON should have authorBaseURL")
+          // JSON should have authorBaseURL pointing to ebt-data (since
+          // bilara-data fr/noeismet doesn't exist)
+          #expect(
+            jsonDict["authorBaseURL"] as? String != nil,
+            "JSON should have authorBaseURL",
+          )
           if let baseURL = jsonDict["authorBaseURL"] as? String {
-            #expect(baseURL.contains("github.com"), "authorBaseURL should be a GitHub URL")
-            #expect(baseURL.contains("ebt-data"), "authorBaseURL should point to ebt-data repository (fallback)")
-            #expect(baseURL.contains("fr/noeismet"), "authorBaseURL should contain fr/noeismet path")
+            #expect(
+              baseURL.contains("github.com"),
+              "authorBaseURL should be a GitHub URL",
+            )
+            #expect(
+              baseURL.contains("ebt-data"),
+              "authorBaseURL should point to ebt-data repository (fallback)",
+            )
+            #expect(
+              baseURL.contains("fr/noeismet"),
+              "authorBaseURL should contain fr/noeismet path",
+            )
           }
         }
       }
 
-      print("✓ Manifest verified: fr:noeismet entry (ebt-data fallback) has all properties and valid JSON content")
+      print(
+        "✓ Manifest verified: fr:noeismet entry (ebt-data fallback) has all properties and valid JSON content",
+      )
     }
   }
 
@@ -559,7 +670,8 @@ struct BuildTests {
 
     do {
       let (_, response) = try await URLSession.shared.data(for: request)
-      guard let httpResponse = response as? HTTPURLResponse else { return false }
+      guard let httpResponse = response as? HTTPURLResponse
+      else { return false }
       return httpResponse.statusCode == 200
     } catch {
       return false

@@ -104,7 +104,7 @@ public struct AboutCardView: View {
   @Environment(\.openURL) var openURL
   @State private var imageCredits: [String: ImageCredit] = [:]
   @State private var expandedSection: String? = nil
-  let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
+  let cc = ColorConsole(#file, #function, dbg.AboutCardView.other)
 
   public init<Card: ICard, Manager: ICardManager>(
     card: Card? = nil,
@@ -417,7 +417,17 @@ public struct AboutCardView: View {
             }
           }
           .onAppear {
-            imageCredits = ImageCreditsLoader.shared.loadImageCredits()
+            expandedSection = "overview"
+            cc.ok1(#line, #function, "Overview")
+          }
+          .task {
+            do {
+              cc.ok2(#line, #function, "ImageCreditsLoader...")
+              imageCredits = await ImageCreditsLoader.shared.loadImageCredits()
+              cc.ok1(#line, #function, "OK")
+            } catch {
+              cc.bad1(#line, #function, error)
+            }
           }
 
           // MARK: - Audio Credits
@@ -556,7 +566,9 @@ public struct AboutCardView: View {
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
 
               Button(action: {
-                if let url = URL(string: "https://github.com/sc-voice/scv-app/issues") {
+                if let url =
+                  URL(string: "https://github.com/sc-voice/scv-app/issues")
+                {
                   openURL(url)
                 }
               }) {

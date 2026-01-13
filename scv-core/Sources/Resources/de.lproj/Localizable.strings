@@ -122,7 +122,7 @@
 "about.section.overview" = "Übersicht";
 
 /* About card view: overview description */
-"about.overview.description" = "Durchsuchen Sie, lesen und hören Sie mit SuttaCentral ausgerichtete frühe buddhistische Texte (Suttas) offline in mehreren Sprachen.";
+"about.overview.description" = "Durchsuchen Sie, lesen und hören Sie mit SuttaCentral ausgerichtete frühe buddhistische Texte (Suttas) offline für ausgewählte Autoren in mehreren Sprachen.";
 
 /* About card view: full-text search feature */
 "about.feature.search" = "Volltextsuche";

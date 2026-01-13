@@ -1,15 +1,17 @@
 import Foundation
-import Testing
-import scvCore
 import scv_build
+import scvCore
+import Testing
 
 @Suite("BuildDBCommand Tests")
 struct BuildDBCommandTests {
   // Helper to get project root from test environment
   private func getProjectRoot() -> String {
-    // Start from current working directory which is the project root when tests run
+    // Start from current working directory which is the project root when tests
+    // run
     FileManager.default.currentDirectoryPath
   }
+
   // MARK: - parseAuthorPair Tests
 
   @Test("parseAuthorPair with valid lang:author format")
@@ -69,7 +71,11 @@ struct BuildDBCommandTests {
   @Test("parseArguments with multiple database specs")
   func parseArgumentsMultipleDatabases() throws {
     let cmd = BuildDBCommand(projectRoot: getProjectRoot())
-    let result = try cmd.parseArguments(["en:sujato", "de:sabbamitta", "pli:ms"])
+    let result = try cmd.parseArguments([
+      "en:sujato",
+      "de:sabbamitta",
+      "pli:ms",
+    ])
 
     if case let .buildDatabases(authors) = result {
       #expect(authors.count == 3)
@@ -161,7 +167,10 @@ struct BuildDBCommandTests {
   func parseArgumentsPrioritizeManifest() throws {
     let cmd = BuildDBCommand(projectRoot: getProjectRoot())
     // When --rebuild-from-manifest is present, it should win
-    let result = try cmd.parseArguments(["en:sujato", "--rebuild-from-manifest"])
+    let result = try cmd.parseArguments([
+      "en:sujato",
+      "--rebuild-from-manifest",
+    ])
 
     if case .rebuildFromManifest = result {
       // Success - manifest command takes priority
@@ -202,7 +211,9 @@ struct BuildDBCommandTests {
     #expect(result.hasSuffix("local/ebt-data/translation"))
   }
 
-  @Test("getTranslationDirectory for pli with different author uses translation directory")
+  @Test(
+    "getTranslationDirectory for pli with different author uses translation directory",
+  )
   func getTranslationDirectoryPliOther() throws {
     let cmd = BuildDBCommand(projectRoot: getProjectRoot())
     let result = cmd.getTranslationDirectory(lang: "pli", author: "other")
@@ -276,7 +287,9 @@ struct BuildDBCommandTests {
 
   // MARK: - compressSelectedDatabases Tests
 
-  @Test("compressSelectedDatabases compresses and decompresses en:soma database")
+  @Test(
+    "compressSelectedDatabases compresses and decompresses en:soma database",
+  )
   func compressSelectedDatabasesEnSoma() throws {
     let projectRoot = getProjectRoot()
     let fileManager = FileManager.default

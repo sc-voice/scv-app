@@ -6,7 +6,8 @@ import scvCore
 // 2. All .zst files in Resources have corresponding .db in local/build
 // 3. All .db files in local/build have corresponding .zst in Resources
 // 4. All .zst files have modification time >= manifest buildTimestamp
-// 5. All .zst files are no earlier than 1 minute before corresponding .db modification time
+// 5. All .zst files are no earlier than 1 minute before corresponding .db
+// modification time
 
 @main
 struct VerifyManifestCommand {
@@ -21,14 +22,16 @@ struct VerifyManifestCommand {
     let fileManager = FileManager.default
     let iso8601Formatter = ISO8601DateFormatter()
 
-    guard let manifestData = try? Data(contentsOf: URL(fileURLWithPath: manifestPath))
+    guard let manifestData =
+      try? Data(contentsOf: URL(fileURLWithPath: manifestPath))
     else {
       cc.bad1(#line, "Could not read manifest at \(manifestPath)")
       exit(1)
     }
 
     guard
-      let json = try? JSONSerialization.jsonObject(with: manifestData) as? [String: Any],
+      let json = try? JSONSerialization
+      .jsonObject(with: manifestData) as? [String: Any],
       let databases = json["databases"] as? [[String: Any]]
     else {
       cc.bad1(#line, "Error: Could not parse manifest JSON")
@@ -38,14 +41,18 @@ struct VerifyManifestCommand {
     var errors: [String] = []
 
     // Get all .db files in local/build
-    guard let buildFiles = try? fileManager.contentsOfDirectory(atPath: buildDir) else {
+    guard let buildFiles = try? fileManager
+      .contentsOfDirectory(atPath: buildDir)
+    else {
       cc.bad1(#line, "Could not read \(buildDir)")
       exit(1)
     }
     let buildDbs = Set(buildFiles.filter { $0.hasSuffix(".db") })
 
     // Get all .zst files in Resources
-    guard let resourceFiles = try? fileManager.contentsOfDirectory(atPath: resourcesDir) else {
+    guard let resourceFiles = try? fileManager
+      .contentsOfDirectory(atPath: resourcesDir)
+    else {
       cc.bad1(#line, "Could not read \(resourcesDir)")
       exit(1)
     }
@@ -122,7 +129,7 @@ struct VerifyManifestCommand {
 
     // 2. Verify all .zst files have corresponding .db
     for zstFile in resourceZsts {
-      let dbFile = String(zstFile.dropLast(4))  // Remove .zst
+      let dbFile = String(zstFile.dropLast(4)) // Remove .zst
 
       if !buildDbs.contains(dbFile) {
         let msg = "Orphaned .zst: \(zstFile) has no corresponding .db in \(buildDir)"
@@ -148,7 +155,7 @@ struct VerifyManifestCommand {
       cc.ok2(#line, "\(resourceZsts.count) compressed files in Resources")
       cc.ok1(#line, "Manifest verification passed")
     } else {
-      cc.bad1(#line, "Manifest verification \(errors.count) errors" )
+      cc.bad1(#line, "Manifest verification \(errors.count) errors")
       exit(1)
     }
   }

@@ -215,30 +215,30 @@ struct EbtSeekerTests {
   // TODO: Fix string length assertions - all counts are off by 1
   // See backlog: Fix EbtSeeker LIKE pattern string length assertions
   /*
-  @Test("EbtSeeker builds correct LIKE pattern for lemma search")
-  func lemmaSearchPatternGeneration() {
-    // Test case 1: Two lemmas (root, suffer)
-    // Expected: "% root %suffer %"
-    #expect("% root %suffer %".count == 17, "Two lemma pattern")
+   @Test("EbtSeeker builds correct LIKE pattern for lemma search")
+   func lemmaSearchPatternGeneration() {
+     // Test case 1: Two lemmas (root, suffer)
+     // Expected: "% root %suffer %"
+     #expect("% root %suffer %".count == 17, "Two lemma pattern")
 
-    // Test case 2: Three lemmas (root, of, suffer)
-    // Expected: "% root %of% suffer %"
-    #expect("% root %of% suffer %".count == 21, "Three lemma pattern")
+     // Test case 2: Three lemmas (root, of, suffer)
+     // Expected: "% root %of% suffer %"
+     #expect("% root %of% suffer %".count == 21, "Three lemma pattern")
 
-    // Test case 3: Four lemmas (lemma1, lemma2, lemma3, lemma4)
-    // Expected: "% lemma1 %lemma2%lemma3% lemma4 %"
-    #expect(
-      "% lemma1 %lemma2%lemma3% lemma4 %".count == 34,
-      "Four lemma pattern",
-    )
+     // Test case 3: Four lemmas (lemma1, lemma2, lemma3, lemma4)
+     // Expected: "% lemma1 %lemma2%lemma3% lemma4 %"
+     #expect(
+       "% lemma1 %lemma2%lemma3% lemma4 %".count == 34,
+       "Four lemma pattern",
+     )
 
-    print("[PATTERN 2-LEMMAS] Two lemmas should produce: '% root %suffer %'")
-    print(
-      "[PATTERN 3-LEMMAS] Three lemmas should produce: '% root %of% suffer %'",
-    )
-    print(
-      "[PATTERN 4-LEMMAS] Four lemmas should produce: '% lemma1 %lemma2%lemma3% lemma4 %'",
-    )
-  }
-  */
+     print("[PATTERN 2-LEMMAS] Two lemmas should produce: '% root %suffer %'")
+     print(
+       "[PATTERN 3-LEMMAS] Three lemmas should produce: '% root %of% suffer %'",
+     )
+     print(
+       "[PATTERN 4-LEMMAS] Four lemmas should produce: '% lemma1 %lemma2%lemma3% lemma4 %'",
+     )
+   }
+   */
 }
