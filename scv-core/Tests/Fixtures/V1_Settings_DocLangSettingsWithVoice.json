@@ -4,6 +4,17 @@
   ],
   "docLang" : "fr",
   "docLangSettings" : [
+    "en",
+    {
+      "author" : "sujato",
+      "emphasis" : true,
+      "language" : "en",
+      "pitch" : 1,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : ""
+    },
     "fr",
     {
       "author" : "noeismet",

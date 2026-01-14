@@ -5,9 +5,9 @@
       "lang" : "en",
       "phrases" : {
         "test" : {
-          "created" : 790098081.865868,
+          "created" : 790098948.619416,
           "documentCount" : 5,
-          "lastUsed" : 790098081.865868,
+          "lastUsed" : 790098948.619416,
           "lastUsedPhrase" : "testing",
           "lemma" : "test",
           "usesByMonth" : [
@@ -17,7 +17,7 @@
       }
     }
   ],
-  "docLang" : "de",
+  "docLang" : "en",
   "docLangSettings" : [
     "en",
     {
@@ -31,10 +31,10 @@
       "voiceName" : ""
     }
   ],
-  "isDarkModeEnabled" : false,
-  "lastApplicationVersion" : "0.0.600",
-  "maxColumnWidth" : 350,
-  "maxDoc" : 75,
+  "isDarkModeEnabled" : true,
+  "lastApplicationVersion" : "",
+  "maxColumnWidth" : 400,
+  "maxDoc" : 50,
   "paliSettings" : {
     "author" : "",
     "emphasis" : true,
@@ -45,14 +45,14 @@
     "voiceId" : "",
     "voiceName" : ""
   },
-  "playDoc" : false,
-  "playPali" : true,
-  "refAuthor" : "ms",
-  "refLang" : "pli",
-  "segmentPause" : 1.25,
-  "showDoc" : false,
-  "showPali" : true,
-  "showRef" : true,
-  "soundEffectVolume" : 0.75,
+  "playDoc" : true,
+  "playPali" : false,
+  "refAuthor" : "sujato",
+  "refLang" : "en",
+  "segmentPause" : 0.5,
+  "showDoc" : true,
+  "showPali" : false,
+  "showRef" : false,
+  "soundEffectVolume" : 0.5,
   "version" : 1
 }

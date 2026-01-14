@@ -64,7 +64,7 @@ struct V1CardSerializationTests {
     // Verify properties match
     // Note: UUID from fixture, not from originally created card
     #expect(decodedCard
-      .uuid == UUID(uuidString: "A6B95362-41F5-4E9F-A532-E3E65E5CE58C"))
+      .uuid == UUID(uuidString: "0071F6BA-FF58-4641-B3EC-05A23745FB49"))
     #expect(decodedCard.cardType == originalCard.cardType)
     #expect(decodedCard.typeId == originalCard.typeId)
     #expect(decodedCard.searchQuery == originalCard.searchQuery)
@@ -97,7 +97,7 @@ struct V1CardSerializationTests {
 
     // Verify values from fixture
     #expect(decodedCard
-      .uuid == UUID(uuidString: "34BB54E5-1004-46AF-9481-F6FABC1A947F"))
+      .uuid == UUID(uuidString: "594DD7B5-1B95-4CD2-80F1-220F1639D28B"))
     #expect(decodedCard.cardType == originalCard.cardType)
     #expect(decodedCard.searchResults != nil)
     #expect(decodedCard.searchResults?.pattern == originalCard.searchResults?
@@ -134,7 +134,7 @@ struct V1CardSerializationTests {
 
     // Verify values from fixture
     #expect(decodedCard
-      .uuid == UUID(uuidString: "74EA6822-BE14-4E69-9F3C-5871BC9E94CD"))
+      .uuid == UUID(uuidString: "5E2A9EC7-5BE2-4964-89AD-201E7DBD0EBF"))
     #expect(decodedCard.searchResults != nil)
     #expect(decodedCard.searchResults?.pattern == originalCard.searchResults?
       .pattern)
@@ -168,7 +168,7 @@ struct V1CardSerializationTests {
 
     // Verify values from fixture
     #expect(decodedCard
-      .uuid == UUID(uuidString: "19C8FF11-8A99-45E9-ADD8-B74E5D0A11E8"))
+      .uuid == UUID(uuidString: "011B7BC2-5AC2-48BE-A7DD-0FB56912B564"))
     #expect(decodedCard.searchResults == nil)
   }
 
@@ -190,7 +190,7 @@ struct V1CardSerializationTests {
 
     // Verify values from fixture
     #expect(decodedCard
-      .uuid == UUID(uuidString: "FA5912AD-9675-46DE-A3F4-3E07041797A2"))
+      .uuid == UUID(uuidString: "A44829E3-E861-4D86-BF45-A5465B032EF2"))
     #expect(decodedCard.searchResults != nil)
     #expect(decodedCard.searchResults?.mlDocs.count == card.searchResults?
       .mlDocs.count)

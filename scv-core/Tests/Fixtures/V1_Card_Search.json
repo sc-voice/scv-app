@@ -1,6 +1,6 @@
 {
   "cardType" : "search",
-  "createdAt" : 789326760.878028,
+  "createdAt" : 790098081.840629,
   "searchQuery" : "anicca",
   "searchResults" : {
     "author" : "test",
@@ -26,5 +26,5 @@
   },
   "suttaReference" : "",
   "typeId" : 3,
-  "uuid" : "34BB54E5-1004-46AF-9481-F6FABC1A947F"
+  "uuid" : "594DD7B5-1B95-4CD2-80F1-220F1639D28B"
 }

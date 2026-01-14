@@ -155,6 +155,49 @@ struct V1SerializationTests {
     }
   }
 
+  // MARK: - Serialization: autoCompleteData
+
+  @Test func serializeAutoCompleteData() throws {
+    /// Test autoCompleteData serialization with PhraseAsset entries
+    let settings = Settings()
+
+    // Create phrase asset with test data
+    let now = Date()
+    let phrase = PhraseAsset(
+      lemma: "test",
+      lastUsedPhrase: "testing",
+      created: now,
+      lastUsed: now,
+      documentCount: 5,
+    )
+
+    // Create autocomplete entry for sujato/en
+    let autoCompleteEntry = PhrasesByAuthorLang(
+      author: "sujato",
+      lang: "en",
+      phrases: ["test": phrase],
+    )
+    settings.autoCompleteData = [autoCompleteEntry]
+
+    // Persist to UserDefaults and load into new instance
+    let (loaded, _) = try Self.getFixtureCard(
+      settings,
+      testName: "Settings_AutoCompleteData",
+    )
+
+    // Verify autoCompleteData persists
+    #expect(loaded.autoCompleteData.count == 1)
+    #expect(loaded.autoCompleteData[0].author == "sujato")
+    #expect(loaded.autoCompleteData[0].lang == "en")
+
+    // Verify phrase data survives
+    if let loadedPhrase = loaded.autoCompleteData[0].phrases["test"] {
+      #expect(loadedPhrase.lemma == "test")
+      #expect(loadedPhrase.lastUsedPhrase == "testing")
+      #expect(loadedPhrase.documentCount == 5)
+    }
+  }
+
   // MARK: - Serialization: docLangSettings (Dictionary Structure)
 
   @Test func serializeDocLangSettingsMinimal() throws {

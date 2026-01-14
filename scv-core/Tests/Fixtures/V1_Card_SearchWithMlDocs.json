@@ -1,6 +1,6 @@
 {
   "cardType" : "search",
-  "createdAt" : 789326760.88095,
+  "createdAt" : 790098081.842346,
   "searchQuery" : "root of suffering",
   "searchResults" : {
     "author" : "sujato",
@@ -445,5 +445,5 @@
   },
   "suttaReference" : "",
   "typeId" : 2,
-  "uuid" : "74EA6822-BE14-4E69-9F3C-5871BC9E94CD"
+  "uuid" : "5E2A9EC7-5BE2-4964-89AD-201E7DBD0EBF"
 }

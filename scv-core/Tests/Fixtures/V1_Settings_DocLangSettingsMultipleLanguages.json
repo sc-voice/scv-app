@@ -4,17 +4,6 @@
   ],
   "docLang" : "en",
   "docLangSettings" : [
-    "en",
-    {
-      "author" : "brahmali",
-      "emphasis" : true,
-      "language" : "en",
-      "pitch" : 1.15,
-      "rate" : 1,
-      "variant" : "default",
-      "voiceId" : "",
-      "voiceName" : "Daniel"
-    },
     "de",
     {
       "author" : "sonjabuege",
@@ -36,6 +25,17 @@
       "variant" : "default",
       "voiceId" : "",
       "voiceName" : "Rosa"
+    },
+    "en",
+    {
+      "author" : "brahmali",
+      "emphasis" : true,
+      "language" : "en",
+      "pitch" : 1.15,
+      "rate" : 1,
+      "variant" : "default",
+      "voiceId" : "",
+      "voiceName" : "Daniel"
     }
   ],
   "isDarkModeEnabled" : true,
