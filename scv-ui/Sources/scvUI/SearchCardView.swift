@@ -178,7 +178,7 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
       .toolbar {
         ToolbarItem(placement: {
           #if os(iOS)
-            return isPhone ? .navigationBarTrailing : .principal
+            return .principal
           #else
             return .automatic
           #endif

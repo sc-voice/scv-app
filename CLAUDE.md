@@ -115,17 +115,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 
 ## Backlog
 
-### Plan incremental migration from metadata to metaprops
-**Status**: Backlog
-
-01. [ ] Design migration strategy to transition from fixed-column metadata table to schema-free metaprops table
-    - Identify which queries currently read metadata table
-    - Plan which fields migrate first vs. which remain as long-term compatibility
-    - Determine backwards-compatibility strategy for app versions
-    - Document deprecation timeline for metadata table
-    - See: scv-core/Sources/EbtData.swift getMetaprop/getAllMetaprops methods (lines 1040-1124)
-    - See: scv-build/Sources/scvBuild/Builders/EbtDBBuilder.swift metaprops population (lines 55-137)
-
 ### Fix EbtSeeker LIKE pattern string length assertions
 **Status**: Backlog
 
@@ -241,14 +230,20 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Target: reduce lemmatization time below SQL execution time
 
 ### Make EbtData SQL query methods async
-**Status**: Backlog
+**Status**: In Progress (Partial)
 
-01. [ ] Convert synchronous EbtData SQL methods to async (See: scv-core/Sources/EbtData.swift:328-1110)
-    - Current: Methods like `getMLDocument()`, `getDocument()`, `metadata()` are sync
+01. [x] Create static async wrapper for getMLDocument() - delegates to instance method
+    - See: scv-core/Sources/EbtData.swift:136-143
+    - CardManager uses async version (line 340)
+
+02. [ ] Convert instance methods to fully async (See: scv-core/Sources/EbtData.swift:594-1180)
+    - Current: `getMLDocument()`, `getDocument()`, `availableAuthors()`, `suttaUidsForAuthor()` are sync
     - Problem: Sync database queries block MainActor when called from UI code
-    - Solution: Make all SQL query methods async to avoid UI freezing
-    - Priority methods: getMLDocument, getDocument, metadata, availableAuthors, suttaUidsForAuthor
-    - Update all callsites to use await
+    - Solution: Make instance methods async to avoid UI freezing
+    - Status of metadata(): Already removed (commit be81534), replaced with getMetaprop()
+    - getMetaprop() has both sync (line 1094) and async (via EbtDb wrapper, line 1500) versions
+    - Need to complete async conversion of remaining methods
+    - Update all internal callsites to use await
     - Keep actor serialization to maintain thread safety
 
 ### Fix SuttaPlayer audio synthesis timeout
