@@ -480,9 +480,19 @@ public actor EbtData {
 
     databases[key] = database
 
-    // Log database metadata
-    logDatabaseMetadata(lang: lang, author: author)
-    cc.ok1(#line, #function, "OK")
+    let git_hash = getMetaprop(lang: lang, author: author, key: "git_hash")
+    guard let git_hash else {
+      cc.bad1(#line, #function, "missing git_hash")
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    let timestamp = getMetaprop(lang: lang, author: author, key: "git_hash_timestamp")
+    guard let timestamp else {
+      cc.bad1(#line, #function, "missing git_hash_timestamp")
+      throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
+    }
+
+    cc.ok1(#line, #function, "loaded ebt-data[\(key)] commit:\(git_hash) \(timestamp)")
   }
 
   /// Gets database pointer for language/author, ensuring it's loaded
@@ -629,9 +639,8 @@ public actor EbtData {
         return nil
       }
 
-      // Get author name from metadata
-      let authorName = metadata(lang: lang, author: author)?
-        .authorName ?? author
+      // Get author name from metaprops
+      let authorName = getMetaprop(lang: lang, author: author, key: "author_name") ?? author
 
       // Query segments for this sutta (schema v6: using suttaUid, scid, text)
       let query = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
@@ -1064,65 +1073,6 @@ public actor EbtData {
     return authors.sorted { ($0.lang, $0.author) < ($1.lang, $1.author) }
   }
 
-  /// Returns metadata for specific author if available
-  public func metadata(lang: String, author: String) -> AuthorMetadata? {
-    do {
-      try ensureDatabase(lang: lang, author: author)
-      let key = "\(lang)/\(author)"
-      guard let db = databases[key] else { return nil }
-
-      let query = "SELECT language, author, author_name, git_hash, build_timestamp, json FROM metadata LIMIT 1"
-      var stmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
-        return nil
-      }
-
-      defer { sqlite3_finalize(stmt) }
-
-      if sqlite3_step(stmt) == SQLITE_ROW {
-        if let langC = sqlite3_column_text(stmt, 0),
-           let authorC = sqlite3_column_text(stmt, 1),
-           let authorNameC = sqlite3_column_text(stmt, 2),
-           let buildTimestampC = sqlite3_column_text(stmt, 4)
-        {
-          let metaLang = String(cString: langC)
-          let metaAuthor = String(cString: authorC)
-          let metaAuthorName = String(cString: authorNameC)
-          let metaBuildTimestamp = String(cString: buildTimestampC)
-
-          // git_hash can be NULL
-          var metaGitHash: String? = nil
-          if sqlite3_column_type(stmt, 3) != SQLITE_NULL,
-             let gitHashC = sqlite3_column_text(stmt, 3)
-          {
-            metaGitHash = String(cString: gitHashC)
-          }
-
-          // json can be NULL
-          var metaJson: String? = nil
-          if sqlite3_column_type(stmt, 5) != SQLITE_NULL,
-             let jsonC = sqlite3_column_text(stmt, 5)
-          {
-            metaJson = String(cString: jsonC)
-          }
-
-          return AuthorMetadata(
-            language: metaLang,
-            author: metaAuthor,
-            authorName: metaAuthorName,
-            gitHash: metaGitHash,
-            buildTimestamp: metaBuildTimestamp,
-            json: metaJson,
-          )
-        }
-      }
-
-      return nil
-    } catch {
-      return nil
-    }
-  }
 
   /// Returns value for a single metaprop key
   /// - Parameters:
@@ -1462,21 +1412,6 @@ public actor EbtData {
     return mismatchedDatabases
   }
 
-  private func logDatabaseMetadata(lang: String, author: String) {
-    guard let meta = metadata(lang: lang, author: author) else {
-      cc.ok1(#line, "Database loaded: \(lang):\(author)")
-      return
-    }
-
-    cc.ok1(
-      #line,
-      "Database loaded: \(meta.language):\(meta.author) (\(meta.authorName))",
-    )
-    if let gitHash = meta.gitHash {
-      cc.ok2(#line, "  Git: \(gitHash), Built: \(meta.buildTimestamp)")
-    }
-  }
-
   /// Check if a sutta reference exists in its database
   /// - Parameter suttaRef: The sutta reference to check
   /// - Returns: true if sutta exists, false if not or database not found
@@ -1515,17 +1450,6 @@ public actor EbtData {
       return false
     }
   }
-}
-
-// MARK: - Metadata Type
-
-public struct AuthorMetadata {
-  public let language: String
-  public let author: String
-  public let authorName: String
-  public let gitHash: String?
-  public let buildTimestamp: String
-  public let json: String?
 }
 
 // MARK: - EbtDb (Lightweight Database Reference)

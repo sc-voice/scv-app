@@ -187,6 +187,7 @@ struct EbtDataTests {
     #expect(mlDoc.docLang == suttaRef.lang)
     #expect(mlDoc.docAuthor == suttaRef.author)
     #expect(mlDoc.author == suttaRef.author)
+    #expect(mlDoc.docAuthorName == "Bhikkhu Sujato")
     #expect(!mlDoc.segMap.isEmpty)
 
     // Verify segment data matches known content from source JSON
@@ -279,6 +280,7 @@ struct EbtDataTests {
     #expect(mlDoc.docLang == "en")
     #expect(mlDoc.docAuthor == "sujato")
     #expect(mlDoc.author == "sujato")
+    #expect(mlDoc.docAuthorName == "Bhikkhu Sujato")
     #expect(!mlDoc.segMap.isEmpty)
 
     // Verify segment count (dn16 should have 1664 segments)

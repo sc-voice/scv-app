@@ -619,7 +619,9 @@ public class EbtDBBuilder {
     request.timeoutInterval = 5.0 // 5 second timeout
 
     let semaphore = DispatchSemaphore(value: 0)
-    var statusCode: Int? = nil
+    // statusCode is safe to mutate in closure: main thread blocks on semaphore.wait()
+    // until closure signals completion, preventing concurrent access
+    nonisolated(unsafe) var statusCode: Int? = nil
 
     let task = URLSession.shared.dataTask(with: request) { _, response, error in
       defer { semaphore.signal() }
