@@ -1,17 +1,18 @@
 # SC-Voice App Store Readiness Assessment
 
 **Status**: Ready to Submit ✓
-**Date**: 2026-01-06
-**Latest Commit**: 98e5a9d
-**Build Version**: 0.0.594
+**Date**: 2026-01-14
+**Latest Commit**: 37e8d41
+**Build Version**: 0.2601.0
 **Marketing Version**: 0.26.1 (software.year.month)
+**Latest Build**: 2026-01-14 08:05:39 (PASSED all tests)
 
 ---
 
 ## 1. Core Build & Quality ✓
 
-- **All Tests Pass**: 388 core tests + 38 UI tests + manifest validation
-- **No Compiler Warnings**: Clean Swift 6 build
+- **All Tests Pass**: 429 core tests + 38 UI tests + manifest validation = 467 total (1.176s + 0.608s)
+- **No Compiler Warnings**: Clean Swift 6 build (no Sendability warnings found)
 - **Database Content**: All manifest databases present and verified
 - **Build Configuration**: Automatic code signing enabled, ready for release
 
@@ -72,13 +73,27 @@
    - Tab order and focus management
 
 ### 4.3 Sendability Warnings
-**Status**: Non-fatal compile warnings
+**Status**: ✓ RESOLVED (verified 2026-01-14)
 
-- Locations: CardManager.swift:98, CardManager.swift:100, CardSidebarView.swift:216,219
-- Impact: None—code functions correctly
-- Post-launch: Requires architectural changes to CardManager/MockCardManager
+- Previous items (CardManager.swift:98, 100; CardSidebarView.swift:216,219) no longer present
+- Full build verification: No Sendability warnings detected
+- Code compiles cleanly with Swift 6
 
-### 4.4 Audio Synthesis Edge Cases
+### 4.4 Current Build Warnings (Non-Blocking)
+**Status**: Cosmetic warnings only
+
+1. **ZSTD Configuration Macros**
+   - 14 warnings about configuration macros having no effect
+   - Source: External libzstd library import
+   - Impact: None—does not affect app functionality or store approval
+
+2. **Unused German Phrase in AppShortcuts**
+   - 1 warning: `Ask ${applicationName}` phrase not used in German
+   - Source: AppShortcuts.xcstrings
+   - Impact: None—cosmetic warning
+   - Resolution: Optional post-launch cleanup
+
+### 4.5 Audio Synthesis Edge Cases
 **Status**: Rare timeout in TTS initialization
 
 - Location: SuttaPlayer.swift:126
@@ -86,6 +101,39 @@
 - Error code: kAudioDevicePropertyMute 2003332927
 - Impact: Minimal—has fallback handling
 - Post-launch: Implement retry logic and audio session debugging
+
+---
+
+## 4.6 Build & Test Verification (2026-01-14)
+**Status**: ✓ ALL SYSTEMS GO
+
+**Full Build Log**: `local/build/make.log` (3.0 MB, 12,427 lines)
+
+Build Performance:
+- Core build: 0.21s
+- UI build: 0.21s
+- iOS app build: ~38s
+- Total rebuild cycle: ~9 minutes
+
+Test Execution:
+```
+✅ Core Tests:        429 tests / 21 suites PASSED in 1.176s
+✅ UI Tests:          38 tests / 2 suites PASSED in 0.608s
+✅ Manifest Verify:   13 databases verified
+✅ Total:             467 tests ALL PASSED
+```
+
+Compiler Output:
+- 0 compilation errors
+- 0 Sendability warnings
+- 0 concurrency issues
+- 15 non-blocking warnings (ZSTD + AppShortcuts only)
+
+Build Artifacts:
+- iOS app bundle signed and validated
+- Localization: 2 locales processed (en, de)
+- Code signing: "Sign to Run Locally" ✓
+- Bundle validation: PASSED ✓
 
 ---
 

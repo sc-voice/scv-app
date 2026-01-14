@@ -62,22 +62,22 @@ do {
     // Read current version from Version.swift
     var versionSwiftContent = try String(contentsOfFile: versionSwiftPath, encoding: .utf8)
 
-    // Extract version using regex: public let appVersion = "X.Y.Z"
-    let versionPattern = "public let appVersion = \"([\\d.]+)\""
-    let versionRegex = try NSRegularExpression(pattern: versionPattern, options: [])
-    let versionMatches = versionRegex.matches(in: versionSwiftContent, options: [], range: NSRange(versionSwiftContent.startIndex..., in: versionSwiftContent))
+    // Extract buildVersion using regex: public let buildVersion = "X.YYZZ.Z"
+    let buildVersionPattern = "public let buildVersion = \"([\\d.]+)\""
+    let buildVersionRegex = try NSRegularExpression(pattern: buildVersionPattern, options: [])
+    let buildVersionMatches = buildVersionRegex.matches(in: versionSwiftContent, options: [], range: NSRange(versionSwiftContent.startIndex..., in: versionSwiftContent))
 
-    guard let versionMatch = versionMatches.first,
-          let versionRange = Range(versionMatch.range(at: 1), in: versionSwiftContent) else {
-        print("Error: Could not find version in Version.swift")
+    guard let buildVersionMatch = buildVersionMatches.first,
+          let buildVersionRange = Range(buildVersionMatch.range(at: 1), in: versionSwiftContent) else {
+        print("Error: Could not find buildVersion in Version.swift")
         exit(1)
     }
 
-    let currentVersion = String(versionSwiftContent[versionRange])
-    let newVersion = bumpType.bump(version: currentVersion)
+    let currentBuildVersion = String(versionSwiftContent[buildVersionRange])
+    let newBuildVersion = bumpType.bump(version: currentBuildVersion)
 
-    // Update Version.swift
-    versionSwiftContent.replaceSubrange(versionRange, with: newVersion)
+    // Update buildVersion in Version.swift
+    versionSwiftContent.replaceSubrange(buildVersionRange, with: newBuildVersion)
     try versionSwiftContent.write(toFile: versionSwiftPath, atomically: true, encoding: .utf8)
 
     // Update pbxproj files
@@ -96,14 +96,14 @@ do {
             // Process matches in reverse order to avoid index shifting
             for match in pbxMatches.reversed() {
                 if let versionRange = Range(match.range(at: 1), in: pbxContent) {
-                    pbxContent.replaceSubrange(versionRange, with: newVersion)
+                    pbxContent.replaceSubrange(versionRange, with: newBuildVersion)
                 }
             }
             try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
         }
     }
 
-    print("✓ Version bumped to \(newVersion)")
+    print("✓ Build version bumped to \(newBuildVersion)")
 
 } catch {
     print("Error: \(error.localizedDescription)")
