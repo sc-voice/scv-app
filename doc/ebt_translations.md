@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-01-11
+**Last updated:** 2026-01-13
 
 ## Overview
 
@@ -34,9 +34,9 @@ Run the script with:
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
 |     4304 | ✅ | en | ✅ | 1 | sujato |
-|     4060 | ✅ | de | ✅ | 1 | sabbamitta |
+|     4062 | ✅ | de | ✅ | 1 | sabbamitta |
 |      904 | ✅ | ru | ✅ | 1 | sv |
-|      658 |    | sr |    | 1 | brankokovacevic |
+|      737 |    | sr |    | 1 | brankokovacevic |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
 |      337 | ✅ | ru | ✅ | 2 | narinyanievmenenko |
 |      313 |    | lt |    | 1 | piyadassi |
@@ -44,7 +44,7 @@ Run the script with:
 |      276 | ✅ | cs |    | 1 | ashinsarana |
 |      263 | ✅ | it |    | 1 | giovannizappa |
 |      193 | ✅ | pt | ✅ | 1 | laera-quaresma |
-|       99 | ✅ | en | ✅ | 3 | kelly |
+|      100 | ✅ | en | ✅ | 3 | kelly |
 |       73 | ✅ | en | ✅ | 4 | soma |
 |       72 | ✅ | tr |    | 1 | dogensisapa |
 |       60 |    | jpn |    | 1 | kaz |
@@ -53,8 +53,8 @@ Run the script with:
 |       31 | ✅ | es | ✅ | 1 | font |
 |       26 | ✅ | vi |    | 1 | phantuananh |
 |       26 |    | et |    | 1 | thitanana |
+|       19 | ✅ | en |    | 5 | suddhaso |
 |       19 | ✅ | de | ✅ | 2 | sonjabuege |
-|       17 | ✅ | en |    | 5 | suddhaso |
 |       14 | ✅ | fr |    | 3 | christelle |
 |       10 | ✅ | pl |    | 2 | marcinow |
 |        9 |    | gu |    | 1 | trush |
@@ -72,7 +72,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    13254 files
+**Total:**    13338 files
 
 ## Inclusion Criteria
 

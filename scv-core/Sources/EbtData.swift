@@ -89,6 +89,44 @@ public actor EbtData {
     return e7a
   }
 
+  /// Factory for creating lightweight EbtDb reference to lang/author database
+  /// EbtDb provides synchronous-like access by delegating to the EbtData actor
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en", "de"), defaults to user's doc
+  /// language
+  ///   - author: Author identifier (e.g., "sujato"), defaults to manifest
+  /// default
+  /// - Returns: EbtDb instance, or nil if database cannot be loaded
+  public static func dbForLangAuthor(lang: String?, author: String?,
+                                     settings: Settings = Settings
+                                       .shared) async -> EbtDb?
+  {
+    let cc = ColorConsole(#file, #function, dbg.EbtData.other)
+    let langActual = lang ?? settings.docLang.rawValue ?? "en"
+    let authorActual = author ?? manifestCache
+      .defaultAuthorForLanguage(langActual)?.author ?? ""
+
+    do {
+      try await EbtData.shared.ensureDatabase(
+        lang: langActual,
+        author: authorActual,
+      )
+    } catch {
+      cc.bad1(
+        #line,
+        #function,
+        langActual,
+        authorActual,
+        error.localizedDescription,
+      )
+      return nil
+    }
+
+    let db = EbtDb(lang: langActual, author: authorActual, manager: .shared)
+    cc.ok1(#line, #function, langActual, authorActual)
+    return db
+  }
+
   /// Static convenience method to get MLDocument for a SuttaRef
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
   /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
@@ -401,8 +439,8 @@ public actor EbtData {
     // Read compressed data from bundle
     let compressedData = try Data(contentsOf: zstURL)
 
-    cc.ok2(#line, #function, "ZstdDecompression.decompress()", 
-      "\(compressedData.count)B")
+    cc.ok2(#line, #function, "ZstdDecompression.decompress()",
+           "\(compressedData.count)B")
 
     // Decompress using libzstd
     let decompressedData = try ZstdDecompression.decompress(compressedData)
@@ -1488,6 +1526,42 @@ public struct AuthorMetadata {
   public let gitHash: String?
   public let buildTimestamp: String
   public let json: String?
+}
+
+// MARK: - EbtDb (Lightweight Database Reference)
+
+/// Lightweight, non-actor class that provides synchronous access to a specific
+/// database
+/// by delegating queries back to the EbtData actor.
+/// This solves actor isolation issues by keeping all database operations within
+/// the actor,
+/// while allowing callers to use a simple synchronous interface.
+public class EbtDb {
+  public let lang: String
+  public let author: String
+  private let manager: EbtData
+
+  /// Initialize with language, author, and reference to EbtData actor
+  public init(lang: String, author: String, manager: EbtData = .shared) {
+    self.lang = lang
+    self.author = author
+    self.manager = manager
+  }
+
+  /// Get a single metaprop value by key
+  /// Delegates to the EbtData actor which handles database access
+  /// - Parameter key: The metaprop key to retrieve
+  /// - Returns: The metaprop value, or nil if not found
+  public func getMetaprop(key: String) async -> String? {
+    await manager.getMetaprop(lang: lang, author: author, key: key)
+  }
+
+  /// Get all metaprops as key/value dictionary
+  /// Delegates to the EbtData actor which handles database access
+  /// - Returns: Dictionary of all metaprop keys and values
+  public func getAllMetaprops() async -> [String: String] {
+    await manager.getAllMetaprops(lang: lang, author: author)
+  }
 }
 
 // MARK: - Error Type

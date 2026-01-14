@@ -114,7 +114,7 @@ public struct AppRootView<Manager: ICardManager>: View {
               object: nil,
               queue: .main,
             ) { _ in
-              cc.ok2( #line, #function, "UIKeyboardDidShow")
+              cc.ok2(#line, #function, "UIKeyboardDidShow")
             }
           #endif
 
@@ -144,9 +144,13 @@ public struct AppRootView<Manager: ICardManager>: View {
         .task {
           let lang = Settings.shared.docLang
           let author = Settings.shared.docAuthor
-          cc.ok2(#line, #function, lang, author, "EbtData.forLangAuthor()...")
-          guard let ebtData = await EbtData.forLangAuthor(lang: lang.rawValue, author: author) else { return }
-          let git_hash_timestamp = await ebtData.getMetaprop(lang: lang.rawValue, author: author, key: "git_hash_timestamp")
+          cc.ok2(#line, #function, lang, author, "EbtData.dbForLangAuthor()...")
+          guard let db = await EbtData.dbForLangAuthor(
+            lang: lang.rawValue,
+            author: author,
+          ) else { return }
+          let git_hash_timestamp = await db
+            .getMetaprop(key: "git_hash_timestamp")
           cc.ok1(#line, #function, "content:", git_hash_timestamp ?? "nil")
         }
         .onChange(of: cardManager.selectedCardId) {
@@ -175,12 +179,11 @@ public struct AppRootView<Manager: ICardManager>: View {
                           cardBinding: Binding<Manager.ManagedCard>?)
     -> some View
   {
-    let _ = cc.ok2( #line, #function,
-      "selectedCardId:",
-      cardManager.selectedCardId as Any,
-      "cardId:",
-      cardId,
-    )
+    let _ = cc.ok2(#line, #function,
+                   "selectedCardId:",
+                   cardManager.selectedCardId as Any,
+                   "cardId:",
+                   cardId)
     if let cardBinding {
       // Use cardBinding.wrappedValue to safely access card (handles ghost
       // cards)

@@ -2071,6 +2071,7 @@
 {"ehrenwerte":"ehrenwert"}
 {"ehrenwerten":"ehrenwert"}
 {"ehrliche":"ehrlich"}
+{"ehrlichen":"ehrlich"}
 {"ehrst":"ehren"}
 {"ehrt":"ehren"}
 {"ehrte":"ehren"}
@@ -2816,7 +2817,6 @@
 {"esst":"essen"}
 {"etabliere":"etablieren"}
 {"etabliert":"etablieren"}
-{"ethischen":"ethisch"}
 {"euch":"ihr"}
 {"eulen":"eule"}
 {"eure":"euer"}
@@ -3193,7 +3193,6 @@
 {"frühere":"früh"}
 {"früheren":"früh"}
 {"früherer":"früh"}
-{"früheres":"früh"}
 {"frühstück":"frühstücken"}
 {"fuchtelt":"fuchteln"}
 {"fuhr":"fahren"}
@@ -3231,7 +3230,6 @@
 {"fügte":"fügen"}
 {"fügten":"fügen"}
 {"fühle":"fühlen"}
-{"fühlende":"fühlen"}
 {"fühlst":"fühlen"}
 {"fühlt":"fühlen"}
 {"fühlte":"fühlen"}
@@ -3242,8 +3240,8 @@
 {"führt":"führen"}
 {"führte":"führen"}
 {"führten":"führen"}
-{"fülle":"füllen"}
 {"füll":"füllen"}
+{"fülle":"füllen"}
 {"füllst":"füllen"}
 {"füllt":"füllen"}
 {"füllte":"füllen"}
@@ -3718,6 +3716,7 @@
 {"gequält":"quälen"}
 {"geraden":"gerade"}
 {"gerader":"gerade"}
+{"geradlinige":"geradlinig"}
 {"gerann":"gerinnen"}
 {"gerate":"geraten"}
 {"geratet":"geraten"}
@@ -3832,6 +3831,7 @@
 {"geschrumpft":"schrumpfen"}
 {"geschuldet":"schulden"}
 {"geschult":"schulen"}
+{"geschulten":"schulen"}
 {"geschwatzt":"schwatzen"}
 {"geschweige":"geschweigen"}
 {"geschwemmt":"schwemmen"}
@@ -4275,6 +4275,8 @@
 {"gutheißt":"gutheißen"}
 {"gutherzige":"gutherzig"}
 {"gutherzigen":"gutherzig"}
+{"gutmütige":"gutmütig"}
+{"gutmütigen":"gutmütig"}
 {"gäbe":"geben"}
 {"gäbest":"geben"}
 {"gähnt":"gähnen"}
@@ -5730,7 +5732,10 @@
 {"monde":"mond"}
 {"mondes":"mond"}
 {"mondlichts":"mondlicht"}
+{"moralische":"moralisch"}
 {"moralischem":"moralisch"}
+{"moralischen":"moralisch"}
+{"moralischer":"moralisch"}
 {"moralisches":"moralisch"}
 {"mordes":"mord"}
 {"morgendlichen":"morgendlich"}
@@ -5830,7 +5835,6 @@
 {"nachlässiges":"nachlässig"}
 {"nachlässt":"nachlassen"}
 {"nachspricht":"nachsprechen"}
-{"nachsucht":"nachsuchen"}
 {"nachteile":"nachteil"}
 {"nachteils":"nachteil"}
 {"nachtwachen":"nachtwache"}
@@ -6231,7 +6235,6 @@
 {"rechtmäßige":"rechtmäßig"}
 {"rechtmäßigen":"rechtmäßig"}
 {"rechtmäßiges":"rechtmäßig"}
-{"rechtschaffene":"rechtschaffen"}
 {"rechtschaffenen":"rechtschaffen"}
 {"rechtswidrige":"rechtswidrig"}
 {"reckt":"recken"}
@@ -6242,10 +6245,7 @@
 {"redeten":"reden"}
 {"redeweisen":"redeweise"}
 {"redliche":"redlich"}
-{"redlichem":"redlich"}
 {"redlichen":"redlich"}
-{"redlicher":"redlich"}
-{"redliches":"redlich"}
 {"refugiums":"refugium"}
 {"regelmäßige":"regelmäßig"}
 {"regelmäßigen":"regelmäßig"}
@@ -6984,11 +6984,6 @@
 {"sinnliches":"sinnlich"}
 {"sinnlose":"sinnlos"}
 {"sinnt":"sinnen"}
-{"sittliche":"sittlich"}
-{"sittlichem":"sittlich"}
-{"sittlichen":"sittlich"}
-{"sittlicher":"sittlich"}
-{"sittliches":"sittlich"}
 {"sitz":"sitzen"}
 {"sitze":"sitzen"}
 {"sitzt":"sitzen"}
@@ -7600,7 +7595,14 @@
 {"tu":"tun"}
 {"tugenden":"tugend"}
 {"tugendhafte":"tugendhaft"}
+{"tugendhaftem":"tugendhaft"}
 {"tugendhaften":"tugendhaft"}
+{"tugendhaftes":"tugendhaft"}
+{"tugendlose":"tugendlos"}
+{"tugendlosem":"tugendlos"}
+{"tugendlosen":"tugendlos"}
+{"tugendloser":"tugendlos"}
+{"tugendloses":"tugendlos"}
 {"tumults":"tumult"}
 {"tuns":"tun"}
 {"turbane":"turban"}
@@ -7899,8 +7901,6 @@
 {"unmittelbarer":"unmittelbar"}
 {"unmittelbares":"unmittelbar"}
 {"unmoralische":"unmoralisch"}
-{"unmoralischem":"unmoralisch"}
-{"unmoralischen":"unmoralisch"}
 {"unmoralischer":"unmoralisch"}
 {"unmoralisches":"unmoralisch"}
 {"unmögliche":"unmöglich"}
@@ -7917,8 +7917,7 @@
 {"unrechtmäßigen":"unrechtmäßig"}
 {"unrechtmäßiger":"unrechtmäßig"}
 {"unredliche":"unredlich"}
-{"unredlicher":"unredlich"}
-{"unredliches":"unredlich"}
+{"unredlichen":"unredlich"}
 {"unreife":"unreif"}
 {"unreifem":"unreif"}
 {"unreifen":"unreif"}
@@ -7944,7 +7943,6 @@
 {"unsinnige":"unsinnig"}
 {"unsinnigem":"unsinnig"}
 {"unsinniger":"unsinnig"}
-{"unsittliche":"unsittlich"}
 {"unsterbliche":"unsterblich"}
 {"unsterblichen":"unsterblich"}
 {"unstetem":"unstet"}
@@ -9046,6 +9044,7 @@
 {"weltmeere":"weltmeer"}
 {"weltmeeren":"weltmeer"}
 {"weltmeeres":"weltmeer"}
+{"weltmeers":"weltmeer"}
 {"wem":"wer"}
 {"wen":"wer"}
 {"wende":"wenden"}

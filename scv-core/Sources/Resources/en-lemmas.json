@@ -164,6 +164,7 @@
 {"am":"be"}
 {"amassed":"amass"}
 {"amassing":"amass"}
+{"amazed":"amaze"}
 {"amazing":"amaze"}
 {"amending":"amend"}
 {"amends":"amend"}
@@ -1163,11 +1164,13 @@
 {"could":"can"}
 {"counseled":"counsel"}
 {"counted":"count"}
+{"counteracting":"counteract"}
 {"countering":"counter"}
 {"counterparts":"counterpart"}
 {"counters":"counter"}
 {"counting":"count"}
 {"countries":"country"}
+{"countrymen":"countryman"}
 {"counts":"count"}
 {"coupled":"couple"}
 {"couples":"couple"}
@@ -4436,6 +4439,7 @@
 {"retold":"retell"}
 {"retorts":"retort"}
 {"retreated":"retreat"}
+{"retreats":"retreat"}
 {"retrieved":"retrieve"}
 {"returned":"return"}
 {"returners":"returner"}

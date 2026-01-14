@@ -416,4 +416,118 @@ struct EbtDataTests {
     )
     #expect(db == nil)
   }
+
+  // MARK: - EbtDb Tests
+
+  @Test("dbForLangAuthor creates EbtDb instance")
+  func dbForLangAuthorCreates() async {
+    let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    #expect(db != nil)
+    #expect(db?.lang == "en")
+    #expect(db?.author == "sujato")
+  }
+
+  @Test("dbForLangAuthor returns nil for invalid author")
+  func dbForLangAuthorInvalidAuthor() async {
+    let db = await EbtData.dbForLangAuthor(
+      lang: "en",
+      author: "nonexistent-author-xyz",
+    )
+    #expect(db == nil)
+  }
+
+  @Test("EbtDb.getMetaprop retrieves language metaprop")
+  func ebtDbGetMetapropLanguage() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let language = await db.getMetaprop(key: "language")
+    #expect(language == "en")
+  }
+
+  @Test("EbtDb.getMetaprop retrieves author metaprop")
+  func ebtDbGetMetapropAuthor() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let author = await db.getMetaprop(key: "author")
+    #expect(author == "sujato")
+  }
+
+  @Test("EbtDb.getMetaprop retrieves schema_version metaprop")
+  func ebtDbGetMetapropSchemaVersion() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let schemaVersion = await db.getMetaprop(key: "schema_version")
+    #expect(schemaVersion == String(EbtData.schemaVersion))
+  }
+
+  @Test("EbtDb.getMetaprop returns nil for nonexistent key")
+  func ebtDbGetMetapropNonexistent() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let value = await db.getMetaprop(key: "nonexistent-key-xyz-123")
+    #expect(value == nil)
+  }
+
+  @Test("EbtDb.getAllMetaprops returns dictionary with language and author")
+  func ebtDbGetAllMetaprops() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let all = await db.getAllMetaprops()
+    #expect(!all.isEmpty)
+    #expect(all["language"] == "en")
+    #expect(all["author"] == "sujato")
+    #expect(all["schema_version"] == String(EbtData.schemaVersion))
+  }
+
+  @Test("EbtDb.getAllMetaprops includes author_name")
+  func ebtDbGetAllMetapropsIncludesAuthorName() async {
+    guard let db = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    else {
+      #expect(Bool(false), "Failed to create EbtDb for en/sujato")
+      return
+    }
+
+    let all = await db.getAllMetaprops()
+    #expect(all["author_name"] != nil)
+    #expect(!all["author_name"]!.isEmpty)
+  }
+
+  @Test("EbtDb works with different language/author combinations")
+  func ebtDbMultipleLangAuthor() async {
+    let db1 = await EbtData.dbForLangAuthor(lang: "en", author: "sujato")
+    let db2 = await EbtData.dbForLangAuthor(lang: "pli", author: "ms")
+
+    #expect(db1 != nil)
+    #expect(db2 != nil)
+
+    if let db1 {
+      let lang1 = await db1.getMetaprop(key: "language")
+      #expect(lang1 == "en")
+    }
+
+    if let db2 {
+      let lang2 = await db2.getMetaprop(key: "language")
+      #expect(lang2 == "pli")
+    }
+  }
 }

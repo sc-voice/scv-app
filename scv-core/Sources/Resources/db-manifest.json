@@ -1,174 +1,175 @@
 {
   "databases" : [
     {
-      "files" : {
-        "sutta" : 4060,
-        "total" : 4060
-      },
-      "json" : "{\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/de\\/sabbamitta\",\"type\":\"translator\",\"name\":\"Sabbamitta\"}",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "authorName" : "Sabbamitta",
+      "language" : "de",
+      "json" : "{\"name\":\"Sabbamitta\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/de\\/sabbamitta\"}",
       "author" : "sabbamitta",
-      "buildTimestamp" : "2026-01-11T17:29:05Z",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
       "schemaVersion" : "6",
+      "authorName" : "Sabbamitta",
       "authorUrl" : "https://dhammaregen.net",
-      "language" : "de"
+      "files" : {
+        "total" : 4062,
+        "sutta" : 4062
+      },
+      "buildTimestamp" : "2026-01-14T03:32:27Z"
     },
     {
-      "buildTimestamp" : "2026-01-11T17:30:18Z",
-      "files" : {
-        "total" : 19,
-        "sutta" : 19
-      },
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "language" : "de",
+      "json" : "{\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/de\\/sonjabuege\",\"name\":\"Sonja Büge\"}",
       "author" : "sonjabuege",
-      "json" : "{\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/de\\/sonjabuege\",\"name\":\"Sonja Büge\",\"type\":\"translator\"}",
+      "language" : "de",
+      "files" : {
+        "sutta" : 19,
+        "total" : 19
+      },
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "buildTimestamp" : "2026-01-14T03:33:52Z",
       "schemaVersion" : "6",
       "authorName" : "Sonja Büge"
     },
     {
+      "files" : {
+        "vinaya" : 427,
+        "total" : 427
+      },
+      "json" : "{\"name\":\"Bhikkhu Brahmali\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/brahmali\",\"type\":\"translator\"}",
+      "language" : "en",
       "author" : "brahmali",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
       "authorName" : "Bhikkhu Brahmali",
-      "language" : "en",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "json" : "{\"name\":\"Bhikkhu Brahmali\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/brahmali\"}",
-      "schemaVersion" : "6",
-      "files" : {
-        "total" : 427,
-        "vinaya" : 427
-      },
-      "buildTimestamp" : "2026-01-11T17:30:19Z"
+      "buildTimestamp" : "2026-01-14T03:33:52Z",
+      "schemaVersion" : "6"
     },
     {
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "language" : "en",
       "authorName" : "John Kelly",
-      "buildTimestamp" : "2026-01-11T17:30:53Z",
       "files" : {
-        "sutta" : 99,
-        "total" : 99
+        "sutta" : 100,
+        "total" : 100
       },
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "author" : "kelly",
-      "language" : "en",
+      "buildTimestamp" : "2026-01-14T03:34:40Z",
       "json" : "{\"name\":\"John Kelly\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/kelly\"}",
+      "author" : "kelly",
       "schemaVersion" : "6"
     },
     {
-      "language" : "en",
-      "authorName" : "Ayya Soma",
       "author" : "soma",
+      "buildTimestamp" : "2026-01-14T03:34:41Z",
+      "language" : "en",
       "files" : {
-        "sutta" : 73,
-        "total" : 73
+        "total" : 73,
+        "sutta" : 73
       },
-      "buildTimestamp" : "2026-01-11T18:02:16Z",
-      "json" : "{\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/soma\",\"type\":\"translator\",\"name\":\"Ayya Soma\"}",
+      "authorName" : "Ayya Soma",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "json" : "{\"name\":\"Ayya Soma\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/soma\"}",
       "schemaVersion" : "6"
     },
     {
-      "authorName" : "Bhikkhu Sujato",
-      "schemaVersion" : "6",
+      "buildTimestamp" : "2026-01-14T03:34:42Z",
+      "authorUrl" : "https://suttacentral.net",
+      "json" : "{\"type\":\"translator\",\"name\":\"Bhikkhu Sujato\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/sujato\"}",
+      "author" : "sujato",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
       "files" : {
         "total" : 4167,
         "sutta" : 4167
       },
       "language" : "en",
-      "authorUrl" : "https://suttacentral.net",
-      "buildTimestamp" : "2026-01-11T17:30:55Z",
-      "author" : "sujato",
-      "json" : "{\"name\":\"Bhikkhu Sujato\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/en\\/sujato\"}",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019"
+      "schemaVersion" : "6",
+      "authorName" : "Bhikkhu Sujato"
     },
     {
-      "language" : "es",
-      "json" : "{\"name\":\"Bernat Font\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/es\\/font\"}",
-      "schemaVersion" : "6",
-      "author" : "font",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "authorName" : "Bernat Font",
-      "buildTimestamp" : "2026-01-11T17:32:21Z",
       "files" : {
-        "sutta" : 31,
-        "total" : 31
-      }
-    },
-    {
-      "json" : "{\"authorBaseURL\":\"https:\\/\\/github.com\\/ebt-site\\/ebt-data\\/tree\\/published\\/translation\\/fr\\/noeismet\",\"type\":\"translator\",\"name\":\"Noé Ismet\"}",
-      "schemaVersion" : "6",
-      "files" : {
-        "total" : 53,
-        "sutta" : 53
+        "total" : 31,
+        "sutta" : 31
       },
-      "language" : "fr",
-      "gitHash" : "abc123def456",
-      "buildTimestamp" : "2026-01-11T18:02:19Z",
-      "author" : "noeismet",
-      "authorName" : "Noé Ismet"
+      "author" : "font",
+      "json" : "{\"name\":\"Bernat Font\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/es\\/font\"}",
+      "buildTimestamp" : "2026-01-14T03:36:32Z",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "authorName" : "Bernat Font",
+      "schemaVersion" : "6",
+      "language" : "es"
     },
     {
+      "authorName" : "Noé Ismet",
+      "buildTimestamp" : "2026-01-14T03:36:34Z",
+      "schemaVersion" : "6",
+      "language" : "fr",
+      "files" : {
+        "sutta" : 53,
+        "total" : 53
+      },
+      "json" : "{\"name\":\"Noé Ismet\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/ebt-site\\/ebt-data\\/tree\\/published\\/translation\\/fr\\/noeismet\"}",
+      "author" : "noeismet",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a"
+    },
+    {
+      "buildTimestamp" : "2026-01-14T03:36:36Z",
+      "language" : "fr",
+      "json" : "{\"type\":\"translator\",\"name\":\"Rémy Zins\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/fr\\/sekha\"}",
       "schemaVersion" : "6",
       "author" : "sekha",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "json" : "{\"type\":\"translator\",\"name\":\"Rémy Zins\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/fr\\/sekha\"}",
-      "buildTimestamp" : "2026-01-11T17:32:25Z",
+      "authorName" : "Rémy Zins",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
       "files" : {
         "sutta" : 277,
         "total" : 277
-      },
-      "authorName" : "Rémy Zins",
-      "language" : "fr"
+      }
     },
     {
+      "language" : "pli",
+      "json" : "{\"type\":\"root\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/root\\/pli\\/ms\",\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\"}",
+      "author" : "ms",
+      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
+      "schemaVersion" : "6",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "buildTimestamp" : "2026-01-14T03:36:44Z",
       "files" : {
         "sutta" : 5764,
         "total" : 6191,
         "vinaya" : 427
-      },
-      "author" : "ms",
-      "buildTimestamp" : "2026-01-11T17:32:29Z",
-      "json" : "{\"type\":\"root\",\"name\":\"Mahāsaṅgīti Tipiṭaka Buddhavasse 2500\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/root\\/pli\\/ms\"}",
-      "schemaVersion" : "6",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
-      "language" : "pli"
+      }
     },
     {
-      "schemaVersion" : "6",
-      "author" : "laera-quaresma",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "authorName" : "laera-quaresma",
+      "buildTimestamp" : "2026-01-14T03:40:55Z",
       "language" : "pt",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "schemaVersion" : "6",
       "files" : {
         "total" : 193,
         "sutta" : 193
       },
-      "buildTimestamp" : "2026-01-11T17:36:15Z"
+      "author" : "laera-quaresma",
+      "authorName" : "laera-quaresma"
     },
     {
+      "language" : "ru",
+      "schemaVersion" : "6",
+      "author" : "narinyanievmenenko",
+      "buildTimestamp" : "2026-01-14T03:41:00Z",
+      "authorName" : "Evgenia Evmenenko",
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "json" : "{\"type\":\"translator\",\"name\":\"Evgenia Evmenenko\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/ru\\/narinyanievmenenko\"}",
       "files" : {
         "sutta" : 337,
         "total" : 337
-      },
-      "schemaVersion" : "6",
-      "json" : "{\"name\":\"Evgenia Evmenenko\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/ru\\/narinyanievmenenko\"}",
-      "author" : "narinyanievmenenko",
-      "buildTimestamp" : "2026-01-11T17:36:17Z",
-      "authorName" : "Evgenia Evmenenko",
-      "language" : "ru",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019"
+      }
     },
     {
-      "buildTimestamp" : "2026-01-11T17:36:20Z",
-      "gitHash" : "a98a017636a37938b88695bd4a71a3fea892d019",
-      "json" : "{\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/ru\\/sv\",\"name\":\"SV theravada.ru\"}",
       "files" : {
-        "sutta" : 904,
-        "total" : 904
+        "total" : 904,
+        "sutta" : 904
       },
-      "authorName" : "SV theravada.ru",
-      "author" : "sv",
+      "language" : "ru",
       "schemaVersion" : "6",
-      "language" : "ru"
+      "gitHash" : "e396f7165b5e3207990cb9edd83aa475edb3646a",
+      "buildTimestamp" : "2026-01-14T03:41:07Z",
+      "author" : "sv",
+      "authorName" : "SV theravada.ru",
+      "json" : "{\"name\":\"SV theravada.ru\",\"type\":\"translator\",\"authorBaseURL\":\"https:\\/\\/github.com\\/suttacentral\\/bilara-data\\/tree\\/published\\/translation\\/ru\\/sv\"}"
     }
   ]
 }
