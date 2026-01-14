@@ -48,7 +48,7 @@ author_type        | translator
 git_hash           | e698ed7a40cd12509f88e1ddc
 git_hash_timestamp | 2025-12-19T04:13:06Z
 build_timestamp    | 2025-12-19T04:13:06Z
-schema_version     | 7
+schema_version     | 6
 files_sutta        | 4167
 files_vinaya       | 0
 files_other        | 0

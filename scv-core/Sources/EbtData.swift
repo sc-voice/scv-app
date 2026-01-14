@@ -15,8 +15,6 @@ public actor EbtData {
 
   /// Database schema version - increment when changing how data is interpreted
   /// Must match schema_version in database metaprops table
-  /// V5: Added files field with breakdown (sutta/vinaya/abhidhamma/other
-  /// counts)
   /// V6: Renamed columns (sutta_key→suttaUid, segment_id→scid,
   /// segment_text→text),
   /// added space-padded lemmas column, removed FTS5 virtual table
