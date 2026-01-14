@@ -62,11 +62,10 @@ public class EbtDBBuilder {
       value: String(EbtData.schemaVersion),
     )
 
-    // Insert metadata
+    // Get author info and enrich JSON with authorBaseURL
     let authorName = authorInfoImporter.getAuthorName(author)
     var jsonString = authorInfoImporter.getAuthorJSON(author)
 
-    // Enrich JSON with authorBaseURL
     let authorBaseURL = getAuthorBaseURL(lang: language, author: author)
     if let jsonStr = jsonString,
        let jsonData = jsonStr.data(using: .utf8),
@@ -86,15 +85,6 @@ public class EbtDBBuilder {
       }
     }
 
-    try insertMetadata(
-      db: db,
-      language: language,
-      author: author,
-      authorName: authorName,
-      gitHash: gitHash,
-      jsonString: jsonString,
-    )
-
     // Insert author metaprops
     try insertMetaprop(db: db, key: "author_name", value: authorName)
 
@@ -106,6 +96,16 @@ public class EbtDBBuilder {
        let authorType = jsonDict["type"] as? String
     {
       try insertMetaprop(db: db, key: "author_type", value: authorType)
+    }
+
+    // Extract authorBaseUrl from author JSON if available
+    if let jsonStr = jsonString,
+       let jsonData = jsonStr.data(using: .utf8),
+       let jsonDict = try? JSONSerialization
+       .jsonObject(with: jsonData) as? [String: Any],
+       let authorBaseUrl = jsonDict["authorBaseURL"] as? String
+    {
+      try insertMetaprop(db: db, key: "authorBaseUrl", value: authorBaseUrl)
     }
 
     // Insert git metaprops
@@ -163,19 +163,6 @@ public class EbtDBBuilder {
 
   private func createSchema(db: OpaquePointer?) throws {
     let schema = """
-    CREATE TABLE metadata (
-      language TEXT,
-      author TEXT,
-      author_name TEXT,
-      git_hash TEXT,
-      build_timestamp TEXT,
-      files INTEGER,
-      files_breakdown TEXT,
-      json TEXT,
-      schema_version TEXT,
-      PRIMARY KEY (language, author)
-    );
-
     CREATE TABLE metaprops (
       key TEXT PRIMARY KEY,
       value TEXT
@@ -200,56 +187,6 @@ public class EbtDBBuilder {
       sqlite3_free(errorMessage)
       throw BuildError.schemaCreationFailed(message)
     }
-  }
-
-  private func insertMetadata(
-    db: OpaquePointer?,
-    language: String,
-    author: String,
-    authorName: String,
-    gitHash: String?,
-    jsonString: String?,
-  ) throws {
-    let dateFormatter = ISO8601DateFormatter()
-    let buildTimestamp = dateFormatter.string(from: Date())
-
-    let statement =
-      "INSERT INTO metadata (language, author, author_name, git_hash, build_timestamp, files, files_breakdown, json, schema_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    var stmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, statement, -1, &stmt, nil) == SQLITE_OK else {
-      throw BuildError.cannotPrepareStatement
-    }
-
-    sqlite3_bind_text(stmt, 1, (language as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (author as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 3, (authorName as NSString).utf8String, -1, nil)
-    if let hash = gitHash {
-      sqlite3_bind_text(stmt, 4, (hash as NSString).utf8String, -1, nil)
-    } else {
-      sqlite3_bind_null(stmt, 4)
-    }
-    sqlite3_bind_text(stmt, 5, (buildTimestamp as NSString).utf8String, -1, nil)
-    sqlite3_bind_int(stmt, 6, 0) // files count - will update after import
-    sqlite3_bind_null(stmt, 7) // files_breakdown - will update after import
-    if let jsonStr = jsonString {
-      sqlite3_bind_text(stmt, 8, (jsonStr as NSString).utf8String, -1, nil)
-    } else {
-      sqlite3_bind_null(stmt, 8)
-    }
-    let schemaVersionStr = String(EbtData.schemaVersion)
-    sqlite3_bind_text(
-      stmt,
-      9,
-      (schemaVersionStr as NSString).utf8String,
-      -1,
-      nil,
-    )
-
-    if sqlite3_step(stmt) != SQLITE_DONE {
-      sqlite3_finalize(stmt)
-      throw BuildError.metadataInsertFailed
-    }
-    sqlite3_finalize(stmt)
   }
 
   /// Inserts individual metaprop key/value pair into metaprops table
@@ -401,10 +338,6 @@ public class EbtDBBuilder {
       }
     }
 
-    // Store file counts in metadata
-    let filesJson = encodeFileCounts(fileCounts, total: files.count)
-    try updateMetadataFiles(db: db, filesJson: filesJson)
-
     let dbSize = try? FileManager.default
       .attributesOfItem(atPath: "\(buildDir)/ebt-\(language)-\(author).db")[
         .size,
@@ -453,34 +386,6 @@ public class EbtDBBuilder {
       return jsonString
     }
     return "{\"total\": \(total)}"
-  }
-
-  /// Updates metadata with file counts
-  private func updateMetadataFiles(
-    db: OpaquePointer?,
-    filesJson: String,
-  ) throws {
-    guard let database = db else {
-      throw BuildError.cannotPrepareStatement
-    }
-
-    let query = "UPDATE metadata SET files_breakdown = ? WHERE language = ? AND author = ?"
-    var stmt: OpaquePointer?
-
-    guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
-    else {
-      throw BuildError.cannotPrepareStatement
-    }
-
-    defer { sqlite3_finalize(stmt) }
-
-    sqlite3_bind_text(stmt, 1, (filesJson as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (language as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 3, (author as NSString).utf8String, -1, nil)
-
-    if sqlite3_step(stmt) != SQLITE_DONE {
-      throw BuildError.metadataInsertFailed
-    }
   }
 
   public func compressDatabase(dbPath: String) throws {
@@ -619,7 +524,8 @@ public class EbtDBBuilder {
     request.timeoutInterval = 5.0 // 5 second timeout
 
     let semaphore = DispatchSemaphore(value: 0)
-    // statusCode is safe to mutate in closure: main thread blocks on semaphore.wait()
+    // statusCode is safe to mutate in closure: main thread blocks on
+    // semaphore.wait()
     // until closure signals completion, preventing concurrent access
     nonisolated(unsafe) var statusCode: Int? = nil
 

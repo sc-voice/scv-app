@@ -7,6 +7,24 @@ import Testing
 
 @Suite("scv-build Tests")
 struct BuildTests {
+  /// Creates a temporary directory for test databases and returns its path
+  /// Automatically cleans up on deinit
+  private static func createTestBuildDir() throws
+    -> (path: String, cleanup: () -> Void)
+  {
+    let tempDir = NSTemporaryDirectory()
+    let testDir = "\(tempDir)scv-build-test-\(UUID().uuidString)"
+    try FileManager.default.createDirectory(
+      atPath: testDir,
+      withIntermediateDirectories: true,
+      attributes: nil,
+    )
+    let cleanup: () -> Void = {
+      try? FileManager.default.removeItem(atPath: testDir)
+    }
+    return (path: testDir, cleanup: cleanup)
+  }
+
   @Test("Placeholder test")
   func placeholder() {
     #expect(true)
@@ -245,14 +263,14 @@ struct BuildTests {
       .deletingLastPathComponent() // scv-build
       .path
 
-    let buildDir = "\(projectRoot)/local/build"
+    let (buildDir, cleanup) = try Self.createTestBuildDir()
+    defer { cleanup() }
+
     let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
     let translationDir = "\(projectRoot)/local/ebt-data/translation"
     let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
 
-    // Clean up any existing database
     let dbPath = "\(buildDir)/ebt-en-soma.db"
-    try? FileManager.default.removeItem(atPath: dbPath)
 
     let builder = EbtDBBuilder(
       language: "en",
@@ -292,14 +310,14 @@ struct BuildTests {
       .deletingLastPathComponent() // scv-build
       .path
 
-    let buildDir = "\(projectRoot)/local/build"
+    let (buildDir, cleanup) = try Self.createTestBuildDir()
+    defer { cleanup() }
+
     let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
     let translationDir = "\(projectRoot)/local/ebt-data/translation"
     let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
 
-    // Clean up any existing database
     let dbPath = "\(buildDir)/ebt-fr-noeismet.db"
-    try? FileManager.default.removeItem(atPath: dbPath)
 
     let builder = EbtDBBuilder(
       language: "fr",
@@ -339,14 +357,14 @@ struct BuildTests {
       .deletingLastPathComponent() // scv-build
       .path
 
-    let buildDir = "\(projectRoot)/local/build"
+    let (buildDir, cleanup) = try Self.createTestBuildDir()
+    defer { cleanup() }
+
     let resourcesDir = "\(projectRoot)/scv-core/Sources/Resources"
     let translationDir = "\(projectRoot)/local/ebt-data/translation"
     let authorFilePath = "\(projectRoot)/local/ebt-data/_author.json"
 
-    // Clean up any existing database
     let dbPath = "\(buildDir)/ebt-fr-noeismet.db"
-    try? FileManager.default.removeItem(atPath: dbPath)
 
     let builder = EbtDBBuilder(
       language: "fr",

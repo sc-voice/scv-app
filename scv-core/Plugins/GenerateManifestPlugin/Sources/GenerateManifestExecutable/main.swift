@@ -49,6 +49,7 @@ enum GenerateManifest {
       let buildTimestamp = (db["buildTimestamp"] as? String) ?? ""
       let gitHash = db["gitHash"] as? String
       let json = db["json"] as? String
+      let authorBaseUrl = db["authorBaseUrl"] as? String
       let files = db["files"] as? [String: Any] ?? [:]
 
       let sutta = (files["sutta"] as? Int) ?? 0
@@ -72,7 +73,8 @@ enum GenerateManifest {
               total: \(total)
             ),
             gitHash: \(gitHash.map { escape($0) } ?? "nil"),
-            json: \(json.map { escape($0) } ?? "nil")
+            json: \(json.map { escape($0) } ?? "nil"),
+            authorBaseUrl: \(authorBaseUrl.map { escape($0) } ?? "nil")
           ),
       """
     }

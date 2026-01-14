@@ -115,17 +115,17 @@ public class DBManifestBuilder {
       }
     }
 
-    // Write manifest.json
-    let manifest: [String: Any] = ["databases": manifestDatabases]
-    guard let jsonData = try? JSONSerialization.data(
-      withJSONObject: manifest,
-      options: [.prettyPrinted, .withoutEscapingSlashes],
-    ) else {
+    // Write manifest.json with canonical (sorted) key ordering
+    guard let jsonString = sortedJSONString(for: manifestDatabases) else {
       throw ManifestError.cannotSerializeJSON
     }
 
     do {
-      try jsonData.write(to: URL(fileURLWithPath: manifestPath))
+      try jsonString.write(
+        toFile: manifestPath,
+        atomically: true,
+        encoding: .utf8,
+      )
       print(
         "SUCCESS: Written db-manifest.json with \(manifestDatabases.count) databases",
       )
@@ -133,6 +133,33 @@ public class DBManifestBuilder {
     } catch {
       throw ManifestError.cannotWriteFile(manifestPath)
     }
+  }
+
+  /// Generate JSON string with alphabetically sorted keys for canonical
+  /// formatting
+  /// This ensures diffs show only data changes, not reordering of properties
+  private func sortedJSONString(for databases: [[String: Any]]) -> String? {
+    // Sort each database's keys alphabetically
+    var sortedDatabases: [[String: Any]] = []
+    for db in databases {
+      var sortedDb: [String: Any] = [:]
+      for key in db.keys.sorted() {
+        sortedDb[key] = db[key]
+      }
+      sortedDatabases.append(sortedDb)
+    }
+
+    let manifest: [String: Any] = ["databases": sortedDatabases]
+    guard
+      let jsonData = try? JSONSerialization.data(
+        withJSONObject: manifest,
+        options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys],
+      )
+    else {
+      return nil
+    }
+
+    return String(data: jsonData, encoding: .utf8)
   }
 
   private func extractMetadata(from dbPath: String) -> [String: Any]? {
@@ -143,70 +170,76 @@ public class DBManifestBuilder {
     }
     defer { sqlite3_close(db) }
 
-    let query =
-      "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version, files_breakdown FROM metadata LIMIT 1"
-    var stmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+    let metapropsQuery = "SELECT key, value FROM metaprops"
+    var metapropStmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, metapropsQuery, -1, &metapropStmt, nil) ==
+      SQLITE_OK
+    else {
       print("ERROR: Cannot prepare query for \(dbPath)")
       return nil
     }
-    defer { sqlite3_finalize(stmt) }
+    defer { sqlite3_finalize(metapropStmt) }
 
-    guard sqlite3_step(stmt) == SQLITE_ROW else {
-      return nil
+    var metaprops: [String: String] = [:]
+    while sqlite3_step(metapropStmt) == SQLITE_ROW {
+      if let keyC = sqlite3_column_text(metapropStmt, 0),
+         let valueC = sqlite3_column_text(metapropStmt, 1)
+      {
+        let key = String(cString: keyC)
+        let value = String(cString: valueC)
+        metaprops[key] = value
+      }
     }
 
-    guard let langC = sqlite3_column_text(stmt, 0),
-          let authorC = sqlite3_column_text(stmt, 1),
-          let authorNameC = sqlite3_column_text(stmt, 2),
-          let buildTimestampC = sqlite3_column_text(stmt, 4)
+    // Verify required metaprops exist
+    guard let language = metaprops["language"],
+          let author = metaprops["author"],
+          let authorName = metaprops["author_name"],
+          let buildTimestamp = metaprops["build_timestamp"]
     else {
       return nil
     }
 
-    let dbFiles = Int(sqlite3_column_int(stmt, 5))
-
     var metaDict: [String: Any] = [
-      "language": String(cString: langC),
-      "author": String(cString: authorC),
-      "authorName": String(cString: authorNameC),
-      "buildTimestamp": String(cString: buildTimestampC),
-      "files": dbFiles,
+      "language": language,
+      "author": author,
+      "authorName": authorName,
+      "buildTimestamp": buildTimestamp,
+      "files": [:], // Will compute from file counts below
     ]
 
-    // Optional git_hash
-    if sqlite3_column_type(stmt, 3) != SQLITE_NULL,
-       let gitHashC = sqlite3_column_text(stmt, 3)
-    {
-      metaDict["gitHash"] = String(cString: gitHashC)
+    // Optional fields
+    if let gitHash = metaprops["git_hash"] {
+      metaDict["gitHash"] = gitHash
     }
 
-    // Optional json
-    if sqlite3_column_type(stmt, 6) != SQLITE_NULL,
-       let jsonC = sqlite3_column_text(stmt, 6)
-    {
-      metaDict["json"] = String(cString: jsonC)
+    if let schemaVersion = metaprops["schema_version"] {
+      metaDict["schemaVersion"] = schemaVersion
     }
 
-    // Optional schema_version
-    if sqlite3_column_type(stmt, 7) != SQLITE_NULL,
-       let schemaVersionC = sqlite3_column_text(stmt, 7)
-    {
-      metaDict["schemaVersion"] = String(cString: schemaVersionC)
+    if let authorBaseUrl = metaprops["authorBaseUrl"] {
+      metaDict["authorBaseUrl"] = authorBaseUrl
     }
 
-    // Optional files_breakdown
-    if sqlite3_column_type(stmt, 8) != SQLITE_NULL,
-       let filesBreakdownC = sqlite3_column_text(stmt, 8)
-    {
-      let filesBreakdownStr = String(cString: filesBreakdownC)
-      if let filesData = filesBreakdownStr.data(using: .utf8),
-         let filesJson = try? JSONSerialization
-         .jsonObject(with: filesData) as? [String: Any]
-      {
-        metaDict["files"] = filesJson
-      }
+    // Compute files_breakdown from individual file counts
+    var filesCounts: [String: Int] = [:]
+    if let suttaCount = metaprops["files_sutta"], let count = Int(suttaCount) {
+      filesCounts["sutta"] = count
     }
+    if let vinayaCount = metaprops["files_vinaya"],
+       let count = Int(vinayaCount)
+    {
+      filesCounts["vinaya"] = count
+    }
+    if let otherCount = metaprops["files_other"], let count = Int(otherCount) {
+      filesCounts["other"] = count
+    }
+
+    // Calculate total
+    let total = filesCounts.values.reduce(0, +)
+    filesCounts["total"] = total
+
+    metaDict["files"] = filesCounts
 
     return metaDict
   }
@@ -303,45 +336,68 @@ public class DBManifestBuilder {
     }
     defer { sqlite3_close(db) }
 
-    let query =
-      "SELECT language, author, author_name, git_hash, build_timestamp, files, json, schema_version FROM metadata WHERE language = ? AND author = ?"
-    var stmt: OpaquePointer?
-    guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
+    let metapropsQuery = "SELECT key, value FROM metaprops"
+    var metapropStmt: OpaquePointer?
+    guard sqlite3_prepare_v2(db, metapropsQuery, -1, &metapropStmt, nil) ==
+      SQLITE_OK
+    else {
       throw ManifestError.cannotPrepareQuery
     }
-    defer { sqlite3_finalize(stmt) }
+    defer { sqlite3_finalize(metapropStmt) }
 
-    sqlite3_bind_text(stmt, 1, (lang as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (author as NSString).utf8String, -1, nil)
-
-    if sqlite3_step(stmt) == SQLITE_ROW {
-      let language = String(cString: sqlite3_column_text(stmt, 0))
-      let authorStr = String(cString: sqlite3_column_text(stmt, 1))
-      let authorName = String(cString: sqlite3_column_text(stmt, 2))
-      let gitHash = String(cString: sqlite3_column_text(stmt, 3))
-      let buildTimestamp = String(cString: sqlite3_column_text(stmt, 4))
-      let files = Int(sqlite3_column_int(stmt, 5))
-
-      print("Metadata for \(language):\(authorStr)")
-      print("  Source: \(dbPath)")
-      print("  Author Name: \(authorName)")
-      print("  Files: \(files)")
-      print("  Git Hash: \(gitHash)")
-      print("  Build Timestamp: \(buildTimestamp)")
-
-      if sqlite3_column_type(stmt, 6) != SQLITE_NULL {
-        let jsonStr = String(cString: sqlite3_column_text(stmt, 6))
-        print("  JSON Metadata: \(jsonStr)")
-      } else {
-        print("  JSON Metadata: (none)")
+    var metaprops: [String: String] = [:]
+    while sqlite3_step(metapropStmt) == SQLITE_ROW {
+      if let keyC = sqlite3_column_text(metapropStmt, 0),
+         let valueC = sqlite3_column_text(metapropStmt, 1)
+      {
+        let key = String(cString: keyC)
+        let value = String(cString: valueC)
+        metaprops[key] = value
       }
+    }
 
-      if sqlite3_column_type(stmt, 7) != SQLITE_NULL {
-        let schemaVersionStr = String(cString: sqlite3_column_text(stmt, 7))
-        print("  Schema Version: \(schemaVersionStr)")
-      }
-    } else {
+    // Verify required metaprops exist
+    guard let language = metaprops["language"],
+          let authorStr = metaprops["author"],
+          let authorName = metaprops["author_name"]
+    else {
       print("ERROR: No metadata found for \(lang):\(author)")
+      return
+    }
+
+    print("Metadata for \(language):\(authorStr)")
+    print("  Source: \(dbPath)")
+    print("  Author Name: \(authorName)")
+
+    // Calculate and display total files
+    var totalFiles = 0
+    if let suttaCount = metaprops["files_sutta"], let count = Int(suttaCount) {
+      totalFiles += count
+    }
+    if let vinayaCount = metaprops["files_vinaya"],
+       let count = Int(vinayaCount)
+    {
+      totalFiles += count
+    }
+    if let otherCount = metaprops["files_other"], let count = Int(otherCount) {
+      totalFiles += count
+    }
+    print("  Files: \(totalFiles)")
+
+    if let gitHash = metaprops["git_hash"] {
+      print("  Git Hash: \(gitHash)")
+    }
+
+    if let buildTimestamp = metaprops["build_timestamp"] {
+      print("  Build Timestamp: \(buildTimestamp)")
+    }
+
+    if let authorBaseUrl = metaprops["authorBaseUrl"] {
+      print("  Author Base URL: \(authorBaseUrl)")
+    }
+
+    if let schemaVersion = metaprops["schema_version"] {
+      print("  Schema Version: \(schemaVersion)")
     }
   }
 }

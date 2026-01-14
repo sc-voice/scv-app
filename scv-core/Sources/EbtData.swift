@@ -14,7 +14,7 @@ public actor EbtData {
   private let db: OpaquePointer?
 
   /// Database schema version - increment when changing how data is interpreted
-  /// Must match schema_version in database metadata table
+  /// Must match schema_version in database metaprops table
   /// V5: Added files field with breakdown (sutta/vinaya/abhidhamma/other
   /// counts)
   /// V6: Renamed columns (sutta_key→suttaUid, segment_id→scid,
@@ -382,7 +382,7 @@ public actor EbtData {
 
     defer { sqlite3_close(database) }
 
-    let query = "SELECT schema_version FROM metadata LIMIT 1"
+    let query = "SELECT value FROM metaprops WHERE key = 'schema_version' LIMIT 1"
     var stmt: OpaquePointer?
 
     guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
@@ -486,13 +486,21 @@ public actor EbtData {
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
 
-    let timestamp = getMetaprop(lang: lang, author: author, key: "git_hash_timestamp")
+    let timestamp = getMetaprop(
+      lang: lang,
+      author: author,
+      key: "git_hash_timestamp",
+    )
     guard let timestamp else {
       cc.bad1(#line, #function, "missing git_hash_timestamp")
       throw EbtDataError.cannotOpenDatabase(lang: lang, author: author)
     }
 
-    cc.ok1(#line, #function, "loaded ebt-data[\(key)] commit:\(git_hash) \(timestamp)")
+    cc.ok1(
+      #line,
+      #function,
+      "loaded ebt-data[\(key)] commit:\(git_hash) \(timestamp)",
+    )
   }
 
   /// Gets database pointer for language/author, ensuring it's loaded
@@ -640,7 +648,11 @@ public actor EbtData {
       }
 
       // Get author name from metaprops
-      let authorName = getMetaprop(lang: lang, author: author, key: "author_name") ?? author
+      let authorName = getMetaprop(
+        lang: lang,
+        author: author,
+        key: "author_name",
+      ) ?? author
 
       // Query segments for this sutta (schema v6: using suttaUid, scid, text)
       let query = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
@@ -1073,7 +1085,6 @@ public actor EbtData {
     return authors.sorted { ($0.lang, $0.author) < ($1.lang, $1.author) }
   }
 
-
   /// Returns value for a single metaprop key
   /// - Parameters:
   ///   - lang: Language code (e.g., "en", "de")
@@ -1226,27 +1237,25 @@ public actor EbtData {
 
     defer { sqlite3_close(database) }
 
-    // Query schema_version and git_hash from metadata
-    let query = "SELECT schema_version, git_hash FROM metadata WHERE language = ? AND author = ? LIMIT 1"
-    var stmt: OpaquePointer?
+    // Query schema_version from metaprops
+    let schemaQuery = "SELECT value FROM metaprops WHERE key = 'schema_version' LIMIT 1"
+    var schemaStmt: OpaquePointer?
 
-    guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
+    guard sqlite3_prepare_v2(database, schemaQuery, -1, &schemaStmt, nil) ==
+      SQLITE_OK
     else {
       return false
     }
 
-    defer { sqlite3_finalize(stmt) }
+    defer { sqlite3_finalize(schemaStmt) }
 
-    sqlite3_bind_text(stmt, 1, (lang as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (author as NSString).utf8String, -1, nil)
-
-    guard sqlite3_step(stmt) == SQLITE_ROW else {
+    guard sqlite3_step(schemaStmt) == SQLITE_ROW else {
       return false
     }
 
     // Check schema version
     var cachedSchemaVersion = ""
-    if let versionText = sqlite3_column_text(stmt, 0) {
+    if let versionText = sqlite3_column_text(schemaStmt, 0) {
       cachedSchemaVersion = String(cString: versionText)
     }
 
@@ -1259,9 +1268,24 @@ public actor EbtData {
       return false
     }
 
+    // Query git_hash from metaprops
+    let gitQuery = "SELECT value FROM metaprops WHERE key = 'git_hash' LIMIT 1"
+    var gitStmt: OpaquePointer?
+
+    guard sqlite3_prepare_v2(database, gitQuery, -1, &gitStmt, nil) == SQLITE_OK
+    else {
+      return false
+    }
+
+    defer { sqlite3_finalize(gitStmt) }
+
+    guard sqlite3_step(gitStmt) == SQLITE_ROW else {
+      return false
+    }
+
     // Check git hash
     var cachedGitHash = ""
-    if let hashText = sqlite3_column_text(stmt, 1) {
+    if let hashText = sqlite3_column_text(gitStmt, 0) {
       cachedGitHash = String(cString: hashText)
     }
 
@@ -1282,7 +1306,7 @@ public actor EbtData {
   }
 
   /// Verify that a cached database matches the expected DatabaseInfo
-  /// Compares gitHash from database metadata to expected value
+  /// Compares gitHash from database metaprops to expected value
   /// - Parameter info: DatabaseInfo to verify against
   /// - Returns: true if gitHashes match, false if different or database not
   /// found
@@ -1314,8 +1338,8 @@ public actor EbtData {
 
     defer { sqlite3_close(database) }
 
-    // Query git_hash from metadata
-    let query = "SELECT git_hash FROM metadata WHERE language = ? AND author = ? LIMIT 1"
+    // Query git_hash from metaprops
+    let query = "SELECT value FROM metaprops WHERE key = 'git_hash' LIMIT 1"
     var stmt: OpaquePointer?
 
     guard sqlite3_prepare_v2(database, query, -1, &stmt, nil) == SQLITE_OK
@@ -1325,9 +1349,6 @@ public actor EbtData {
     }
 
     defer { sqlite3_finalize(stmt) }
-
-    sqlite3_bind_text(stmt, 1, (info.language as NSString).utf8String, -1, nil)
-    sqlite3_bind_text(stmt, 2, (info.author as NSString).utf8String, -1, nil)
 
     guard sqlite3_step(stmt) == SQLITE_ROW else {
       cc.bad1(#line, #function, "sqlite3_step?", query)
