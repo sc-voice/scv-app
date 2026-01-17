@@ -126,19 +126,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Determine if test expectations are wrong or implementation is wrong
     - Update test assertions to match actual string lengths or fix EbtSeeker pattern generation
 
-### Create app privacy label
-**Status**: In Progress
-
-01. [x] Identify data categories app collects (search queries, viewing history, etc.)
-
-02. [x] Map data to Apple privacy categories and purposes
-
-03. [x] Configure privacy manifest in Xcode (See: scv-ios/scv-ios/PrivacyInfo.xcprivacy)
-
-04. [ ] Add app privacy label to App Store Connect (manual step)
-
-05. [ ] Test privacy label accuracy against actual app behavior
-
 ### Add VoiceOver accessibility labels
 **Status**: Complete (labels implemented, testing pending)
 
@@ -171,30 +158,6 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
 02. [ ] Remove color-only information conveyance
     - Star ratings in SearchCardView: Add text label or accessibility value
     - Ensure all semantic information is accessible to screen readers
-
-### Create accessibility declaration
-**Status**: Backlog
-
-01. [ ] Create accessibility label in App Store Connect
-    - Declare supported accessibility features (after implementing above fixes)
-    - Add audio descriptions if applicable
-    - Document any accessibility limitations
-    - Verify accuracy against actual app behavior
-
-02. [ ] Test on devices with accessibility features enabled
-    - Test VoiceOver on iOS device
-    - Test with maximum Dynamic Type size
-    - Test with reduced motion enabled
-    - Test keyboard navigation without touch
-
-### Fix Sendability warnings in CardManager and MockCardManager
-**Status**: Backlog
-
-01. [ ] Fix CardManager.swift:98 - 'self' with non-Sendable type in @Sendable closure
-02. [ ] Fix CardManager.swift:100 - unused 'self' variable in set closure
-03. [ ] Fix MockCardManager Sendability warnings in CardSidebarView:216, 219
-    - Requires architectural changes to CardManager and/or MockCardManager
-    - May need to make classes Sendable or use different binding strategy
 
 ### Investigate phrase search vs keyword search score differences
 **Status**: Backlog

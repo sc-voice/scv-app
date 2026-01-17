@@ -25,6 +25,13 @@ let package = Package(
       path: "Sources/scvBuildCLI",
     ),
     .executableTarget(
+      name: "pali-words",
+      dependencies: [
+        .product(name: "scvCore", package: "scv-core"),
+      ],
+      path: "Sources/pali-words",
+    ),
+    .executableTarget(
       name: "verify-manifest",
       dependencies: [
         .product(name: "scvCore", package: "scv-core"),
