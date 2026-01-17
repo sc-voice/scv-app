@@ -11,7 +11,8 @@ import Testing
 struct PaliWordsTests {
   @Test
   func testEnglishMn44() async {
-    let counter = PaliWords(lang: "en")
+    let method:CountMethod = .diacritic
+    let counter = PaliWords(lang: "en", method: method)
     guard let suttaRef = SuttaRef.create("mn44/en/sujato") else {
       #expect(Bool(false), "Invalid sutta reference")
       return
@@ -19,13 +20,14 @@ struct PaliWordsTests {
 
     await counter.countPaliWords(suttaRef: suttaRef)
 
-    #expect(counter.paliDict.count == 463)
-    #expect(counter.paliWords == 7)  // Exact matches + diacritic-matched words
+    #expect(counter.paliWords == 13)  // Diacritics found in English translation
+    #expect(counter.paliDict.count == (method == .diacritic ? 0 : 466))  // 463 base + 3 morphological variants
   }
 
   @Test
   func testGermanMn44() async {
-    let counter = PaliWords(lang: "de")
+    let method:CountMethod = .diacritic
+    let counter = PaliWords(lang: "de", method: method)
     guard let suttaRef = SuttaRef.create("mn44/de/sabbamitta") else {
       #expect(Bool(false), "Invalid sutta reference")
       return
@@ -33,8 +35,8 @@ struct PaliWordsTests {
 
     await counter.countPaliWords(suttaRef: suttaRef)
 
-    #expect(counter.paliDict.count == 463)
-    #expect(counter.paliWords == 7)  // Exact matches + diacritic-matched words
+    #expect(counter.paliWords == 13)  // Diacritics found in German translation
+    #expect(counter.paliDict.count == (method == .diacritic ? 0 : 466))  // 463 base + 3 morphological variants
     #expect(counter.docPaliDict.keys.contains("rājagaha"))
   }
 

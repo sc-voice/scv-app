@@ -7,10 +7,21 @@
 
 import Foundation
 
+/// Method for counting Pali words in translations
+public enum CountMethod {
+  /// Full matching: extract Pali words from source and match with regex word boundaries
+  case exhaustive
+  /// Fast path: only match words containing Pali-specific diacritics
+  case diacritic
+}
+
 /// Counts Pali words from Buddhist scriptures
 public class PaliWords {
   /// Base language for translations (e.g., "en", "pt")
   private let baseLanguage: String
+
+  /// Method for counting Pali words
+  private let countMethod: CountMethod
 
   /// Running total of Pali words found in translated documents
   public private(set) var paliWords: Int = 0
@@ -34,10 +45,13 @@ public class PaliWords {
   /// Pali-specific diacritics not used in European languages (EN, DE, FR, ES, PT, RU)
   private let paliDiacritics = CharacterSet(charactersIn: "āīūḍḷṁṅṇṭñĀĪŪḌḶṀṄṆṬÑ")
 
-  /// Initialize with base language
-  /// - Parameter lang: Language code (e.g., "en", "pt")
-  public init(lang: String) {
+  /// Initialize with base language and counting method
+  /// - Parameters:
+  ///   - lang: Language code (e.g., "en", "pt")
+  ///   - method: Counting method (.exhaustive or .diacritic), defaults to .diacritic for speed
+  public init(lang: String, method: CountMethod = .diacritic) {
     self.baseLanguage = lang
+    self.countMethod = method
   }
 
   /// Check if a word contains Pali-specific diacritics
@@ -48,7 +62,6 @@ public class PaliWords {
   }
 
   /// Count Pali words in a sutta document
-  /// Extracts Pali words from pli field and counts occurrences in doc field
   /// Accumulates counts across multiple suttaRef calls
   /// - Parameter suttaRef: Reference to sutta to analyze
   public func countPaliWords(suttaRef: SuttaRef) async {
@@ -56,6 +69,16 @@ public class PaliWords {
       return
     }
 
+    switch countMethod {
+    case .exhaustive:
+      await countPaliWordsExhaustive(mlDoc: mlDoc)
+    case .diacritic:
+      countPaliWordsDiacritic(mlDoc: mlDoc)
+    }
+  }
+
+  /// Exhaustive method: Extract Pali words from source and match with regex
+  private func countPaliWordsExhaustive(mlDoc: MLDocument) async {
     // Extract Pali words and accumulate in paliDict
     for segment in mlDoc.segments() {
       if let paliText = segment.pli {
@@ -111,6 +134,36 @@ public class PaliWords {
             // Skip words in the deny list
             guard !denyList.contains(wordStr) else { continue }
 
+            paliWords += 1
+            // Add morphological variant to paliDict (reflects case/form differences)
+            paliDict[wordStr, default: 0] += 1
+            docPaliDict[wordStr, default: 0] += 1
+          }
+        }
+      }
+    }
+  }
+
+  /// Fast diacritic method: only match words containing Pali diacritics
+  private func countPaliWordsDiacritic(mlDoc: MLDocument) {
+    let denyList = denyLists[baseLanguage] ?? Set<String>()
+
+    for segment in mlDoc.segments() {
+      if let docText = segment.doc {
+        let docLower = docText.lowercased()
+        let words = docLower.split(separator: " ")
+
+        for word in words {
+          let wordStr = String(word).trimmingCharacters(in: .punctuationCharacters)
+
+          // Only match letters
+          guard wordStr.allSatisfy({ $0.isLetter }) else { continue }
+
+          // Skip words in the deny list
+          guard !denyList.contains(wordStr) else { continue }
+
+          // Check if word contains Pali diacritics
+          if containsPaliDiacritics(wordStr) {
             paliWords += 1
             docPaliDict[wordStr, default: 0] += 1
           }
