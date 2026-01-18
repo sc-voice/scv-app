@@ -63,7 +63,9 @@ func countSuttaPali(suttaRef: String) async throws {
 
   print("Sutta: \(suttaRef)")
   print("Pali words in paliDict: \(counter.paliDict.count)")
-  print("Unique pali words found in \(suttaRef.lang): \(counter.docPaliDict.count)")
+  print(
+    "Unique pali words found in \(suttaRef.lang): \(counter.docPaliDict.count)",
+  )
   print("Total pali word occurrences: \(counter.paliWords)")
 
   // Create output JSON with docPaliDict entries
@@ -77,13 +79,16 @@ func countSuttaPali(suttaRef: String) async throws {
     "pali_words": counter.docPaliDict,
   ]
 
-  let outputData = try JSONSerialization.data(withJSONObject: output, options: .prettyPrinted)
+  let outputData = try JSONSerialization.data(
+    withJSONObject: output,
+    options: .prettyPrinted,
+  )
 
   // Create output directory if needed
   let buildDir = "/Users/visakha/dev/scv-app/local/build"
   try FileManager.default.createDirectory(
     atPath: buildDir,
-    withIntermediateDirectories: true
+    withIntermediateDirectories: true,
   )
 
   // Write output file
@@ -109,14 +114,20 @@ func countDocPali(lang: String) async throws {
     throw PaliWordsError.invalidLanguage(lang)
   }
 
-  print("Processing \(lang) translations from \(langAuthors.count) author(s)...")
+  print(
+    "Processing \(lang) translations from \(langAuthors.count) author(s)...",
+  )
 
   for (_, author) in langAuthors {
-    let suttaUids = await EbtData.shared.suttaUidsForAuthor(lang: lang, author: author)
+    let suttaUids = await EbtData.shared.suttaUidsForAuthor(
+      lang: lang,
+      author: author,
+    )
     totalSuttas += suttaUids.count
 
     for suttaUid in suttaUids {
-      guard let suttaRef = SuttaRef.create("\(suttaUid)/\(lang)/\(author)") else {
+      guard let suttaRef = SuttaRef.create("\(suttaUid)/\(lang)/\(author)")
+      else {
         continue
       }
 
@@ -137,18 +148,26 @@ func countDocPali(lang: String) async throws {
   let resourcesDir = "/Users/visakha/dev/scv-app/scv-build/Sources/Resources"
   try FileManager.default.createDirectory(
     atPath: resourcesDir,
-    withIntermediateDirectories: true
+    withIntermediateDirectories: true,
   )
 
   let outputPath = "\(resourcesDir)/pali-\(lang).json"
 
   // Create or truncate file
-  FileManager.default.createFile(atPath: outputPath, contents: nil, attributes: nil)
-  let fileHandle = try FileHandle(forWritingTo: URL(fileURLWithPath: outputPath))
+  FileManager.default.createFile(
+    atPath: outputPath,
+    contents: nil,
+    attributes: nil,
+  )
+  let fileHandle =
+    try FileHandle(forWritingTo: URL(fileURLWithPath: outputPath))
 
   for (word, count) in sortedWords {
     let entry: [String: Any] = [word: count]
-    let jsonData = try JSONSerialization.data(withJSONObject: entry, options: [])
+    let jsonData = try JSONSerialization.data(
+      withJSONObject: entry,
+      options: [],
+    )
     if let jsonString = String(data: jsonData, encoding: .utf8) {
       fileHandle.write((jsonString + "\n").data(using: .utf8)!)
     }
@@ -164,8 +183,12 @@ func main() async {
 
     guard !args.isEmpty else {
       print("Usage:")
-      print("  pali-words --count-sutta-pali SUTTA_REF    Count pali words for single sutta")
-      print("  pali-words --count-doc-pali LANG           Count pali words for all suttas in language")
+      print(
+        "  pali-words --count-sutta-pali SUTTA_REF    Count pali words for single sutta",
+      )
+      print(
+        "  pali-words --count-doc-pali LANG           Count pali words for all suttas in language",
+      )
       print("")
       print("Examples:")
       print("  pali-words --count-sutta-pali mn44/en/sujato")

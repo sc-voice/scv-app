@@ -1,10 +1,10 @@
-# PaliWords
+# PaliCounter
 
 Extracts and counts Pali words (with diacritics) from Buddhist scripture translations.
 
 ## Overview
 
-PaliWords is a tool for analyzing Pali vocabulary usage across translations. It identifies words containing Pali-specific diacritics (āīūḍḷṁṅṇṭñ etc.) and builds frequency distributions across entire languages or individual suttas.
+PaliCounter is a tool for analyzing Pali vocabulary usage across translations. It identifies words containing Pali-specific diacritics (āīūḍḷṁṅṇṭñ etc.) and builds frequency distributions across entire languages or individual suttas.
 
 ## Architecture
 
@@ -26,10 +26,10 @@ Two counting strategies available:
    - ~100x faster than exhaustive
    - Used for production language-wide analysis
 
-### PaliWords Class
+### PaliCounter Class
 
 ```swift
-public class PaliWords {
+public class PaliCounter {
   public init(lang: String, method: CountMethod = .diacritic)
   public func countPaliWords(suttaRef: SuttaRef) async
 

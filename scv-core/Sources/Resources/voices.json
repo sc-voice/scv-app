@@ -1,0 +1,816 @@
+[
+  {
+    "name": "Default",
+    "language": "de",
+    "ipa": {
+      "pli": {
+        "a": "a",
+        "ā": "a:",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ai": "a.i",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "c": "t͡ʃ",
+        "cc": "t͡ʃt͡ʃ",
+        "cch": "t͡ʃt͡ʃʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "ī": "i:",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jetas": "ˈd͡ʒe:tas",
+        "jj": "ʝʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "ṁ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "o": "o:",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "s": "s",
+        "tt": "t.t",
+        "unused-th": "ʈʰ",
+        "unused-u": "ʊ",
+        "ū": "u:",
+        "ṭ": "t",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "abhaya": {
+        "ipa": "ɐbʰaja:ˌ"
+      },
+      "ājīvaka-asketen": {
+        "ipa": "a:ʝɪi:vɐkɐ - asketən"
+      },
+      "benares": {
+        "ipa": "beˈna:ɺes"
+      },
+      "gavesī": {
+        "ipa": "gaˈve:si:"
+      },
+      "jainas": {
+        "ipa": "d͡ʒa.inas"
+      },
+      "jetas": {
+        "ipa": "ˈd͡ʒe:tas"
+      },
+      "kaccāna": {
+        "ipa": "kat͡ʃt͡ʃa:na"
+      },
+      "kāraṇapālī": {
+        "ipa": "ˈka:ɺanaˈpa:li:"
+      },
+      "kesi": {
+        "ipa": "kesi:"
+      },
+      "licchaver": {
+        "ipa": "lit͡ʃˈt͡ʃha:vɐ"
+      },
+      "licchavern": {
+        "ipa": "lit͡ʃˈt͡ʃha:vɐn"
+      },
+      "kosala": {
+        "ipa": "ˈkosala"
+      },
+      "kosaler": {
+        "ipa": "ˈko:salɐ"
+      },
+      "piṅgiyānī": {
+        "ipa": "ˌpɪŋgɪˈja:ni:"
+      },
+      "sakyers": {
+        "ipa": "sakjɐs"
+      },
+      "tikaṇḍakī": {
+        "ipa": "tɪˈkandaki:"
+      },
+      "udāyī": {
+        "ipa": "uˈda:ji:"
+      },
+      "vacca": {
+        "ipa": "vat͡ʃt͡ʃa"
+      },
+      "vajjier": {
+        "ipa": "vaʝʝier"
+      },
+      "yama": {
+        "ipa": "ja:ma"
+      }
+    }
+  },
+  {
+    "name": "Default",
+    "language": "en",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "e": "eɪ",
+        "end": "end",
+        "ent": "ent",
+        "ess": "ess",
+        "ett": "ett",
+        "eṭṭ": "ett",
+        "eyy": "ejj",
+        "ejj": "eʝ.ʝ",
+        "ī": "i:",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "gosāla": "gəʊsɑla",
+        "gotama": "gəʊtɐma",
+        "gotamī": "gəʊtɐmi:",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "kosala": "kəʊsɐla",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ṇa$": "na",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "ṫ": "ʊː",
+        "ṭ": "t",
+        "ū": "u:",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "occupies": {
+        "ipa": "ɒkʊpaɪz"
+      }
+    }
+  },
+  {
+    "name": "Default",
+    "language": "es",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "ī": "iː",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jeta’s": "ʝeetɐ’s",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "unused-th": "ʈʰ",
+        "unused-u": "ʊ",
+        "ū": "ʊː",
+        "ṭ": "t",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "arahant": {
+        "ipa": "'a.ɾa.han.t͡ʃ"
+      },
+      "o": {
+        "ipa": "o"
+      },
+      "êxtase": {
+        "ipa": "'es.sta.se"
+      },
+      "este": {
+        "ipa": "'e.ré.to"
+      },
+      "ereto": {
+        "ipa": "'e.reh.to"
+      },
+      "saṃyutta": {
+        "ipa": "'san.niu.u.ta"
+      },
+      "majjhima": {
+        "ipa": "ma.dji.ma"
+      },
+      "kamma": {
+        "ipa": "kam.ma"
+      },
+      "Nibbāna": {
+        "ipa": "ni.ba.na"
+      },
+      "tathāgata": {
+        "ipa": "tɐˈtʰaːɡɐtɐ"
+      },
+      "tathāgatas": {
+        "ipa": "tɐˈtʰaːɡɐtɐs"
+      },
+      "jhana": {
+        "ipa": "djˈɐnɐ"
+      },
+      "jhāna": {
+        "ipa": "djˈɐnɐ"
+      },
+      "Jeta": {
+        "ipa": "djˈeta"
+      },
+      "rājagaha": {
+        "ipa": "rājagarra"
+      },
+      "pressa": {
+        "ipa": "pɾˈɛsɐ"
+      },
+      "ven.": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "venerável": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "Yāma": {
+        "ipa": "iãma"
+      },
+      "“‘Bhikkhu": {
+        "ipa": "bhikkhu"
+      },
+      "]": {
+        "ipa": "."
+      },
+      "zzzz": {}
+    }
+  },
+  {
+    "name": "Default",
+    "language": "fr",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "ī": "iː",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jeta’s": "ʝeetɐ’s",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "unused-th": "ʈʰ",
+        "unused-u": "ʊ",
+        "ū": "ʊː",
+        "ṭ": "t",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "arahant": {
+        "ipa": "'a.ɾa.han.t͡ʃ"
+      },
+      "o": {
+        "ipa": "o"
+      },
+      "êxtase": {
+        "ipa": "'es.sta.se"
+      },
+      "este": {
+        "ipa": "'e.ré.to"
+      },
+      "ereto": {
+        "ipa": "'e.reh.to"
+      },
+      "saṃyutta": {
+        "ipa": "'san.niu.u.ta"
+      },
+      "majjhima": {
+        "ipa": "ma.dji.ma"
+      },
+      "kamma": {
+        "ipa": "kam.ma"
+      },
+      "Nibbāna": {
+        "ipa": "ni.ba.na"
+      },
+      "tathāgata": {
+        "ipa": "tɐˈtʰaːɡɐtɐ"
+      },
+      "tathāgatas": {
+        "ipa": "tɐˈtʰaːɡɐtɐs"
+      },
+      "jhana": {
+        "ipa": "djˈɐnɐ"
+      },
+      "jhāna": {
+        "ipa": "djˈɐnɐ"
+      },
+      "Jeta": {
+        "ipa": "djˈeta"
+      },
+      "rājagaha": {
+        "ipa": "rājagarra"
+      },
+      "pressa": {
+        "ipa": "pɾˈɛsɐ"
+      },
+      "ven.": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "venerável": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "Yāma": {
+        "ipa": "iãma"
+      },
+      "“‘Bhikkhu": {
+        "ipa": "bhikkhu"
+      },
+      "]": {
+        "ipa": "."
+      },
+      "zzzz": {}
+    }
+  },
+  {
+    "name": "Default",
+    "language": "it",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "e": "eɪ",
+        "end": "end",
+        "ent": "ent",
+        "ess": "ess",
+        "ett": "ett",
+        "eṭṭ": "ett",
+        "eyy": "ejj",
+        "ejj": "eʝ.ʝ",
+        "ī": "i:",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "gosāla": "gəʊsɑla",
+        "gotama": "gəʊtɐma",
+        "gotamī": "gəʊtɐmi:",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "kosala": "kəʊsɐla",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ṇa$": "na",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "ṫ": "ʊː",
+        "ṭ": "t",
+        "ū": "u:",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "occupies": {
+        "ipa": "ɒkʊpaɪz"
+      }
+    }
+  },
+  {
+    "name": "Default",
+    "language": "jpn",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "ī": "iː",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jeta’s": "ʝeetɐ’s",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "unused-th": "ʈʰ",
+        "unused-u": "ʊ",
+        "ū": "ʊː",
+        "ṭ": "t",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "jhana": {
+        "ipa": "djˈɐnɐ"
+      },
+      "jhāna": {
+        "ipa": "djˈɐnɐ"
+      },
+      "zzzz": {}
+    }
+  },
+  {
+    "name": "Default",
+    "language": "pli",
+    "ipa": {
+      "pli": {
+        "a": "ə",
+        "aa": "ə'a",
+        "añca": "əɲ cə ",
+        "assa": "əs sə",
+        "ā": "ɑː",
+        "āya": "ɑː.jə",
+        "ae": "a.e",
+        "be": "bẽ",
+        "bh": "bʰ",
+        "d": "d̪",
+        "ud": "ʊɖ",
+        "^dha": "ɖhə",
+        "dh": "ɖʱ",
+        "d h": "ɖʱ",
+        "dha": "ɖʱə",
+        "ḍ": "ɖ",
+        "^e": "ẽ",
+        "se": "sẽ",
+        "ey y": "e j j",
+        "eṭ ṭh": "eʈ.ʈʰ",
+        "ī": "ɪi",
+        "gh": "gʰ",
+        "g h": "gʰ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jj": "ʝ.ʝ",
+        "j j": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "j jh": "dʒ.dʒʱ",
+        "boj jh": "'bodʒ.dʒʱ",
+        "^ke s": "kẽ s",
+        "^ka ya": "kə 'jə",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "la$": "la",
+        "ll": "l.l",
+        "ḷ": "ʟ̈",
+        "mā$": "m'ɑː",
+        "ṁ": "ŋ",
+        "ṃ": "ŋ",
+        "ñ c": "ɳ c",
+        "^pā": "'pɑː",
+        "^pu": "'pʊ",
+        "^pū": "'pʊ:",
+        "pare": "pɑ’ɽe",
+        "saṃ ye": "'səŋ je",
+        "taṃ ye": "'t̪əŋ je",
+        " ṇey": "n ej",
+        "ṇ": "ɳ",
+        "ṅ": "ŋ",
+        "ñ": "ɲ",
+        "ññ": "ɲ ɲ",
+        "nu": "nu",
+        "r": "ɾ",
+        "saṃ ve": "'səŋ ʋẽ",
+        "se sa": "sesə",
+        "si": "si",
+        "t": "t̪",
+        "th": "t̪ʰ",
+        "tth": "t̪.t̪ʰ",
+        "ṭ": "ʈ",
+        "ṭṭh": "ʈ.ʈʰ",
+        "u": "ʊ",
+        "^u": "'ʊ",
+        "ū": "u:",
+        "ve": "v\\e",
+        "va": "v\\ə",
+        "vā": "v\\ɑː",
+        "vi": "v\\ɪ",
+        "vī": "v\\ɪi",
+        "vo": "v\\o",
+        "^vu": "v\\ʊ",
+        "vut": "'vʊt̪",
+        "vū": "'vʊ",
+        "yi": "'ji",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "nimitta": {
+        "ipa": "nɪ 'mɪt̪ t̪ə"
+      },
+      "karaṇo": {
+        "ipa": "kə 'ɾə ɳo"
+      },
+      "nivesetabbā": {
+        "ipa": "'nɪ v\\e sẽ t̪əb bɑː"
+      },
+      "phussa": {
+        "ipa": "'phʊs sə"
+      },
+      "vuccati": {
+        "ipa": "'vʊc c ə t̪ɪ"
+      }
+    }
+  },
+  {
+    "name": "Default",
+    "language": "pt",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "ī": "iː",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jeta’s": "ʝeetɐ’s",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "unused-th": "ʈʰ",
+        "unused-u": "ʊ",
+        "ū": "ʊː",
+        "ṭ": "t",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {
+      "arahant": {
+        "ipa": "'a.ɾa.han.t͡ʃ"
+      },
+      "o": {
+        "ipa": "o"
+      },
+      "êxtase": {
+        "ipa": "'es.sta.se"
+      },
+      "este": {
+        "ipa": "'e.ré.to"
+      },
+      "ereto": {
+        "ipa": "'e.reh.to"
+      },
+      "saṃyutta": {
+        "ipa": "'san.niu.u.ta"
+      },
+      "majjhima": {
+        "ipa": "ma.dji.ma"
+      },
+      "kamma": {
+        "ipa": "kam.ma"
+      },
+      "Nibbāna": {
+        "ipa": "ni.ba.na"
+      },
+      "tathāgata": {
+        "ipa": "tɐˈtʰaːɡɐtɐ"
+      },
+      "tathāgatas": {
+        "ipa": "tɐˈtʰaːɡɐtɐs"
+      },
+      "jhana": {
+        "ipa": "djˈɐnɐ"
+      },
+      "jhāna": {
+        "ipa": "djˈɐnɐ"
+      },
+      "Jeta": {
+        "ipa": "djˈeta"
+      },
+      "rājagaha": {
+        "ipa": "rājagarra"
+      },
+      "pressa": {
+        "ipa": "pɾˈɛsɐ"
+      },
+      "ven.": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "venerável": {
+        "ipa": "veneɾˈavɛw"
+      },
+      "Yāma": {
+        "ipa": "iãma"
+      },
+      "“‘Bhikkhu": {
+        "ipa": "bhikkhu"
+      },
+      "]": {
+        "ipa": "."
+      },
+      "zzzz": {}
+    }
+  },
+  {
+    "name": "Default",
+    "language": "ru",
+    "ipa": {
+      "pli": {
+        "a": "ɐ",
+        "a$": "a",
+        "ah": "ɑ'h",
+        "ā": "ɑ",
+        "aya": "ajɐˌ",
+        "bh": "bʰ",
+        "ḍ": "d",
+        "dh": "dʰ",
+        "du": "dʊ",
+        "e": "eɪ",
+        "end": "end",
+        "ent": "ent",
+        "ess": "ess",
+        "ett": "ett",
+        "eṭṭ": "ett",
+        "eyy": "ejj",
+        "ejj": "eʝ.ʝ",
+        "ī": "i:",
+        "ṭṭh": "ʈ̆ʈʰ",
+        "gh": "gʰ",
+        "gosāla": "gəʊsɑla",
+        "gotama": "gəʊtɐma",
+        "gotamī": "gəʊtɐmi:",
+        "unused-h": "ḧ",
+        "i": "ɪ",
+        "j": "ʝ",
+        "jj": "ʝ.ʝ",
+        "jha": "ʄhɑ",
+        "kh": "kʰ",
+        "kk": "k.k",
+        "kkh": "k.kʰ",
+        "kosala": "kəʊsɐla",
+        "ll": "l.l",
+        "ñ": "ɲ",
+        "ḷ": "ʟ̈",
+        "ṇ": "n'",
+        "ṇa$": "na",
+        "ma": "ma",
+        "ng": "ŋg",
+        "ṃ": "ŋ",
+        "nu": "nu",
+        "ṅg": "ŋg",
+        "ṅgh": "ŋgʰ",
+        "ṅk": "ŋk",
+        "sutta": "ˌsuttä",
+        "r": "ɺ",
+        "tt": "t.t",
+        "ṫ": "ʊː",
+        "ṭ": "t",
+        "ū": "u:",
+        "^va": "va",
+        "y": "j"
+      }
+    },
+    "customWords": {}
+  }
+]
