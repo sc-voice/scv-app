@@ -251,7 +251,7 @@
 "about.license.prefix" = "Lizenz: %@";
 
 /* About card view: audio credits section title */
-"about.section.audio_credits" = "Audioguthaben";
+"about.section.audio_credits" = "Audio-Quellennachweise";
 
 /* About card view: audio credits intro */
 "about.audio_credits.intro" = "Soundeffekte und Audio:";

@@ -35,8 +35,8 @@ final class AbstractTts {
     self.localeIPA = localeIPA ?? language
     self.breaks = breaks ?? [0.001, 0.1, 0.2, 0.6, 1]
     self.customWords = customWords
-    self.paliDiacritics = CharacterSet(
-      charactersIn: "āīūḍḷṁṅṇṭñĀĪŪḌḶṀṄṆṬÑ"
+    paliDiacritics = CharacterSet(
+      charactersIn: "āīūḍḷṁṅṇṭñĀĪŪḌḶṀṄṆṬÑ",
     )
 
     let vowels = syllableVowels ?? "aeioujɐɛɪɔʌ"
@@ -89,12 +89,13 @@ final class AbstractTts {
 
   /// Returns language and optional custom IPA for a word
   /// - Parameter word: Word to look up
-  /// - Returns: WordInfo with language and optional IPA from customWords, or nil for unknown words
+  /// - Returns: WordInfo with language and optional IPA from customWords, or
+  /// nil for unknown words
   func wordInfo(_ word: String) -> WordInfo? {
     let lowerWord = word.lowercased()
 
     // Check customWords first (highest priority)
-    if let customWords = customWords {
+    if let customWords {
       if let wordData = customWords[lowerWord] as? [String: Any] {
         let lang = wordData["language"] as? String ?? language
         let ipa = wordData["ipa"] as? String

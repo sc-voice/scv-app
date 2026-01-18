@@ -184,6 +184,7 @@ public struct AboutCardView: View {
                   description: "about.feature.highlighting.desc".localized,
                 )
               }
+              .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
 
@@ -223,6 +224,7 @@ public struct AboutCardView: View {
                   description: "about.step.4.desc".localized,
                 )
               }
+              .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
 
@@ -548,6 +550,7 @@ public struct AboutCardView: View {
                   description: "about.privacy.open_source.desc".localized,
                 )
               }
+              .frame(maxWidth: .infinity, alignment: .leading)
             }
           }
 
@@ -618,8 +621,12 @@ private struct FeatureRow: View {
         Text(description)
           .font(.caption)
           .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          .lineLimit(nil)
+          .fixedSize(horizontal: false, vertical: true)
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 
@@ -644,8 +651,12 @@ private struct StepRow: View {
         Text(description)
           .font(.caption)
           .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          .lineLimit(nil)
+          .fixedSize(horizontal: false, vertical: true)
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 
@@ -663,9 +674,13 @@ private struct SourceRow: View {
         .fontWeight(.semibold)
         .foregroundStyle(url != nil ? themeProvider.theme
           .linkColor : themeProvider.theme.textColor)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
       Text(author)
         .font(.caption)
         .foregroundStyle(themeProvider.theme.secondaryTextColor)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.vertical, 8)
@@ -697,6 +712,8 @@ private struct AckRow: View {
       Text(names)
         .font(.caption)
         .foregroundStyle(themeProvider.theme.textColor)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -746,8 +763,12 @@ private struct PrivacyRow: View {
         Text(description)
           .font(.caption)
           .foregroundStyle(themeProvider.theme.secondaryTextColor)
+          .lineLimit(nil)
+          .fixedSize(horizontal: false, vertical: true)
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 

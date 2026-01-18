@@ -67,7 +67,8 @@ struct AbstractTtsTests {
 
   @Test
   func paliDetectionWithoutDiacritics() {
-    // Known Pali words in nonDiacriticalDict should be detected (if length >= 4)
+    // Known Pali words in nonDiacriticalDict should be detected (if length >=
+    // 4)
     #expect(Pali.shared.isPali("arahant"))
     #expect(Pali.shared.isPali("bhikkhu"))
 
@@ -145,7 +146,10 @@ struct AbstractTtsTests {
     let tts = AbstractTts(language: "en", customWords: customWords)
 
     // Custom word with IPA override
-    #expect(tts.wordInfo("occupies") == WordInfo(language: "en", ipa: "ɒkʊpaɪz"))
+    #expect(tts.wordInfo("occupies") == WordInfo(
+      language: "en",
+      ipa: "ɒkʊpaɪz",
+    ))
 
     // Pali word with custom IPA override
     #expect(tts.wordInfo("bhikkhu") == WordInfo(language: "pli", ipa: "bɪkuːz"))
@@ -153,7 +157,8 @@ struct AbstractTtsTests {
 
   @Test
   func wordInfoAlwaysReturnsValue() {
-    // wordInfo() returns WordInfo for any word (never nil in our implementation)
+    // wordInfo() returns WordInfo for any word (never nil in our
+    // implementation)
     let tts = AbstractTts(language: "en")
 
     // Even unknown words get the instance language

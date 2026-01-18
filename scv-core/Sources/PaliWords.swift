@@ -30,7 +30,8 @@ public final class Pali: Sendable {
   ///   - word: Word to check
   ///   - minLength: Minimum length for undiacritical words to be considered
   /// Pali (default: 4)
-  /// - Returns: True if word contains Pali diacritics OR is in nonDiacriticalDict and
+  /// - Returns: True if word contains Pali diacritics OR is in
+  /// nonDiacriticalDict and
   /// length >= minLength
   public func isPali(_ word: String, minLength: Int = 4) -> Bool {
     let trimmed = word.lowercased()
@@ -42,7 +43,8 @@ public final class Pali: Sendable {
     }
 
     // Otherwise, must be in nonDiacriticalDict AND >= minLength
-    return trimmed.count >= minLength && Self.nonDiacriticalDict.contains(trimmed)
+    return trimmed.count >= minLength && Self.nonDiacriticalDict
+      .contains(trimmed)
   }
 
   static let shared = Pali()

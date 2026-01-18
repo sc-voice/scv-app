@@ -82,7 +82,10 @@ struct PaliWordsTests {
     ]
 
     // Test words with diacritics (always Pali)
-    #expect(p7s.isCountablePali("ṭhaddha") == true, "Diacritical word should be Pali")
+    #expect(
+      p7s.isCountablePali("ṭhaddha") == true,
+      "Diacritical word should be Pali",
+    )
     #expect(p7s.isCountablePali("ī") == true, "Diacritical word should be Pali")
 
     // Test non-diacritical words from paliDict (>= default minLength 4)
