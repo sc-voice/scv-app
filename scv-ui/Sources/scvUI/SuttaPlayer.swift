@@ -16,6 +16,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public static let shared = SuttaPlayer()
 
   @Published public var isPlaying = false
+  @Published public var isSynthesizerSpeaking = false
   @Published public var currentSutta: MLDocument?
 
   private var synthesizer: ISpeechSynthesizer
@@ -125,9 +126,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         self.cc.bad1(
           #line,
           #function,
-          "Synthesizer failed to start after 500ms - pausing",
+          "Synthesizer failed to start after 500ms - showing alert",
         )
-        self.pause()
+        self.showSpeechErrorAlert()
       }
       self.isTransitioning = false
     }
@@ -140,6 +141,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       cc.ok1(#line, #function, "play() aborted - currentSutta is nil")
       return
     }
+
+    // Create fresh synthesizer for each play attempt
+    synthesizer.stopSpeaking(at: .immediate)
+    synthesizer = AVSpeechSynthesizer()
+    synthesizer.delegate = self
+    configureAudioSession()
+
     isPlaying = true
     AudioEffects.shared.announce(.play)
     #if os(iOS)
@@ -193,6 +201,57 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     #endif
 
     cc.ok1(#line, #function, "isPlaying", isPlaying)
+  }
+
+  @MainActor
+  private func showSpeechErrorAlert() {
+    #if os(iOS)
+      let alert = UIAlertController(
+        title: "Speech problems",
+        message: "Close and reopen scVoice".localized,
+        preferredStyle: .alert,
+      )
+      alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+        self.resetSynthesizer()
+      })
+
+      if let windowScene = UIApplication.shared.connectedScenes
+        .first as? UIWindowScene,
+        let window = windowScene.windows.first,
+        let rootViewController = window.rootViewController
+      {
+        rootViewController.present(alert, animated: true)
+      }
+    #endif
+  }
+
+  @MainActor
+  private func resetSynthesizer() {
+    cc.ok1(#line, #function, "Resetting synthesizer")
+
+    // Save state before reset
+    let wasPlaying = isPlaying
+    let playFromIndex = currentSegmentIndex
+    let sutta = currentSutta
+
+    synthesizer.stopSpeaking(at: .immediate)
+
+    // Create new synthesizer instance
+    synthesizer = AVSpeechSynthesizer()
+    synthesizer.delegate = self
+
+    // Reconfigure audio session
+    configureAudioSession()
+
+    isSynthesizerSpeaking = false
+
+    // Resume playback if it was playing
+    if wasPlaying, sutta != nil {
+      cc.ok1(#line, #function, "Resuming playback from index:", playFromIndex)
+      playSegmentAt(at: playFromIndex)
+    }
+
+    cc.ok1(#line, #function, "Synthesizer reset complete")
   }
 
   private func playSegmentAt(at index: Int) {
@@ -296,9 +355,45 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public nonisolated func speechSynthesizer(
     _: AVSpeechSynthesizer,
+    didStart _: AVSpeechUtterance,
+  ) {
+    Task { @MainActor in
+      self.isSynthesizerSpeaking = true
+      self.cc.ok1(
+        #line,
+        #function,
+        "Synthesizer started speaking - isSynthesizerSpeaking:",
+        self.isSynthesizerSpeaking,
+      )
+    }
+  }
+
+  public nonisolated func speechSynthesizer(
+    _: AVSpeechSynthesizer,
+    didPause _: AVSpeechUtterance,
+  ) {
+    Task { @MainActor in
+      self.isSynthesizerSpeaking = false
+      self.cc.ok2(#line, #function, "Synthesizer paused")
+    }
+  }
+
+  public nonisolated func speechSynthesizer(
+    _: AVSpeechSynthesizer,
+    didContinue _: AVSpeechUtterance,
+  ) {
+    Task { @MainActor in
+      self.isSynthesizerSpeaking = true
+      self.cc.ok2(#line, #function, "Synthesizer continued speaking")
+    }
+  }
+
+  public nonisolated func speechSynthesizer(
+    _: AVSpeechSynthesizer,
     didFinish _: AVSpeechUtterance,
   ) {
     Task { @MainActor in
+      self.isSynthesizerSpeaking = false
       // Play the next segment as determined by nextIndexToPlay
       // When user jumps to a different segment, playSegmentAt updates
       // nextIndexToPlay,

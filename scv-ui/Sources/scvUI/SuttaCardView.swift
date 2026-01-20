@@ -140,8 +140,11 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
               }) {
                 Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                   .font(.title2)
-                  .foregroundColor(themeProvider.theme.toolbarForeground)
+                  .foregroundColor(player
+                    .isSynthesizerSpeaking ? .green : themeProvider.theme
+                    .toolbarForeground)
                   .frame(minWidth: 44, minHeight: 44)
+                  .padding(.leading, 20)
               }
               .buttonStyle(.plain)
               .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
