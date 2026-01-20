@@ -30,12 +30,14 @@ public struct ScvProgressView: View {
             .scaledToFit()
             .opacity(0.8)
             .frame(width: 80, height: 80)
+            .clipShape(Circle())
         } else {
-          Image(systemName: "app.circle")
+          Image(systemName: "ladybug.slash.fill")
             .resizable()
             .scaledToFit()
             .opacity(0.8)
             .frame(width: 80, height: 80)
+            .clipShape(Circle())
         }
 
         // Optional label
