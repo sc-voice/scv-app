@@ -142,11 +142,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       return
     }
 
-    // Create fresh synthesizer for each play attempt
+    // Create fresh synthesizer for each play attempt (but preserve mocks for testing)
     synthesizer.stopSpeaking(at: .immediate)
-    synthesizer = AVSpeechSynthesizer()
-    synthesizer.delegate = self
-    configureAudioSession()
+    if synthesizer is AVSpeechSynthesizer {
+      synthesizer = AVSpeechSynthesizer()
+      synthesizer.delegate = self
+      configureAudioSession()
+    }
 
     isPlaying = true
     AudioEffects.shared.announce(.play)
