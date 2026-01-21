@@ -5,6 +5,8 @@ import Testing
 
 @Suite("Audio Caching")
 struct AudioCachingTests {
+  private let cc = ColorConsole("AudioCachingTests", "synthesizeToCAF", dbg.SuttaPlayer.other)
+
   private func synthesizeToCAF(
     text: String,
     voiceIdentifier: String? = nil,
@@ -28,11 +30,11 @@ struct AudioCachingTests {
           .setCategory(.playback, mode: .default, options: [.duckOthers])
         try AVAudioSession.sharedInstance().setActive(true)
       } catch {
-        print("⚠️  Failed to configure audio session: \(error)")
+        cc.bad2(#line, "Failed to configure audio session: \(error)")
       }
     #endif
 
-    print("🎙️  Starting synthesis of '\(text)'...")
+    cc.ok2(#line, "Starting synthesis of '\(text)'...")
     let startTime = Date()
 
     // Create utterance
@@ -56,13 +58,13 @@ struct AudioCachingTests {
       defer { lock.unlock() }
 
       guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-        print("⚠️  Non-PCM buffer received")
+        self.cc.bad2(#line, "Non-PCM buffer received")
         return
       }
 
       // Empty buffer signals completion
       if pcmBuffer.frameLength == 0 {
-        print("✅ Synthesis complete")
+        self.cc.ok2(#line, "Synthesis complete")
         isComplete = true
         return
       }
@@ -71,13 +73,13 @@ struct AudioCachingTests {
         // First buffer: create file with Apple's preferred format
         if audioFile == nil {
           let format = pcmBuffer.format
-          print("📝 Buffer format details:")
-          print("   Sample rate: \(Int(format.sampleRate)) Hz")
-          print("   Channels: \(format.channelCount)")
-          print("   Format: \(format.commonFormat)")
-          print("   Is interleaved: \(format.isInterleaved)")
-          print("   Settings: \(format.settings)")
-          print("   Frame length in buffer: \(pcmBuffer.frameLength)")
+          self.cc.ok2(#line, "Buffer format details:")
+          self.cc.ok2(#line, "Sample rate: \(Int(format.sampleRate)) Hz")
+          self.cc.ok2(#line, "Channels: \(format.channelCount)")
+          self.cc.ok2(#line, "Format: \(format.commonFormat)")
+          self.cc.ok2(#line, "Is interleaved: \(format.isInterleaved)")
+          self.cc.ok2(#line, "Settings: \(format.settings)")
+          self.cc.ok2(#line, "Frame length in buffer: \(pcmBuffer.frameLength)")
 
           audioFile = try AVAudioFile(
             forWriting: outputURL,
@@ -85,13 +87,13 @@ struct AudioCachingTests {
             commonFormat: .pcmFormatFloat32,
             interleaved: false
           )
-          print("✅ File created successfully")
+          self.cc.ok2(#line, "File created successfully")
         }
 
         // Write buffer to file
         try audioFile?.write(from: pcmBuffer)
       } catch {
-        print("❌ Error writing audio buffer: \(error)")
+        self.cc.bad2(#line, "Error writing audio buffer: \(error)")
         hasError = true
       }
     }
@@ -109,23 +111,23 @@ struct AudioCachingTests {
 
     // Check results
     if Date() >= timeout {
-      print("❌ Synthesis timeout after \(String(format: "%.1f", elapsed))s")
+      cc.bad1(#line, "Synthesis timeout after \(String(format: "%.1f", elapsed))s")
       return
     }
 
     if hasError {
-      print("❌ Synthesis failed with error")
+      cc.bad1(#line, "Synthesis failed with error")
       return
     }
 
     // Verify file was created
     let fileSize = (try? fileManager.attributesOfItem(atPath: outputPath))?[.size] as? Int ?? 0
-    print("✅ Synthesis complete in \(String(format: "%.2f", elapsed))s")
-    print("✅ File saved to: \(outputPath)")
-    print("✅ File size: \(fileSize) bytes")
+    cc.ok1(#line, "Synthesis complete in \(String(format: "%.2f", elapsed))s")
+    cc.ok1(#line, "File saved to: \(outputPath)")
+    cc.ok1(#line, "File size: \(fileSize) bytes")
 
     if fileSize == 0 {
-      print("⚠️  File is empty - no audio data written")
+      cc.bad2(#line, "File is empty - no audio data written")
     }
   }
 
@@ -168,26 +170,26 @@ struct AudioCachingTests {
   private func verifyCAFFile(_ filePath: String) {
     let fileURL = URL(fileURLWithPath: filePath)
 
-    print("🎵 Loading \(filePath)...")
+    cc.ok2(#line, "Loading \(filePath)...")
 
     do {
       let audioFile = try AVAudioFile(forReading: fileURL)
 
       let format = audioFile.processingFormat
-      print("✅ File loaded successfully")
-      print("   Channels: \(format.channelCount)")
-      print("   Sample rate: \(Int(format.sampleRate)) Hz")
+      cc.ok2(#line, "File loaded successfully")
+      cc.ok2(#line, "Channels: \(format.channelCount)")
+      cc.ok2(#line, "Sample rate: \(Int(format.sampleRate)) Hz")
 
       let frameLength = audioFile.length
-      print("   Duration: \(Double(frameLength) / format.sampleRate) seconds")
+      cc.ok2(#line, "Duration: \(Double(frameLength) / format.sampleRate) seconds")
 
       if frameLength > 0 {
-        print("✅ Audio file contains \(frameLength) frames of audio data")
+        cc.ok1(#line, "Audio file contains \(frameLength) frames of audio data")
       } else {
-        print("❌ Audio file has no frames")
+        cc.bad1(#line, "Audio file has no frames")
       }
     } catch {
-      print("❌ Failed to load audio file: \(error)")
+      cc.bad1(#line, "Failed to load audio file: \(error)")
     }
   }
 
