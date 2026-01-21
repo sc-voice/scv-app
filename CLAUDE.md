@@ -209,15 +209,3 @@ Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are color
     - Update all internal callsites to use await
     - Keep actor serialization to maintain thread safety
 
-### Fix SuttaPlayer audio synthesis timeout
-**Status**: Backlog
-
-01. [ ] Investigate and fix "Synthesizer failed to start after 500ms" error (See: scv-ui/Sources/scvUI/SuttaPlayer.swift:126)
-    - Error occurs during text-to-speech playback initialization
-    - AVFoundation synthesizer times out after 500ms
-    - Symptom: play() called successfully but synthesizer fails to initialize
-    - Error code: kAudioDevicePropertyMute 2003332927
-    - Potential causes: audio session configuration, device mute state, synthesizer race condition
-    - Debug: Add audio session debugging, check device state before synthesis
-    - Solution: Implement retry logic or increase timeout with fallback handling
-
