@@ -2,9 +2,15 @@
 
 A file-based storage system for managing GUID-identified items with hierarchical directory organization.
 
+**Status**: Implemented and tested ✓
+**Source**: scv-core/Sources/scvCore/GuidStore.swift
+**Tests**: scv-core/Tests/GuidStoreTests.swift (6 tests, all passing)
+
 ## Overview
 
 GuidStore provides persistent storage for items identified by globally unique identifiers (GUIDs). It organizes files using a hierarchical directory structure to avoid filesystem performance issues with large numbers of files in a single directory.
+
+Ported from JavaScript reference implementation (memo-again/src/guid-store.js) with full Swift concurrency support.
 
 ## Directory Structure
 
@@ -168,15 +174,70 @@ _ = try await store.clearVolume("cache")
 - Can be customized via `config.storePath`
 - Consider app requirements: Documents vs. Cache vs. Temporary
 
+## Testing
+
+GuidStore includes comprehensive test coverage:
+
+**Test Suite**: GuidStoreTests (6 tests, all passing)
+- ✓ Default constructor creates store with expected paths
+- ✓ Custom constructor with options
+- ✓ guidPath returns correct file path
+- ✓ signaturePath resolves from signature dictionary
+- ✓ clearVolume removes only files in specified volume
+- ✓ clearVolume returns 0 for non-existent volume
+
+Run tests:
+```bash
+cd scv-core && swift test --no-parallel --filter GuidStoreTests
+```
+
 ## Comparison with JavaScript Version
 
 | Aspect | JavaScript | Swift |
 |--------|------------|-------|
+| File path resolution | (guid, opts) with flexible overloads | Type-safe parameters, overloaded methods |
 | Directory creation | Implicit on path resolution | Explicit, on-demand via FileManager |
-| Async operations | clearVolume() async | All I/O operations via async/await |
-| File iteration | Files.files() generator | FileManager URLResourceKey iteration |
-| Error handling | Implicit exceptions | Throws errors to caller |
+| Async operations | clearVolume() async | clearVolume() async with proper concurrency handling |
+| File iteration | Files.files() generator | Recursive FileManager.contentsOfDirectory() |
+| Error handling | Implicit exceptions | Throws standard Foundation errors |
 | Type safety | Dynamic options objects | Structs with defined properties |
+| Thread safety | Not thread-safe | Not thread-safe; use task isolation for coordination |
+| Test framework | Mocha/should.js | Swift Testing (@Suite, @Test, #expect) |
+
+## Swift Concurrency
+
+GuidStore is designed for Swift 6 concurrency model:
+
+- **clearVolume()** is async/throws and can be called with `try await`
+- **Path resolution methods** are synchronous and side-effect free (safe to call from any context)
+- **Directory creation** happens automatically but doesn't block - uses non-throwing operations
+- Recommended usage: Protect shared GuidStore instances with actor isolation or MainActor if needed
+
+Example with concurrency:
+```swift
+@MainActor class AudioCacheManager {
+    private let store: GuidStore
+
+    func clearCache() async throws {
+        let count = try await store.clearVolume("audio-cache")
+        print("Cleared \(count) audio files")
+    }
+
+    func getCachePath(audioId: String) -> URL {
+        // Path resolution is safe to call without await
+        return store.guidPath(guid: audioId, volume: "audio-cache")
+    }
+}
+```
+
+## Implementation Details
+
+- **Language**: Swift 6.0+
+- **Minimum deployment**: iOS 16+, macOS 13+
+- **Dependencies**: Foundation only
+- **File operations**: Foundation FileManager API
+- **Error handling**: Throws standard `CocoaError` from FileManager operations
+- **Default locations**: `FileManager.default.urls(for: .documentDirectory)`
 
 ## Related Concepts
 
@@ -185,4 +246,9 @@ _ = try await store.clearVolume("cache")
 - **Chapter** - Performance optimization for filesystem with many files
 - **Signature** - Metadata object identifying stored content
 
-See: memo-again/src/guid-store.js for reference implementation
+## References
+
+- **Swift implementation**: scv-core/Sources/scvCore/GuidStore.swift
+- **Swift tests**: scv-core/Tests/GuidStoreTests.swift
+- **JavaScript reference**: memo-again/src/guid-store.js
+- **JavaScript tests**: memo-again/test/guid-store.js
