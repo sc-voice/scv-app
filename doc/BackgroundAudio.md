@@ -33,11 +33,12 @@ play() → all segments synthesized + cached → app backgrounds → play from c
 Upfront synthesis cost is unknown (TBD).
 
 If sutta has 100+ segments:
-- Synthesis time = N segments × ~50ms per segment = 5+ seconds minimum
+- **Measured synthesis time**: 230-610ms per segment (see test results below)
+- For DN33 (1,167 segments): 4.5-15 minutes depending on voice
 - User experience options:
-  1. Block UI for 5+ seconds (unacceptable)
-  2. Non-blocking synthesis with progress bar (requires background queue)
-  3. Only enable background playback for already-cached suttas
+  1. Block UI (unacceptable - would freeze app for 12+ minutes)
+  2. **Non-blocking synthesis with progress bar (REQUIRED)**
+  3. Resume capability for interrupted synthesis
 
 ## Proposed Solution
 
@@ -93,16 +94,25 @@ If sutta has 100+ segments:
 
 ### Performance and UX
 
-1. **Synthesis timing (UNKNOWN - REQUIRES TESTING)**
-   - How long to synthesize a typical long sutta?
-   - Per-segment timing: synthesis + file write
-   - Total time threshold for acceptable UX?
-   - If >2 minutes, background synthesis becomes critical
+1. **Synthesis timing (MEASURED - See: scv-core/Tests/AudioCachingTests.swift)**
 
-2. **Progress UI**:
-   - Show segment count and ETA?
-   - Allow cancellation?
-   - Resume from where it left off if interrupted?
+   **Per-segment timing (synthesis + write):**
+   - Default English (en-US): 290ms/segment
+   - Sangeeta (en-IN, enhanced): 230ms/segment
+   - Sandy (de-DE, eloquence): 510ms/segment
+   - Petra Premium (de-DE, premium): 610ms/segment
+
+   **Estimated time for DN33 (1,167 segments):**
+   - Best case (Sangeeta): ~4.5 minutes
+   - Average (mixed voices): ~8-10 minutes
+   - Worst case (Petra Premium): ~12-15 minutes
+
+   **Conclusion**: Background synthesis is MANDATORY. Foreground synthesis would freeze UI for 12+ minutes. Per-sutta caching justifies complexity.
+
+2. **Progress UI** (REQUIRED):
+   - **MUST show** segment count and ETA (e.g., "523/1167 segments, ~6 minutes remaining")
+   - **MUST allow** cancellation (user needs escape from 12-minute operation)
+   - **MUST support** resume from interrupted synthesis (user will background app during cache)
 
 3. **First-play experience**:
    - New sutta: must choose foreground synthesis (loses background) or wait for background cache?
@@ -128,8 +138,24 @@ If sutta has 100+ segments:
 4. **Implement "Create Background Audio" UI**
    - Menu item, progress indication, completion state
 
+## Measured Test Results
+
+**Test environment**: macOS 14.0, arm64e, Swift Testing
+**Test location**: scv-core/Tests/AudioCachingTests.swift
+
+**Synthesis metrics (Jan 2026)**:
+
+| Voice | Language | Text | Duration | Synthesis Time | File Size | Deterministic? |
+|-------|----------|------|----------|---|---|---|
+| Default English | en-US | "So I have heard." | 0.943s | 0.29s | 87KB | Yes |
+| Sangeeta | en-IN (enhanced) | "So I have heard." | 0.753s | 0.23s | 70KB | Yes |
+| Sandy | de-DE (eloquence) | "so habe ich gehoert" | 1.232s | 0.51s | 112KB | No* |
+| Petra Premium | de-DE (premium) | "so habe ich gehoert" | 1.237s | 0.61s | 113KB | Yes |
+
+\* Sandy produces slight variations in output across runs (RMS diff 0.191), while others are deterministic.
+
 ## See Also
 
 - `SuttaPlayer.md` — Current AVSpeechSynthesizer implementation
 - `MerkleJson.md` — Hash algorithm for cache keys
-- `doc/AudioCaching.md` — Caching analysis (TBD - companion doc)
+- `scv-core/Tests/AudioCachingTests.swift` — Audio caching test suite with synthesis measurements
