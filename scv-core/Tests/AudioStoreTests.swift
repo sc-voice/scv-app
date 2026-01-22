@@ -112,11 +112,13 @@ struct AudioStoreTests {
     // Check results
     if Date() >= timeout {
       cc.bad1(#line, "Synthesis timeout after \(String(format: "%.1f", elapsed))s")
+      #expect(Date() < timeout, "Synthesis must complete before timeout")
       return
     }
 
     if hasError {
       cc.bad1(#line, "Synthesis failed with error")
+      #expect(!hasError, "Synthesis must complete without errors")
       return
     }
 
@@ -129,6 +131,7 @@ struct AudioStoreTests {
     if fileSize == 0 {
       cc.bad2(#line, "File is empty - no audio data written")
     }
+    #expect(fileSize >= 50000, "Audio file must contain audio data (expected >= 50KB, got \(fileSize) bytes)")
   }
 
   @Test("Synthesize 'So I have heard.' to CAF file")
