@@ -41,6 +41,8 @@ public final class AudioEffects: ObservableObject {
         0.5
       case .chirp:
         0.025
+      case .block:
+        0.5
       default:
         1.0
       }

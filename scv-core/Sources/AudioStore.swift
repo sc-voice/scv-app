@@ -6,6 +6,7 @@
 //  Wraps GuidStore to organize audio files by language and audio context settings.
 //
 
+import AVFoundation
 import Foundation
 
 /// Audio file format type
@@ -27,24 +28,27 @@ enum AudioType {
 final class AudioStore {
   private let guidStore: GuidStore
   private let audioType: AudioType
+  public let timeout: TimeInterval  // Configurable synthesis timeout (default 5s)
 
   /// Shared singleton instance for production use
   nonisolated(unsafe) static let shared = AudioStore.create()
 
   /// Private initializer - use create() factory method instead
-  private init(guidStore: GuidStore, audioType: AudioType) {
+  private init(guidStore: GuidStore, audioType: AudioType, timeout: TimeInterval = 5) {
     self.guidStore = guidStore
     self.audioType = audioType
+    self.timeout = timeout
   }
 
-  /// Create a new AudioStore instance with optional custom storage path and audio type.
+  /// Create a new AudioStore instance with optional custom storage path, audio type, and timeout.
   ///
   /// - Parameters:
   ///   - path: Custom path for audio storage (defaults to Library/Caches/audio-store)
   ///     Useful for testing with isolated directories.
   ///   - type: Audio format type (.caf or .m4a), defaults to .caf
+  ///   - timeout: Synthesis timeout in seconds (default 5s)
   /// - Returns: New AudioStore instance
-  static func create(path: URL? = nil, type: AudioType = .caf) -> AudioStore {
+  static func create(path: URL? = nil, type: AudioType = .caf, timeout: TimeInterval = 5) -> AudioStore {
     let suffix = type == .caf ? ".caf" : ".m4a"
 
     var config = GuidStoreConfig(
@@ -64,7 +68,7 @@ final class AudioStore {
     }
 
     let guidStore = GuidStore(config: config)
-    return AudioStore(guidStore: guidStore, audioType: type)
+    return AudioStore(guidStore: guidStore, audioType: type, timeout: timeout)
   }
 
   /// Get audio URL for text and context.
@@ -101,6 +105,112 @@ final class AudioStore {
       "text": text,
       "audioContext": audioContext.hash
     ])
+  }
+
+  /// Synthesize and store audio for text and context.
+  ///
+  /// Performs text-to-speech synthesis and writes the result to a CAF file.
+  /// Returns the URL when synthesis completes successfully.
+  ///
+  /// - Parameters:
+  ///   - text: Text to synthesize
+  ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
+  ///   - timeout: Synthesis timeout in seconds (defaults to instance timeout). Throws if exceeded.
+  /// - Returns: URL to synthesized audio file
+  /// - Throws: File creation errors, synthesis failures, or timeout
+  func storeAudio(text: String, audioContext: AudioContext, timeout: TimeInterval? = nil) async throws -> URL {
+    // Reject empty text
+    guard !text.trimmingCharacters(in: .whitespaces).isEmpty else {
+      throw NSError(domain: "AudioStore", code: -2, userInfo: [NSLocalizedDescriptionKey: "Cannot synthesize empty text"])
+    }
+
+    let url = audioUrl(text: text, audioContext: audioContext, forceUrl: true)!
+
+    // If already cached, return immediately
+    if FileManager.default.fileExists(atPath: url.path) {
+      return url
+    }
+
+    // Ensure output directory exists
+    let outputDir = url.deletingLastPathComponent()
+    try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+
+    // Perform synthesis and write to file
+    let effectiveTimeout = timeout ?? self.timeout
+    try performSynthesis(text: text, audioContext: audioContext, to: url, timeout: effectiveTimeout)
+
+    return url
+  }
+
+  /// Perform synthesis and write to CAF file.
+  private func performSynthesis(text: String, audioContext: AudioContext, to url: URL, timeout: TimeInterval) throws {
+    let fileManager = FileManager.default
+
+    // Create utterance with audio context voice settings
+    let utterance = AVSpeechUtterance(string: text)
+    utterance.voice = AVSpeechSynthesisVoice(language: audioContext.docLang)
+    utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+    utterance.pitchMultiplier = audioContext.pitch
+    utterance.volume = 1.0
+
+    // Setup synthesis with file writing
+    let synthesizer = AVSpeechSynthesizer()
+    var audioFile: AVAudioFile?
+    let lock = NSLock()
+    var isComplete = false
+    var synthesisError: Error?
+
+    let onBuffer: (AVAudioBuffer) -> Void = { buffer in
+      lock.lock()
+      defer { lock.unlock() }
+
+      guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
+        return
+      }
+
+      // Empty buffer signals completion
+      if pcmBuffer.frameLength == 0 {
+        isComplete = true
+        return
+      }
+
+      do {
+        // First buffer: create file
+        if audioFile == nil {
+          audioFile = try AVAudioFile(
+            forWriting: url,
+            settings: pcmBuffer.format.settings,
+            commonFormat: .pcmFormatFloat32,
+            interleaved: false
+          )
+        }
+
+        // Write buffer to file
+        try audioFile?.write(from: pcmBuffer)
+      } catch {
+        synthesisError = error
+      }
+    }
+
+    // Start synthesis
+    synthesizer.write(utterance, toBufferCallback: onBuffer)
+
+    // Wait for completion (with configurable timeout)
+    let timeoutDate = Date().addingTimeInterval(timeout)
+    while !isComplete && synthesisError == nil && Date() < timeoutDate {
+      usleep(50_000) // 50ms sleep
+    }
+
+    // If synthesis failed, clean up partial file and throw
+    if let error = synthesisError {
+      try? fileManager.removeItem(at: url)
+      throw error
+    }
+
+    if Date() >= timeoutDate {
+      try? fileManager.removeItem(at: url)
+      throw NSError(domain: "AudioStore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s"])
+    }
   }
 
   /// Format volume name from language and audio context hash.

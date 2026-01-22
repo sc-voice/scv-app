@@ -191,9 +191,13 @@ Handles errors gracefully (logs, continues).
 
 **Moved to AudioStore**: AudioStore now handles AVSpeechSynthesizer recovery.
 
+**Status**: AudioStore AudioStore Phase 2 COMPLETE. Ready for SuttaPlayer integration in Phase 3.
+
 SuttaPlayer is decoupled from synthesis concerns. If AudioStore.storeAudio() fails:
 - AudioStore handles retry logic (or returns error URL for caller to handle)
 - SuttaPlayer can implement lookahead prefetch strategies to mitigate latency
+
+**Current Implementation**: SuttaPlayer still uses AVSpeechSynthesizer directly. AudioStore API ready for integration.
 
 ### Voice Selection & Dual AudioContexts
 
