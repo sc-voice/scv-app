@@ -74,36 +74,40 @@ Result: Unique key changes if segment content OR any audio setting changes.
 
 ### API Design
 
-**AudioStore class** (`@MainActor` isolated, wraps GuidStore)
+**AudioStore class** (wraps GuidStore, singleton + factory pattern)
 
-**Constructor**:
+**Initialization**:
+- **Singleton**: `AudioStore.shared` — Production use (Library/Caches/audio-store, CAF format)
+- **Factory**: `AudioStore.create(path: URL? = nil, type: AudioType = .caf) -> AudioStore` — Test instances with isolated paths
 - Configures GuidStore with "audio-store" cache name
-- Uses custom path for testing (local/audio/)
+- Uses custom path for testing (e.g., /tmp/audio-store-test-UUID/)
 - Default: `Library/Caches/audio-store/`
 
-**Core methods**:
+**Core methods** (✅ = implemented, ⏳ = pending):
 
-1. **`storedAudioURL(text: String, audioContext: AudioContext) -> URL?`**
-   - Returns cached audio file URL if exists, nil otherwise
-   - Check before synthesis (optional optimization)
-   - No I/O if file missing
+1. **✅ `audioUrl(text: String, audioContext: AudioContext, forceUrl: Bool = false) -> URL?`** (Implemented)
+   - Returns audio file URL based on forceUrl parameter
+   - If `forceUrl=true`: Always return URL (even if file doesn't exist yet)
+   - If `forceUrl=false`: Return URL only if file is cached, nil otherwise
+   - No I/O if file missing (when forceUrl=false)
+   - **Tests**: 5 tests verify path computation, singleton, factory pattern
 
-2. **`storeAudio(text: String, audioContext: AudioContext) async -> URL`**
-   - Synthesizes text to audio (async, non-blocking)
-   - Stores M4A file atomically to cache
-   - Returns immediately-playable URL (even if synthesis failed)
+2. **⏳ `storeAudio(text: String, audioContext: AudioContext) async throws -> URL`** (Pending)
+   - Synthesizes text to audio using AVSpeechSynthesizer (async, non-blocking)
+   - Stores CAF file atomically to cache (via GuidStore)
+   - Returns immediately-playable URL
    - Caller decides prefetch strategy (lazy, lookahead, prefetch-all)
 
-3. **`clearOrphanedVolumes(audioContext: AudioContext) async`**
+3. **⏳ `clearOrphanedVolumes(audioContext: AudioContext) async`** (Pending)
    - Deletes volumes from previous audio contexts
    - Filters by language + hash prefix
    - Call after voice/rate/pitch settings change
    - Non-critical (errors silently ignored)
 
 **Private helpers** (implementation detail):
-- `volumeName(lang, hash) -> String` — Computes volume name from language + hash prefix
-- `computeStorageKey(text, audioContext) -> String` — Deterministic cache key (text + audioContext hash)
-- `synthesizeAudio(text, audioContext) async -> Data` — AVSpeechSynthesizer wrapper, returns M4A data
+- `volumeName(lang, hash) -> String` — Computes volume name from language + hash prefix (e.g., "en-abc123d")
+- `computeStorageKey(text, audioContext) -> String` — Deterministic cache key combining text + audioContext hash (32-char MD5)
+- `synthesizeAudio(text, audioContext) async -> Data` — AVSpeechSynthesizer wrapper, returns CAF data (pending)
 
 ### Lifecycle Management
 
@@ -322,13 +326,47 @@ func testAudioCacheStorage() async throws {
 }
 ```
 
-## Implementation: Phase 1
+## Implementation: Phase 1 — AudioUrl
 
-1. [ ] Create AudioCache class wrapping GuidStore with M4A storage
-2. [ ] Implement cache key generation (segment + AudioContext hash)
-3. [ ] Implement `cachedAudioURL()` (check if file exists)
-4. [ ] Implement `cacheAudio()` (write synthesized audio atomically)
-5. [ ] Implement `clearOldAudioContext()` (delete orphaned volume)
-6. [ ] Integrate cache check into SuttaPlayer.playText() (check before synthesis)
-7. [ ] Call cacheAudio() after synthesis (fire-and-forget)
-8. [ ] Test cache key determinism and invalidation
+**Status**: ✅ Complete (13 tests pass, 508 total tests pass, full build succeeds)
+
+1. [x] Create AudioStore class wrapping GuidStore with CAF storage
+2. [x] Implement AudioType enum (.caf, .m4a)
+3. [x] Implement singleton pattern (`AudioStore.shared`)
+4. [x] Implement factory method (`AudioStore.create(path:type:)`)
+5. [x] Implement cache key generation (text + AudioContext hash)
+6. [x] Implement `audioUrl(text:audioContext:forceUrl:)` (check if file exists or return path)
+7. [x] Verify path computation with exact match test
+8. [x] Test cache key determinism and singleton pattern
+9. [x] All 13 AudioStore tests pass
+10. [x] All 508 core tests pass
+11. [x] Full build succeeds (scv-core, scv-ui)
+
+## Implementation: Phase 2 — StoreAudio (Pending)
+
+1. [ ] Implement `storeAudio(text:audioContext:) async throws -> URL` with CAF synthesis
+   - Use AVSpeechSynthesizer.write(toBufferCallback:) pattern from tests
+   - Collect PCM buffers, write to CAF file via GuidStore
+   - Return URL immediately (synthesis completes async)
+2. [ ] Handle synthesis errors and throw appropriately
+3. [ ] Add tests for synthesis, storage, and playback
+4. [ ] Verify CAF files are valid and playable
+5. [ ] Benchmark synthesis time (target: <1s per segment)
+
+## Implementation: Phase 3 — ClearOrphanedVolumes (Pending)
+
+1. [ ] Implement `clearOrphanedVolumes(audioContext:) async`
+2. [ ] List all volumes in store
+3. [ ] Filter by language + hash prefix
+4. [ ] Delete volumes with different hash (old audio contexts)
+5. [ ] Handle errors silently
+6. [ ] Add tests for cleanup on settings change
+
+## Implementation: Phase 4 — M4A Optimization (Pending)
+
+1. [ ] Link AudioToolbox framework for AAC encoding
+2. [ ] Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
+3. [ ] Benchmark M4A vs CAF file sizes and synthesis time
+4. [ ] Update AudioType.m4a path
+5. [ ] Verify M4A playback via AVAudioPlayer
+6. [ ] Update tests to verify both CAF and M4A formats

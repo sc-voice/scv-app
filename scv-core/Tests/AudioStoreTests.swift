@@ -215,4 +215,57 @@ struct AudioStoreTests {
   func verifyPetraPlayback() {
     verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_petra.caf")
   }
+
+  @Test("audioUrl with forceUrl=true returns URL with exact path structure")
+  func testAudioUrlForceUrl() {
+    let tempDir = URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+    let text = "test text"
+
+    let url = store.audioUrl(text: text, audioContext: context, forceUrl: true)
+
+    // Compute expected path manually
+    let mj = MerkleJson()
+    let storageKey = mj.hash(["text": text, "audioContext": context.hash])
+    let hashPrefix = String(context.hash.prefix(7))
+    let volume = "en-\(hashPrefix)"
+    let chapter = String(storageKey.prefix(2))
+    let expectedPath = "\(tempDir.path)/\(volume)/\(chapter)/\(storageKey).caf"
+
+    #expect(url?.path == expectedPath, "URL path should be exact: \(expectedPath)")
+  }
+
+  @Test("create() with default path")
+  func testCreateDefault() {
+    let store = AudioStore.create()
+    let context = AudioContext(for: "en")
+    let url = store.audioUrl(text: "test", audioContext: context, forceUrl: true)
+    #expect(url != nil, "Should return URL with default path")
+  }
+
+  @Test("create(path:) with custom path")
+  func testCreateCustomPath() {
+    let tempDir = URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+    let url = store.audioUrl(text: "test", audioContext: context, forceUrl: true)
+    #expect(url?.path.contains(tempDir.path) == true, "URL should use custom path")
+  }
+
+  @Test("shared is singleton")
+  func testSharedSingleton() {
+    let store1 = AudioStore.shared
+    let store2 = AudioStore.shared
+    #expect(store1 === store2, "shared should return same instance")
+  }
+
+  @Test("create(path:) creates separate instances")
+  func testCreateSeparateInstances() {
+    let path1 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
+    let path2 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
+    let store1 = AudioStore.create(path: path1)
+    let store2 = AudioStore.create(path: path2)
+    #expect(store1 !== store2, "create() should return separate instances")
+  }
 }
