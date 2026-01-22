@@ -77,72 +77,102 @@ Result: Unique key changes if segment content OR any audio setting changes.
 **AudioStore class**
 
 ```swift
-class AudioStore {
+@MainActor
+final class AudioStore {
   private let guidStore: GuidStore
 
-  init() {
+  init(storePath: URL? = nil) {
     var config = GuidStoreConfig(
       storeName: "audio-store",
       folderPrefix: 2,  // GuidStore default: 2-char chapter
       suffix: ".m4a",
-      defaultVolume: "en"
+      defaultVolume: "common"
     )
-    let cachesURL = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    config.storePath = cachesURL.appendingPathComponent("audio-store")
+
+    if let customPath = storePath {
+      config.storePath = customPath
+    } else {
+      let cachesURL = FileManager.default
+        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      config.storePath = cachesURL.appendingPathComponent("audio-store")
+    }
+
     self.guidStore = GuidStore(config: config)
   }
 
-  func storedAudioURL(segment: Segment, audioContext: AudioContext) -> URL? {
-    let storageKey = computeStorageKey(segment: segment, audioContext: audioContext)
+  /// Check if audio is cached for text + context
+  func storedAudioURL(text: String, audioContext: AudioContext) -> URL? {
+    let storageKey = computeStorageKey(text: text, audioContext: audioContext)
     let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
     let url = guidStore.guidPath(guid: storageKey, volume: volume, suffix: ".m4a")
     return FileManager.default.fileExists(atPath: url.path) ? url : nil
   }
 
-  func storeAudio(segment: Segment, audioContext: AudioContext, data: Data) throws {
-    let storageKey = computeStorageKey(segment: segment, audioContext: audioContext)
+  /// Synthesize text to audio and store in cache.
+  /// Returns immediately-playable URL for synthesized audio.
+  /// Caller decides optimization strategy (prefetch all, lookahead, lazy, etc.)
+  func storeAudio(text: String, audioContext: AudioContext) async -> URL {
+    // Synthesize audio
+    let audioData = try? await synthesizeAudio(text, audioContext: audioContext)
+
+    // Compute storage location
+    let storageKey = computeStorageKey(text: text, audioContext: audioContext)
     let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
     let url = guidStore.guidPath(guid: storageKey, volume: volume, suffix: ".m4a")
-    try data.write(to: url, options: .atomic)
-  }
 
-  func clearOrphanedVolumes(lang: String, currentHash: String) async throws {
-    let allVolumes = try await guidStore.listVolumes()
-    let currentPrefix = "\(lang)-\(String(currentHash.prefix(7)))"
-
-    // Find old volumes for this language with different hash
-    let oldVolumes = allVolumes.filter { volume in
-      volume.hasPrefix("\(lang)-") && volume != currentPrefix
+    // Store atomically if synthesis succeeded
+    if let audioData = audioData {
+      try? audioData.write(to: url, options: .atomic)
     }
 
-    // Delete orphaned volumes
-    for volume in oldVolumes {
-      let count = try await guidStore.clearVolume(volume)
-      // Log: "Deleted orphaned audio volume: \(volume) (\(count) files)"
+    return url  // Playable URL even if synthesis failed (caller handles retry)
+  }
+
+  /// Delete orphaned volumes from previous audio contexts.
+  /// Call after changing voice/rate/pitch settings.
+  func clearOrphanedVolumes(lang: String, currentHash: String) async {
+    do {
+      let allVolumes = try await guidStore.listVolumes()
+      let currentPrefix = "\(lang)-\(String(currentHash.prefix(7)))"
+
+      let oldVolumes = allVolumes.filter { volume in
+        volume.hasPrefix("\(lang)-") && volume != currentPrefix
+      }
+
+      for volume in oldVolumes {
+        _ = try await guidStore.clearVolume(volume)
+      }
+    } catch {
+      // Silently ignore cleanup errors
     }
   }
 
   private func volumeName(lang: String, hash: String) -> String {
-    let hashPrefix = String(hash.prefix(7))  // First 7 chars of audioContext hash
+    let hashPrefix = String(hash.prefix(7))
     return "\(lang)-\(hashPrefix)"
   }
 
-  private func computeStorageKey(segment: Segment, audioContext: AudioContext) -> String {
+  private func computeStorageKey(text: String, audioContext: AudioContext) -> String {
     let mj = MerkleJson()
     return mj.hash([
-      "scid": segment.scid,
-      "text": segment.text,
+      "text": text,
       "audioContext": audioContext.hash
     ])
+  }
+
+  private func synthesizeAudio(_ text: String, audioContext: AudioContext) async throws -> Data {
+    // Synthesize using AVSpeechSynthesizer (async wrapper)
+    // Returns M4A audio data
+    // See: SuttaPlayer integration below
+    fatalError("Implement synthesis")
   }
 }
 ```
 
 **Core methods**:
-- `storedAudioURL(segment, audioContext)` → URL? (nil if not stored)
-- `storeAudio(segment, audioContext, data)` → writes file atomically
-- `clearOrphanedVolumes(lang, currentHash)` async → auto-deletes old audio contexts for language
+- `storedAudioURL(text, audioContext) -> URL?` — Check if cached (nil if not stored)
+- `storeAudio(text, audioContext) async -> URL` — Synthesize + store + return playable URL
+- `clearOrphanedVolumes(lang, currentHash) async` — Delete old audio contexts
 
 ### Lifecycle Management
 
@@ -214,46 +244,82 @@ See: `doc/BackgroundAudio.md` for full analysis
 
 ## SuttaPlayer Integration
 
-### Playback Flow with Caching
+### Simplified Playback Flow with AudioStore
 
-**Current** (no cache):
+**Old** (direct AVSpeechSynthesizer):
 ```
-play() → synthesizeSegment() → AVSpeechSynthesizer → ~50ms → playback
-```
-
-**With cache**:
-```
-play() → checkCache()
-  ├─ Hit: playAudioFile() → ~5-10ms latency
-  └─ Miss: synthesize() → cacheAudio() → playAudioData() → ~60ms latency
+play() → playSegmentAt(index) → playText(segment.doc)
+  → AVSpeechSynthesizer.speak() → delegate callbacks → playback
 ```
 
-### Implementation Point
+**New** (with AudioStore):
+```
+play() → playSegmentAt(index) → audioStore.storeAudio(text, audioContext)
+  → URL → AVAudioPlayer.play(url) → playback
+```
 
-Integrate cache check at `SuttaPlayer.playNextSegment()`:
+### Implementation Strategy
 
+SuttaPlayer is simplified to rely on AudioStore for all synthesis:
+
+1. **Check cache** (optional): `if let url = audioStore.storedAudioURL(text, audioContext) { play(url); return }`
+2. **Synthesize + store**: `let url = await audioStore.storeAudio(text, audioContext)`
+3. **Play**: `avAudioPlayer.play(url)`
+
+SuttaPlayer no longer manages AVSpeechSynthesizer directly. AudioStore handles:
+- Text-to-speech synthesis
+- Atomic file storage
+- Cache key generation (text + audioContext)
+- Orphan cleanup on settings change
+
+### Prefetch Strategies (Caller Decides)
+
+SuttaPlayer can choose optimization strategy via when it calls `storeAudio()`:
+
+**Strategy 1: Prefetch all upfront**
 ```swift
-func playNextSegment() {
-  guard let segment = currentSegment else { return }
-  let audioContext = AudioContext(for: segment.docLang)
-
-  // Check cache first
-  if let cachedURL = audioCache.cachedAudioURL(segment: segment, audioContext: audioContext) {
-    playAudioFile(cachedURL)
-    return
-  }
-
-  // Synthesize and cache
-  synthesizeSegment(segment, audioContext: audioContext) { audioData in
-    try? self.audioCache.cacheAudio(segment: segment, audioContext: audioContext, data: audioData)
-    self.playAudioData(audioData)
+func load(_ sutta: MLDocument) {
+  // Pre-synthesize entire sutta before playing
+  for text in sutta.allSegmentTexts {
+    Task { _ = await audioStore.storeAudio(text, audioContext) }
   }
 }
 ```
+Enables background playback (critical: AVSpeechSynthesizer can't run backgrounded).
+
+**Strategy 2: Lookahead prefetch**
+```swift
+func playSegmentAt(_ index: Int) {
+  let url = await audioStore.storeAudio(text, audioContext)
+  play(url)
+
+  // Prefetch next 2 segments while current plays
+  if index + 1 < segments.count {
+    Task { _ = await audioStore.storeAudio(segments[index+1].displayText, audioContext) }
+  }
+  if index + 2 < segments.count {
+    Task { _ = await audioStore.storeAudio(segments[index+2].displayText, audioContext) }
+  }
+}
+```
+Balances responsiveness (current plays) with prefetch parallelism.
+
+**Strategy 3: Lazy synthesis**
+```swift
+func playSegmentAt(_ index: Int) {
+  if let cachedURL = audioStore.storedAudioURL(text, audioContext) {
+    play(cachedURL)  // Cache hit: instant
+  } else {
+    let url = await audioStore.storeAudio(text, audioContext)  // Cache miss: synthesize
+    play(url)
+  }
+}
+```
+Minimal memory, slower initial play if not cached.
 
 ### AudioContext Computation
 
-**When**: On-demand during playback (SuttaPlayer.playNextSegment)
+**When**: On-demand during playback (SuttaPlayer.playSegmentAt)
 **Where**: scv-core/Sources/AudioContext.swift (already implemented)
 **Caching**: AudioContext is lightweight (5 fields), recomputing on each segment is negligible
 

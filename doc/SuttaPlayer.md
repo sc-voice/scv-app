@@ -21,20 +21,24 @@
 
 ```
 SuttaPlayer (final, @MainActor, @ObservableObject)
-  ├─ synthesizer: ISpeechSynthesizer (injectable, defaults to AVSpeechSynthesizer)
+  ├─ audioStore: AudioStore (handles synthesis + caching)
+  ├─ audioPlayer: AVAudioPlayer? (plays cached audio files)
   ├─ currentSutta: MLDocument? (@Published)
   ├─ segments: [Segment] (extracted from MLDocument)
   ├─ currentSegmentIndex: Int (tracks playback position)
-  ├─ nextIndexToPlay: Int (set by didFinish callback for jumping)
+  ├─ audioContext: AudioContext (recomputed per segment)
   └─ isTransitioning: Bool (prevents rapid play/pause toggling)
 ```
 
+**Architecture change**: SuttaPlayer no longer manages AVSpeechSynthesizer directly. AudioStore handles all synthesis and caching. SuttaPlayer focuses on playback orchestration and prefetch strategy.
+
 ### Key Invariants
 
-1. **Single synthesizer instance**: Created fresh on each `play()` call to recover from synthesis failures
-2. **Delegate continuity**: `self` as delegate receives all synthesis callbacks
+1. **AudioStore manages synthesis**: AudioStore handles all text-to-speech and caching
+2. **AVAudioPlayer for playback**: SuttaPlayer uses AVAudioPlayer to play cached URLs
 3. **Main actor isolation**: All public methods are `@MainActor`, preventing concurrency issues
-4. **State consistency**: `isPlaying` controls playback flow (honored in callbacks)
+4. **Prefetch decoupled from playback**: Caller decides when/how to prefetch via AudioStore.storeAudio()
+5. **AudioContext per segment**: Recomputed on-demand (lightweight, negligible overhead)
 
 ## Public API
 
@@ -103,30 +107,34 @@ SuttaPlayer.shared  // Global instance with default synthesizer
    └─ Extract segments from document
 
 2. play()
-   └─ Create fresh synthesizer
    └─ playSegmentAt(index: 0)
       ├─ Validate isPlaying, index bounds
       ├─ Announce section/segment boundaries
-      └─ playText(segment.doc, langCode)
-         ├─ Create AVSpeechUtterance
-         ├─ Configure voice (from Settings or best available)
-         ├─ Apply rate, pitch, pause settings
-         └─ synthesizer.speak(utterance)
+      ├─ audioContext = AudioContext(for: segment.docLang)
+      └─ audioStore.storeAudio(text, audioContext) async
+         ├─ AudioStore synthesizes (if not cached)
+         ├─ AudioStore stores to cache
+         └─ Returns playable URL
+      └─ AVAudioPlayer.play(url)
+      └─ Setup AVAudioPlayer delegate (didFinish → playSegmentAt(next))
 
-3. synthesizer delegate callbacks:
-   ├─ didStart()
-   │  └─ isSynthesizerSpeaking = true
-   ├─ didPause() / didContinue()
-   │  └─ isSynthesizerSpeaking = false/true
-   └─ didFinish()
-      └─ playSegmentAt(nextIndexToPlay)  ← Chain to next segment
-         └─ Repeat playText() or end playback
+3. AVAudioPlayer delegate callbacks:
+   ├─ audioPlayerDidFinishPlaying()
+   │  └─ playSegmentAt(currentSegmentIndex + 1)  ← Chain to next segment
+   │     └─ Repeat storeAudio() + play() or end playback
 
-4. End of document
+4. Concurrent prefetch (optional strategy):
+   └─ While segment N plays, prefetch segment N+1, N+2
+      └─ audioStore.storeAudio(text, audioContext) async (non-blocking)
+         └─ Synthesis happens in background, stored for next playback
+
+5. End of document
    ├─ isPlaying = false
    ├─ currentSegmentIndex = 0 (reset)
    └─ Announce .endSutta
 ```
+
+**Key difference**: AudioStore handles synthesis asynchronously. Caller decides prefetch strategy (lazy, lookahead, or prefetch-all upfront).
 
 ### Interruption Handling
 
@@ -181,33 +189,28 @@ Handles errors gracefully (logs, continues).
 
 ### Synthesizer Recovery
 
-**Problem**: AVSpeechSynthesizer can fail to initialize, leaving app stuck.
+**Moved to AudioStore**: AudioStore now handles AVSpeechSynthesizer recovery.
 
-**Solution** (line 147):
+SuttaPlayer is decoupled from synthesis concerns. If AudioStore.storeAudio() fails:
+- AudioStore handles retry logic (or returns error URL for caller to handle)
+- SuttaPlayer can implement lookahead prefetch strategies to mitigate latency
+
+### Voice Selection & AudioContext
+
+**Moved to AudioContext**: Voice selection and audio settings are now captured in AudioContext.
+
+SuttaPlayer workflow:
 ```swift
-if synthesizer is AVSpeechSynthesizer {
-  synthesizer = AVSpeechSynthesizer()  // Fresh instance
-  synthesizer.delegate = self
-  configureAudioSession()
-}
+let audioContext = AudioContext(for: segment.docLang)  // Captures voice, rate, pitch, pause
+let url = await audioStore.storeAudio(text, audioContext)  // AudioStore uses audioContext for synthesis
 ```
 
-- Creates new synthesizer on every `play()` call
-- **Preserves mocks** for testing (type check blocks mock replacement)
-- Timeout detection (500ms in `togglePlayback()`) triggers alert + `resetSynthesizer()`
+AudioContext handles:
+1. Voice priority: User config → system default for language
+2. Rate/pitch multipliers from Settings
+3. Deterministic hash for cache key invalidation on settings change
 
-### Voice Selection
-
-```swift
-private func playText(_ text: String, langCode: String)
-```
-
-Voice priority (line 327-332):
-1. Use `Settings.shared.docLangSettings[language].voiceId` if configured
-2. Find best available voice for language (enhanced > premium > default)
-3. Fallback: default voice for language code
-
-Applies rate and pitch multipliers from settings.
+SuttaPlayer just passes AudioContext to AudioStore, which handles synthesis details.
 
 ### Segment Annotation
 
@@ -372,8 +375,9 @@ See: `scv-core/Sources/Settings.swift`
 
 ## Dependencies
 
-- **scvCore**: MLDocument, Segment, Settings, ScvLanguage, ColorConsole
-- **AVFoundation**: AVSpeechSynthesizer, AVSpeechUtterance, AVSpeechSynthesisVoice, AVAudioSession
+- **scvCore**: MLDocument, Segment, Settings, ScvLanguage, AudioContext, AudioStore, ColorConsole
+- **AVFoundation**: AVAudioPlayer, AVAudioSession (SuttaPlayer only)
+  - AVSpeechSynthesizer moved to AudioStore
 - **UIKit** (iOS only): UIApplication, UIAlertController, UIWindowScene
 
 ## See Also

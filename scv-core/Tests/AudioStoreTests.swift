@@ -136,7 +136,7 @@ struct AudioStoreTests {
     synthesizeToCAF(
       text: "So I have heard.",
       voiceLanguage: "en",
-      outputPath: "/Users/visakha/dev/scv-app/local/so_i_have_heard.caf"
+      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_i_have_heard.caf"
     )
   }
 
@@ -145,7 +145,7 @@ struct AudioStoreTests {
     synthesizeToCAF(
       text: "So I have heard.",
       voiceIdentifier: "com.apple.voice.enhanced.en-IN.Sangeeta",
-      outputPath: "/Users/visakha/dev/scv-app/local/so_i_have_heard_sangeeta.caf"
+      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_i_have_heard_sangeeta.caf"
     )
   }
 
@@ -154,7 +154,7 @@ struct AudioStoreTests {
     synthesizeToCAF(
       text: "so habe ich gehoert",
       voiceIdentifier: "com.apple.eloquence.de-DE.Sandy",
-      outputPath: "/Users/visakha/dev/scv-app/local/so_habe_ich_gehoert_sandy.caf"
+      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_sandy.caf"
     )
   }
 
@@ -163,7 +163,7 @@ struct AudioStoreTests {
     synthesizeToCAF(
       text: "so habe ich gehoert",
       voiceIdentifier: "com.apple.voice.premium.de-DE.Petra",
-      outputPath: "/Users/visakha/dev/scv-app/local/so_habe_ich_gehoert_petra.caf"
+      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_petra.caf"
     )
   }
 
@@ -195,21 +195,21 @@ struct AudioStoreTests {
 
   @Test("Verify 'So I have heard.' CAF file is playable")
   func verifyPlayback() {
-    verifyCAFFile("/Users/visakha/dev/scv-app/local/so_i_have_heard.caf")
+    verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_i_have_heard.caf")
   }
 
   @Test("Verify 'So I have heard.' Sangeeta CAF file is playable")
   func verifySangeetaPlayback() {
-    verifyCAFFile("/Users/visakha/dev/scv-app/local/so_i_have_heard_sangeeta.caf")
+    verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_i_have_heard_sangeeta.caf")
   }
 
   @Test("Verify 'so habe ich gehoert' Sandy CAF file is playable")
   func verifySandyPlayback() {
-    verifyCAFFile("/Users/visakha/dev/scv-app/local/so_habe_ich_gehoert_sandy.caf")
+    verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_sandy.caf")
   }
 
   @Test("Verify 'so habe ich gehoert' Petra CAF file is playable")
   func verifyPetraPlayback() {
-    verifyCAFFile("/Users/visakha/dev/scv-app/local/so_habe_ich_gehoert_petra.caf")
+    verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_petra.caf")
   }
 }
