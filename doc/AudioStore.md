@@ -72,107 +72,38 @@ let storageKey = mj.hash([
 
 Result: Unique key changes if segment content OR any audio setting changes.
 
-### Implementation Pattern
+### API Design
 
-**AudioStore class**
+**AudioStore class** (`@MainActor` isolated, wraps GuidStore)
 
-```swift
-@MainActor
-final class AudioStore {
-  private let guidStore: GuidStore
-
-  init(storePath: URL? = nil) {
-    var config = GuidStoreConfig(
-      storeName: "audio-store",
-      folderPrefix: 2,  // GuidStore default: 2-char chapter
-      suffix: ".m4a",
-      defaultVolume: "common"
-    )
-
-    if let customPath = storePath {
-      config.storePath = customPath
-    } else {
-      let cachesURL = FileManager.default
-        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-      config.storePath = cachesURL.appendingPathComponent("audio-store")
-    }
-
-    self.guidStore = GuidStore(config: config)
-  }
-
-  /// Check if audio is cached for text + context
-  func storedAudioURL(text: String, audioContext: AudioContext) -> URL? {
-    let storageKey = computeStorageKey(text: text, audioContext: audioContext)
-    let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
-    let url = guidStore.guidPath(guid: storageKey, volume: volume, suffix: ".m4a")
-    return FileManager.default.fileExists(atPath: url.path) ? url : nil
-  }
-
-  /// Synthesize text to audio and store in cache.
-  /// Returns immediately-playable URL for synthesized audio.
-  /// Caller decides optimization strategy (prefetch all, lookahead, lazy, etc.)
-  func storeAudio(text: String, audioContext: AudioContext) async -> URL {
-    // Synthesize audio
-    let audioData = try? await synthesizeAudio(text, audioContext: audioContext)
-
-    // Compute storage location
-    let storageKey = computeStorageKey(text: text, audioContext: audioContext)
-    let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
-    let url = guidStore.guidPath(guid: storageKey, volume: volume, suffix: ".m4a")
-
-    // Store atomically if synthesis succeeded
-    if let audioData = audioData {
-      try? audioData.write(to: url, options: .atomic)
-    }
-
-    return url  // Playable URL even if synthesis failed (caller handles retry)
-  }
-
-  /// Delete orphaned volumes from previous audio contexts.
-  /// Call after changing voice/rate/pitch settings.
-  func clearOrphanedVolumes(lang: String, currentHash: String) async {
-    do {
-      let allVolumes = try await guidStore.listVolumes()
-      let currentPrefix = "\(lang)-\(String(currentHash.prefix(7)))"
-
-      let oldVolumes = allVolumes.filter { volume in
-        volume.hasPrefix("\(lang)-") && volume != currentPrefix
-      }
-
-      for volume in oldVolumes {
-        _ = try await guidStore.clearVolume(volume)
-      }
-    } catch {
-      // Silently ignore cleanup errors
-    }
-  }
-
-  private func volumeName(lang: String, hash: String) -> String {
-    let hashPrefix = String(hash.prefix(7))
-    return "\(lang)-\(hashPrefix)"
-  }
-
-  private func computeStorageKey(text: String, audioContext: AudioContext) -> String {
-    let mj = MerkleJson()
-    return mj.hash([
-      "text": text,
-      "audioContext": audioContext.hash
-    ])
-  }
-
-  private func synthesizeAudio(_ text: String, audioContext: AudioContext) async throws -> Data {
-    // Synthesize using AVSpeechSynthesizer (async wrapper)
-    // Returns M4A audio data
-    // See: SuttaPlayer integration below
-    fatalError("Implement synthesis")
-  }
-}
-```
+**Constructor**:
+- Configures GuidStore with "audio-store" cache name
+- Uses custom path for testing (local/audio/)
+- Default: `Library/Caches/audio-store/`
 
 **Core methods**:
-- `storedAudioURL(text, audioContext) -> URL?` — Check if cached (nil if not stored)
-- `storeAudio(text, audioContext) async -> URL` — Synthesize + store + return playable URL
-- `clearOrphanedVolumes(lang, currentHash) async` — Delete old audio contexts
+
+1. **`storedAudioURL(text: String, audioContext: AudioContext) -> URL?`**
+   - Returns cached audio file URL if exists, nil otherwise
+   - Check before synthesis (optional optimization)
+   - No I/O if file missing
+
+2. **`storeAudio(text: String, audioContext: AudioContext) async -> URL`**
+   - Synthesizes text to audio (async, non-blocking)
+   - Stores M4A file atomically to cache
+   - Returns immediately-playable URL (even if synthesis failed)
+   - Caller decides prefetch strategy (lazy, lookahead, prefetch-all)
+
+3. **`clearOrphanedVolumes(audioContext: AudioContext) async`**
+   - Deletes volumes from previous audio contexts
+   - Filters by language + hash prefix
+   - Call after voice/rate/pitch settings change
+   - Non-critical (errors silently ignored)
+
+**Private helpers** (implementation detail):
+- `volumeName(lang, hash) -> String` — Computes volume name from language + hash prefix
+- `computeStorageKey(text, audioContext) -> String` — Deterministic cache key (text + audioContext hash)
+- `synthesizeAudio(text, audioContext) async -> Data` — AVSpeechSynthesizer wrapper, returns M4A data
 
 ### Lifecycle Management
 

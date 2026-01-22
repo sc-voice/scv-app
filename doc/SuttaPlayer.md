@@ -195,14 +195,29 @@ SuttaPlayer is decoupled from synthesis concerns. If AudioStore.storeAudio() fai
 - AudioStore handles retry logic (or returns error URL for caller to handle)
 - SuttaPlayer can implement lookahead prefetch strategies to mitigate latency
 
-### Voice Selection & AudioContext
+### Voice Selection & Dual AudioContexts
 
 **Moved to AudioContext**: Voice selection and audio settings are now captured in AudioContext.
 
-SuttaPlayer workflow:
-```swift
-let audioContext = AudioContext(for: segment.docLang)  // Captures voice, rate, pitch, pause
-let url = await audioStore.storeAudio(text, audioContext)  // AudioStore uses audioContext for synthesis
+**Dual contexts**: Segments can be in document language (English, German, etc.) or Pali (original). Each needs separate voice configuration.
+
+SuttaPlayer maintains two contexts:
+```
+docAudioContext = AudioContext(for: segment.docLang)  // e.g., "en", "de"
+pliAudioContext = AudioContext(for: "pli")            // Pali original
+```
+
+**Playback workflow** (pseudocode):
+```
+let audioContext = segment.isPali ? pliAudioContext : docAudioContext
+let url = await audioStore.storeAudio(text, audioContext)
+play(url)
+```
+
+**Settings change cleanup**:
+```
+await audioStore.clearOrphanedVolumes(docAudioContext)
+await audioStore.clearOrphanedVolumes(pliAudioContext)
 ```
 
 AudioContext handles:
