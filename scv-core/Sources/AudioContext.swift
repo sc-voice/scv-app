@@ -29,6 +29,54 @@ public struct AudioContext: Codable, Hashable, Sendable {
   /// Segment pause duration in seconds (pre/post utterance delays)
   public let segmentPause: Double
 
+  /// Deterministic 32-character hex MD5 hash of audio context.
+  ///
+  /// Hash changes when any speech synthesis setting changes, indicating cached audio
+  /// is stale. Used as cache key for audio files.
+  /// Not included in Codable encoding/decoding; recomputed on deserialization.
+  public let hash: String
+
+  // MARK: - Codable
+
+  enum CodingKeys: String, CodingKey {
+    case docLang
+    case voiceId
+    case pitch
+    case rate
+    case segmentPause
+    // hash is excluded - computed from other fields
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.docLang = try container.decode(String.self, forKey: .docLang)
+    self.voiceId = try container.decode(String.self, forKey: .voiceId)
+    self.pitch = try container.decode(Float.self, forKey: .pitch)
+    self.rate = try container.decode(Float.self, forKey: .rate)
+    self.segmentPause = try container.decode(Double.self, forKey: .segmentPause)
+
+    // Recompute hash from decoded values
+    let mj = MerkleJson()
+    let dict: [String: Any] = [
+      "docLang": docLang,
+      "voiceId": voiceId,
+      "pitch": pitch,
+      "rate": rate,
+      "segmentPause": segmentPause,
+    ]
+    self.hash = mj.hash(dict)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(docLang, forKey: .docLang)
+    try container.encode(voiceId, forKey: .voiceId)
+    try container.encode(pitch, forKey: .pitch)
+    try container.encode(rate, forKey: .rate)
+    try container.encode(segmentPause, forKey: .segmentPause)
+    // hash is not encoded - recomputed on decode
+  }
+
   /// Create AudioContext from document language and settings.
   ///
   /// - Parameters:
@@ -37,6 +85,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
   ///     Settings for testing.
   ///
   /// The voiceId is resolved to the actual system default if user selected "Default".
+  /// The hash property is computed and stored at initialization.
   public init(for docLang: String, from settings: Settings = Settings.shared) {
     self.docLang = docLang
 
@@ -55,6 +104,17 @@ public struct AudioContext: Codable, Hashable, Sendable {
     self.pitch = langSettings.pitch
     self.rate = langSettings.rate
     self.segmentPause = settings.segmentPause
+
+    // Compute and store hash at initialization
+    let mj = MerkleJson()
+    let dict: [String: Any] = [
+      "docLang": docLang,
+      "voiceId": self.voiceId,
+      "pitch": self.pitch,
+      "rate": self.rate,
+      "segmentPause": self.segmentPause,
+    ]
+    self.hash = mj.hash(dict)
   }
 
   /// Compute deterministic hash of audio context using MerkleJson.
@@ -63,7 +123,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
   /// is stale. Used as cache key for audio files.
   ///
   /// - Returns: 32-character hex MD5 hash
-  public func hash() -> String {
+  public func computeHash() -> String {
     let mj = MerkleJson()
     let dict: [String: Any] = [
       "docLang": docLang,

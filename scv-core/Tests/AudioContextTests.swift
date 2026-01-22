@@ -80,6 +80,14 @@ import Testing
 
   // MARK: - Hash Consistency Tests
 
+  @Test("Hash property matches computeHash result")
+  func hashPropertyMatchesComputeHash() {
+    let context = AudioContext(for: "en")
+
+    // Verify hash property matches computeHash() result
+    #expect(context.hash == context.computeHash())
+  }
+
   @Test("Hash is consistent for same settings")
   func hashConsistency() {
     let context1 = AudioContext(for: "en")
@@ -87,7 +95,7 @@ import Testing
 
     // Both contexts created from same language with same defaults
     // should produce same hash
-    #expect(context1.hash() == context2.hash())
+    #expect(context1.hash == context2.hash)
   }
 
   @Test("Hash differs for different docLang")
@@ -95,7 +103,7 @@ import Testing
     let context_en = AudioContext(for: "en")
     let context_de = AudioContext(for: "de")
 
-    #expect(context_en.hash() != context_de.hash())
+    #expect(context_en.hash != context_de.hash)
   }
 
   @Test("Hash differs for different pitch")
@@ -117,7 +125,7 @@ import Testing
     let context1 = AudioContext(for: "en", from: settings1)
     let context2 = AudioContext(for: "en", from: settings2)
 
-    #expect(context1.hash() != context2.hash())
+    #expect(context1.hash != context2.hash)
   }
 
   @Test("Hash differs for different rate")
@@ -139,7 +147,7 @@ import Testing
     let context1 = AudioContext(for: "en", from: settings1)
     let context2 = AudioContext(for: "en", from: settings2)
 
-    #expect(context1.hash() != context2.hash())
+    #expect(context1.hash != context2.hash)
   }
 
   @Test("Hash differs for different segmentPause")
@@ -155,7 +163,7 @@ import Testing
     let context1 = AudioContext(for: "en", from: settings1)
     let context2 = AudioContext(for: "en", from: settings2)
 
-    #expect(context1.hash() != context2.hash())
+    #expect(context1.hash != context2.hash)
   }
 
   @Test("Hash is deterministic")
@@ -163,9 +171,9 @@ import Testing
     let settings = Settings()
     let context = AudioContext(for: "en", from: settings)
 
-    let hash1 = context.hash()
-    let hash2 = context.hash()
-    let hash3 = context.hash()
+    let hash1 = context.hash
+    let hash2 = context.hash
+    let hash3 = context.hash
 
     #expect(hash1 == hash2)
     #expect(hash2 == hash3)
@@ -174,7 +182,7 @@ import Testing
   @Test("Hash format is valid MD5 (32 hex chars)")
   func hashFormatIsValidMD5() {
     let context = AudioContext(for: "en")
-    let hash = context.hash()
+    let hash = context.hash
 
     // MD5 hashes are 32 hex characters
     #expect(hash.count == 32)

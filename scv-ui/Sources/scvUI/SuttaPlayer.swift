@@ -18,6 +18,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var isPlaying = false
   @Published public var isSynthesizerSpeaking = false
   @Published public var currentSutta: MLDocument?
+  @Published public var audioContext: AudioContext?
 
   private var synthesizer: ISpeechSynthesizer
   private var segments: [Segment] = []
@@ -141,6 +142,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       cc.ok1(#line, #function, "play() aborted - currentSutta is nil")
       return
     }
+
+    // Initialize audioContext from current sutta's language
+    let docLang = currentSutta?.docLang ?? "en"
+    audioContext = AudioContext(for: docLang)
+    cc.ok2(#line, #function, "audioContext initialized for docLang:", docLang, "hash:", audioContext?.hash ?? "nil")
 
     // Create fresh synthesizer for each play attempt (but preserve mocks for testing)
     synthesizer.stopSpeaking(at: .immediate)
