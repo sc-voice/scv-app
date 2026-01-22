@@ -162,4 +162,99 @@ import Testing
 
         try fileManager.removeItem(at: tempDir)
     }
+
+    @Test("listVolumes returns all volumes")
+    func listVolumesBasic() async throws {
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let config = GuidStoreConfig(storePath: tempDir)
+        let store = GuidStore(config: config)
+
+        // Create files in multiple volumes
+        let f1 = store.guidPath(guid: "guid1", volume: "en-abc123d")
+        let f2 = store.guidPath(guid: "guid2", volume: "de-xyz789a")
+        let f3 = store.guidPath(guid: "guid3", volume: "pli-abc123d")
+
+        try "data".write(to: f1, atomically: true, encoding: .utf8)
+        try "data".write(to: f2, atomically: true, encoding: .utf8)
+        try "data".write(to: f3, atomically: true, encoding: .utf8)
+
+        // List volumes
+        let volumes = try await store.listVolumes()
+
+        // Verify all volumes present
+        #expect(volumes.contains("en-abc123d"))
+        #expect(volumes.contains("de-xyz789a"))
+        #expect(volumes.contains("pli-abc123d"))
+        #expect(volumes.count == 3)
+
+        try fileManager.removeItem(at: tempDir)
+    }
+
+    @Test("listVolumes returns empty for empty store")
+    func listVolumesEmpty() async throws {
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let config = GuidStoreConfig(storePath: tempDir)
+        let store = GuidStore(config: config)
+
+        let volumes = try await store.listVolumes()
+        #expect(volumes.isEmpty)
+
+        try fileManager.removeItem(at: tempDir)
+    }
+
+    @Test("clearOrphanedVolumes removes old audio contexts")
+    func clearOrphanedVolumes() async throws {
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let config = GuidStoreConfig(storePath: tempDir)
+        let store = GuidStore(config: config)
+
+        // Simulate multiple audio contexts for English with proper 7-char hash prefix
+        let oldVolumeEn = "en-aaaaaa1"   // Old hash (7 chars: aaaaaa1)
+        let newVolumeEn = "en-bbbbbbb"   // Current hash (7 chars: bbbbbbb)
+        let otherLang = "de-aaaaaa1"     // Different language (should keep)
+
+        // Create files in each volume
+        let oldFile1 = store.guidPath(guid: "old1", volume: oldVolumeEn)
+        let oldFile2 = store.guidPath(guid: "old2", volume: oldVolumeEn)
+        let newFile = store.guidPath(guid: "new1", volume: newVolumeEn)
+        let otherFile = store.guidPath(guid: "other1", volume: otherLang)
+
+        try "old".write(to: oldFile1, atomically: true, encoding: .utf8)
+        try "old".write(to: oldFile2, atomically: true, encoding: .utf8)
+        try "new".write(to: newFile, atomically: true, encoding: .utf8)
+        try "other".write(to: otherFile, atomically: true, encoding: .utf8)
+
+        // List all volumes
+        var volumes = try await store.listVolumes()
+        #expect(volumes.count == 3)
+
+        // Get old volumes for English language
+        let lang = "en"
+        let currentHashPrefix = "bbbbbbb"  // 7-char prefix
+        let currentPrefix = "\(lang)-\(currentHashPrefix)"
+        let oldVolumes = volumes.filter { volume in
+            volume.hasPrefix("\(lang)-") && volume != currentPrefix
+        }
+
+        #expect(oldVolumes.count == 1)
+        #expect(oldVolumes.contains(oldVolumeEn))
+
+        // Clear old volumes
+        for volume in oldVolumes {
+            _ = try await store.clearVolume(volume)
+        }
+
+        // Verify cleanup
+        volumes = try await store.listVolumes()
+        #expect(volumes.count == 2)
+        #expect(!volumes.contains(oldVolumeEn))
+        #expect(volumes.contains(newVolumeEn))
+        #expect(volumes.contains(otherLang))
+        #expect(!fileManager.fileExists(atPath: oldFile1.path))
+        #expect(!fileManager.fileExists(atPath: oldFile2.path))
+        #expect(fileManager.fileExists(atPath: newFile.path))
+        #expect(fileManager.fileExists(atPath: otherFile.path))
+
+        try fileManager.removeItem(at: tempDir)
+    }
 }

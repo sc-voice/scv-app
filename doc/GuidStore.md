@@ -99,6 +99,18 @@ let path = store.signaturePath(signature, volume: "common", suffix: ".json")
 
 ### Volume Management
 
+**listVolumes()**
+- Asynchronously lists all volume names in the store
+- Returns array of volume name strings
+- Useful for iterating over volumes or finding orphaned data
+
+```swift
+let volumes = try await store.listVolumes()
+for volume in volumes {
+    print("Found volume: \(volume)")
+}
+```
+
 **clearVolume(_:)**
 - Asynchronously deletes all files in a volume
 - Returns count of deleted files

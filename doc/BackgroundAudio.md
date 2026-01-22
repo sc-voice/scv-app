@@ -94,7 +94,7 @@ If sutta has 100+ segments:
 
 ### Performance and UX
 
-1. **Synthesis timing (MEASURED - See: scv-core/Tests/AudioCachingTests.swift)**
+1. **Synthesis timing (MEASURED - See: scv-core/Tests/AudioStoreTests.swift)**
 
    **Per-segment timing (synthesis + write):**
    - Default English (en-US): 290ms/segment
@@ -141,7 +141,7 @@ If sutta has 100+ segments:
 ## Measured Test Results
 
 **Test environment**: macOS 14.0, arm64e, Swift Testing
-**Test location**: scv-core/Tests/AudioCachingTests.swift
+**Test location**: scv-core/Tests/AudioStoreTests.swift
 
 **Synthesis metrics (Jan 2026)**:
 
@@ -158,4 +158,4 @@ If sutta has 100+ segments:
 
 - `SuttaPlayer.md` — Current AVSpeechSynthesizer implementation
 - `MerkleJson.md` — Hash algorithm for cache keys
-- `scv-core/Tests/AudioCachingTests.swift` — Audio caching test suite with synthesis measurements
+- `scv-core/Tests/AudioStoreTests.swift` — Audio store test suite with synthesis measurements

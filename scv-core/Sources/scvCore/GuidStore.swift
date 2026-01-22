@@ -107,6 +107,17 @@ class GuidStore {
         return guidPath(guid: guid, volume: vol, chapter: chapter, suffix: suf)
     }
 
+    /// Asynchronously list all volumes in the store
+    /// - Returns: Array of volume names
+    func listVolumes() async throws -> [String] {
+        let contents = try fileManager.contentsOfDirectory(
+            at: storePath,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        return contents.map { $0.lastPathComponent }
+    }
+
     /// Asynchronously delete all files in a volume
     /// - Parameter volume: Volume name to clear
     /// - Returns: Count of deleted files

@@ -3,9 +3,9 @@ import Foundation
 @testable import scvCore
 import Testing
 
-@Suite("Audio Caching")
-struct AudioCachingTests {
-  private let cc = ColorConsole("AudioCachingTests", "synthesizeToCAF", dbg.SuttaPlayer.other)
+@Suite("Audio Store")
+struct AudioStoreTests {
+  private let cc = ColorConsole("AudioStoreTests", "synthesizeToCAF", dbg.SuttaPlayer.other)
 
   private func synthesizeToCAF(
     text: String,
