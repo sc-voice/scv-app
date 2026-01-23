@@ -3,7 +3,8 @@
 //  scv-core
 //
 //  Persistent storage for TTS audio with deterministic cache keys.
-//  Wraps GuidStore to organize audio files by language and audio context settings.
+//  Wraps GuidStore to organize audio files by language and audio context
+//  settings.
 //
 
 import AVFoundation
@@ -15,47 +16,63 @@ enum AudioType {
   case m4a
 }
 
-/// AudioStore persists synthesized TTS audio for background playback and battery efficiency.
+/// AudioStore persists synthesized TTS audio for background playback and
+/// battery efficiency.
 ///
-/// Audio files are organized using AudioContext hash to detect when settings change.
-/// When user changes voice/rate/pitch, a new volume is created and old volumes become orphaned.
+/// Audio files are organized using AudioContext hash to detect when settings
+/// change.
+/// When user changes voice/rate/pitch, a new volume is created and old volumes
+/// become orphaned.
 /// Call clearOrphanedVolumes() to auto-delete unused versions.
 ///
-/// - Design: Single shared instance (production) + factory method for test instances
-/// - Storage: Library/Caches/audio-store by default (override via create(path:))
+/// - Design: Single shared instance (production) + factory method for test
+/// instances
+/// - Storage: Library/Caches/audio-store by default (override via
+/// create(path:))
 /// - Format: Audio files (CAF or M4A)
-/// - Organization: {language}-{audioContextHash[:7]}/{chapter}/{storageKey}.{suffix}
+/// - Organization:
+/// {language}-{audioContextHash[:7]}/{chapter}/{storageKey}.{suffix}
 final class AudioStore {
   private let guidStore: GuidStore
   private let audioType: AudioType
-  public let timeout: TimeInterval  // Configurable synthesis timeout (default 5s)
+  let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 
   /// Shared singleton instance for production use
   nonisolated(unsafe) static let shared = AudioStore.create()
 
   /// Private initializer - use create() factory method instead
-  private init(guidStore: GuidStore, audioType: AudioType, timeout: TimeInterval = 5) {
+  private init(
+    guidStore: GuidStore,
+    audioType: AudioType,
+    timeout: TimeInterval = 5,
+  ) {
     self.guidStore = guidStore
     self.audioType = audioType
     self.timeout = timeout
   }
 
-  /// Create a new AudioStore instance with optional custom storage path, audio type, and timeout.
+  /// Create a new AudioStore instance with optional custom storage path, audio
+  /// type, and timeout.
   ///
   /// - Parameters:
-  ///   - path: Custom path for audio storage (defaults to Library/Caches/audio-store)
+  ///   - path: Custom path for audio storage (defaults to
+  /// Library/Caches/audio-store)
   ///     Useful for testing with isolated directories.
   ///   - type: Audio format type (.caf or .m4a), defaults to .caf
   ///   - timeout: Synthesis timeout in seconds (default 5s)
   /// - Returns: New AudioStore instance
-  static func create(path: URL? = nil, type: AudioType = .caf, timeout: TimeInterval = 5) -> AudioStore {
+  static func create(
+    path: URL? = nil,
+    type: AudioType = .caf,
+    timeout: TimeInterval = 5,
+  ) -> AudioStore {
     let suffix = type == .caf ? ".caf" : ".m4a"
 
     var config = GuidStoreConfig(
       storeName: "audio-store",
-      folderPrefix: 2,  // GuidStore default: 2-char chapter
+      folderPrefix: 2, // GuidStore default: 2-char chapter
       suffix: suffix,
-      defaultVolume: "common"
+      defaultVolume: "common",
     )
 
     // Set storage path
@@ -76,13 +93,21 @@ final class AudioStore {
   /// - Parameters:
   ///   - text: Text to look up
   ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
-  ///   - forceUrl: If true, return URL even if file doesn't exist yet. If false, return URL only if cached.
-  /// - Returns: URL to audio file (cached or computed path), or nil if forceUrl=false and not cached
-  func audioUrl(text: String, audioContext: AudioContext, forceUrl: Bool = false) -> URL? {
+  ///   - forceUrl: If true, return URL even if file doesn't exist yet. If
+  /// false, return URL only if cached.
+  /// - Returns: URL to audio file (cached or computed path), or nil if
+  /// forceUrl=false and not cached
+  func audioUrl(text: String, audioContext: AudioContext,
+                forceUrl: Bool = false) -> URL?
+  {
     let storageKey = computeStorageKey(text: text, audioContext: audioContext)
     let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
     let suffix = audioType == .caf ? ".caf" : ".m4a"
-    let url = guidStore.guidPath(guid: storageKey, volume: volume, suffix: suffix)
+    let url = guidStore.guidPath(
+      guid: storageKey,
+      volume: volume,
+      suffix: suffix,
+    )
 
     if forceUrl {
       return url
@@ -99,11 +124,13 @@ final class AudioStore {
   ///   - text: Target text
   ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
   /// - Returns: 32-char hex MD5 hash
-  private func computeStorageKey(text: String, audioContext: AudioContext) -> String {
+  private func computeStorageKey(text: String,
+                                 audioContext: AudioContext) -> String
+  {
     let mj = MerkleJson()
     return mj.hash([
       "text": text,
-      "audioContext": audioContext.hash
+      "audioContext": audioContext.hash,
     ])
   }
 
@@ -115,13 +142,22 @@ final class AudioStore {
   /// - Parameters:
   ///   - text: Text to synthesize
   ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
-  ///   - timeout: Synthesis timeout in seconds (defaults to instance timeout). Throws if exceeded.
+  ///   - timeout: Synthesis timeout in seconds (defaults to instance timeout).
+  /// Throws if exceeded.
   /// - Returns: URL to synthesized audio file
   /// - Throws: File creation errors, synthesis failures, or timeout
-  func storeAudio(text: String, audioContext: AudioContext, timeout: TimeInterval? = nil) async throws -> URL {
+  func storeAudio(
+    text: String,
+    audioContext: AudioContext,
+    timeout: TimeInterval? = nil,
+  ) async throws -> URL {
     // Reject empty text
     guard !text.trimmingCharacters(in: .whitespaces).isEmpty else {
-      throw NSError(domain: "AudioStore", code: -2, userInfo: [NSLocalizedDescriptionKey: "Cannot synthesize empty text"])
+      throw NSError(
+        domain: "AudioStore",
+        code: -2,
+        userInfo: [NSLocalizedDescriptionKey: "Cannot synthesize empty text"],
+      )
     }
 
     let url = audioUrl(text: text, audioContext: audioContext, forceUrl: true)!
@@ -133,17 +169,30 @@ final class AudioStore {
 
     // Ensure output directory exists
     let outputDir = url.deletingLastPathComponent()
-    try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(
+      at: outputDir,
+      withIntermediateDirectories: true,
+    )
 
     // Perform synthesis and write to file
     let effectiveTimeout = timeout ?? self.timeout
-    try performSynthesis(text: text, audioContext: audioContext, to: url, timeout: effectiveTimeout)
+    try performSynthesis(
+      text: text,
+      audioContext: audioContext,
+      to: url,
+      timeout: effectiveTimeout,
+    )
 
     return url
   }
 
   /// Perform synthesis and write to CAF file.
-  private func performSynthesis(text: String, audioContext: AudioContext, to url: URL, timeout: TimeInterval) throws {
+  private func performSynthesis(
+    text: String,
+    audioContext: AudioContext,
+    to url: URL,
+    timeout: TimeInterval,
+  ) throws {
     let fileManager = FileManager.default
 
     // Create utterance with audio context voice settings
@@ -181,7 +230,7 @@ final class AudioStore {
             forWriting: url,
             settings: pcmBuffer.format.settings,
             commonFormat: .pcmFormatFloat32,
-            interleaved: false
+            interleaved: false,
           )
         }
 
@@ -197,8 +246,8 @@ final class AudioStore {
 
     // Wait for completion (with configurable timeout)
     let timeoutDate = Date().addingTimeInterval(timeout)
-    while !isComplete && synthesisError == nil && Date() < timeoutDate {
-      usleep(50_000) // 50ms sleep
+    while !isComplete, synthesisError == nil, Date() < timeoutDate {
+      usleep(50000) // 50ms sleep
     }
 
     // If synthesis failed, clean up partial file and throw
@@ -209,7 +258,13 @@ final class AudioStore {
 
     if Date() >= timeoutDate {
       try? fileManager.removeItem(at: url)
-      throw NSError(domain: "AudioStore", code: -1, userInfo: [NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s"])
+      throw NSError(
+        domain: "AudioStore",
+        code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
+        ],
+      )
     }
   }
 

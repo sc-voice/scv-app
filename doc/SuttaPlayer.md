@@ -253,27 +253,33 @@ didFinish() {
 
 Relies on `isPlaying` to filter stale callbacks.
 
-## AVSpeechSynthesizerDelegate Callbacks
+## IPlaybackDelegate Protocol
 
-All callbacks are `nonisolated` (run on audio thread), then dispatch to MainActor for UI updates.
+SuttaPlayer implements the **IPlaybackDelegate** protocol to receive playback events from the synthesizer. This abstraction decouples SuttaPlayer from AVFoundation implementation details.
 
-### `speechSynthesizer(_:didStart:AVSpeechUtterance)`
+See: `scv-ui/Sources/scvUI/ISpeechSynthesizer.swift` for protocol definition.
+
+All callbacks are @MainActor (safe for UI updates).
+
+### `onPlaybackStarted()`
 Synthesis began producing audio.
 - Sets `isSynthesizerSpeaking = true`
 
-### `speechSynthesizer(_:didPause:AVSpeechUtterance)`
+### `onPlaybackPaused()`
 Synthesis paused (rare, usually caused by user interaction).
 - Sets `isSynthesizerSpeaking = false`
 
-### `speechSynthesizer(_:didContinue:AVSpeechUtterance)`
+### `onPlaybackContinued()`
 Synthesis resumed after pause.
 - Sets `isSynthesizerSpeaking = true`
 
-### `speechSynthesizer(_:didFinish:AVSpeechUtterance)`
+### `onPlaybackFinished()`
 Synthesis completed, segment finished.
 - Sets `isSynthesizerSpeaking = false`
 - If `isPlaying`: calls `playSegmentAt(nextIndexToPlay)` to chain to next segment
 - If not playing: ignores (stale callback, user paused or jumped)
+
+**Translation layer**: SpeechSynthesizerImpl implements both AVSpeechSynthesizerDelegate (receives low-level AVFoundation callbacks) and translates to IPlaybackDelegate events (high-level business logic). See: `scv-ui/Sources/scvUI/ISpeechSynthesizer.swift:113-150`
 
 ## Error Handling
 
@@ -330,12 +336,20 @@ if synthesizer is AVSpeechSynthesizer {
 
 This allows tests to pass mocks and verify delegate calls without side effects.
 
-### Test File
+### Test Files
 
-`scv-ui/Tests/scvUITests.swift`:
-- `suttaPlayerUpdatesCurrentScidWhenPlayingSegment()` — ✅ Now passing
-- `suttaPlayerJumpToSegmentWhilePlaying()` — Segment navigation
-- Other UI integration tests
+**SuttaPlayerTests.swift** (scv-ui/Tests/SuttaPlayerTests.swift):
+- `suttaPlayerUpdatesCurrentScidWhenPlayingSegment()` — Load + play updates currentScid ✅
+- `suttaPlayerJumpToSegmentWhilePlaying()` — Jump pauses current playback ✅
+- `suttaPlayerDidStartCallbackUpdatesSynthesizerSpeakingState()` — IPlaybackDelegate.onPlaybackStarted ✅
+- `suttaPlayerDidPauseCallbackUpdatesSynthesizerSpeakingState()` — IPlaybackDelegate.onPlaybackPaused ✅
+- `suttaPlayerDidContinueCallbackUpdatesSynthesizerSpeakingState()` — IPlaybackDelegate.onPlaybackContinued ✅
+- `suttaPlayerDidFinishCallbackAutoAdvancesToNextSegment()` — IPlaybackDelegate.onPlaybackFinished triggers auto-advance ✅
+- `suttaPlayerDidFinishCallbackStopsWhenNotPlaying()` — IPlaybackDelegate.onPlaybackFinished respects isPlaying flag ✅
+- **Total**: 7 delegate callback tests (all passing)
+
+**Other tests** (scv-ui/Tests/scvUITests.swift):
+- UI component tests (SearchCardView, QuoteHTMLParser, ImageCreditsLoader, etc.)
 
 ## Known Issues and Limitations
 
@@ -394,9 +408,11 @@ See: `scv-core/Sources/Settings.swift`
 
 ## Dependencies
 
-- **scvCore**: MLDocument, Segment, Settings, ScvLanguage, AudioContext, AudioStore, ColorConsole
-- **AVFoundation**: AVAudioPlayer, AVAudioSession (SuttaPlayer only)
-  - AVSpeechSynthesizer moved to AudioStore
+- **scvCore**: MLDocument, Segment, Settings, ScvLanguage, AudioContext, ColorConsole
+- **AVFoundation**: AVAudioSession (iOS audio session management)
+  - AVSpeechSynthesizer abstracted via ISpeechSynthesizer (no direct references)
+- **ISpeechSynthesizer** (scv-ui): Dependency injection for synthesis
+- **IPlaybackDelegate** (scv-ui): Playback event protocol
 - **UIKit** (iOS only): UIApplication, UIAlertController, UIWindowScene
 
 ## See Also

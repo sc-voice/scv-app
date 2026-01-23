@@ -377,12 +377,14 @@ func testAudioCacheStorage() async throws {
 **Test Results** (verified via serial test run):
 - 4 new storeAudio synthesis tests pass (all #expect() assertions verified)
 - 512 total scv-core tests pass (508 original + 4 new storeAudio)
-- Full scv-ui build succeeds (no compilation errors)
+- Full scv-ui build succeeds with 43 ui tests + 7 delegate callback tests
 - CAF files verified valid and playable
+- **Final count**: 557 total tests pass (514 scv-core + 43 scv-ui)
 
 **Key Files**:
 - `scv-core/Sources/AudioStore.swift` — storeAudio() implementation
 - `scv-core/Tests/AudioStoreTests.swift` — 4 new synthesis test cases (lines 107-217)
+- `scv-ui/Tests/SuttaPlayerTests.swift` — 7 new delegate callback tests
 
 ## Implementation: Phase 3 — ClearOrphanedVolumes (Pending)
 

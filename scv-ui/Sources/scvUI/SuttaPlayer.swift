@@ -10,7 +10,7 @@ import scvCore
 
 @MainActor
 public final class SuttaPlayer: NSObject, ObservableObject,
-  AVSpeechSynthesizerDelegate
+  IPlaybackDelegate
 {
   let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
   public static let shared = SuttaPlayer()
@@ -26,12 +26,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   private var nextIndexToPlay = 0
   private var isTransitioning = false
 
-  init(synthesizer: ISpeechSynthesizer = AVSpeechSynthesizer()) {
+  init(synthesizer: ISpeechSynthesizer = SpeechSynthesizerImpl()) {
     self.synthesizer = synthesizer
     super.init()
     cc.ok2(#line, "init() starting")
     configureAudioSession()
-    self.synthesizer.delegate = self
+    self.synthesizer.playbackDelegate = self
     setupAudioInterruptionHandler()
     cc.ok2(#line, "init() complete")
   }
@@ -146,13 +146,21 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // Initialize audioContext from current sutta's language
     let docLang = currentSutta?.docLang ?? "en"
     audioContext = AudioContext(for: docLang)
-    cc.ok2(#line, #function, "audioContext initialized for docLang:", docLang, "hash:", audioContext?.hash ?? "nil")
+    cc.ok2(
+      #line,
+      #function,
+      "audioContext initialized for docLang:",
+      docLang,
+      "hash:",
+      audioContext?.hash ?? "nil",
+    )
 
-    // Create fresh synthesizer for each play attempt (but preserve mocks for testing)
+    // Create fresh synthesizer for each play attempt (but preserve mocks for
+    // testing)
     synthesizer.stopSpeaking(at: .immediate)
-    if synthesizer is AVSpeechSynthesizer {
-      synthesizer = AVSpeechSynthesizer()
-      synthesizer.delegate = self
+    if synthesizer is SpeechSynthesizerImpl {
+      synthesizer = SpeechSynthesizerImpl()
+      synthesizer.playbackDelegate = self
       configureAudioSession()
     }
 
@@ -245,8 +253,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     synthesizer.stopSpeaking(at: .immediate)
 
     // Create new synthesizer instance
-    synthesizer = AVSpeechSynthesizer()
-    synthesizer.delegate = self
+    synthesizer = SpeechSynthesizerImpl()
+    synthesizer.playbackDelegate = self
 
     // Reconfigure audio session
     configureAudioSession()
@@ -315,43 +323,24 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     cc.ok1(#line, #function, "isPlaying:", isPlaying)
   }
 
-  private func playText(_ text: String, langCode: String) {
-    let utterance = AVSpeechUtterance(string: text)
-
-    // Get docLangSettings for the specified language
-    let docLang = ScvLanguage(code: langCode) ?? .english
-    let docLangSettings = Settings.shared
-      .docLangSettings[docLang]
-      ?? LangSettings(language: docLang)
-
-    // Set voice from docLangSettings.voiceId if available, otherwise find
-    // best available voice for language
-    if !docLangSettings.voiceId.isEmpty {
-      utterance
-        .voice = AVSpeechSynthesisVoice(identifier: docLangSettings.voiceId)
-    } else {
-      // Find best available voice: enhanced/premium > default
-      let voices = AVSpeechSynthesisVoice.speechVoices()
-        .filter { $0.language == docLangSettings.language.code }
-        .sorted { $0.quality.rawValue > $1.quality.rawValue }
-      utterance.voice = voices.first
-        ?? AVSpeechSynthesisVoice(language: docLangSettings.language.code)
+  private func playText(_ text: String, langCode _: String) {
+    guard let audioContext else {
+      cc.bad1(#line, #function, "audioContext not initialized")
+      return
     }
 
-    // Apply speech configuration settings
-    utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docLangSettings.rate
-    utterance.pitchMultiplier = docLangSettings.pitch
-    let segmentPause = Settings.shared.segmentPause
-    utterance.preUtteranceDelay = segmentPause
-    utterance.postUtteranceDelay = segmentPause
-
     do {
-      cc.ok2(#line, #function, "speak... isSpeaking:", synthesizer.isSpeaking)
-      try synthesizer.speak(utterance)
+      cc.ok2(
+        #line,
+        #function,
+        "playText... isSpeaking:",
+        synthesizer.isSpeaking,
+      )
+      try synthesizer.playText(text, audioContext: audioContext)
       cc.ok1(
         #line,
         #function,
-        "speak called. isSpeaking now:",
+        "playText called. isSpeaking now:",
         synthesizer.isSpeaking,
       )
     } catch {
@@ -359,70 +348,50 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
   }
 
-  // MARK: - AVSpeechSynthesizerDelegate
+  // MARK: - IPlaybackDelegate
 
-  public nonisolated func speechSynthesizer(
-    _: AVSpeechSynthesizer,
-    didStart _: AVSpeechUtterance,
-  ) {
-    Task { @MainActor in
-      self.isSynthesizerSpeaking = true
-      self.cc.ok1(
+  public func onPlaybackStarted() {
+    isSynthesizerSpeaking = true
+    cc.ok1(
+      #line,
+      #function,
+      "Playback started - isSynthesizerSpeaking:",
+      isSynthesizerSpeaking,
+    )
+  }
+
+  public func onPlaybackPaused() {
+    isSynthesizerSpeaking = false
+    cc.ok2(#line, #function, "Playback paused")
+  }
+
+  public func onPlaybackContinued() {
+    isSynthesizerSpeaking = true
+    cc.ok2(#line, #function, "Playback continued")
+  }
+
+  public func onPlaybackFinished() {
+    isSynthesizerSpeaking = false
+    // Play the next segment as determined by nextIndexToPlay
+    // When user jumps to a different segment, playSegmentAt updates
+    // nextIndexToPlay,
+    // so stale callbacks will use the updated target
+    cc.ok1(
+      #line,
+      #function,
+      "Playback finished - isPlaying:",
+      isPlaying,
+      "nextIndexToPlay:",
+      nextIndexToPlay,
+    )
+    if isPlaying {
+      playSegmentAt(at: nextIndexToPlay)
+    } else {
+      cc.ok1(
         #line,
         #function,
-        "Synthesizer started speaking - isSynthesizerSpeaking:",
-        self.isSynthesizerSpeaking,
+        "Playback finished but isPlaying=false, not continuing",
       )
-    }
-  }
-
-  public nonisolated func speechSynthesizer(
-    _: AVSpeechSynthesizer,
-    didPause _: AVSpeechUtterance,
-  ) {
-    Task { @MainActor in
-      self.isSynthesizerSpeaking = false
-      self.cc.ok2(#line, #function, "Synthesizer paused")
-    }
-  }
-
-  public nonisolated func speechSynthesizer(
-    _: AVSpeechSynthesizer,
-    didContinue _: AVSpeechUtterance,
-  ) {
-    Task { @MainActor in
-      self.isSynthesizerSpeaking = true
-      self.cc.ok2(#line, #function, "Synthesizer continued speaking")
-    }
-  }
-
-  public nonisolated func speechSynthesizer(
-    _: AVSpeechSynthesizer,
-    didFinish _: AVSpeechUtterance,
-  ) {
-    Task { @MainActor in
-      self.isSynthesizerSpeaking = false
-      // Play the next segment as determined by nextIndexToPlay
-      // When user jumps to a different segment, playSegmentAt updates
-      // nextIndexToPlay,
-      // so stale callbacks will use the updated target
-      self.cc.ok1(
-        #line,
-        #function,
-        "didFinish callback - isPlaying:",
-        self.isPlaying,
-        "nextIndexToPlay:",
-        self.nextIndexToPlay,
-      )
-      if self.isPlaying {
-        self.playSegmentAt(at: self.nextIndexToPlay)
-      } else {
-        self.cc.ok1(
-          #line,
-          #function,
-          "didFinish but isPlaying=false, not continuing",
-        )
-      }
     }
   }
 }

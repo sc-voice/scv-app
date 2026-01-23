@@ -74,7 +74,7 @@ import Testing
 
     // Verify it's a valid voice ID
     let allVoiceIds = AVSpeechSynthesisVoice.speechVoices()
-      .map { $0.identifier }
+      .map(\.identifier)
     #expect(allVoiceIds.contains(context.voiceId))
   }
 
