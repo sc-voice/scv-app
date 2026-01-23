@@ -434,4 +434,170 @@ struct AudioStoreTests {
       )
     }
   }
+
+  @Test("compactContextVolumes with no volumes returns zero status")
+  func compactContextVolumesEmptyStore() async {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+
+    let status = await store.compactContextVolumes(context: context)
+
+    #expect(status.volumesScanned == 0, "Should scan zero volumes")
+    #expect(status.volumesDeleted == 0, "Should delete zero volumes")
+    #expect(status.volumesKept == 0, "Should keep zero volumes")
+    #expect(status.elapsedSeconds >= 0, "Elapsed time should be non-negative")
+  }
+
+  @Test("compactContextVolumes keeps current context volume")
+  func compactContextVolumesKeepsCurrentVolume() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+    let text = "So I have heard."
+
+    // Create audio file (builds current context volume)
+    _ = try await store.storeAudio(text: text, audioContext: context)
+
+    // Compact with same context
+    let status = await store.compactContextVolumes(context: context)
+
+    #expect(status.volumesScanned == 1, "Should scan one volume")
+    #expect(
+      status.volumesDeleted == 0,
+      "Should delete zero volumes (current context)",
+    )
+    #expect(status.volumesKept == 1, "Should keep one volume (current context)")
+  }
+
+  @Test("compactContextVolumes deletes orphaned volumes with different hash")
+  func compactContextVolumesDeletesOrphaned() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let text = "So I have heard."
+
+    // Create audio with first context
+    let contextV1 = AudioContext(for: "en")
+    _ = try await store.storeAudio(text: text, audioContext: contextV1)
+
+    // Create audio with different settings (simulating user changing pitch)
+    var settingsV2 = Settings.shared
+    settingsV2.docLangSettings[.english]?.pitch = 1.5
+    let contextV2 = AudioContext(for: "en", from: settingsV2)
+
+    _ = try await store.storeAudio(text: text, audioContext: contextV2)
+
+    // Verify both volumes exist before compaction
+    let volumesBefore = try await store.listVolumes()
+    let enVolumes = volumesBefore.filter { $0.hasPrefix("en-") }
+    #expect(
+      enVolumes.count == 2,
+      "Should have two volumes for en (different contexts)",
+    )
+
+    // Compact with contextV2 - should delete contextV1 volume
+    let status = await store.compactContextVolumes(context: contextV2)
+
+    #expect(status.volumesScanned == 2, "Should scan two volumes")
+    #expect(status.volumesDeleted == 1, "Should delete one orphaned volume")
+    #expect(status.volumesKept == 1, "Should keep one volume (current context)")
+
+    // Verify orphaned volume was deleted
+    let volumesAfter = try await store.listVolumes()
+    let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
+    #expect(
+      enVolumesAfter.count == 1,
+      "Should have one volume after compaction",
+    )
+  }
+
+  @Test("compactContextVolumes ignores other languages")
+  func compactContextVolumesIgnoresOtherLanguages() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let text = "test"
+
+    // Create audio for English
+    let contextEn = AudioContext(for: "en")
+    _ = try await store.storeAudio(text: text, audioContext: contextEn)
+
+    // Create audio for German
+    let contextDe = AudioContext(for: "de")
+    _ = try await store.storeAudio(text: text, audioContext: contextDe)
+
+    // Create new English context with different settings (simulating user
+    // changing pitch)
+    var settingsEnV2 = Settings.shared
+    settingsEnV2.docLangSettings[.english]?.pitch = 1.5
+    let contextEnV2 = AudioContext(for: "en", from: settingsEnV2)
+    _ = try await store.storeAudio(text: text, audioContext: contextEnV2)
+
+    // Compact with contextEnV2 - should delete contextEn volume and keep
+    // contextEnV2
+    let status = await store.compactContextVolumes(context: contextEnV2)
+
+    // Should only scan/process English volumes (2 total: old en and new en)
+    #expect(status.volumesScanned == 2, "Should scan both English volumes")
+    #expect(status.volumesDeleted == 1, "Should delete old English volume")
+    #expect(status.volumesKept == 1, "Should keep new English volume")
+
+    // Verify German volume still exists
+    let volumesAfter = try await store.listVolumes()
+    let deVolumesAfter = volumesAfter.filter { $0.hasPrefix("de-") }
+    #expect(deVolumesAfter.count == 1, "German volume should not be affected")
+
+    // Verify retained English volume is for current context (contextEnV2)
+    let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
+    let currentHashPrefix = String(contextEnV2.hash.prefix(7))
+    let retainedEnVolume = enVolumesAfter
+      .first { $0.contains(currentHashPrefix) }
+    #expect(
+      retainedEnVolume != nil,
+      "Retained English volume should match current context hash: en-\(currentHashPrefix)",
+    )
+  }
+
+  @Test("compactContextVolumes measures elapsed time")
+  func compactContextVolumesMeasuresElapsed() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+    let text = "So I have heard."
+
+    // Create audio
+    _ = try await store.storeAudio(text: text, audioContext: context)
+
+    // Compact and verify elapsed time is recorded
+    let status = await store.compactContextVolumes(context: context)
+
+    #expect(
+      status.elapsedSeconds >= 0,
+      "Elapsed time must be non-negative",
+    )
+    #expect(
+      status.elapsedSeconds < 10,
+      "Compaction should complete within 10 seconds (BUG if exceeded)",
+    )
+  }
+
+  @Test("compactContextVolumes returns consistent results on empty store")
+  func compactContextVolumesEmptyStoreConsistent() async {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+
+    // Run twice on empty store
+    let status1 = await store.compactContextVolumes(context: context)
+    let status2 = await store.compactContextVolumes(context: context)
+
+    #expect(status1.volumesScanned == status2.volumesScanned)
+    #expect(status1.volumesDeleted == status2.volumesDeleted)
+    #expect(status1.volumesKept == status2.volumesKept)
+  }
 }

@@ -21,6 +21,10 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct AudioStore: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct AutoComplete: Sendable {
     public static let other: Int = 2
   }

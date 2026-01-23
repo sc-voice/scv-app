@@ -16,6 +16,24 @@ enum AudioType {
   case m4a
 }
 
+/// Compaction status report for orphaned volume cleanup.
+///
+/// Reports the results of clearing volumes with outdated audio context hashes
+/// when user settings change (voice, pitch, rate).
+public struct CompactionStatus: Sendable {
+  /// Total volumes examined for this language
+  public let volumesScanned: Int
+
+  /// Volumes deleted (orphaned with old hash prefix)
+  public let volumesDeleted: Int
+
+  /// Volumes retained (current hash prefix for language)
+  public let volumesKept: Int
+
+  /// Time elapsed during compaction in seconds
+  public let elapsedSeconds: TimeInterval
+}
+
 /// AudioStore persists synthesized TTS audio for background playback and
 /// battery efficiency.
 ///
@@ -264,6 +282,115 @@ final class AudioStore {
         userInfo: [
           NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
         ],
+      )
+    }
+  }
+
+  /// List all volumes in the audio store (for testing).
+  ///
+  /// - Returns: Array of volume names
+  func listVolumes() async throws -> [String] {
+    try await guidStore.listVolumes()
+  }
+
+  /// Compact audio volumes by removing orphaned contexts.
+  ///
+  /// When user changes voice/pitch/rate, a new AudioContext hash is created.
+  /// Old volumes with different hash prefixes become orphaned. This method
+  /// scans all volumes for the document language and deletes those with
+  /// outdated hash prefixes, keeping only the current context volume.
+  ///
+  /// Errors are handled silently (failed deletions don't throw).
+  ///
+  /// - Parameter context: Current audio context (determines current hash and
+  /// language)
+  /// - Returns: CompactionStatus with counts of scanned/deleted/kept volumes
+  /// and elapsed time
+  func compactContextVolumes(context: AudioContext) async -> CompactionStatus {
+    let cc = ColorConsole(#file, #function, dbg.AudioStore.other)
+    let startTime = Date()
+    let lang = context.docLang
+    let currentHash = String(context.hash.prefix(7))
+
+    cc.ok2(
+      #line,
+      #function,
+      "Starting compaction for language:",
+      lang,
+      "hash prefix:",
+      currentHash,
+    )
+
+    do {
+      let allVolumes = try await guidStore.listVolumes()
+      cc.ok2(#line, #function, "Found", allVolumes.count, "total volumes")
+
+      var scanned = 0
+      var deleted = 0
+      var kept = 0
+
+      for volume in allVolumes {
+        // Check if volume matches pattern: "{lang}-{hashPrefix7}"
+        guard volume.hasPrefix("\(lang)-") else {
+          continue
+        }
+
+        scanned += 1
+
+        // Extract hash prefix from volume name (e.g., "en-abc123d" ->
+        // "abc123d")
+        let volumeHashPrefix = String(volume.dropFirst(lang.count + 1))
+
+        if volumeHashPrefix == currentHash {
+          // Keep current context volume
+          cc.ok2(#line, #function, "Keeping current volume:", volume)
+          kept += 1
+        } else {
+          // Delete orphaned volume
+          do {
+            _ = try await guidStore.clearVolume(volume)
+            cc.ok2(#line, #function, "Deleted orphaned volume:", volume)
+            deleted += 1
+          } catch {
+            // Silently ignore deletion errors
+            cc.bad2(
+              #line,
+              #function,
+              "Failed to delete volume",
+              volume,
+              "error:",
+              error,
+            )
+            continue
+          }
+        }
+      }
+
+      let elapsed = Date().timeIntervalSince(startTime)
+      let status = CompactionStatus(
+        volumesScanned: scanned,
+        volumesDeleted: deleted,
+        volumesKept: kept,
+        elapsedSeconds: elapsed,
+      )
+
+      cc.ok1(
+        #line,
+        #function,
+        "Compaction complete: scanned=\(scanned) deleted=\(deleted) kept=\(kept) elapsed=\(String(format: "%.3f", elapsed))s",
+      )
+
+      return status
+    } catch {
+      // If listing volumes fails, return zero status silently
+      let elapsed = Date().timeIntervalSince(startTime)
+      let errorMsg = "Failed to list volumes: \(error)"
+      cc.bad1(#line, #function, errorMsg)
+      return CompactionStatus(
+        volumesScanned: 0,
+        volumesDeleted: 0,
+        volumesKept: 0,
+        elapsedSeconds: elapsed,
       )
     }
   }

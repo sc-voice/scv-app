@@ -118,25 +118,39 @@ If sutta has 100+ segments:
    - New sutta: must choose foreground synthesis (loses background) or wait for background cache?
    - Or: allow foreground synthesis but disable backgrounding until "Create Background Audio" done?
 
+## Implementation Progress
+
+**Phase 3 - ClearOrphanedVolumes (✅ COMPLETE — 2026-01-23)**
+- [x] Automatic cleanup when voice/rate/pitch settings change
+- [x] CompactionStatus struct with metrics (volumesScanned, volumesDeleted, volumesKept, elapsedSeconds)
+- [x] compactContextVolumes(context:) async method
+- [x] Language + hash prefix filtering (pattern: `{lang}-{hashPrefix7}`)
+- [x] Silent error handling (errors logged, don't throw)
+- [x] 6 comprehensive tests all passing
+- [x] See: AudioStore.md Phase 3 section for implementation details
+
 ## Proposed Next Steps
 
-1. **Measure synthesis timing** (high priority)
-   - Pick a long sutta (100+ segments)
-   - Profile: segment synthesis time, file write time, total duration
-   - Determine UX feasibility
+1. **Phase 4 - CachedSynthesizer Implementation** (Pending)
+   - Create CachedSynthesizer class implementing ISpeechSynthesizer
+   - Wraps AudioStore.storeAudio() for cached playback
+   - Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl
+   - Implement lookahead prefetch (N+1, N+2 while N plays)
+   - Add tests verifying all 4 IPlaybackDelegate events
+   - Test end-to-end: SuttaPlayer with injected CachedSynthesizer
 
-2. **Design cache key strategy**
-   - How AudioContext hash computed and stored
-   - Invalidation policy when settings change
-   - File naming/organization in cache directory
+2. **Phase 5 - M4A Optimization** (Pending)
+   - Link AudioToolbox framework for AAC encoding
+   - Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
+   - ~7x compression vs CAF (important for large suttas: 2.2GB → 300MB)
+   - Verify playback via AVAudioPlayer
 
-3. **Prototype SuttaPlayer dual-mode playback**
-   - Detect cache hit vs miss
-   - Switch between AVSpeechSynthesizer and AVAudioPlayer
-   - Handle segment chaining differently for each mode
-
-4. **Implement "Create Background Audio" UI**
-   - Menu item, progress indication, completion state
+3. **"Create Background Audio" Feature** (Pending)
+   - Mark sutta as "background ready" after playback completes
+   - Storage: Card model field `backgroundAudioContextHash: String?`
+   - Invalidation: hash changes when voice/rate/pitch settings change
+   - UI: Visual indicator on sutta card showing audio is cached
+   - Verification: check all segments exist with correct hash before marking ready
 
 ## Measured Test Results
 

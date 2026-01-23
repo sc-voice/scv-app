@@ -104,12 +104,14 @@ Result: Unique key changes if segment content OR any audio setting changes.
    - **File sizes**: 70-114KB per segment (CAF baseline)
    - **Total**: 512 core tests pass (508 original + 4 new storeAudio tests)
 
-3. **⏳ `clearOrphanedVolumes(audioContext: AudioContext) async`** (Pending)
+3. **✅ `compactContextVolumes(context: AudioContext) async -> CompactionStatus`** (Implemented — Phase 3 Complete)
    - Deletes volumes from previous audio contexts
-   - Filters by language + hash prefix
+   - Filters by language + hash prefix (pattern: `{lang}-{hashPrefix7}`)
    - Call after voice/rate/pitch settings change
-   - Non-critical (errors silently ignored)
-   - **Phase 3 candidate** for future implementation
+   - Non-critical (errors silently ignored per backlog)
+   - Returns CompactionStatus: volumesScanned, volumesDeleted, volumesKept, elapsedSeconds
+   - **Tests**: 6 new tests verify cleanup behavior (all pass)
+   - **Test timing**: 0.010s-0.836s per compaction (depends on volume count)
 
 **Private helpers** (implementation detail):
 - `volumeName(lang, hash) -> String` — Computes volume name from language + hash prefix (e.g., "en-abc123d")
@@ -386,14 +388,41 @@ func testAudioCacheStorage() async throws {
 - `scv-core/Tests/AudioStoreTests.swift` — 4 new synthesis test cases (lines 107-217)
 - `scv-ui/Tests/SuttaPlayerTests.swift` — 7 new delegate callback tests
 
-## Implementation: Phase 3 — ClearOrphanedVolumes (Pending)
+## Implementation: Phase 3 — ClearOrphanedVolumes (✅ COMPLETE)
 
-1. [ ] Implement `clearOrphanedVolumes(audioContext:) async`
-2. [ ] List all volumes in store
-3. [ ] Filter by language + hash prefix
-4. [ ] Delete volumes with different hash (old audio contexts)
-5. [ ] Handle errors silently
-6. [ ] Add tests for cleanup on settings change
+**Status**: ✅ COMPLETE — Build 0.2601.12, 2026-01-23
+
+**Deliverables**:
+- [x] Implement `compactContextVolumes(context:) async -> CompactionStatus`
+- [x] List all volumes in store via GuidStore.listVolumes()
+- [x] Filter by language + hash prefix (pattern: `{lang}-{hashPrefix7}`)
+- [x] Delete volumes with different hash (old audio contexts)
+- [x] Handle errors silently (per backlog requirement)
+- [x] Add tests for cleanup on settings change
+- [x] Comprehensive ColorConsole logging (ok1/ok2/bad1/bad2)
+
+**Implementation Details**:
+- Algorithm: Lists volumes → filters for language → keeps current hash → deletes orphaned hashes
+- Volume naming: `{lang}-{hash.prefix(7)}` enables language + context filtering
+- Error handling: Silent deletion failures don't throw; logged at bad2 level
+- Timing: Adds ~0.01s-0.8s per compaction (negligible for typical cache sizes)
+
+**Test Results** (verified):
+- 6 new compactContextVolumes tests pass (all #expect() assertions verified)
+- Test coverage:
+  - Empty store behavior (0 result)
+  - Current context volume retention
+  - Orphaned volume deletion
+  - Language isolation (ignores other languages)
+  - Elapsed time measurement
+  - Idempotency on empty store
+  - Hash prefix verification (retained volume matches current context)
+- **Final count**: 521 total scv-core tests pass (515 original + 6 new Phase 3)
+
+**Key Files**:
+- `scv-core/Sources/AudioStore.swift` — compactContextVolumes() and CompactionStatus implementation
+- `scv-core/Sources/Debug.swift` — Added AudioStore dbg constant
+- `scv-core/Tests/AudioStoreTests.swift` — 6 new Phase 3 test cases (lines 438-582)
 
 ## Implementation: Phase 4 — M4A Optimization (Pending)
 

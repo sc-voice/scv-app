@@ -19,11 +19,13 @@ Focus on background audio support and core stability. AVSpeechSynthesizer cannot
 4. Mark sutta "background ready" (implicit: if all segments cached, can background)
 5. Later: user backgrounds app → play from cache (no synthesis needed)
 
-1. **AudioStore Phase 3 — ClearOrphanedVolumes** (Pending)
-   - Implement automatic cleanup when voice/rate/pitch settings change
-   - List all volumes in store, filter by language + hash prefix, delete old contexts
-   - Handle errors silently
-   - Add tests for cleanup on settings change
+1. **AudioStore Phase 3 — ClearOrphanedVolumes** (✅ COMPLETE — 2026-01-23, committed)
+   - [x] Implement automatic cleanup when voice/rate/pitch settings change
+   - [x] List all volumes in store, filter by language + hash prefix, delete old contexts
+   - [x] Handle errors silently (errors logged at bad2 level, don't throw)
+   - [x] Add tests for cleanup on settings change (6 tests, all passing, 0.836s total)
+   - [x] Comprehensive ColorConsole logging at ok1/ok2/bad1/bad2 levels
+   - [x] CompactionStatus struct reporting volumesScanned, volumesDeleted, volumesKept, elapsedSeconds
 
 2. **AudioStore Phase 4 — CachedSynthesizer Implementation** (Pending)
    - Create CachedSynthesizer class implementing ISpeechSynthesizer
@@ -114,6 +116,6 @@ Performance optimizations and infrastructure improvements.
 ---
 
 **Total backlog items**:
-- Current Release: 4 items
+- Current Release: 3 items (Phase 3 complete)
 - Next Release: 6 items
 - Future Release: 2 items
