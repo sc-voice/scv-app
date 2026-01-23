@@ -1,146 +1,119 @@
 # Backlog
 
-Project backlog items organized by status and priority.
+Project backlog items organized by release priority.
 
-## Fix EbtSeeker LIKE pattern string length assertions
-**Status**: Backlog
+---
 
-01. [ ] Fix test expectations in EbtSeekerTests.swift:218-243 (commented out)
-    - String count assertions are off by 1
-    - "% root %suffer %".count is 16, not 17
-    - "% root %of% suffer %".count is 20, not 21
-    - "% lemma1 %lemma2%lemma3% lemma4 %".count is 33, not 34
-    - Determine if test expectations are wrong or implementation is wrong
-    - Update test assertions to match actual string lengths or fix EbtSeeker pattern generation
+## Current Release
 
-## Add VoiceOver accessibility labels
-**Status**: Complete (labels implemented, testing pending)
+Focus on background audio support and core stability. AVSpeechSynthesizer cannot synthesize when app backgrounded—solution is pre-cache via "Create Background Audio" workflow. See: `doc/BackgroundAudio.md`
 
-01. [x] Add accessibilityLabel to all icon-only buttons (See: SearchCardView.swift:195, CardSidebarView.swift:176/187/130, SuttaHeaderView.swift:71-72, AboutCardView.swift:376/449)
-    - [x] Search toolbar button: "a11y.button.search" (SearchCardView:195)
-    - [x] Add card button: "a11y.button.add_card" (CardSidebarView:176)
-    - [x] Settings button: "a11y.button.settings" (CardSidebarView:187)
-    - [x] Delete card button: "a11y.button.delete_card" (CardSidebarView:130)
-    - [x] Play/pause button: "a11y.button.play_audio" / "a11y.button.pause_audio" (SuttaHeaderView:71-72)
-    - [x] Link buttons in AboutCardView: "a11y.button.external_link" (AboutCardView:376, 449)
-    - [ ] Test with VoiceOver enabled on iOS device (post-launch testing)
+### Background Audio Critical Path
 
-## Fix accessibility layout adaptation
-**Status**: Backlog
+**Design constraint**: Restrict synthesis to current suttacard while sutta is playing. Synthesis tied to playback speed (1x playback = 1x synthesis). After linear playback completes, all segments cached.
 
-01. [ ] Add accessibilityCategory checks to AboutCardView and SettingsView (similar to SearchCardView:122-128)
-    - AboutCardView: Stack sections vertically when accessibility sizes active
-    - SettingsView: Improve spacing and layout for large text sizes
-    - Verify readability in VoiceOver with large text
+**Workflow**:
+1. User selects sutta from search → load MLDocument (one-time, sync call)
+2. User plays sutta → SuttaPlayer.playSegmentAt() with lookahead prefetch (N+1, N+2 while N plays)
+3. Playback completes → all segments cached with current AudioContext hash
+4. Mark sutta "background ready" (implicit: if all segments cached, can background)
+5. Later: user backgrounds app → play from cache (no synthesis needed)
 
-## Add keyboard accessibility
-**Status**: Backlog
+1. **AudioStore Phase 3 — ClearOrphanedVolumes** (Pending)
+   - Implement automatic cleanup when voice/rate/pitch settings change
+   - List all volumes in store, filter by language + hash prefix, delete old contexts
+   - Handle errors silently
+   - Add tests for cleanup on settings change
 
-01. [ ] Add keyboard shortcuts for common actions (See: SearchCardView, CardSidebarView, AboutCardView)
-    - Command+F: Focus search field in SearchCardView
-    - Command+N: Add new card
-    - Tab order and focus management for all interactive elements
-    - Keyboard support for collapsible sections (collapse/expand with Enter/Space)
+2. **AudioStore Phase 4 — CachedSynthesizer Implementation** (Pending)
+   - Create CachedSynthesizer class implementing ISpeechSynthesizer
+   - Wraps AudioStore.storeAudio() for cached playback
+   - Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl
+   - Implements AVAudioPlayer playback with delegate callbacks
+   - Implement lookahead prefetch (N+1, N+2 while N plays)
+   - Add tests verifying all 4 IPlaybackDelegate events
+   - Test end-to-end: SuttaPlayer with injected CachedSynthesizer
+   - Performance testing vs SpeechSynthesizerImpl
 
-02. [ ] Remove color-only information conveyance
-    - Star ratings in SearchCardView: Add text label or accessibility value
-    - Ensure all semantic information is accessible to screen readers
+3. **AudioStore Phase 5 — M4A Optimization** (Pending)
+   - Link AudioToolbox framework for AAC encoding
+   - Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
+   - ~7x compression vs CAF (important for large suttas: 2.2GB → 300MB)
+   - Verify playback via AVAudioPlayer
 
-## Investigate phrase search vs keyword search score differences
-**Status**: Backlog
+4. **"Create Background Audio" Feature** (New, not yet backlogged)
+   - Mark sutta as "background ready" after playback completes
+   - Storage: Card model field `backgroundAudioContextHash: String?`
+   - Invalidation: hash changes when voice/rate/pitch settings change
+   - UI: Visual indicator on sutta card showing audio is cached
+   - Verification: check all segments exist with correct hash before marking ready
 
-01. [ ] Verify whether phrase search scores differ from keyword search scores (See: scv-core/Sources/EbtData.swift:788-815)
-    - Current assumption: phrase results use same scores as keyword results
-    - Reality: sutta matching phrase may have different scores than keyword-only match
-    - Currently performPhraseSearch hardcodes score: 1.0 for all results
-    - Need to calculate actual scores for phrase matches or inherit from keyword results
-    - Update phraseSearchRootOfSuffering test with actual discovered scores
-    - Consider whether phrase matches should score differently than keyword matches
+---
 
-## Mark matched segments in MLDocument with lemmaRegexp
-**Status**: Backlog
+## Next Release
 
-01. [ ] Use lemmaRegexp() to set matched: true on Segment objects (See: Segment.swift:27)
-    - Currently matched field is never set to true anywhere
-    - populateSuttaInfo() creates header segments but can't mark matches (no query/method)
-    - populateQuotes() has query/method but doesn't update Segment.matched field
-    - Determine best place to mark matched segments (in populateQuotes or separate method)
-    - Update MLDocument segments to reflect which ones matched the lemma search
-    - This enables UI to highlight matched segments in search results
+Accessibility improvements, search refinements, and infrastructure improvements.
 
-## Redesign Lemmatizer cache for performance
-**Status**: Backlog
+### Accessibility
 
-01. [ ] Profile and redesign lemmatizer caching strategy (See: EbtSeeker.swift:152-194)
-    - Current bottleneck: lemmatization takes 192ms for "root of suffering" → "root, of, suffer"
-    - SQL query execution only takes 28ms (7x faster than lemmatization)
-    - Investigate current lemmatizer cache implementation
-    - Evaluate caching strategies: pre-build common queries, use trie-based cache, parallel lemmatization
-    - Benchmark different approaches to reduce lemmatization overhead
-    - Target: reduce lemmatization time below SQL execution time
+1. **Test VoiceOver accessibility labels** (Implementation done, testing pending)
+   - [x] All accessibility labels added to UI buttons (SearchCardView, CardSidebarView, SuttaHeaderView, AboutCardView)
+   - [ ] Test with VoiceOver enabled on iOS device
+   - Note: Apple does not require VoiceOver support, but good UX practice
 
-## Make EbtData SQL query methods async
-**Status**: In Progress (Partial)
+2. **Fix accessibility layout adaptation** (Backlog)
+   - Add accessibilityCategory checks to AboutCardView and SettingsView
+   - Stack sections vertically when accessibility sizes active
+   - Improve spacing for large text sizes
 
-01. [x] Create static async wrapper for getMLDocument() - delegates to instance method
-    - See: scv-core/Sources/EbtData.swift:136-143
-    - CardManager uses async version (line 340)
+3. **Add keyboard accessibility** (Backlog)
+   - Add keyboard shortcuts (Command+F, Command+N)
+   - Tab order and focus management
+   - Keyboard support for collapsible sections
+   - Remove color-only information conveyance
 
-02. [ ] Convert instance methods to fully async (See: scv-core/Sources/EbtData.swift:594-1180)
-    - Current: `getMLDocument()`, `getDocument()`, `availableAuthors()`, `suttaUidsForAuthor()` are sync
-    - Problem: Sync database queries block MainActor when called from UI code
-    - Solution: Make instance methods async to avoid UI freezing
-    - Status of metadata(): Already removed (commit be81534), replaced with getMetaprop()
-    - getMetaprop() has both sync (line 1094) and async (via EbtDb wrapper, line 1500) versions
-    - Need to complete async conversion of remaining methods
-    - Update all internal callsites to use await
-    - Keep actor serialization to maintain thread safety
+### Search & Indexing
 
-## AudioStore Phase 2 — StoreAudio (✅ COMPLETE)
+4. **Mark matched segments in MLDocument with lemmaRegexp** (Backlog)
+   - Set matched: true on Segment objects when lemma matches
+   - Enable UI to highlight matched segments in search results
 
-**Status**: ✅ VERIFIED COMPLETE — Build 0.2601.12, 2026-01-22
+5. **Investigate phrase search vs keyword search score differences** (Backlog)
+   - Verify if phrase scores differ from keyword scores
+   - Currently performPhraseSearch hardcodes score: 1.0
+   - Calculate actual scores or inherit from keyword results
 
-- [x] Implement `storeAudio(text:audioContext:) async throws -> URL`
-- [x] Uses proven AVSpeechSynthesizer.write(toBufferCallback:) pattern
-- [x] CAF file synthesis with atomic write via GuidStore
-- [x] Returns URL when synthesis completes (0.23s-0.82s per segment, verified in tests)
-- [x] Error handling: Throws on synthesis timeout or write failures
-- [x] Cache optimization: Returns immediately if file already exists
-- [x] 4 new tests pass (synthesis, caching, different contexts, edge cases)
-- [x] 512 total scv-core tests pass (508 original + 4 new storeAudio)
-- [x] Full scv-ui build succeeds
+### Infrastructure
 
-**Key Files**: scv-core/Sources/AudioStore.swift, scv-core/Tests/AudioStoreTests.swift (lines 107-217)
+6. **Make EbtData SQL query methods async** (In Progress — Partial)
+   - [x] Static async wrapper for getMLDocument()
+   - [ ] Convert instance methods to fully async (getMLDocument, getDocument, availableAuthors, suttaUidsForAuthor)
+   - Improves general MainActor responsiveness
+   - Update all internal callsites to use await
+   - Keep actor serialization for thread safety
+   - Note: Not critical for current release (background audio synthesis tied to playback, not separate background task)
 
-## AudioStore Phase 3 — ClearOrphanedVolumes (Pending)
+---
 
-Implement automatic cleanup when voice/rate/pitch settings change.
+## Future Release
 
-1. [ ] Implement `clearOrphanedVolumes(audioContext:) async`
-2. [ ] List all volumes in store
-3. [ ] Filter by language + hash prefix
-4. [ ] Delete volumes with different hash (old audio contexts)
-5. [ ] Handle errors silently
-6. [ ] Add tests for cleanup on settings change
+Performance optimizations and infrastructure improvements.
 
-## AudioStore Phase 4 — SuttaPlayer Integration (Pending)
+### Performance
 
-Replace AVSpeechSynthesizer usage in SuttaPlayer with AudioStore API.
+1. **Redesign Lemmatizer cache for performance** (Backlog)
+   - Current bottleneck: lemmatization takes 192ms (vs 28ms SQL)
+   - Evaluate: pre-build common queries, trie-based cache, parallel lemmatization
+   - Target: reduce lemmatization below SQL execution time
 
-1. [ ] Update SuttaPlayer to use `audioStore.storeAudio()` instead of direct synthesis
-2. [ ] Implement prefetch strategy (lazy, lookahead, or prefetch-all)
-3. [ ] Use AVAudioPlayer for playback instead of AVSpeechSynthesizer
-4. [ ] Test end-to-end playback with synthesized audio
-5. [ ] Verify dual AudioContext pattern (docAudioContext + pliAudioContext)
-6. [ ] Performance testing: measure latency and memory usage
+2. **Fix EbtSeeker LIKE pattern string length assertions** (Backlog)
+   - Test expectations in EbtSeekerTests.swift:218-243 are off by 1
+   - Determine if test or implementation wrong
+   - Update assertions or fix pattern generation
 
-## AudioStore Phase 5 — M4A Optimization (Future)
+---
 
-Optimize file size with AAC compression (~7x smaller than CAF).
-
-1. [ ] Link AudioToolbox framework for AAC encoding
-2. [ ] Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
-3. [ ] Benchmark M4A vs CAF file sizes and synthesis time
-4. [ ] Update AudioType.m4a path
-5. [ ] Verify M4A playback via AVAudioPlayer
-6. [ ] Update tests to verify both CAF and M4A formats
+**Total backlog items**:
+- Current Release: 4 items
+- Next Release: 6 items
+- Future Release: 2 items
