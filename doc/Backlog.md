@@ -19,15 +19,7 @@ Focus on background audio support and core stability. AVSpeechSynthesizer cannot
 4. Mark sutta "background ready" (implicit: if all segments cached, can background)
 5. Later: user backgrounds app → play from cache (no synthesis needed)
 
-1. **AudioStore Phase 3 — ClearOrphanedVolumes** (✅ COMPLETE — 2026-01-23, committed)
-   - [x] Implement automatic cleanup when voice/rate/pitch settings change
-   - [x] List all volumes in store, filter by language + hash prefix, delete old contexts
-   - [x] Handle errors silently (errors logged at bad2 level, don't throw)
-   - [x] Add tests for cleanup on settings change (6 tests, all passing, 0.836s total)
-   - [x] Comprehensive ColorConsole logging at ok1/ok2/bad1/bad2 levels
-   - [x] CompactionStatus struct reporting volumesScanned, volumesDeleted, volumesKept, elapsedSeconds
-
-2. **AudioStore Phase 4 — CachedSynthesizer Implementation** (Pending)
+1. **AudioStore Phase 4 — CachedSynthesizer Implementation** (Pending)
    - Create CachedSynthesizer class implementing ISpeechSynthesizer
    - Wraps AudioStore.storeAudio() for cached playback
    - Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl
@@ -37,13 +29,13 @@ Focus on background audio support and core stability. AVSpeechSynthesizer cannot
    - Test end-to-end: SuttaPlayer with injected CachedSynthesizer
    - Performance testing vs SpeechSynthesizerImpl
 
-3. **AudioStore Phase 5 — M4A Optimization** (Pending)
+2. **AudioStore Phase 5 — M4A Optimization** (Pending)
    - Link AudioToolbox framework for AAC encoding
    - Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
    - ~7x compression vs CAF (important for large suttas: 2.2GB → 300MB)
    - Verify playback via AVAudioPlayer
 
-4. **"Create Background Audio" Feature** (New, not yet backlogged)
+3. **"Create Background Audio" Feature** (New, not yet backlogged)
    - Mark sutta as "background ready" after playback completes
    - Storage: Card model field `backgroundAudioContextHash: String?`
    - Invalidation: hash changes when voice/rate/pitch settings change
@@ -116,6 +108,6 @@ Performance optimizations and infrastructure improvements.
 ---
 
 **Total backlog items**:
-- Current Release: 3 items (Phase 3 complete)
+- Current Release: 3 items (Phase 3 archived to git history)
 - Next Release: 6 items
 - Future Release: 2 items

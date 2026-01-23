@@ -101,19 +101,6 @@ To run a specific test:
 cd scv-core && swift test --filter CardTests
 ```
 
-## Known Issues and Limitations
-
-### Hover effects not working on links in AboutCardView
-**Status**: Investigated, no solution found
-
-1. [x] Attempted `.pointerStyle(.pointingHand)` - not available/not working
-2. [x] Attempted `NSCursor.pointingHand.push/pop()` with `onHover()` - never triggered
-3. [x] Attempted `NSCursor.pointingHand.push/pop()` with `onContinuousHover()` - never triggered
-4. [x] Attempted `.defaultHoverEffect(.highlight)` - compiles but no visible effect
-5. [x] Research confirmed hover effects should work in Mac Catalyst iPad apps
-
-Links in AboutCardView (See: scv-ui/Sources/scvUI/AboutCardView.swift) are colored (linkColor) and underlined but do not show hover effects. The feature is not essential since the links are already visually distinct.
-
 ## Backlog
 
 See `doc/Backlog.md` for project backlog items.
