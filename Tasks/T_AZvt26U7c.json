@@ -1,0 +1,1 @@
+{"name":"Make EbtData SQL query methods async","id":"019BEDDB-A53B-7000-B9E7-E3A317E12133","updatedAt":"2026-01-24T02:35:53Z","createdAt":"2026-01-24T02:35:53Z","completedActions":[],"plannedActions":[],"summary":"Convert instance methods to fully async (getMLDocument, getDocument, availableAuthors, suttaUidsForAuthor)","requiredTasks":[],"state":"active","references":[]}

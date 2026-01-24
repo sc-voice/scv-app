@@ -1,0 +1,37 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T03:25:03Z",
+  "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
+  "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "filePath" : "scv-core/Sources/AudioStore.swift:302-349"
+    },
+    {
+      "filePath" : "scv-core/Tests/AudioStoreTests.swift:653-757"
+    },
+    {
+      "text" : "AVAudioConverter: Convert streams of audio between formats using native Swift frameworks. Format ID for M4A: kAudioFormatMPEG4AAC"
+    },
+    {
+      "text" : "Key APIs: AVAudioFile(forReading:), AVAudioFile(forWriting:settings:commonFormat:interleaved:), AVAudioConverter, AVAudioCompressedBuffer"
+    },
+    {
+      "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
+    },
+    {
+      "text" : "Reference: Apple Developer Forums thread on AVAudioConverter usage for audio format conversion"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
+  "updatedAt" : "2026-01-24T03:25:03Z"
+}

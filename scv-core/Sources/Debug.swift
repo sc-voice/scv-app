@@ -1,3 +1,5 @@
+import Foundation
+
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
@@ -121,4 +123,27 @@ public struct dbg: Sendable {
   public struct scvUITests: Sendable {
     public static let other: Int = 0
   }
+}
+
+/// Get project root directory.
+///
+/// Computes project root by splitting this file's path at "/scv-core/"
+/// and taking the first part.
+///
+/// - Returns: URL to project root directory
+public func projectRoot() -> URL {
+  let currentFile = #file
+  if let range = currentFile.range(of: "/scv-core/") {
+    let rootPath = String(currentFile[..<range.lowerBound])
+    return URL(fileURLWithPath: rootPath)
+  }
+  // Fallback: traverse up to find scv-app directory
+  var current = URL(fileURLWithPath: currentFile).deletingLastPathComponent()
+  while current.path != "/" {
+    if current.lastPathComponent == "scv-app" {
+      return current
+    }
+    current = current.deletingLastPathComponent()
+  }
+  return current
 }

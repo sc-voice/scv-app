@@ -3,13 +3,14 @@ import Foundation
 @testable import scvCore
 import Testing
 
+// DN10 segment dn10:2.32.2 (constant for benchmarking)
+let dn10_2_32_2_text = """
+With clairvoyance that is purified and superhuman, they see sentient beings passing away and being reborn—inferior and superior, beautiful and ugly, in a good place or a bad place. They understand how sentient beings pass on according to their deeds. 'These dear beings did bad things by way of body, speech, and mind. They denounced the noble ones; they had wrong view; and they chose to act out of that wrong view. When their body breaks up, after death, they're reborn in a place of loss, a bad place, the underworld, hell. These dear beings, however, did good things by way of body, speech, and mind. They never denounced the noble ones; they had right view; and they chose to act out of that right view. When their body breaks up, after death, they're reborn in a good place, a heavenly realm.' And so, with clairvoyance that is purified and superhuman, they see sentient beings passing away and being reborn—inferior and superior, beautiful and ugly, in a good place or a bad place. They understand how sentient beings pass on according to their deeds.
+"""
+
 @Suite("Audio Store")
 struct AudioStoreTests {
-  private let cc = ColorConsole(
-    "AudioStoreTests",
-    "synthesizeToCAF",
-    dbg.SuttaPlayer.other,
-  )
+  private let cc = ColorConsole(#file, #function, dbg.AudioStore.other)
 
   private func synthesizeToCAF(
     text: String,
@@ -479,14 +480,16 @@ struct AudioStoreTests {
     let store = AudioStore.create(path: tempDir)
     let text = "So I have heard."
 
+    // Create single Settings instance for this test
+    let settings = Settings()
+
     // Create audio with first context
-    let contextV1 = AudioContext(for: "en")
+    let contextV1 = AudioContext(for: "en", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextV1)
 
-    // Create audio with different settings (simulating user changing pitch)
-    var settingsV2 = Settings.shared
-    settingsV2.docLangSettings[.english]?.pitch = 1.5
-    let contextV2 = AudioContext(for: "en", from: settingsV2)
+    // Modify settings and create audio with different context (simulating user changing pitch)
+    settings.docLangSettings[.english]?.pitch = 1.5
+    let contextV2 = AudioContext(for: "en", from: settings)
 
     _ = try await store.storeAudio(text: text, audioContext: contextV2)
 
@@ -521,19 +524,21 @@ struct AudioStoreTests {
     let store = AudioStore.create(path: tempDir)
     let text = "test"
 
+    // Create single Settings instance for this test
+    let settings = Settings()
+
     // Create audio for English
-    let contextEn = AudioContext(for: "en")
+    let contextEn = AudioContext(for: "en", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextEn)
 
     // Create audio for German
-    let contextDe = AudioContext(for: "de")
+    let contextDe = AudioContext(for: "de", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextDe)
 
-    // Create new English context with different settings (simulating user
+    // Modify settings and create new English context with different settings (simulating user
     // changing pitch)
-    var settingsEnV2 = Settings.shared
-    settingsEnV2.docLangSettings[.english]?.pitch = 1.5
-    let contextEnV2 = AudioContext(for: "en", from: settingsEnV2)
+    settings.docLangSettings[.english]?.pitch = 1.5
+    let contextEnV2 = AudioContext(for: "en", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextEnV2)
 
     // Compact with contextEnV2 - should delete contextEn volume and keep
@@ -599,5 +604,155 @@ struct AudioStoreTests {
     #expect(status1.volumesScanned == status2.volumesScanned)
     #expect(status1.volumesDeleted == status2.volumesDeleted)
     #expect(status1.volumesKept == status2.volumesKept)
+  }
+
+  @Test("BENCHMARK: dn10:2.32.2 CAF synthesis performance")
+  func benchmarkDN10CAFSynthesis() async throws {
+    let fileManager = FileManager.default
+    let root = projectRoot()
+    let outputDir = root.appendingPathComponent("local/audio")
+    try fileManager.createDirectory(
+      at: outputDir,
+      withIntermediateDirectories: true,
+    )
+
+    let store = AudioStore.create(path: outputDir, type: .caf)
+    let context = AudioContext(for: "en")
+
+    print("\n=== dn10:2.32.2 CAF SYNTHESIS BENCHMARK ===")
+    print("Segment: dn10:2.32.2")
+    print("Text: \(dn10_2_32_2_text.prefix(100))...")
+    print("Text length: \(dn10_2_32_2_text.count) characters\n")
+
+    let synthesisStart = Date()
+    do {
+      let url = try await store.storeAudio(
+        text: dn10_2_32_2_text,
+        audioContext: context,
+      )
+      let synthesisElapsed = Date().timeIntervalSince(synthesisStart)
+      let fileSize = try FileManager.default
+        .attributesOfItem(atPath: url.path)[.size] as? Int ?? 0
+
+      print("=== CAF SYNTHESIS RESULTS ===")
+      print("Synthesis time: \(String(format: "%.3f", synthesisElapsed))s")
+      print("File size: \(fileSize) bytes (\(fileSize / 1024) KB)")
+
+      cc.ok1(
+        #line,
+        "dn10:2.32.2 CAF benchmark: \(String(format: "%.3f", synthesisElapsed))s, \(fileSize / 1024) KB",
+      )
+    } catch {
+      let synthesisElapsed = Date().timeIntervalSince(synthesisStart)
+      print("=== CAF SYNTHESIS FAILED ===")
+      print("Error: \(error)")
+      cc.bad1(#line, "dn10:2.32.2 CAF synthesis failed: \(error)")
+    }
+  }
+
+  @Test("BENCHMARK: DN10:2.32.2 CAF synthesis and M4A conversion")
+  func benchmarkDN10_2_32_2_CAF_M4A() async throws {
+    let fileManager = FileManager.default
+    let root = projectRoot()
+    let outputDir = root.appendingPathComponent("local/audio")
+    let cafStore = AudioStore.create(
+      path: outputDir,
+      type: .caf,
+    )
+    let context = AudioContext(for: "en")
+
+    print("Text: \(dn10_2_32_2_text.prefix(100))...")
+    print("Text length: \(dn10_2_32_2_text.count) characters\n")
+
+    // 1️⃣ Synthesize to CAF
+    print("1️⃣ CAF Synthesis (synthesis + file write):")
+    let cafStart = Date()
+    let cafUrl = try await cafStore.storeAudio(
+      text: dn10_2_32_2_text,
+      audioContext: context,
+    )
+    let cafTime = Date().timeIntervalSince(cafStart)
+    let cafSize = try FileManager.default
+      .attributesOfItem(atPath: cafUrl.path)[.size] as? Int ?? 0
+
+    print("   Time: \(String(format: "%.3f", cafTime))s")
+    print("   Size: \(cafSize) bytes (\(cafSize / 1024) KB)\n")
+
+    // 2️⃣ Convert CAF to M4A (measure conversion time only)
+    print("2️⃣ CAF→M4A Conversion (read CAF + afconvert + write M4A):")
+    let m4aUrl = URL(fileURLWithPath: cafUrl.path.replacingOccurrences(
+      of: ".caf",
+      with: ".m4a",
+    ))
+
+    let conversionStart = Date()
+    do {
+      // Run afconvert process
+      let process = Process()
+      process.launchPath = "/usr/bin/afconvert"
+      process.arguments = [
+        "-f", "m4af", // Output format: M4A file
+        "-d", "aac", // Data format: AAC codec
+        cafUrl.path,
+        m4aUrl.path,
+      ]
+
+      let errorPipe = Pipe()
+      process.standardError = errorPipe
+      process.standardOutput = Pipe()
+
+      try process.run()
+      process.waitUntilExit()
+
+      let conversionTime = Date().timeIntervalSince(conversionStart)
+
+      if process.terminationStatus != 0 {
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorMsg = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+        throw NSError(
+          domain: "AudioStore",
+          code: -4,
+          userInfo: [
+            NSLocalizedDescriptionKey: "afconvert failed: \(errorMsg.trimmingCharacters(in: .whitespacesAndNewlines))",
+          ],
+        )
+      }
+
+      let m4aSize = try FileManager.default
+        .attributesOfItem(atPath: m4aUrl.path)[.size] as? Int ?? 0
+
+      print("   Time: \(String(format: "%.3f", conversionTime))s")
+      print("   Size: \(m4aSize) bytes (\(m4aSize / 1024) KB)\n")
+
+      let compressionRatio = Double(cafSize) / Double(m4aSize)
+      let spaceSaved = cafSize - m4aSize
+
+      print("=== RESULTS ===")
+      print("Segment: dn10:2.32.2 (\(dn10_2_32_2_text.count) chars)")
+      print(
+        "CAF synthesis: \(String(format: "%.3f", cafTime))s → \(cafSize / 1024) KB",
+      )
+      print(
+        "CAF→M4A conversion: \(String(format: "%.3f", conversionTime))s → \(m4aSize / 1024) KB",
+      )
+      print("Compression ratio: \(String(format: "%.2f", compressionRatio))x")
+      print(
+        "Space saved: \(spaceSaved / 1024) KB (\((cafSize - m4aSize) * 100 / cafSize)%)",
+      )
+
+      cc.ok1(
+        #line,
+        "dn10:2.32.2 conversion: synthesis=\(String(format: "%.3f", cafTime))s, convert=\(String(format: "%.3f", conversionTime))s, ratio=\(String(format: "%.2f", compressionRatio))x",
+      )
+    } catch {
+      print("   ✗ Conversion failed: \(error)\n")
+      print("=== RESULTS (CAF only) ===")
+      print("Segment: dn10:2.32.2")
+      print(
+        "CAF synthesis: \(String(format: "%.3f", cafTime))s → \(cafSize / 1024) KB",
+      )
+      print("M4A conversion: ❌ \(error)")
+      cc.bad1(#line, "dn10:2.32.2 conversion failed: \(error)")
+    }
   }
 }

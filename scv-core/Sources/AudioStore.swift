@@ -204,7 +204,7 @@ final class AudioStore {
     return url
   }
 
-  /// Perform synthesis and write to CAF file.
+  /// Perform synthesis and write to audio file (CAF or M4A).
   private func performSynthesis(
     text: String,
     audioContext: AudioContext,
@@ -219,6 +219,14 @@ final class AudioStore {
     utterance.rate = AVSpeechUtteranceDefaultSpeechRate
     utterance.pitchMultiplier = audioContext.pitch
     utterance.volume = 1.0
+
+    // For M4A format, synthesize to temporary CAF first, then convert
+    let outputUrl = audioType == .m4a
+      ? URL(fileURLWithPath: url.path.replacingOccurrences(
+        of: ".m4a",
+        with: ".caf",
+      ))
+      : url
 
     // Setup synthesis with file writing
     let synthesizer = AVSpeechSynthesizer()
@@ -245,7 +253,7 @@ final class AudioStore {
         // First buffer: create file
         if audioFile == nil {
           audioFile = try AVAudioFile(
-            forWriting: url,
+            forWriting: outputUrl,
             settings: pcmBuffer.format.settings,
             commonFormat: .pcmFormatFloat32,
             interleaved: false,
@@ -270,12 +278,12 @@ final class AudioStore {
 
     // If synthesis failed, clean up partial file and throw
     if let error = synthesisError {
-      try? fileManager.removeItem(at: url)
+      try? fileManager.removeItem(at: outputUrl)
       throw error
     }
 
     if Date() >= timeoutDate {
-      try? fileManager.removeItem(at: url)
+      try? fileManager.removeItem(at: outputUrl)
       throw NSError(
         domain: "AudioStore",
         code: -1,
@@ -283,6 +291,60 @@ final class AudioStore {
           NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
         ],
       )
+    }
+
+    // Convert CAF to M4A if needed
+    if audioType == .m4a {
+      try convertCAFToM4A(cafUrl: outputUrl, m4aUrl: url)
+    }
+  }
+
+  /// Convert CAF file to M4A (AAC codec) format using afconvert utility.
+  ///
+  /// Uses the macOS `afconvert` command-line tool to encode CAF to AAC (M4A).
+  /// This provides ~7x compression over uncompressed PCM.
+  ///
+  /// - Parameters:
+  ///   - cafUrl: URL to source CAF file
+  ///   - m4aUrl: URL to destination M4A file
+  /// - Throws: Conversion errors
+  private func convertCAFToM4A(cafUrl: URL, m4aUrl: URL) throws {
+    let process = Process()
+    process.launchPath = "/usr/bin/afconvert"
+    // Simplified args: let afconvert handle AAC encoding automatically
+    process.arguments = [
+      "-f", "m4af", // Output format: M4A file
+      "-d", "aac", // Data format: AAC codec
+      cafUrl.path,
+      m4aUrl.path,
+    ]
+
+    let errorPipe = Pipe()
+    process.standardError = errorPipe
+    process.standardOutput = Pipe()
+
+    do {
+      try process.run()
+      process.waitUntilExit()
+
+      if process.terminationStatus != 0 {
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorMsg = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+        throw NSError(
+          domain: "AudioStore",
+          code: -4,
+          userInfo: [
+            NSLocalizedDescriptionKey: "afconvert failed: \(errorMsg.trimmingCharacters(in: .whitespacesAndNewlines))",
+          ],
+        )
+      }
+
+      // Clean up temporary CAF file
+      try FileManager.default.removeItem(at: cafUrl)
+    } catch {
+      // Clean up M4A if conversion failed
+      try? FileManager.default.removeItem(at: m4aUrl)
+      throw error
     }
   }
 

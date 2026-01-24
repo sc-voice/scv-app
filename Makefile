@@ -1,6 +1,6 @@
-.PHONY: _init test test-app test-core test-core-verbose test-ui test-build\
+.PHONY: _init test test-app test-core test-core-verbose test-ui test-build test-tasks\
 				test-zstd-integration test-nlp test-content\
-				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before\
+				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before build-tasks\
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw \
         version-major version-minor version-patch \
@@ -54,6 +54,12 @@ test-tools: _init _test-tools _end
 _test-tools:
 	@echo "=== MAKE test-tools..." | tee -a $(LOG_FILE)
 	@cd scv-build && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+
+test-tasks: _init _test-tasks _end
+
+_test-tasks:
+	@echo "=== MAKE test-tasks..." | tee -a $(LOG_FILE)
+	@cd scv-tasks && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
@@ -110,6 +116,13 @@ build-tools: _init _build-tools _end
 _build-tools: _build-core
 	@echo "=== MAKE build-tools..." | tee -a $(LOG_FILE)
 	@cd scv-build && swift build 2>&1 | tee -a $(LOG_FILE)
+	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
+
+build-tasks: _init _build-tasks _end
+
+_build-tasks:
+	@echo "=== MAKE build-tasks..." | tee -a $(LOG_FILE)
+	@cd scv-tasks && swift build 2>&1 | tee -a $(LOG_FILE)
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
 build-core: _init _build-core _end
@@ -269,6 +282,7 @@ help:
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
 	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
 	@echo "  make test-tools        Run scv-build tests serially"
+	@echo "  make test-tasks        Run scv-tasks tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make test-content      Verify all manifest databases are present in build"
@@ -276,6 +290,7 @@ help:
 	@echo "  make build-core        Build scv-core package"
 	@echo "  make build-ui	        Build scv-ui package"
 	@echo "  make build-tools 			Build scv-build package (build tools)"
+	@echo "  make build-tasks       Build scv-tasks package (task CLI)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-db DB=lang:author    Build single database (e.g. make build-db DB=en:sujato)"
 	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"

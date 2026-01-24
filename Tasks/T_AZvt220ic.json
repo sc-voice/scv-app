@@ -1,0 +1,1 @@
+{"name":"Fix accessibility layout adaptation","requiredTasks":[],"updatedAt":"2026-01-24T02:35:39Z","state":"active","completedActions":[],"summary":"Add accessibilityCategory checks to AboutCardView and SettingsView for large text sizes","id":"019BEDDB-6D22-7000-9F74-FC8E478C4D16","createdAt":"2026-01-24T02:35:39Z","plannedActions":[],"references":[]}

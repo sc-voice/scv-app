@@ -1,0 +1,24 @@
+{
+  "originHash" : "bbf208a36fae7b2d46b5161e388e2a667fa8872ca83c5e65a9bf14763ac4b7b0",
+  "pins" : [
+    {
+      "identity" : "swift-uuidv7",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mhayes853/swift-uuidv7.git",
+      "state" : {
+        "revision" : "01f4584e5050799c9b51df5dab2c0fd38c39b676",
+        "version" : "0.4.0"
+      }
+    },
+    {
+      "identity" : "zstd",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/facebook/zstd.git",
+      "state" : {
+        "revision" : "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "version" : "1.5.7"
+      }
+    }
+  ],
+  "version" : 3
+}

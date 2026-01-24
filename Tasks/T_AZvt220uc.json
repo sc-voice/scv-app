@@ -1,0 +1,1 @@
+{"id":"019BEDDB-6D2E-7000-8919-319F7F57907F","references":[],"createdAt":"2026-01-24T02:35:39Z","completedActions":[],"name":"Mark matched segments in MLDocument with lemmaRegexp","plannedActions":[],"requiredTasks":[],"updatedAt":"2026-01-24T02:35:39Z","summary":"Set matched: true on Segment objects when lemma matches to highlight in search results","state":"active"}
