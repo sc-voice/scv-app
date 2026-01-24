@@ -5,10 +5,33 @@ public class WorldModel: @unchecked Sendable, Codable {
 
   public var taskStack: [TaskId]
   public var limit: Int
+  public var verbosity: Int
 
-  public init(taskStack: [TaskId] = [], limit: Int = 20) {
+  public init(taskStack: [TaskId] = [], limit: Int = 20, verbosity: Int = 1) {
     self.taskStack = taskStack
     self.limit = limit
+    self.verbosity = max(0, min(2, verbosity))  // Clamp to 0-2
+  }
+
+  required public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.taskStack = try container.decodeIfPresent([TaskId].self, forKey: .taskStack) ?? []
+    self.limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 20
+    let verbosityValue = try container.decodeIfPresent(Int.self, forKey: .verbosity) ?? 1
+    self.verbosity = max(0, min(2, verbosityValue))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(taskStack, forKey: .taskStack)
+    try container.encode(limit, forKey: .limit)
+    try container.encode(verbosity, forKey: .verbosity)
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case taskStack
+    case limit
+    case verbosity
   }
 
   public func pushTask(_ taskId: TaskId) {

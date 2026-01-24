@@ -1,1 +1,20 @@
-{"plannedActions":[],"id":"019BEDDB-A541-7000-A6E7-CCFBAA5DE78B","updatedAt":"2026-01-24T02:35:53Z","requiredTasks":[],"completedActions":[],"references":[],"state":"active","name":"Redesign Lemmatizer cache for performance","createdAt":"2026-01-24T02:35:53Z","summary":"Evaluate pre-build common queries, trie-based cache, parallel lemmatization"}
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T02:35:53Z",
+  "id" : "019BEDDB-A541-7000-A6E7-CCFBAA5DE78B",
+  "name" : "Redesign Lemmatizer cache for performance",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Evaluate pre-build common queries, trie-based cache, parallel lemmatization",
+  "updatedAt" : "2026-01-24T02:35:53Z"
+}

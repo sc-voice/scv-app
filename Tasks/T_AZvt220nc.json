@@ -1,1 +1,20 @@
-{"updatedAt":"2026-01-24T02:35:39Z","plannedActions":[],"state":"active","name":"Add keyboard accessibility","requiredTasks":[],"completedActions":[],"references":[],"id":"019BEDDB-6D27-7000-9679-0592798D3EE6","summary":"Add keyboard shortcuts (Command+F, Command+N), tab order, focus management","createdAt":"2026-01-24T02:35:39Z"}
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T02:35:39Z",
+  "id" : "019BEDDB-6D27-7000-9679-0592798D3EE6",
+  "name" : "Add keyboard accessibility",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Add keyboard shortcuts (Command+F, Command+N), tab order, focus management",
+  "updatedAt" : "2026-01-24T02:35:39Z"
+}

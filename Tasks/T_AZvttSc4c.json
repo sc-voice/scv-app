@@ -1,1 +1,55 @@
-{"name":"AudioStore Phase 4 — CachedSynthesizer Implementation","references":[{"filePath":"doc/BackgroundAudio.md"}],"state":"active","updatedAt":"2026-01-24T01:53:50Z","id":"019BEDB5-2738-7000-8D8A-C7C5CCC3841B","requiredTasks":[],"plannedActions":[{"description":"Create CachedSynthesizer class implementing ISpeechSynthesizer","id":"00000000-0000-0000-0000-000000000001","taskId":null},{"description":"Wraps AudioStore.storeAudio() for cached playback","id":"00000000-0000-0000-0000-000000000002","taskId":null},{"description":"Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl","id":"00000000-0000-0000-0000-000000000003","taskId":null},{"description":"Implements AVAudioPlayer playback with delegate callbacks","id":"00000000-0000-0000-0000-000000000004","taskId":null},{"description":"Implement lookahead prefetch (N+1, N+2 while N plays)","id":"00000000-0000-0000-0000-000000000005","taskId":null},{"description":"Add tests verifying all 4 IPlaybackDelegate events","id":"00000000-0000-0000-0000-000000000006","taskId":null},{"description":"Test end-to-end: SuttaPlayer with injected CachedSynthesizer","id":"00000000-0000-0000-0000-000000000007","taskId":null},{"description":"Performance testing vs SpeechSynthesizerImpl","id":"00000000-0000-0000-0000-000000000008","taskId":null}],"completedActions":[],"summary":"Implement cached speech synthesis for background audio","createdAt":"2026-01-24T01:53:50Z"}
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T01:53:50Z",
+  "id" : "019BEDB5-2738-7000-8D8A-C7C5CCC3841B",
+  "name" : "AudioStore Phase 4 — CachedSynthesizer Implementation",
+  "plannedActions" : [
+    {
+      "description" : "Create CachedSynthesizer class implementing ISpeechSynthesizer",
+      "id" : "00000000-0000-0000-0000-000000000001"
+    },
+    {
+      "description" : "Wraps AudioStore.storeAudio() for cached playback",
+      "id" : "00000000-0000-0000-0000-000000000002"
+    },
+    {
+      "description" : "Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl",
+      "id" : "00000000-0000-0000-0000-000000000003"
+    },
+    {
+      "description" : "Implements AVAudioPlayer playback with delegate callbacks",
+      "id" : "00000000-0000-0000-0000-000000000004"
+    },
+    {
+      "description" : "Implement lookahead prefetch (N+1, N+2 while N plays)",
+      "id" : "00000000-0000-0000-0000-000000000005"
+    },
+    {
+      "description" : "Add tests verifying all 4 IPlaybackDelegate events",
+      "id" : "00000000-0000-0000-0000-000000000006"
+    },
+    {
+      "description" : "Test end-to-end: SuttaPlayer with injected CachedSynthesizer",
+      "id" : "00000000-0000-0000-0000-000000000007"
+    },
+    {
+      "description" : "Performance testing vs SpeechSynthesizerImpl",
+      "id" : "00000000-0000-0000-0000-000000000008"
+    }
+  ],
+  "references" : [
+    {
+      "id" : "019bf09e-0c1a-708a-9c8e-cf1d3c3733f3",
+      "relevance" : 0.5,
+      "url" : ".\/doc\/BackgroundAudio.md"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Implement cached speech synthesis for background audio",
+  "updatedAt" : "2026-01-24T01:53:50Z"
+}

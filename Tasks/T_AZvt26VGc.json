@@ -1,1 +1,20 @@
-{"summary":"Profile rendering performance and implement optimization strategies","name":"Optimize Sutta rendering pipeline","plannedActions":[],"references":[],"completedActions":[],"updatedAt":"2026-01-24T02:35:53Z","state":"active","id":"019BEDDB-A546-7000-97AA-7FD2694B1808","requiredTasks":[],"createdAt":"2026-01-24T02:35:53Z"}
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T02:35:53Z",
+  "id" : "019BEDDB-A546-7000-97AA-7FD2694B1808",
+  "name" : "Optimize Sutta rendering pipeline",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Profile rendering performance and implement optimization strategies",
+  "updatedAt" : "2026-01-24T02:35:53Z"
+}

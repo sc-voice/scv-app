@@ -10,22 +10,88 @@
   ],
   "references" : [
     {
-      "filePath" : "scv-core/Sources/AudioStore.swift:302-349"
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
+      "relevance" : 0.5,
+      "url" : ".\/scv-core\/Sources\/AudioStore.swift:302-349"
     },
     {
-      "filePath" : "scv-core/Tests/AudioStoreTests.swift:653-757"
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7ce4620b2d7",
+      "relevance" : 0.5,
+      "url" : ".\/scv-core\/Tests\/AudioStoreTests.swift:653-757"
     },
     {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7cf6d73e7c1",
+      "relevance" : 0.5,
       "text" : "AVAudioConverter: Convert streams of audio between formats using native Swift frameworks. Format ID for M4A: kAudioFormatMPEG4AAC"
     },
     {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d0aaab597f",
+      "relevance" : 0.5,
       "text" : "Key APIs: AVAudioFile(forReading:), AVAudioFile(forWriting:settings:commonFormat:interleaved:), AVAudioConverter, AVAudioCompressedBuffer"
     },
     {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d1f80caaf4",
+      "relevance" : 0.5,
       "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
     },
     {
-      "text" : "Reference: Apple Developer Forums thread on AVAudioConverter usage for audio format conversion"
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d28fdba5a7",
+      "relevance" : 0.75,
+      "text" : "Apple Developer Documentation:",
+      "url" : "https:\/\/developer.apple.com\/documentation\/avfaudio\/avaudioconverter"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d35d819de3",
+      "relevance" : 0.75,
+      "text" : "Apple Technical Note:",
+      "url" : "https:\/\/developer.apple.com\/documentation\/technotes\/tn3136-avaudioconverter-performing-sample-rate-conversions"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d409276a10",
+      "relevance" : 0.75,
+      "text" : "Apple Developer Forums - PCM to AAC:",
+      "url" : "https:\/\/developer.apple.com\/forums\/thread\/67106"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d51032d833",
+      "relevance" : 0.75,
+      "text" : "Apple Developer Forums - Compressed to PCM:",
+      "url" : "https:\/\/developer.apple.com\/forums\/thread\/60475"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d6f91e2f10",
+      "relevance" : 0.75,
+      "text" : "Apple Developer Forums - Audio file conversion:",
+      "url" : "https:\/\/developer.apple.com\/forums\/thread\/72199"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d750f6fddd",
+      "relevance" : 0.75,
+      "text" : "GitHub - Apple sample code (Swift):",
+      "url" : "https:\/\/github.com\/ooper-shlab\/iPhoneACFileConvertTest-Swift"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d8f91f11e6",
+      "relevance" : 0.75,
+      "text" : "GitHub - AudioConverterExample:",
+      "url" : "https:\/\/github.com\/anyoptional\/AudioConverterExample"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d9bf8abfb4",
+      "relevance" : 0.75,
+      "text" : "GitHub - AudioEngine with AVAudioConverter:",
+      "url" : "https:\/\/github.com\/superbass\/AudioEngine"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7daab4a34cb",
+      "relevance" : 0.75,
+      "text" : "WWDC 2015 Session 507:",
+      "url" : "https:\/\/asciiwwdc.com\/2015\/sessions\/507"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7dbf4ac9b39",
+      "relevance" : 0.5,
+      "text" : "CRITICAL: AVAudioConverter maintains state - recreating per-buffer causes AAC encoder to prepend 2112 frames of silence"
     }
   ],
   "requiredTasks" : [

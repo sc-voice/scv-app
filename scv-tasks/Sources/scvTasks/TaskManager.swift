@@ -6,6 +6,7 @@ public class TaskManager: @unchecked Sendable {
 
   private let tasksDirectory: URL
   private let stackFilePath: URL
+  private let settingsFilePath: URL
   private let lock = NSLock()
   private var currentTask: Task?
 
@@ -13,6 +14,7 @@ public class TaskManager: @unchecked Sendable {
     let base = basePath ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     self.tasksDirectory = base.appendingPathComponent("Tasks", isDirectory: true)
     self.stackFilePath = base.appendingPathComponent("world.json")
+    self.settingsFilePath = base.appendingPathComponent(".task-settings.json")
 
     createDirectoriesIfNeeded()
     loadCurrentTask()

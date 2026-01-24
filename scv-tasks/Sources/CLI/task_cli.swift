@@ -39,6 +39,7 @@ do {
 
 func parseArgs() throws -> (rootDirectory: URL, command: String, commandArgs: [String]) {
   var rootDirectory = projectRoot()
+  var verbosityOverride: Int?
   var commandIndex = 0
   let args = Array(CommandLine.arguments.dropFirst())
 
@@ -54,6 +55,19 @@ func parseArgs() throws -> (rootDirectory: URL, command: String, commandArgs: [S
       }
       rootDirectory = URL(fileURLWithPath: args[commandIndex])
       commandIndex += 1
+    } else if arg == "-v" || arg == "--verbosity" {
+      commandIndex += 1
+      guard commandIndex < args.count else {
+        print("Error: -v/--verbosity requires a value (0: terse, 1: normal, 2: verbose)")
+        exit(1)
+      }
+      if let verbosity = Int(args[commandIndex]), verbosity >= 0 && verbosity <= 2 {
+        verbosityOverride = verbosity
+      } else {
+        print("Error: -v/--verbosity requires value 0, 1, or 2")
+        exit(1)
+      }
+      commandIndex += 1
     } else {
       break
     }
@@ -67,11 +81,18 @@ func parseArgs() throws -> (rootDirectory: URL, command: String, commandArgs: [S
       // Replace shared instance with loaded one
       WorldModel.shared.taskStack = loadedWorld.taskStack
       WorldModel.shared.limit = loadedWorld.limit
+      WorldModel.shared.verbosity = loadedWorld.verbosity
     } catch {
       let cc = ColorConsole(#file, #function, DBG_TASK)
       cc.bad1(#line, "cannot load \(worldPath)")
       throw error
     }
+  }
+
+  // Apply verbosity override if specified
+  if let verbosity = verbosityOverride {
+    WorldModel.shared.verbosity = verbosity
+    try WorldModel.shared.save(to: worldPath)
   }
 
   // Set commandTask from current top of stack
@@ -365,12 +386,36 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     }
     if !task.references.isEmpty {
       print("\nReferences:")
-      for ref in task.references {
-        switch ref {
-        case .filePath(let path):
-          print("  - \(path)")
-        case .text(let text):
-          print("  - \(text)")
+      for (index, ref) in task.references.enumerated() {
+        switch WorldModel.shared.verbosity {
+        case 0:  // Terse: index only
+          print("  [\(index)]")
+        case 1:  // Normal: 2 lines max
+          var firstLine = "  \(index). [\(String(format: "%.2f", ref.relevance))]"
+          if let url = ref.url {
+            firstLine += " \(url.absoluteString)"
+            print(firstLine)
+            if let text = ref.text {
+              print("     \(text)")
+            }
+          } else if let text = ref.text {
+            firstLine += " \(text)"
+            print(firstLine)
+          } else {
+            print(firstLine)
+          }
+        case 2:  // Verbose: all fields
+          print("  [\(index)]")
+          print("    id: \(ref.id)")
+          if let text = ref.text {
+            print("    text: \(text)")
+          }
+          if let url = ref.url {
+            print("    url: \(url.absoluteString)")
+          }
+          print("    relevance: \(String(format: "%.2f", ref.relevance))")
+        default:
+          break
         }
       }
     }

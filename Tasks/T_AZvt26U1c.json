@@ -1,1 +1,20 @@
-{"id":"019BEDDB-A535-7000-9EC6-3FF2D8CE93BC","summary":"Verify if phrase scores differ from keyword scores and calculate actual scores","createdAt":"2026-01-24T02:35:53Z","state":"active","updatedAt":"2026-01-24T02:35:53Z","references":[],"plannedActions":[],"requiredTasks":[],"name":"Investigate phrase search vs keyword search score differences","completedActions":[]}
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-24T02:35:53Z",
+  "id" : "019BEDDB-A535-7000-9EC6-3FF2D8CE93BC",
+  "name" : "Investigate phrase search vs keyword search score differences",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Verify if phrase scores differ from keyword scores and calculate actual scores",
+  "updatedAt" : "2026-01-24T02:35:53Z"
+}
