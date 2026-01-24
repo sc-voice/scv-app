@@ -4,9 +4,11 @@ public class WorldModel: @unchecked Sendable, Codable {
   public static let shared = WorldModel()
 
   public var taskStack: [TaskId]
+  public var limit: Int
 
-  public init(taskStack: [TaskId] = []) {
+  public init(taskStack: [TaskId] = [], limit: Int = 20) {
     self.taskStack = taskStack
+    self.limit = limit
   }
 
   public func pushTask(_ taskId: TaskId) {
