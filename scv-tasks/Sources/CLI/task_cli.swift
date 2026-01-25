@@ -109,6 +109,7 @@ func parseArgs() throws
   var rootDirectory: URL?
   var verbosityOverride: Int?
   var limitOverride: Int?
+  var lineLengthOverride: Int?
   var allArgs = Array(CommandLine.arguments.dropFirst())
   var globalOptionIndices = Set<Int>()  // Track which indices are global options
 
@@ -142,6 +143,20 @@ func parseArgs() throws
         print("Error: -v/--verbosity requires value 0, 1, or 2")
         exit(1)
       }
+      globalOptionIndices.insert(i)
+      i += 1
+    } else if arg == "-ll" || arg == "--ll" || arg == "--line-length" {
+      globalOptionIndices.insert(i)
+      i += 1
+      guard i < allArgs.count else {
+        print("Error: -ll/--ll/--line-length requires a value")
+        exit(1)
+      }
+      guard let lineLength = Int(allArgs[i]), lineLength >= 20 else {
+        print("Error: -ll/--ll/--line-length requires an integer value >= 20")
+        exit(1)
+      }
+      lineLengthOverride = lineLength
       globalOptionIndices.insert(i)
       i += 1
     } else if arg == "-l" || arg == "--limit" {
@@ -218,6 +233,7 @@ func parseArgs() throws
         WorldModel.shared.taskStack = loadedWorld.taskStack
         WorldModel.shared.limit = loadedWorld.limit
         WorldModel.shared.verbosity = loadedWorld.verbosity
+        WorldModel.shared.lineLength = loadedWorld.lineLength
       } catch {
         let cc = ColorConsole(#file, #function, DBG_TASK)
         cc.bad1(#line, "cannot load \(worldPath)")
@@ -225,14 +241,17 @@ func parseArgs() throws
       }
     }
 
-    // Apply verbosity and limit overrides if specified
+    // Apply verbosity, limit, and lineLength overrides if specified
     if let verbosity = verbosityOverride {
       WorldModel.shared.verbosity = verbosity
     }
     if let limit = limitOverride {
       WorldModel.shared.limit = limit
     }
-    if verbosityOverride != nil || limitOverride != nil {
+    if let lineLength = lineLengthOverride {
+      WorldModel.shared.lineLength = lineLength
+    }
+    if verbosityOverride != nil || limitOverride != nil || lineLengthOverride != nil {
       let worldPath = finalRootDirectory.appendingPathComponent(".task-world.json")
       try WorldModel.shared.save(to: worldPath)
     }
@@ -277,6 +296,62 @@ func formatRelevanceBar(_ relevance: Double) -> String {
   }
 
   return bar
+}
+
+func wrapLine(_ line: String, maxLength: Int) -> String {
+  if line.count <= maxLength {
+    return line
+  }
+
+  // Find where content starts (after indent and bullet/label)
+  let leadingWhitespace = line.prefix(while: { $0.isWhitespace }).count
+  var contentStart = leadingWhitespace
+
+  // Skip past "N. " pattern
+  let afterIndent = String(line.dropFirst(leadingWhitespace))
+  if let dotIndex = afterIndent.firstIndex(of: ".") {
+    let afterDot = afterIndent[afterIndent.index(after: dotIndex)...]
+    let extraSpaces = afterDot.prefix(while: { $0.isWhitespace }).count
+    contentStart = leadingWhitespace + afterIndent.distance(from: afterIndent.startIndex, to: dotIndex) + 1 + extraSpaces
+  }
+
+  let hangingIndent = String(repeating: " ", count: contentStart)
+  let maxContentLength = maxLength - contentStart
+
+  var result = ""
+  var remaining = String(line.dropFirst(contentStart))
+
+  while !remaining.isEmpty {
+    if remaining.count <= maxContentLength {
+      result += remaining
+      break
+    }
+
+    // Find last space within maxContentLength
+    let cutoffIndex = remaining.index(remaining.startIndex, offsetBy: maxContentLength, limitedBy: remaining.endIndex) ?? remaining.endIndex
+    let beforeCutoff = String(remaining[..<cutoffIndex])
+
+    if let lastSpace = beforeCutoff.lastIndex(of: " ") {
+      // Space found within limit
+      let lineContent = String(beforeCutoff[..<lastSpace])
+      result += lineContent + "\n" + hangingIndent
+      remaining = String(remaining[remaining.index(after: lastSpace)...])
+    } else {
+      // No space within limit, search entire remaining for any space
+      if let anySpace = remaining.firstIndex(of: " ") {
+        // Space found, use it even if exceeds limit
+        let lineContent = String(remaining[..<anySpace])
+        result += lineContent + "\n" + hangingIndent
+        remaining = String(remaining[remaining.index(after: anySpace)...])
+      } else {
+        // No space found anywhere, append entire remaining (e.g., URL)
+        result += remaining
+        break
+      }
+    }
+  }
+
+  return String(line.prefix(contentStart)) + result
 }
 
 // MARK: - Command Handlers
@@ -541,14 +616,24 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     print("State: \(task.state.rawValue) (Updated: \(dateFormatter.string(from: task.updatedAt)))")
     if !task.plannedActions.isEmpty {
       print("\nPlanned Actions:")
-      for (index, action) in task.plannedActions.enumerated() {
-        print("  \(index + 1). \(action.description)")
+      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared.limit : task.plannedActions.count
+      let displayPlannedActions = Array(task.plannedActions.prefix(effectiveLimit))
+      for (index, action) in displayPlannedActions.enumerated() {
+        print(wrapLine("  \(index + 1). \(action.description)", maxLength: WorldModel.shared.lineLength))
+      }
+      if task.plannedActions.count > effectiveLimit {
+        print("  ...")
       }
     }
     if !task.completedActions.isEmpty {
       print("\nCompleted Actions:")
-      for (index, action) in task.completedActions.enumerated() {
-        print("  \(index + 1). \(action.description)")
+      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared.limit : task.completedActions.count
+      let displayCompletedActions = Array(task.completedActions.prefix(effectiveLimit))
+      for (index, action) in displayCompletedActions.enumerated() {
+        print(wrapLine("  \(index + 1). \(action.description)", maxLength: WorldModel.shared.lineLength))
+      }
+      if task.completedActions.count > effectiveLimit {
+        print("  ...")
       }
     }
     if !task.references.isEmpty {
@@ -565,24 +650,24 @@ func handleShow(args: [String], rootDirectory: URL) throws {
           var firstLine = "  \(index + 1). \(formatRelevanceBar(ref.relevance))"
           if let url = ref.url {
             firstLine += " \(url.absoluteString)"
-            print(firstLine)
+            print(wrapLine(firstLine, maxLength: WorldModel.shared.lineLength))
             if let text = ref.text {
-              print("     \(text)")
+              print(wrapLine("     \(text)", maxLength: WorldModel.shared.lineLength))
             }
           } else if let text = ref.text {
             firstLine += " \(text)"
-            print(firstLine)
+            print(wrapLine(firstLine, maxLength: WorldModel.shared.lineLength))
           } else {
             print(firstLine)
           }
         case 2: // Verbose: all fields
           print("  \(index + 1).")
-          print("    id: \(ref.id)")
+          print(wrapLine("    id: \(ref.id)", maxLength: WorldModel.shared.lineLength))
           if let text = ref.text {
-            print("    text: \(text)")
+            print(wrapLine("    text: \(text)", maxLength: WorldModel.shared.lineLength))
           }
           if let url = ref.url {
-            print("    url: \(url.absoluteString)")
+            print(wrapLine("    url: \(url.absoluteString)", maxLength: WorldModel.shared.lineLength))
           }
           print("    relevance: \(String(format: "%.2f", ref.relevance))")
         default:
@@ -1627,6 +1712,9 @@ func printUsage() {
   Options:
     -w, --world DIR     Project root directory (default: current directory)
     -v, --verbosity LVL Set verbosity level (0: terse, 1: normal, 2: verbose)
+    -l, --limit ROWS    Limit reference count (default: 20, 0 = unlimited)
+    -ll, --ll, --line-length CHARS
+                        Set output line length for wrapping (default: 80, min: 20)
 
   Commands:
     list [-l|--limit MAXROWS]
