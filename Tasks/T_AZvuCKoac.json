@@ -1,38 +1,52 @@
 {
   "completedActions" : [
-
+    {
+      "description" : "Create testAVAudioConverterResearch() - reads so_i_have_heard.caf, converts to so_i_have_heard_av.m4a using AVAudioConverter",
+      "id" : "07048943-58A7-4B15-8B44-6936D7E0CA3B"
+    },
+    {
+      "description" : "Read CAF using AVAudioFile(forReading:), extract audio format and duration",
+      "id" : "F106CC1C-695D-4153-A18F-3F729A086DB0"
+    },
+    {
+      "description" : "Benchmark: print timing, file sizes, compression ratio - compare with afconvert output",
+      "id" : "82E653C8-EFFE-4C4C-9DDB-E71726602026"
+    },
+    {
+      "description" : "Create PCM output format for converter (pcmFormatFloat32)",
+      "id" : "FAF2FA10-0AA4-4239-B560-CDABC2EBC219"
+    },
+    {
+      "description" : "Create output M4A file with AVAudioFile(forWriting:) using MPEG4AAC settings",
+      "id" : "581A18E6-F73D-4AEF-B644-A3D5FB401D15"
+    },
+    {
+      "description" : "Verify so_i_have_heard_av.m4a created successfully and file size matches expected compression",
+      "id" : "A73E4FCF-3440-486E-BB2E-B7E7379BB934"
+    },
+    {
+      "description" : "Convert in chunks: read CAF buffer → convert via AVAudioConverter → write to M4A (reuse converter instance)",
+      "id" : "50F8A377-08E0-453E-95FE-D676F5AE606C"
+    }
   ],
   "createdAt" : "2026-01-24T03:25:03Z",
   "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
   "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
   "plannedActions" : [
-
+    {
+      "description" : "Investigate why compression ratio is 2.37x instead of expected 7x - likely AAC encoding not active",
+      "id" : "F7755065-CFBC-402B-9CC9-F2E57A3BF879"
+    },
+    {
+      "description" : "Replace afconvert subprocess in AudioStore.convertCAFToM4A() with AVAudioConverter implementation",
+      "id" : "3E8AEECE-14F1-41D1-AC1F-4DC879279489"
+    }
   ],
   "references" : [
     {
-      "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
-      "relevance" : 0.5,
-      "url" : ".\/scv-core\/Sources\/AudioStore.swift:302-349"
-    },
-    {
-      "id" : "019bf09e-0c1b-7d73-bf1c-a7ce4620b2d7",
-      "relevance" : 0.5,
-      "url" : ".\/scv-core\/Tests\/AudioStoreTests.swift:653-757"
-    },
-    {
-      "id" : "019bf09e-0c1b-7d73-bf1c-a7cf6d73e7c1",
-      "relevance" : 0.5,
-      "text" : "AVAudioConverter: Convert streams of audio between formats using native Swift frameworks. Format ID for M4A: kAudioFormatMPEG4AAC"
-    },
-    {
-      "id" : "019bf09e-0c1b-7d73-bf1c-a7d0aaab597f",
-      "relevance" : 0.5,
-      "text" : "Key APIs: AVAudioFile(forReading:), AVAudioFile(forWriting:settings:commonFormat:interleaved:), AVAudioConverter, AVAudioCompressedBuffer"
-    },
-    {
-      "id" : "019bf09e-0c1b-7d73-bf1c-a7d1f80caaf4",
-      "relevance" : 0.5,
-      "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
+      "id" : "AZvy6qsKcACgw2vxzLN2kg",
+      "relevance" : 0.9,
+      "text" : "Gemini 3 actually provided working code"
     },
     {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7d28fdba5a7",
@@ -89,6 +103,31 @@
       "url" : "https:\/\/asciiwwdc.com\/2015\/sessions\/507"
     },
     {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
+      "relevance" : 0.5,
+      "url" : ".\/scv-core\/Sources\/AudioStore.swift:302-349"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7ce4620b2d7",
+      "relevance" : 0.5,
+      "url" : ".\/scv-core\/Tests\/AudioStoreTests.swift:653-757"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7cf6d73e7c1",
+      "relevance" : 0.5,
+      "text" : "AVAudioConverter: Convert streams of audio between formats using native Swift frameworks. Format ID for M4A: kAudioFormatMPEG4AAC"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d0aaab597f",
+      "relevance" : 0.5,
+      "text" : "Key APIs: AVAudioFile(forReading:), AVAudioFile(forWriting:settings:commonFormat:interleaved:), AVAudioConverter, AVAudioCompressedBuffer"
+    },
+    {
+      "id" : "019bf09e-0c1b-7d73-bf1c-a7d1f80caaf4",
+      "relevance" : 0.5,
+      "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
+    },
+    {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7dbf4ac9b39",
       "relevance" : 0.5,
       "text" : "CRITICAL: AVAudioConverter maintains state - recreating per-buffer causes AAC encoder to prepend 2112 frames of silence"
@@ -99,5 +138,5 @@
   ],
   "state" : "active",
   "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
-  "updatedAt" : "2026-01-24T03:25:03Z"
+  "updatedAt" : "2026-01-25T02:28:46Z"
 }

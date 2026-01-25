@@ -293,10 +293,22 @@ final class AudioStore {
       )
     }
 
-    // Convert CAF to M4A if needed
+    // Convert CAF to M4A if needed (macOS only)
+    #if os(macOS)
     if audioType == .m4a {
       try convertCAFToM4A(cafUrl: outputUrl, m4aUrl: url)
     }
+    #else
+    if audioType == .m4a {
+      throw NSError(
+        domain: "AudioStore",
+        code: -5,
+        userInfo: [
+          NSLocalizedDescriptionKey: "M4A conversion not supported on this platform",
+        ],
+      )
+    }
+    #endif
   }
 
   /// Convert CAF file to M4A (AAC codec) format using afconvert utility.
@@ -308,6 +320,7 @@ final class AudioStore {
   ///   - cafUrl: URL to source CAF file
   ///   - m4aUrl: URL to destination M4A file
   /// - Throws: Conversion errors
+  #if os(macOS)
   private func convertCAFToM4A(cafUrl: URL, m4aUrl: URL) throws {
     let process = Process()
     process.launchPath = "/usr/bin/afconvert"
@@ -347,6 +360,7 @@ final class AudioStore {
       throw error
     }
   }
+  #endif
 
   /// List all volumes in the audio store (for testing).
   ///

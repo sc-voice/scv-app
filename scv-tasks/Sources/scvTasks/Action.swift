@@ -8,7 +8,7 @@ public struct Action: Codable, Identifiable, Sendable {
   public init(
     description: String,
     taskId: String? = nil,
-    id: UUID = UUID()
+    id: UUID = UUID(),
   ) {
     self.id = id
     self.description = description

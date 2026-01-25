@@ -10,15 +10,21 @@ public class WorldModel: @unchecked Sendable, Codable {
   public init(taskStack: [TaskId] = [], limit: Int = 20, verbosity: Int = 1) {
     self.taskStack = taskStack
     self.limit = limit
-    self.verbosity = max(0, min(2, verbosity))  // Clamp to 0-2
+    self.verbosity = max(0, min(2, verbosity)) // Clamp to 0-2
   }
 
-  required public init(from decoder: Decoder) throws {
+  public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.taskStack = try container.decodeIfPresent([TaskId].self, forKey: .taskStack) ?? []
-    self.limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 20
-    let verbosityValue = try container.decodeIfPresent(Int.self, forKey: .verbosity) ?? 1
-    self.verbosity = max(0, min(2, verbosityValue))
+    taskStack = try container.decodeIfPresent(
+      [TaskId].self,
+      forKey: .taskStack,
+    ) ?? []
+    limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 20
+    let verbosityValue = try container.decodeIfPresent(
+      Int.self,
+      forKey: .verbosity,
+    ) ?? 1
+    verbosity = max(0, min(2, verbosityValue))
   }
 
   public func encode(to encoder: Encoder) throws {

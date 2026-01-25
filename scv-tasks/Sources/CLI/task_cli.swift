@@ -1,7 +1,7 @@
 import Foundation
-import UUIDV7
-import scvTasks
 import scvCore
+import scvTasks
+import UUIDV7
 
 let DBG_TASK = 2
 
@@ -27,6 +27,8 @@ do {
     try handleDelete(args: commandArgs, rootDirectory: rootDirectory)
   case "action":
     try handleAction(args: commandArgs, rootDirectory: rootDirectory)
+  case "ref", "reference":
+    try handleReference(args: commandArgs, rootDirectory: rootDirectory)
   case "help", "-h", "--help":
     printUsage()
   default:
@@ -41,7 +43,9 @@ do {
 
 // MARK: - Argument Parsing
 
-func parseArgs() throws -> (rootDirectory: URL, command: String, commandArgs: [String]) {
+func parseArgs() throws
+  -> (rootDirectory: URL, command: String, commandArgs: [String])
+{
   var rootDirectory = projectRoot()
   var verbosityOverride: Int?
   var commandIndex = 0
@@ -62,10 +66,14 @@ func parseArgs() throws -> (rootDirectory: URL, command: String, commandArgs: [S
     } else if arg == "-v" || arg == "--verbosity" {
       commandIndex += 1
       guard commandIndex < args.count else {
-        print("Error: -v/--verbosity requires a value (0: terse, 1: normal, 2: verbose)")
+        print(
+          "Error: -v/--verbosity requires a value (0: terse, 1: normal, 2: verbose)",
+        )
         exit(1)
       }
-      if let verbosity = Int(args[commandIndex]), verbosity >= 0 && verbosity <= 2 {
+      if let verbosity = Int(args[commandIndex]), verbosity >= 0,
+         verbosity <= 2
+      {
         verbosityOverride = verbosity
       } else {
         print("Error: -v/--verbosity requires value 0, 1, or 2")
@@ -146,7 +154,7 @@ func handleList(args: [String], rootDirectory: URL) throws {
   let sortedTasks = tasks.sorted { $0.id > $1.id }
 
   // Update WorldModel limit if specified
-  if let limit = limit {
+  if let limit {
     WorldModel.shared.limit = limit
     let worldPath = rootDirectory.appendingPathComponent(".world.json")
     try WorldModel.shared.save(to: worldPath)
@@ -156,18 +164,17 @@ func handleList(args: [String], rootDirectory: URL) throws {
   var count = 0
 
   for task in sortedTasks {
-    if effectiveLimit > 0 && count >= effectiveLimit {
+    if effectiveLimit > 0, count >= effectiveLimit {
       break
     }
 
-    let emoji: String
-    switch task.state {
+    let emoji = switch task.state {
     case .blocked:
-      emoji = "🚫"
+      "🚫"
     case .active:
-      emoji = "🟢"
+      "🟢"
     case .done:
-      emoji = "☑️"
+      "☑️"
     }
 
     print("\(task.fileName) \(emoji) \(task.name)")
@@ -202,13 +209,13 @@ func handleAdd(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  guard let name = name else {
+  guard let name else {
     throw CliError.missingRequired("-n/--name")
   }
 
   let task = Task(
     name: name,
-    summary: summary ?? ""
+    summary: summary ?? "",
   )
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -315,7 +322,7 @@ func handlePop(args: [String], rootDirectory: URL) throws {
 
 func handleShow(args: [String], rootDirectory: URL) throws {
   var taskPrefix: String?
-  var format: String = "text"
+  var format = "text"
   var i = 0
 
   while i < args.count {
@@ -342,7 +349,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
 
   // Use commandTask if -t not specified
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -352,7 +359,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -364,7 +371,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
 
     // If no match, try case-insensitive
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -383,7 +391,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard let task = task else {
+  guard let task else {
     print("Error: Task not found")
     exit(1)
   }
@@ -398,32 +406,37 @@ func handleShow(args: [String], rootDirectory: URL) throws {
       print(json)
     }
   case "text":
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateStyle = .medium
+    dateFormatter.timeStyle = .short
+    dateFormatter.timeZone = TimeZone.current
+
     print("Task: \(task.fileName)")
     print("Name: \(task.name)")
     print("Summary: \(task.summary)")
     print("State: \(task.state.rawValue)")
-    print("Created: \(task.createdAt)")
-    print("Updated: \(task.updatedAt)")
+    print("Created: \(dateFormatter.string(from: task.createdAt))")
+    print("Updated: \(dateFormatter.string(from: task.updatedAt))")
     if !task.plannedActions.isEmpty {
       print("\nPlanned Actions:")
       for (index, action) in task.plannedActions.enumerated() {
-        print("  #\(index + 1) \(action.description)")
+        print("  \(index + 1). \(action.description)")
       }
     }
     if !task.completedActions.isEmpty {
       print("\nCompleted Actions:")
       for (index, action) in task.completedActions.enumerated() {
-        print("  #\(index + 1) \(action.description)")
+        print("  \(index + 1). \(action.description)")
       }
     }
     if !task.references.isEmpty {
       print("\nReferences:")
       for (index, ref) in task.references.enumerated() {
         switch WorldModel.shared.verbosity {
-        case 0:  // Terse: index only
-          print("  [\(index)]")
-        case 1:  // Normal: 2 lines max
-          var firstLine = "  \(index). [\(String(format: "%.2f", ref.relevance))]"
+        case 0: // Terse: index only
+          print("  \(index + 1).")
+        case 1: // Normal: 2 lines max
+          var firstLine = "  \(index + 1). [\(String(format: "%.2f", ref.relevance))]"
           if let url = ref.url {
             firstLine += " \(url.absoluteString)"
             print(firstLine)
@@ -436,8 +449,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
           } else {
             print(firstLine)
           }
-        case 2:  // Verbose: all fields
-          print("  [\(index)]")
+        case 2: // Verbose: all fields
+          print("  \(index + 1).")
           print("    id: \(ref.id)")
           if let text = ref.text {
             print("    text: \(text)")
@@ -481,7 +494,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
   // Use commandTask if -t not specified
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -491,7 +504,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -503,7 +516,8 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
     // If no match, try case-insensitive
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -522,7 +536,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard let task = task else {
+  guard let task else {
     print("Error: Task not found")
     exit(1)
   }
@@ -540,7 +554,8 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
   }
 
   // Delete the task file
-  let filePath = rootDirectory.appendingPathComponent("Tasks").appendingPathComponent("\(task.fileName).json")
+  let filePath = rootDirectory.appendingPathComponent("Tasks")
+    .appendingPathComponent("\(task.fileName).json")
   try FileManager.default.removeItem(at: filePath)
 
   print("Deleted task: \(task.fileName) - \(task.name)")
@@ -548,7 +563,8 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
 func handleAction(args: [String], rootDirectory: URL) throws {
   guard !args.isEmpty else {
-    throw CliError.missingRequired("action subcommand (list, add, replace, delete)")
+    throw CliError
+      .missingRequired("action subcommand (list, add, replace, delete)")
   }
 
   let subcommand = args[0]
@@ -561,6 +577,8 @@ func handleAction(args: [String], rootDirectory: URL) throws {
     try handleActionAdd(args: subcommandArgs, rootDirectory: rootDirectory)
   case "replace":
     try handleActionReplace(args: subcommandArgs, rootDirectory: rootDirectory)
+  case "done":
+    try handleActionDone(args: subcommandArgs, rootDirectory: rootDirectory)
   case "delete":
     try handleActionDelete(args: subcommandArgs, rootDirectory: rootDirectory)
   default:
@@ -591,7 +609,7 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
   }
 
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -601,7 +619,7 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -610,7 +628,8 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
     var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -628,7 +647,7 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard let task = task else {
+  guard let task else {
     throw CliError.taskNotFound
   }
 
@@ -637,14 +656,14 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
   } else {
     print("Planned Actions:")
     for (index, action) in task.plannedActions.enumerated() {
-      print("  #\(index + 1) \(action.description)")
+      print("  \(index + 1). \(action.description)")
     }
   }
 
   if !task.completedActions.isEmpty {
     print("\nCompleted Actions:")
     for (index, action) in task.completedActions.enumerated() {
-      print("  #\(index + 1) \(action.description)")
+      print("  \(index + 1). \(action.description)")
     }
   }
 }
@@ -674,12 +693,12 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  guard let description = description else {
+  guard let description else {
     throw CliError.missingRequired("DESCRIPTION")
   }
 
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -689,7 +708,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -698,7 +717,8 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -716,7 +736,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard var task = task else {
+  guard var task else {
     throw CliError.taskNotFound
   }
 
@@ -727,7 +747,9 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Added action #\(task.plannedActions.count) to \(task.fileName): \(description)")
+  print(
+    "Added action #\(task.plannedActions.count) to \(task.fileName): \(description)",
+  )
 }
 
 func handleActionReplace(args: [String], rootDirectory: URL) throws {
@@ -765,16 +787,16 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  guard let actionNumber = actionNumber else {
+  guard let actionNumber else {
     throw CliError.missingRequired("-i/--index")
   }
 
-  guard let description = description else {
+  guard let description else {
     throw CliError.missingRequired("DESCRIPTION")
   }
 
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -784,7 +806,7 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -793,7 +815,8 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -811,13 +834,13 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard var task = task else {
+  guard var task else {
     throw CliError.taskNotFound
   }
 
   // Convert 1-based action number to 0-based index
   let actionIndex = actionNumber - 1
-  guard actionIndex >= 0 && actionIndex < task.plannedActions.count else {
+  guard actionIndex >= 0, actionIndex < task.plannedActions.count else {
     throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
   }
 
@@ -830,6 +853,101 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
   print("Replaced action #\(actionNumber) in \(task.fileName)")
   print("  Old: \(oldDescription)")
   print("  New: \(description)")
+}
+
+func handleActionDone(args: [String], rootDirectory: URL) throws {
+  var taskPrefix: String?
+  var actionNumber: Int?
+  var i = 0
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      taskPrefix = args[i]
+    } else if arg == "-i" || arg == "--index" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      guard let num = Int(args[i]), num > 0 else {
+        throw CliError.invalidActionNumber(args[i])
+      }
+      actionNumber = num
+    } else {
+      throw CliError.unknownOption(arg)
+    }
+
+    i += 1
+  }
+
+  guard let actionNumber else {
+    throw CliError.missingRequired("-i/--index")
+  }
+
+  let inputPrefix = taskPrefix ?? commandTask
+  guard let inputPrefix else {
+    throw CliError.missingRequired("-t/--task (or set via task stack)")
+  }
+
+  let taskManager = TaskManager(basePath: rootDirectory)
+  let tasks = try taskManager.allTasks()
+
+  var task: Task?
+
+  // If inputPrefix looks like a UUID, find by ID directly
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
+    // Likely a UUID string
+    task = tasks.first { $0.id.uuidString == inputPrefix }
+  } else {
+    // Treat as file prefix
+    let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+
+    if matchingTasks.isEmpty {
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+    }
+
+    guard !matchingTasks.isEmpty else {
+      throw CliError.taskNotFound
+    }
+
+    guard matchingTasks.count == 1 else {
+      print("Error: Multiple tasks match prefix '\(prefix)':")
+      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
+        print("  \(t.fileName) - \(t.name)")
+      }
+      exit(1)
+    }
+
+    task = matchingTasks[0]
+  }
+
+  guard var task else {
+    throw CliError.taskNotFound
+  }
+
+  // Convert 1-based action number to 0-based index
+  let actionIndex = actionNumber - 1
+  guard actionIndex >= 0, actionIndex < task.plannedActions.count else {
+    throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
+  }
+
+  let actionDescription = task.plannedActions[actionIndex].description
+
+  // Move action from planned to completed
+  task.moveActionToCompleted(at: actionIndex)
+
+  try taskManager.save(task)
+
+  print(
+    "Completed action #\(actionNumber) in \(task.fileName): \(actionDescription)",
+  )
 }
 
 func handleActionDelete(args: [String], rootDirectory: URL) throws {
@@ -865,12 +983,12 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  guard let actionNumber = actionNumber else {
+  guard let actionNumber else {
     throw CliError.missingRequired("-i/--index")
   }
 
   let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix = inputPrefix else {
+  guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
 
@@ -880,7 +998,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
   var task: Task?
 
   // If inputPrefix looks like a UUID, find by ID directly
-  if inputPrefix.count == 36 && inputPrefix.contains("-") {
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
     // Likely a UUID string
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
@@ -889,7 +1007,8 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
-      matchingTasks = tasks.filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -907,13 +1026,13 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     task = matchingTasks[0]
   }
 
-  guard var task = task else {
+  guard var task else {
     throw CliError.taskNotFound
   }
 
   // Convert 1-based action number to 0-based index
   let actionIndex = actionNumber - 1
-  guard actionIndex >= 0 && actionIndex < task.plannedActions.count else {
+  guard actionIndex >= 0, actionIndex < task.plannedActions.count else {
     throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
   }
 
@@ -921,7 +1040,9 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
 
   // Prompt for confirmation unless --force
   if !force {
-    print("Delete action #\(actionNumber) from \(task.fileName): \(actionDescription)")
+    print(
+      "Delete action #\(actionNumber) from \(task.fileName): \(actionDescription)",
+    )
     print("Are you sure? (y/n): ", terminator: "")
     fflush(stdout)
 
@@ -936,7 +1057,479 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Deleted action #\(actionNumber) from \(task.fileName): \(actionDescription)")
+  print(
+    "Deleted action #\(actionNumber) from \(task.fileName): \(actionDescription)",
+  )
+}
+
+func handleReference(args: [String], rootDirectory: URL) throws {
+  guard !args.isEmpty else {
+    throw CliError
+      .missingRequired("reference subcommand (list, add, replace, delete)")
+  }
+
+  let subcommand = args[0]
+  let subcommandArgs = Array(args.dropFirst())
+
+  switch subcommand {
+  case "list":
+    try handleReferenceList(args: subcommandArgs, rootDirectory: rootDirectory)
+  case "add":
+    try handleReferenceAdd(args: subcommandArgs, rootDirectory: rootDirectory)
+  case "replace":
+    try handleReferenceReplace(
+      args: subcommandArgs,
+      rootDirectory: rootDirectory,
+    )
+  case "delete":
+    try handleReferenceDelete(
+      args: subcommandArgs,
+      rootDirectory: rootDirectory,
+    )
+  default:
+    throw CliError.unknownSubcommand(subcommand)
+  }
+}
+
+func handleReferenceList(args: [String], rootDirectory: URL) throws {
+  var taskPrefix: String?
+  var i = 0
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      taskPrefix = args[i]
+    } else if arg.hasPrefix("-") {
+      throw CliError.unknownOption(arg)
+    } else {
+      break
+    }
+
+    i += 1
+  }
+
+  let inputPrefix = taskPrefix ?? commandTask
+  guard let inputPrefix else {
+    throw CliError.missingRequired("-t/--task (or set via task stack)")
+  }
+
+  let taskManager = TaskManager(basePath: rootDirectory)
+  let tasks = try taskManager.allTasks()
+
+  var task: Task?
+
+  // If inputPrefix looks like a UUID, find by ID directly
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
+    // Likely a UUID string
+    task = tasks.first { $0.id.uuidString == inputPrefix }
+  } else {
+    // Treat as file prefix
+    let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+
+    if matchingTasks.isEmpty {
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+    }
+
+    guard !matchingTasks.isEmpty else {
+      throw CliError.taskNotFound
+    }
+
+    guard matchingTasks.count == 1 else {
+      print("Error: Multiple tasks match prefix '\(prefix)':")
+      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
+        print("  \(t.fileName) - \(t.name)")
+      }
+      exit(1)
+    }
+
+    task = matchingTasks[0]
+  }
+
+  guard let task else {
+    throw CliError.taskNotFound
+  }
+
+  if task.references.isEmpty {
+    print("No references")
+  } else {
+    print("References:")
+    for (index, ref) in task.references.enumerated() {
+      print(
+        "  \(index + 1). [\(String(format: "%.2f", ref.relevance))]",
+        terminator: "",
+      )
+      if let url = ref.url {
+        print(" \(url.absoluteString)", terminator: "")
+      }
+      if let text = ref.text {
+        print(" \(text)", terminator: "")
+      }
+      print()
+    }
+  }
+}
+
+func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
+  var taskPrefix: String?
+  var url: URL?
+  var text: String?
+  var relevance = 0.5
+  var i = 0
+  var positionalArgs: [String] = []
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      taskPrefix = args[i]
+    } else if arg == "-u" || arg == "--url" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      url = URL(string: args[i])
+    } else if arg == "-x" || arg == "--text" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      text = args[i]
+    } else if arg == "-r" || arg == "--relevance" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      guard let rel = Double(args[i]) else {
+        throw CliError.invalidInteger(args[i])
+      }
+      relevance = rel
+    } else if arg.hasPrefix("-") {
+      throw CliError.unknownOption(arg)
+    } else {
+      positionalArgs.append(arg)
+    }
+
+    i += 1
+  }
+
+  // Process positional args: if looks like URL, treat as URL; otherwise text
+  for positional in positionalArgs {
+    if positional.contains("://"), url == nil {
+      url = URL(string: positional)
+    } else if url == nil, text == nil {
+      text = positional
+    } else if text == nil {
+      text = positional
+    }
+  }
+
+  let inputPrefix = taskPrefix ?? commandTask
+  guard let inputPrefix else {
+    throw CliError.missingRequired("-t/--task (or set via task stack)")
+  }
+
+  let taskManager = TaskManager(basePath: rootDirectory)
+  let tasks = try taskManager.allTasks()
+
+  var task: Task?
+
+  // If inputPrefix looks like a UUID, find by ID directly
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
+    // Likely a UUID string
+    task = tasks.first { $0.id.uuidString == inputPrefix }
+  } else {
+    // Treat as file prefix
+    let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+
+    if matchingTasks.isEmpty {
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+    }
+
+    guard !matchingTasks.isEmpty else {
+      throw CliError.taskNotFound
+    }
+
+    guard matchingTasks.count == 1 else {
+      print("Error: Multiple tasks match prefix '\(prefix)':")
+      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
+        print("  \(t.fileName) - \(t.name)")
+      }
+      exit(1)
+    }
+
+    task = matchingTasks[0]
+  }
+
+  guard var task else {
+    throw CliError.taskNotFound
+  }
+
+  // Add new reference
+  let newRef = Reference(text: text, url: url, relevance: relevance)
+  task.references.append(newRef)
+  task.updatedAt = Date()
+
+  try taskManager.save(task)
+
+  print("Added reference #\(task.references.count) to \(task.fileName)")
+}
+
+func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
+  var taskPrefix: String?
+  var refNumber: Int?
+  var url: URL?
+  var text: String?
+  var relevance: Double?
+  var i = 0
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      taskPrefix = args[i]
+    } else if arg == "-i" || arg == "--index" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      guard let num = Int(args[i]), num > 0 else {
+        throw CliError.invalidActionNumber(args[i])
+      }
+      refNumber = num
+    } else if arg == "-u" || arg == "--url" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      url = URL(string: args[i])
+    } else if arg == "-x" || arg == "--text" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      text = args[i]
+    } else if arg == "-r" || arg == "--relevance" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      guard let rel = Double(args[i]) else {
+        throw CliError.invalidInteger(args[i])
+      }
+      relevance = rel
+    } else if arg.hasPrefix("-") {
+      throw CliError.unknownOption(arg)
+    } else {
+      break
+    }
+
+    i += 1
+  }
+
+  guard let refNumber else {
+    throw CliError.missingRequired("-i/--index")
+  }
+
+  let inputPrefix = taskPrefix ?? commandTask
+  guard let inputPrefix else {
+    throw CliError.missingRequired("-t/--task (or set via task stack)")
+  }
+
+  let taskManager = TaskManager(basePath: rootDirectory)
+  let tasks = try taskManager.allTasks()
+
+  var task: Task?
+
+  // If inputPrefix looks like a UUID, find by ID directly
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
+    // Likely a UUID string
+    task = tasks.first { $0.id.uuidString == inputPrefix }
+  } else {
+    // Treat as file prefix
+    let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+
+    if matchingTasks.isEmpty {
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+    }
+
+    guard !matchingTasks.isEmpty else {
+      throw CliError.taskNotFound
+    }
+
+    guard matchingTasks.count == 1 else {
+      print("Error: Multiple tasks match prefix '\(prefix)':")
+      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
+        print("  \(t.fileName) - \(t.name)")
+      }
+      exit(1)
+    }
+
+    task = matchingTasks[0]
+  }
+
+  guard var task else {
+    throw CliError.taskNotFound
+  }
+
+  // Convert 1-based reference number to 0-based index
+  let refIndex = refNumber - 1
+  guard refIndex >= 0, refIndex < task.references.count else {
+    throw CliError.invalidActionIndex(refNumber, task.references.count)
+  }
+
+  var ref = task.references[refIndex]
+
+  // Update fields that were provided
+  if let text {
+    ref.text = text
+  }
+  if let url {
+    ref.url = url
+  }
+  if let relevance {
+    ref.relevance = max(0, min(1, relevance))
+  }
+
+  task.references[refIndex] = ref
+  task.updatedAt = Date()
+
+  try taskManager.save(task)
+
+  print("Replaced reference #\(refNumber) in \(task.fileName)")
+}
+
+func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
+  var taskPrefix: String?
+  var refNumber: Int?
+  var force = false
+  var i = 0
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      taskPrefix = args[i]
+    } else if arg == "-i" || arg == "--index" {
+      i += 1
+      guard i < args.count else {
+        throw CliError.missingValue(arg)
+      }
+      guard let num = Int(args[i]), num > 0 else {
+        throw CliError.invalidActionNumber(args[i])
+      }
+      refNumber = num
+    } else if arg == "--force" {
+      force = true
+    } else {
+      throw CliError.unknownOption(arg)
+    }
+
+    i += 1
+  }
+
+  guard let refNumber else {
+    throw CliError.missingRequired("-i/--index")
+  }
+
+  let inputPrefix = taskPrefix ?? commandTask
+  guard let inputPrefix else {
+    throw CliError.missingRequired("-t/--task (or set via task stack)")
+  }
+
+  let taskManager = TaskManager(basePath: rootDirectory)
+  let tasks = try taskManager.allTasks()
+
+  var task: Task?
+
+  // If inputPrefix looks like a UUID, find by ID directly
+  if inputPrefix.count == 36, inputPrefix.contains("-") {
+    // Likely a UUID string
+    task = tasks.first { $0.id.uuidString == inputPrefix }
+  } else {
+    // Treat as file prefix
+    let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+
+    if matchingTasks.isEmpty {
+      matchingTasks = tasks
+        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+    }
+
+    guard !matchingTasks.isEmpty else {
+      throw CliError.taskNotFound
+    }
+
+    guard matchingTasks.count == 1 else {
+      print("Error: Multiple tasks match prefix '\(prefix)':")
+      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
+        print("  \(t.fileName) - \(t.name)")
+      }
+      exit(1)
+    }
+
+    task = matchingTasks[0]
+  }
+
+  guard var task else {
+    throw CliError.taskNotFound
+  }
+
+  // Convert 1-based reference number to 0-based index
+  let refIndex = refNumber - 1
+  guard refIndex >= 0, refIndex < task.references.count else {
+    throw CliError.invalidActionIndex(refNumber, task.references.count)
+  }
+
+  let ref = task.references[refIndex]
+  var refDesc = "[\(String(format: "%.2f", ref.relevance))]"
+  if let url = ref.url {
+    refDesc += " \(url.absoluteString)"
+  }
+  if let text = ref.text {
+    refDesc += " \(text)"
+  }
+
+  // Prompt for confirmation unless --force
+  if !force {
+    print("Delete reference #\(refNumber) from \(task.fileName): \(refDesc)")
+    print("Are you sure? (y/n): ", terminator: "")
+    fflush(stdout)
+
+    guard let response = readLine()?.lowercased(), response == "y" else {
+      print("Cancelled")
+      return
+    }
+  }
+
+  task.references.remove(at: refIndex)
+  task.updatedAt = Date()
+
+  try taskManager.save(task)
+
+  print("Deleted reference #\(refNumber) from \(task.fileName): \(refDesc)")
 }
 
 // MARK: - Error Types
@@ -955,26 +1548,26 @@ enum CliError: LocalizedError {
 
   var errorDescription: String? {
     switch self {
-    case .missingValue(let opt):
-      return "Option '\(opt)' requires a value"
-    case .unknownOption(let opt):
-      return "Unknown option '\(opt)'"
-    case .missingRequired(let opt):
-      return "Required option '\(opt)' not provided"
-    case .unknownFormat(let fmt):
-      return "Unknown format '\(fmt)'. Valid formats: json, text"
-    case .invalidInteger(let val):
-      return "Invalid integer value '\(val)'"
-    case .invalidActionNumber(let val):
-      return "Invalid action number '\(val)'. Must be a positive integer (1-based)"
+    case let .missingValue(opt):
+      "Option '\(opt)' requires a value"
+    case let .unknownOption(opt):
+      "Unknown option '\(opt)'"
+    case let .missingRequired(opt):
+      "Required option '\(opt)' not provided"
+    case let .unknownFormat(fmt):
+      "Unknown format '\(fmt)'. Valid formats: json, text"
+    case let .invalidInteger(val):
+      "Invalid integer value '\(val)'"
+    case let .invalidActionNumber(val):
+      "Invalid action number '\(val)'. Must be a positive integer (1-based)"
     case .noTasksFound:
-      return "No tasks found"
+      "No tasks found"
     case .taskNotFound:
-      return "Task not found"
-    case .unknownSubcommand(let sub):
-      return "Unknown action subcommand '\(sub)'. Valid subcommands: list, add, replace, delete"
-    case .invalidActionIndex(let num, let count):
-      return "Invalid action number #\(num). Valid range: 1-\(count)"
+      "Task not found"
+    case let .unknownSubcommand(sub):
+      "Unknown action subcommand '\(sub)'. Valid subcommands: list, add, replace, done, delete"
+    case let .invalidActionIndex(num, count):
+      "Invalid action number #\(num). Valid range: 1-\(count)"
     }
   }
 }
@@ -982,8 +1575,29 @@ enum CliError: LocalizedError {
 // MARK: - Helpers
 
 func projectRoot() -> URL {
-  let currentPath = FileManager.default.currentDirectoryPath
-  return URL(fileURLWithPath: currentPath, isDirectory: true)
+  var currentPath = FileManager.default.currentDirectoryPath
+  let fileManager = FileManager.default
+
+  // Traverse upwards looking for .world.json
+  while true {
+    let worldPath = URL(fileURLWithPath: currentPath)
+      .appendingPathComponent(".world.json").path
+    if fileManager.fileExists(atPath: worldPath) {
+      return URL(fileURLWithPath: currentPath, isDirectory: true)
+    }
+
+    let parent = URL(fileURLWithPath: currentPath).deletingLastPathComponent()
+      .path
+    if parent == currentPath {
+      // Reached filesystem root without finding .world.json
+      return URL(
+        fileURLWithPath: FileManager.default.currentDirectoryPath,
+        isDirectory: true,
+      )
+    }
+
+    currentPath = parent
+  }
 }
 
 // MARK: - Usage
@@ -1016,8 +1630,20 @@ func printUsage() {
                         Add action to task
       replace -i NUMBER [-t|--task PREFIX] DESCRIPTION
                         Replace action #NUMBER (1-based)
+      done -i NUMBER [-t|--task PREFIX]
+                        Move action #NUMBER to completed (1-based)
       delete -i NUMBER [-t|--task PREFIX] [--force]
                         Delete action #NUMBER (1-based)
+    ref|reference <subcommand> [OPTIONS]
+                        Manage references (synonyms: ref, reference)
+      list [-t|--task PREFIX]
+                        List references for task
+      add [URL|TEXT] [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]
+                        Add reference (positional: URL or text, or use -u/-x flags)
+      replace -i NUMBER [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]
+                        Replace reference #NUMBER (1-based)
+      delete -i NUMBER [-t|--task PREFIX] [--force]
+                        Delete reference #NUMBER (1-based)
     help                Show this help message
 
   Examples:
@@ -1035,8 +1661,17 @@ func printUsage() {
     task action add -t T_AZ "First action"
     task action add "Another action"
     task action replace -i 1 "Updated action"
+    task action done -i 1
     task action delete -i 1
     task action delete -i 1 --force
+    task ref list
+    task reference list -t T_AZ
+    task ref add https://example.com
+    task ref add "Example site"
+    task reference add -t T_AZ https://example.com -x "Example site" -r 0.8
+    task ref replace -i 1 -x "Updated text"
+    task reference delete -i 1
+    task ref delete -i 1 --force
   """
   print(usage)
 }

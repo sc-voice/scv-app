@@ -487,7 +487,8 @@ struct AudioStoreTests {
     let contextV1 = AudioContext(for: "en", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextV1)
 
-    // Modify settings and create audio with different context (simulating user changing pitch)
+    // Modify settings and create audio with different context (simulating user
+    // changing pitch)
     settings.docLangSettings[.english]?.pitch = 1.5
     let contextV2 = AudioContext(for: "en", from: settings)
 
@@ -535,7 +536,8 @@ struct AudioStoreTests {
     let contextDe = AudioContext(for: "de", from: settings)
     _ = try await store.storeAudio(text: text, audioContext: contextDe)
 
-    // Modify settings and create new English context with different settings (simulating user
+    // Modify settings and create new English context with different settings
+    // (simulating user
     // changing pitch)
     settings.docLangSettings[.english]?.pitch = 1.5
     let contextEnV2 = AudioContext(for: "en", from: settings)
@@ -754,5 +756,160 @@ struct AudioStoreTests {
       print("M4A conversion: ❌ \(error)")
       cc.bad1(#line, "dn10:2.32.2 conversion failed: \(error)")
     }
+  }
+
+  @Test("RESEARCH: AVAudioConverter - Convert so_i_have_heard.caf to M4A")
+  func aVAudioConverterResearch() async throws {
+    let fileManager = FileManager.default
+    let root = projectRoot()
+    let inputPath = root
+      .appendingPathComponent("local/audio/so_i_have_heard.caf").path
+    let outputPath = root
+      .appendingPathComponent("local/audio/so_i_have_heard_av.m4a").path
+
+    // Verify input file exists
+    #expect(
+      fileManager.fileExists(atPath: inputPath),
+      "Input CAF file not found",
+    )
+
+    // Clean up output if it exists
+    try? fileManager.removeItem(atPath: outputPath)
+
+    print("\n=== AVAudioConverter Research ===\n")
+    print("Input:  \(inputPath)")
+    print("Output: \(outputPath)\n")
+
+    let startTime = Date()
+
+    // Step 1: Read CAF file
+    print("1️⃣ Reading CAF file...")
+    let inputURL = URL(fileURLWithPath: inputPath)
+    let inputAudioFile = try AVAudioFile(forReading: inputURL)
+    let inputFormat = inputAudioFile.processingFormat
+    let frameCount = AVAudioFramePosition(inputAudioFile.length)
+
+    print("   Format: \(inputFormat)")
+    print("   Frames: \(frameCount)")
+    print(
+      "   Duration: \(Double(frameCount) / inputFormat.sampleRate) seconds\n",
+    )
+
+    // Step 2: Create PCM output format for converter
+    print("2️⃣ Creating PCM output format...")
+    let outputFormat = AVAudioFormat(
+      commonFormat: .pcmFormatFloat32,
+      sampleRate: inputFormat.sampleRate,
+      channels: inputFormat.channelCount,
+      interleaved: false,
+    )!
+
+    print("   Output format: \(outputFormat)\n")
+
+    // Step 3: Create converter
+    print("3️⃣ Creating AVAudioConverter...")
+    guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+    else {
+      throw NSError(
+        domain: "AVAudioConverter",
+        code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to create converter"],
+      )
+    }
+    print("   Converter created\n")
+
+    // Step 4: Create output file with AAC settings
+    print("4️⃣ Creating output M4A file...")
+    let m4aSettings: [String: Any] = [
+      AVFormatIDKey: kAudioFormatMPEG4AAC,
+      AVSampleRateKey: inputFormat.sampleRate,
+      AVNumberOfChannelsKey: inputFormat.channelCount,
+    ]
+
+    let outputURL = URL(fileURLWithPath: outputPath)
+    let outputAudioFile = try AVAudioFile(
+      forWriting: outputURL,
+      settings: m4aSettings,
+    )
+    print("   Output file created\n")
+
+    // Step 5: Convert in chunks
+    print("5️⃣ Converting audio in chunks...")
+    let bufferSize: AVAudioFrameCount = 4096
+    var totalFramesProcessed: AVAudioFrameCount = 0
+
+    while totalFramesProcessed < frameCount {
+      let framesRemaining = frameCount -
+        AVAudioFramePosition(totalFramesProcessed)
+      let framesToRead = AVAudioFrameCount(min(
+        framesRemaining,
+        AVAudioFramePosition(bufferSize),
+      ))
+
+      // Read chunk from input
+      let inputBuffer = AVAudioPCMBuffer(
+        pcmFormat: inputFormat,
+        frameCapacity: framesToRead,
+      )!
+      try inputAudioFile.read(into: inputBuffer, frameCount: framesToRead)
+
+      if inputBuffer.frameLength == 0 {
+        break
+      }
+
+      // Create output buffer for converted data
+      let outputBuffer = AVAudioPCMBuffer(
+        pcmFormat: outputFormat,
+        frameCapacity: bufferSize,
+      )!
+
+      // Convert chunk
+      try converter.convert(to: outputBuffer, from: inputBuffer)
+
+      // Write converted buffer
+      try outputAudioFile.write(from: outputBuffer)
+
+      totalFramesProcessed += inputBuffer.frameLength
+      print("   Progress: \(totalFramesProcessed) / \(frameCount) frames")
+    }
+
+    print("   Conversion complete\n")
+
+    // Step 6: Get file sizes
+    print("6️⃣ Benchmarking results...")
+    let inputSize = try fileManager
+      .attributesOfItem(atPath: inputPath)[.size] as? Int ?? 0
+    let outputSize = try fileManager
+      .attributesOfItem(atPath: outputPath)[.size] as? Int ?? 0
+    let totalTime = Date().timeIntervalSince(startTime)
+
+    let compressionRatio = inputSize > 0 ? Double(inputSize) /
+      Double(outputSize) : 0
+    let spaceSaved = inputSize - outputSize
+    let spaceSavedPercent = inputSize > 0 ? (spaceSaved * 100) / inputSize : 0
+
+    print("   Input size:  \(inputSize) bytes (\(inputSize / 1024) KB)")
+    print("   Output size: \(outputSize) bytes (\(outputSize / 1024) KB)")
+    print("   Compression ratio: \(String(format: "%.2f", compressionRatio))x")
+    print("   Space saved: \(spaceSaved) bytes (\(spaceSavedPercent)%)")
+    print("   Total time: \(String(format: "%.3f", totalTime))s\n")
+
+    // Step 7: Verify output
+    print("7️⃣ Verification...")
+    #expect(
+      fileManager.fileExists(atPath: outputPath),
+      "Output M4A file not created",
+    )
+    #expect(outputSize > 0, "Output file is empty")
+    #expect(outputSize < inputSize, "Output file should be smaller than input")
+
+    print("   ✓ Output file exists")
+    print("   ✓ Output file is non-empty")
+    print("   ✓ Output file is smaller than input\n")
+
+    cc.ok1(
+      #line,
+      "so_i_have_heard: input=\(inputSize / 1024)KB, output=\(outputSize / 1024)KB, ratio=\(String(format: "%.2f", compressionRatio))x, time=\(String(format: "%.3f", totalTime))s",
+    )
   }
 }

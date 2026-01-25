@@ -11,10 +11,11 @@ public class TaskManager: @unchecked Sendable {
   private var currentTask: Task?
 
   public init(basePath: URL? = nil) {
-    let base = basePath ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-    self.tasksDirectory = base.appendingPathComponent("Tasks", isDirectory: true)
-    self.stackFilePath = base.appendingPathComponent("world.json")
-    self.settingsFilePath = base.appendingPathComponent(".task-settings.json")
+    let base = basePath ??
+      URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    tasksDirectory = base.appendingPathComponent("Tasks", isDirectory: true)
+    stackFilePath = base.appendingPathComponent("world.json")
+    settingsFilePath = base.appendingPathComponent(".task-settings.json")
 
     createDirectoriesIfNeeded()
     loadCurrentTask()
@@ -24,7 +25,7 @@ public class TaskManager: @unchecked Sendable {
     try? FileManager.default.createDirectory(
       at: tasksDirectory,
       withIntermediateDirectories: true,
-      attributes: nil
+      attributes: nil,
     )
   }
 
@@ -95,7 +96,7 @@ public class TaskManager: @unchecked Sendable {
   public func allTasks() throws -> [Task] {
     let files = try FileManager.default.contentsOfDirectory(
       at: tasksDirectory,
-      includingPropertiesForKeys: nil
+      includingPropertiesForKeys: nil,
     ).filter { $0.pathExtension == "json" }
 
     let decoder = JSONDecoder()

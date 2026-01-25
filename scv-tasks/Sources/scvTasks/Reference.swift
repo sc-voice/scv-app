@@ -11,21 +11,25 @@ public struct Reference: Codable, Sendable, Identifiable {
     id: String? = nil,
     text: String? = nil,
     url: URL? = nil,
-    relevance: Double = 0.5
+    relevance: Double = 0.5,
   ) {
     self.id = id ?? Task.uuidToBase64(UUIDV7())
     self.text = text
     self.url = url
-    self.relevance = max(0, min(1, relevance))  // Clamp to 0...1
+    self.relevance = max(0, min(1, relevance)) // Clamp to 0...1
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? Task.uuidToBase64(UUIDV7())
-    self.text = try container.decodeIfPresent(String.self, forKey: .text)
-    self.url = try container.decodeIfPresent(URL.self, forKey: .url)
-    let relevanceValue = try container.decodeIfPresent(Double.self, forKey: .relevance) ?? 0.5
-    self.relevance = max(0, min(1, relevanceValue))
+    id = try container.decodeIfPresent(String.self, forKey: .id) ?? Task
+      .uuidToBase64(UUIDV7())
+    text = try container.decodeIfPresent(String.self, forKey: .text)
+    url = try container.decodeIfPresent(URL.self, forKey: .url)
+    let relevanceValue = try container.decodeIfPresent(
+      Double.self,
+      forKey: .relevance,
+    ) ?? 0.5
+    relevance = max(0, min(1, relevanceValue))
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -43,4 +47,3 @@ public struct Reference: Codable, Sendable, Identifiable {
     case relevance
   }
 }
-

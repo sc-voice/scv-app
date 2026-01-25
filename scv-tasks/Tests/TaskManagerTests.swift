@@ -1,13 +1,20 @@
+import Foundation
+@testable import scvTasks
 import Testing
 import UUIDV7
-@testable import scvTasks
-import Foundation
 
 struct TaskManagerTests {
   @Test
-  func testTaskManagerInitialization() throws {
-    let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString, isDirectory: true)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+  func taskManagerInitialization() throws {
+    let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent(
+        UUID().uuidString,
+        isDirectory: true,
+      )
+    try FileManager.default.createDirectory(
+      at: tempDir,
+      withIntermediateDirectories: true,
+    )
     defer { try? FileManager.default.removeItem(at: tempDir) }
 
     let manager = TaskManager(basePath: tempDir)
@@ -15,9 +22,16 @@ struct TaskManagerTests {
   }
 
   @Test
-  func testSetAndGetCurrentTask() throws {
-    let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString, isDirectory: true)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+  func setAndGetCurrentTask() throws {
+    let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent(
+        UUID().uuidString,
+        isDirectory: true,
+      )
+    try FileManager.default.createDirectory(
+      at: tempDir,
+      withIntermediateDirectories: true,
+    )
     defer { try? FileManager.default.removeItem(at: tempDir) }
 
     let manager = TaskManager(basePath: tempDir)
@@ -26,7 +40,7 @@ struct TaskManagerTests {
     let task = Task(
       id: uuid,
       name: "Test Task",
-      summary: "A test task"
+      summary: "A test task",
     )
 
     try manager.setCurrentTask(task)

@@ -1,11 +1,11 @@
-import Testing
 import Foundation
-import UUIDV7
 @testable import scvTasks
+import Testing
+import UUIDV7
 
 struct ReferenceTests {
   @Test
-  func testReferenceWithText() {
+  func referenceWithText() {
     let ref = Reference(text: "This is a note")
     #expect(ref.text == "This is a note")
     #expect(ref.url == nil)
@@ -13,7 +13,7 @@ struct ReferenceTests {
   }
 
   @Test
-  func testReferenceWithURL() {
+  func referenceWithURL() {
     let url = URL(string: "https://example.com/doc")!
     let ref = Reference(url: url)
     #expect(ref.text == nil)
@@ -22,7 +22,7 @@ struct ReferenceTests {
   }
 
   @Test
-  func testReferenceWithTextAndURL() {
+  func referenceWithTextAndURL() {
     let url = URL(string: "https://example.com")!
     let ref = Reference(text: "Link to example", url: url, relevance: 0.8)
     #expect(ref.text == "Link to example")
@@ -31,7 +31,7 @@ struct ReferenceTests {
   }
 
   @Test
-  func testReferenceRelevanceClamping() {
+  func referenceRelevanceClamping() {
     let refTooHigh = Reference(relevance: 1.5)
     #expect(refTooHigh.relevance == 1.0)
 
@@ -43,13 +43,13 @@ struct ReferenceTests {
   }
 
   @Test
-  func testReferenceDefaultRelevance() {
+  func referenceDefaultRelevance() {
     let ref = Reference()
     #expect(ref.relevance == 0.5)
   }
 
   @Test
-  func testReferenceCodable() throws {
+  func referenceCodable() throws {
     let url = URL(string: "https://example.com/ref")!
     let ref = Reference(text: "Example", url: url, relevance: 0.7)
 
@@ -64,9 +64,9 @@ struct ReferenceTests {
   }
 
   @Test
-  func testReferenceIdentifiable() {
+  func referenceIdentifiable() {
     let ref = Reference(text: "Test")
     #expect(!ref.id.isEmpty)
-    #expect(ref.id.count == 22)  // Base64 encoded UUID (no padding) is 22 chars
+    #expect(ref.id.count == 22) // Base64 encoded UUID (no padding) is 22 chars
   }
 }

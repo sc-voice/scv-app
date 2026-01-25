@@ -1,15 +1,15 @@
+@testable import scvTasks
 import Testing
 import UUIDV7
-@testable import scvTasks
 
 struct TaskTests {
   @Test
-  func testTaskCreation() {
+  func taskCreation() {
     let uuid = UUIDV7()
     let task = Task(
       id: uuid,
       name: "Test Task",
-      summary: "A test task"
+      summary: "A test task",
     )
     #expect(task.id == uuid)
     #expect(task.name == "Test Task")
@@ -18,12 +18,12 @@ struct TaskTests {
   }
 
   @Test
-  func testTaskIsBlocked() {
+  func taskIsBlocked() {
     var task = Task(
       id: UUIDV7(),
       name: "Test",
       summary: "Test",
-      state: .blocked
+      state: .blocked,
     )
     #expect(task.isBlocked)
     #expect(!task.isActive)
@@ -43,7 +43,7 @@ struct TaskTests {
       plannedActions: [
         Action(description: "Action 1"),
         Action(description: "Action 2"),
-      ]
+      ],
     )
 
     #expect(task.plannedActions.count == 2)
@@ -61,7 +61,7 @@ struct TaskTests {
     var task = Task(
       id: UUIDV7(),
       name: "Test",
-      summary: "Test"
+      summary: "Test",
     )
 
     let action = Action(description: "New action")
@@ -77,7 +77,7 @@ struct TaskTests {
     let task = Task(
       id: uuid,
       name: "Test",
-      summary: "Test"
+      summary: "Test",
     )
     // fileName should start with T_ and have 9 base64 chars
     #expect(task.fileName.hasPrefix("T_"))

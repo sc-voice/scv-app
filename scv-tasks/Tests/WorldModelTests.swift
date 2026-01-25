@@ -1,11 +1,11 @@
+import Foundation
+@testable import scvTasks
 import Testing
 import UUIDV7
-@testable import scvTasks
-import Foundation
 
 struct WorldModelTests {
   @Test
-  func testWorldModelCreation() {
+  func worldModelCreation() {
     let world = WorldModel()
     #expect(world.taskStack.isEmpty)
   }
@@ -42,8 +42,9 @@ struct WorldModelTests {
   }
 
   @Test
-  func testSaveAndLoad() throws {
-    let tempFile = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("world-\(UUID().uuidString).json")
+  func saveAndLoad() throws {
+    let tempFile = URL(fileURLWithPath: NSTemporaryDirectory())
+      .appendingPathComponent("world-\(UUID().uuidString).json")
     defer { try? FileManager.default.removeItem(at: tempFile) }
 
     let world = WorldModel()

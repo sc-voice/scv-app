@@ -18,7 +18,10 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/mhayes853/swift-uuidv7.git", from: "0.1.0"),
+    .package(
+      url: "https://github.com/mhayes853/swift-uuidv7.git",
+      from: "0.1.0",
+    ),
     .package(path: "../scv-core"),
   ],
   targets: [

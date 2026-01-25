@@ -23,7 +23,7 @@ public struct Task: Codable, Identifiable, Sendable {
     completedActions: [Action] = [],
     references: [Reference] = [],
     createdAt: Date = Date(),
-    updatedAt: Date = Date()
+    updatedAt: Date = Date(),
   ) {
     self.id = id
     self.name = name
@@ -34,9 +34,9 @@ public struct Task: Codable, Identifiable, Sendable {
     self.completedActions = completedActions
     self.references = references.sorted { a, b in
       if a.relevance != b.relevance {
-        return a.relevance > b.relevance  // Decreasing relevance
+        return a.relevance > b.relevance // Decreasing relevance
       }
-      return a.id < b.id  // Tiebreaker: id comparison
+      return a.id < b.id // Tiebreaker: id comparison
     }
     self.createdAt = createdAt
     self.updatedAt = updatedAt
@@ -44,14 +44,26 @@ public struct Task: Codable, Identifiable, Sendable {
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.id = try container.decode(UUIDV7.self, forKey: .id)
-    self.name = try container.decode(String.self, forKey: .name)
-    self.summary = try container.decode(String.self, forKey: .summary)
-    self.state = try container.decode(TaskState.self, forKey: .state)
-    self.requiredTasks = try container.decodeIfPresent([UUIDV7].self, forKey: .requiredTasks) ?? []
-    self.plannedActions = try container.decodeIfPresent([Action].self, forKey: .plannedActions) ?? []
-    self.completedActions = try container.decodeIfPresent([Action].self, forKey: .completedActions) ?? []
-    var refs = try container.decodeIfPresent([Reference].self, forKey: .references) ?? []
+    id = try container.decode(UUIDV7.self, forKey: .id)
+    name = try container.decode(String.self, forKey: .name)
+    summary = try container.decode(String.self, forKey: .summary)
+    state = try container.decode(TaskState.self, forKey: .state)
+    requiredTasks = try container.decodeIfPresent(
+      [UUIDV7].self,
+      forKey: .requiredTasks,
+    ) ?? []
+    plannedActions = try container.decodeIfPresent(
+      [Action].self,
+      forKey: .plannedActions,
+    ) ?? []
+    completedActions = try container.decodeIfPresent(
+      [Action].self,
+      forKey: .completedActions,
+    ) ?? []
+    var refs = try container.decodeIfPresent(
+      [Reference].self,
+      forKey: .references,
+    ) ?? []
     // Sort references by decreasing relevance, then by id
     refs.sort { a, b in
       if a.relevance != b.relevance {
@@ -59,9 +71,9 @@ public struct Task: Codable, Identifiable, Sendable {
       }
       return a.id < b.id
     }
-    self.references = refs
-    self.createdAt = try container.decode(Date.self, forKey: .createdAt)
-    self.updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+    references = refs
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    updatedAt = try container.decode(Date.self, forKey: .updatedAt)
   }
 
   enum CodingKeys: String, CodingKey {
@@ -119,8 +131,12 @@ public struct Task: Codable, Identifiable, Sendable {
     var data = Data()
     for i in stride(from: 0, to: uuidString.count, by: 2) {
       let start = uuidString.index(uuidString.startIndex, offsetBy: i)
-      let end = uuidString.index(start, offsetBy: 2, limitedBy: uuidString.endIndex) ?? uuidString.endIndex
-      if let byte = UInt8(String(uuidString[start..<end]), radix: 16) {
+      let end = uuidString.index(
+        start,
+        offsetBy: 2,
+        limitedBy: uuidString.endIndex,
+      ) ?? uuidString.endIndex
+      if let byte = UInt8(String(uuidString[start ..< end]), radix: 16) {
         data.append(byte)
       }
     }
