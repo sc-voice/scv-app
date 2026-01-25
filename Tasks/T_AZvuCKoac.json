@@ -31,6 +31,14 @@
     {
       "description" : "Investigate compression ratio difference - COMPLETED: Root cause is AVAudioFile's large free box padding (31KB vs afconvert's 3KB), not AAC encoding. Both produce identical mdat (4,588 bytes), decode to identical audio.",
       "id" : "F7755065-CFBC-402B-9CC9-F2E57A3BF879"
+    },
+    {
+      "description" : "Research AVAudioFile free box issue on web - COMPLETED: No viable iOS solution found. ExtAudioFile behaves identically to AVAudioFile (same underlying Core Audio). AVEncoderBitRateKey crashes AVAudioFile. Lower-level AudioConverter C API supports kAudioConverterEncodeBitRate but only affects audio data size (mdat), not metadata padding (free box). AVAudioConverter wrapper doesn't expose bitrate control. M4A transcoding corrupts files. Conclusion: Free box padding (31KB vs afconvert's 3KB) is inherent to AVAudioFile's pre-allocation strategy with no configuration option to reduce it.",
+      "id" : "E1C096A7-BE89-4ECC-9127-BF18582EF840"
+    },
+    {
+      "description" : "Determine time needed for M4A conversion of a large DN10 segment - COMPLETED: AVAudioConverter converts 5.3MB CAF to 280KB M4A in 0.075s (19.15x compression). afconvert: 0.082s → 256KB (20.91x). AVAudioConverter is 8% faster, only 24KB larger file (9% size difference). Performance is acceptable for production use.",
+      "id" : "815BFCD0-F829-4905-8D34-5237F55B6639"
     }
   ],
   "createdAt" : "2026-01-24T03:25:03Z",
@@ -54,6 +62,23 @@
       "text" : "AVAudioConverter produces 37,352 bytes with 31,817 byte free box (85% of file). afconvert produces 8,680 bytes with 3,130 byte free box (36% of file). Identical mdat (4,588 bytes), identical decoded audio."
     },
     {
+      "id" : "AZv2FQ5KcACTp-cVCiAhOw",
+      "relevance" : 0.95,
+      "text" : "ARCHITECTURAL INSIGHT: Performance data (0.075s conversion time) suggests CAF generation and M4A compaction should be separated. CAF synthesis should complete immediately for fast playback, with M4A compaction deferred to background async task. This avoids playback latency for uncached audio."
+    },
+    {
+      "id" : "AZv2geIscACpOEi1oBFfLw",
+      "relevance" : 0.95,
+      "text" : "doc\/AudioCompression.md updated with CAF to M4A conversion analysis, AVAudioConverter investigation results, benchmark comparison, and architectural recommendation for deferred async M4A compaction",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/AudioCompression.md"
+    },
+    {
+      "id" : "AZv2getWcAChAbNZfJhBRQ",
+      "relevance" : 0.95,
+      "text" : "doc\/AudioStore.md Phase 4 section updated with research completion status, key findings, benchmark results, and next steps for future SuttaPlayer integration task",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/AudioStore.md"
+    },
+    {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
       "relevance" : 0.9,
       "url" : ".\/scv-core\/Sources\/AudioStore.swift:302-349"
@@ -69,9 +94,50 @@
       "text" : "ffprobe analysis: both files decode to identical 42KB PCM, both use AAC (LC) codec with skip_samples=2112 priming, identical packet structure"
     },
     {
+      "id" : "AZv1tlJAcACpd7iM7bTPng",
+      "relevance" : 0.9,
+      "text" : "AVAssetWriter (iOS native) has shouldOptimizeForNetworkUse property that places moov atom at beginning of container, optimizing file structure and reducing padding overhead."
+    },
+    {
+      "id" : "AZv2DnV3cAC7NaIaEyq9gg",
+      "relevance" : 0.9,
+      "text" : "ExtAudioFile API behaves identically to AVAudioFile - both use same underlying Core Audio framework. No free box padding control available in either API."
+    },
+    {
+      "id" : "AZv2DoolcACeGyxGbbPhpA",
+      "relevance" : 0.9,
+      "text" : "AVEncoderBitRateKey and AVEncoderBitRateStrategyKey cause NSInvalidArgumentException crashes when used with AVAudioFile(forWriting:) settings dictionary."
+    },
+    {
+      "id" : "AZv1OOgscACxhDAYB5J15w",
+      "relevance" : 0.85,
+      "text" : "AudioFile size hints (AudioFileCreateWithURL, kAudioFilePropertyEstimatedDuration) control free box allocation but AVAudioFile(forWriting:) wrapper does not expose these parameters"
+    },
+    {
+      "id" : "AZv1tmZRcACGFZZ8NHfU3w",
+      "relevance" : 0.85,
+      "text" : "Lower-level AudioFile C API (AudioToolbox) supports AudioFileCreateWithURL with kAudioFilePropertyEstimatedDuration size hints for better pre-allocation control than AVAudioFile wrapper."
+    },
+    {
+      "id" : "AZv2DnrXcACGf40C0Xbdgg",
+      "relevance" : 0.85,
+      "text" : "Lower-level AudioConverter C API supports kAudioConverterEncodeBitRate property but only affects mdat (audio frame) size, not free box metadata pre-allocation."
+    },
+    {
+      "id" : "AZv2DoCWcAC6371tzs6fAQ",
+      "relevance" : 0.85,
+      "text" : "AVAudioConverter Swift wrapper does not expose bitrate or encoder properties - no access to underlying AudioConverterRef."
+    },
+    {
       "id" : "AZvy6qsKcACgw2vxzLN2kg",
       "relevance" : 0.85,
       "text" : "Gemini 3 actually provided working code"
+    },
+    {
+      "id" : "AZv2DphCcACJQ0IT5-wmCg",
+      "relevance" : 0.8,
+      "text" : "https:\/\/github.com\/ooper-shlab\/iPhoneACFileConvertTest-Swift - Apple sample code showing lower-level Core Audio approach with kAudioConverterEncodeBitRate, but still subject to file container padding",
+      "url" : "https:\/\/github.com\/ooper-shlab\/iPhoneACFileConvertTest-Swift"
     },
     {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7d35d819de3",
@@ -143,9 +209,10 @@
       "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
     },
     {
-      "id" : "AZv1OOgscACxhDAYB5J15w",
-      "relevance" : 0.85,
-      "text" : "AudioFile size hints (AudioFileCreateWithURL, kAudioFilePropertyEstimatedDuration) control free box allocation but AVAudioFile(forWriting:) wrapper does not expose these parameters"
+      "id" : "AZv2gyW0cACKb1OUQgZhQw",
+      "relevance" : 0.95,
+      "text" : "doc\/BackgroundAudio.md updated with Dual-Format Playback Strategy section describing two-stage architecture (CAF synthesis + optional async M4A compaction), playback strategy, benchmark data, and implementation implications for SuttaPlayer",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/BackgroundAudio.md"
     }
   ],
   "requiredTasks" : [
@@ -153,5 +220,5 @@
   ],
   "state" : "active",
   "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
-  "updatedAt" : "2026-01-25T12:55:06Z"
+  "updatedAt" : "2026-01-25T18:55:48Z"
 }

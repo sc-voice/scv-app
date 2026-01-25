@@ -129,6 +129,99 @@ If sutta has 100+ segments:
 - [x] 6 comprehensive tests all passing
 - [x] See: AudioStore.md Phase 3 section for implementation details
 
+## Dual-Format Playback Strategy (2026-01-25)
+
+### Problem: Balancing Responsiveness vs Storage
+
+Current approach (CAF format):
+- ✅ Fast synthesis (immediate playback)
+- ❌ Poor compression (~12.5GB for full corpus)
+- ❌ Blocks background playback synthesis
+
+Proposed M4A optimization:
+- ✅ 90% better compression (~1.3GB for full corpus)
+- ❌ 75ms conversion latency (unacceptable if blocking playback)
+
+**Solution**: Separate concerns into two-stage pipeline
+
+### Two-Stage Synthesis Architecture
+
+**Stage 1 (Immediate)**: CAF synthesis for playback
+```
+user plays sutta
+  → AudioStore.storeAudio() synthesizes to CAF
+  → returns immediately (~0.23s-0.82s per segment)
+  → SuttaPlayer plays from CAF file
+  → user hears audio promptly
+```
+
+**Stage 2 (Background, optional)**: M4A compaction for storage
+```
+Background task (when CPU free, WiFi available, or user explicitly requests)
+  → M4A Compactor reads existing CAF files
+  → converts to M4A (AVAudioConverter, 0.075s per segment)
+  → stores alongside CAF
+  → optional: can delete CAF to save space after M4A verified
+```
+
+### Playback Strategy
+
+**SuttaPlayer** can choose format based on context:
+```swift
+// When playing (immediate feedback needed)
+if let cafUrl = audioStore.audioUrl(text, audioContext) {
+  play(cafUrl)  // Fast, already cached or synthesized
+}
+
+// When available and storage is concern
+if let m4aUrl = audioStore.compactedUrl(text, audioContext) {
+  play(m4aUrl)  // Smaller file
+}
+
+// During background preparation
+Task {
+  for segment in sutta.segments {
+    _ = await audioStore.storeAudio(text, audioContext)  // CAF
+    // Background later: await compactor.compactToM4A(segment)
+  }
+}
+```
+
+### Advantages of This Approach
+
+1. **Avoids playback latency** — 75ms M4A conversion doesn't block listening
+2. **Backwards compatible** — CAF synthesis continues working
+3. **Gradual adoption** — M4A compaction optional/deferred
+4. **User control** — Settings → Storage → "Compress audio to M4A"
+5. **Storage optimization** — Only compact when beneficial (large suttas)
+6. **Background synthesis workflow** — CAF generation can pre-cache entire suttas
+
+### Implementation Implications
+
+**AudioStore enhancements needed**:
+- `compactedUrl(text:audioContext:) -> URL?` — Returns M4A if exists
+- `compactToM4A(text:audioContext:) async throws` — CAF → M4A conversion
+- `preferredFormat(text:audioContext:) -> URL` — Smart format selection
+
+**SuttaPlayer integration**:
+- Try M4A first if available, fall back to CAF
+- Background task triggers M4A compaction for high-replay segments
+- Metrics: track format usage (% playback from M4A vs CAF)
+
+### Benchmark Data
+
+**DN10:2.32.2 segment (1058 chars, 5.3MB CAF)**:
+- AVAudioConverter M4A: 0.075s conversion, 280KB output (19.15x compression)
+- afconvert M4A (reference): 0.082s, 256KB (20.91x)
+- **Tradeoff**: 9% larger file, 8% faster execution
+
+**Full DN33 sutta (1,167 segments)**:
+- CAF synthesis: ~4.5 hours × 0.23-0.61s/segment = 3-12 minutes (background task)
+- M4A compaction: 1,167 × 0.075s = ~87 seconds (can run overnight)
+- Storage savings: 5.3GB CAF → ~1.3GB M4A (75% reduction)
+
+See: `doc/AudioCompression.md` for full technical analysis
+
 ## Proposed Next Steps
 
 1. **Phase 4 - CachedSynthesizer Implementation** (Pending)
@@ -139,11 +232,14 @@ If sutta has 100+ segments:
    - Add tests verifying all 4 IPlaybackDelegate events
    - Test end-to-end: SuttaPlayer with injected CachedSynthesizer
 
-2. **Phase 5 - M4A Optimization** (Pending)
-   - Link AudioToolbox framework for AAC encoding
-   - Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
-   - ~7x compression vs CAF (important for large suttas: 2.2GB → 300MB)
-   - Verify playback via AVAudioPlayer
+2. **Phase 5 - M4A Optimization** (Pending - Two-stage architecture)
+   - Stage 1: CAF synthesis continues as-is (no change to existing code)
+   - Stage 2: Implement optional M4A compaction in background task
+     - Create M4A Compactor service (CAF → M4A conversion)
+     - Add compactedUrl() and compactToM4A() methods to AudioStore
+     - Link AudioToolbox framework for AVAudioConverter
+     - Implement user-controlled compaction setting
+     - Benchmark real-world corpus compression
 
 3. **"Create Background Audio" Feature** (Pending)
    - Mark sutta as "background ready" after playback completes

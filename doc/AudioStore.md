@@ -424,11 +424,28 @@ func testAudioCacheStorage() async throws {
 - `scv-core/Sources/Debug.swift` — Added AudioStore dbg constant
 - `scv-core/Tests/AudioStoreTests.swift` — 6 new Phase 3 test cases (lines 438-582)
 
-## Implementation: Phase 4 — M4A Optimization (Pending)
+## Implementation: Phase 4 — M4A Optimization (Analysis Complete, Deferred)
 
-1. [ ] Link AudioToolbox framework for AAC encoding
-2. [ ] Implement M4A synthesis path (AVAudioConverter + ExtAudioFile)
-3. [ ] Benchmark M4A vs CAF file sizes and synthesis time
-4. [ ] Update AudioType.m4a path
-5. [ ] Verify M4A playback via AVAudioPlayer
-6. [ ] Update tests to verify both CAF and M4A formats
+**Status**: ✅ Research COMPLETE — 2026-01-25 (Investigation findings documented, implementation deferred pending architectural decision)
+
+**Key Finding**: AVAudioConverter is viable for CAF→M4A conversion (8% faster than afconvert, acceptable 9% larger files), but free box padding inherent to AVAudioFile prevents achieving optimal compression. **Architectural recommendation**: Defer M4A compaction to background async task (don't block playback).
+
+**Research outputs**:
+- [x] Investigate AVAudioFile free box padding issue (root cause: defensive metadata pre-allocation)
+- [x] Test AVEncoderBitRateKey approaches (crashes/corruption)
+- [x] Test ExtAudioFile API (same padding issues)
+- [x] Test lower-level AudioConverter C API (only optimizes audio data, not metadata)
+- [x] Benchmark AVAudioConverter vs afconvert on DN10 segment
+- [x] Document architectural recommendation for deferred async compaction
+
+**Benchmark Results** (DN10:2.32.2, 1058 chars, 5.3MB CAF):
+- AVAudioConverter: 0.075s → 280KB (19.15x compression)
+- afconvert: 0.082s → 256KB (20.91x compression)
+- Conclusion: AVAudioConverter production-viable, 9% size tradeoff acceptable for native frameworks
+
+**Next Steps** (Future task):
+1. Implement AVAudioConverter CAF→M4A in optional background task
+2. Add user-controlled compaction setting (Settings → Storage)
+3. Create task for SuttaPlayer integration with two-stage architecture
+
+**See also**: `doc/AudioCompression.md` — Full technical analysis of conversion approaches

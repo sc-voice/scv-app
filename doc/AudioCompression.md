@@ -161,6 +161,83 @@ The Tipitaka in its entirety is over 17x larger.
 4. Are there licensing concerns with specific TTS providers?
 5. What is target device platform (iOS, macOS, web)?
 
+## CAF to M4A Conversion Analysis (2026-01-25)
+
+### Problem Statement
+
+Current AudioStore uses CAF format (uncompressed PCM) for TTS synthesis output. CAF provides fast write but poor compression:
+- Single segment: ~85-114KB (CAF)
+- Full corpus: ~12.5GB (148K segments × ~85KB)
+
+M4A (AAC codec) provides much better compression:
+- Single segment: ~8.5-15KB
+- Full corpus: ~1.3-2.2GB (90-95% reduction)
+
+**Question**: Should we convert CAF to M4A after synthesis to reduce storage?
+
+### AVAudioConverter Investigation Results
+
+**Tested approaches**:
+
+1. **AVAudioFile(forWriting:settings:)** with MPEG4AAC
+   - ✅ Works, produces valid AAC files
+   - ❌ Pre-allocates massive "free" box padding (31KB vs afconvert's 3KB)
+   - Result: 37KB file vs optimal 8.7KB (4.3x larger)
+   - Root cause: Defensive metadata space pre-allocation, no configuration option
+
+2. **AVEncoderBitRateKey / AVEncoderBitRateStrategyKey**
+   - ❌ Causes NSInvalidArgumentException crashes
+   - ❌ File corruption when accepted
+
+3. **ExtAudioFile API**
+   - ✅ No padding issues are solved (uses same Core Audio framework)
+   - Requires unsafe pointer handling for AudioBufferList
+
+4. **Lower-level AudioConverter C API (kAudioConverterEncodeBitRate)**
+   - ✅ Supports bitrate control
+   - ❌ Only affects audio frame data (mdat), not metadata padding
+   - ❌ Not exposed through AVAudioConverter Swift wrapper
+
+5. **M4A Transcoding (read M4A → write M4A)**
+   - ❌ Produces corrupted output files
+   - AVAudioFile decompresses on read, re-encodes on write, adds padding
+
+### Benchmark: AVAudioConverter vs afconvert (DN10:2.32.2, 1058 chars)
+
+| Metric | AVAudioConverter | afconvert | Difference |
+|--------|------------------|-----------|-----------|
+| Input (CAF) | 5.3 MB | 5.3 MB | — |
+| Output (M4A) | 280 KB (19.15x) | 256 KB (20.91x) | +24 KB (+9%) |
+| Conversion time | 0.075s | 0.082s | 8% faster |
+| Compression loss | 1.76x ratio | Optimal | 4.3% worse |
+
+**Conclusion**: AVAudioConverter is production-viable despite larger files (8% speed gain, acceptable 9% size tradeoff).
+
+### Architectural Recommendation
+
+**Separate CAF generation from M4A compaction**:
+- Stage 1 (synchronous): Synthesize text → CAF file → play immediately
+- Stage 2 (async background): CAF → M4A compaction when not needed for playback
+
+**Rationale**:
+- Conversion latency (75ms) acceptable for background task
+- Avoids blocking playback for uncached audio
+- Enables background synthesis (AVSpeechSynthesizer can't run backgrounded)
+- Allows user to control when/whether compaction occurs
+
+**Not viable approaches**:
+- Real-time M4A encoding during synthesis (adds ~75ms latency)
+- Using afconvert subprocess (defeats goal of native frameworks)
+- Lower-level C API (complex unsafe pointer handling, only optimizes mdat not padding)
+
+### Implementation Path (Future)
+
+For production deployment:
+1. Implement AVAudioConverter CAF→M4A in background task
+2. Make M4A compaction optional/deferred (Settings → Storage → "Compress to M4A")
+3. Measure user adoption before full mandatory rollout
+4. Consider App Group container for background app refresh compatibility
+
 ## Implementation Architecture
 
 ### Overview

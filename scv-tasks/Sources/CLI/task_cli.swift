@@ -298,28 +298,16 @@ func formatRelevanceBar(_ relevance: Double) -> String {
   return bar
 }
 
-func wrapLine(_ line: String, maxLength: Int) -> String {
+func wrapLine(_ line: String, maxLength: Int, hangingIndentWidth: Int = 5) -> String {
   if line.count <= maxLength {
     return line
   }
 
-  // Find where content starts (after indent and bullet/label)
-  let leadingWhitespace = line.prefix(while: { $0.isWhitespace }).count
-  var contentStart = leadingWhitespace
-
-  // Skip past "N. " pattern
-  let afterIndent = String(line.dropFirst(leadingWhitespace))
-  if let dotIndex = afterIndent.firstIndex(of: ".") {
-    let afterDot = afterIndent[afterIndent.index(after: dotIndex)...]
-    let extraSpaces = afterDot.prefix(while: { $0.isWhitespace }).count
-    contentStart = leadingWhitespace + afterIndent.distance(from: afterIndent.startIndex, to: dotIndex) + 1 + extraSpaces
-  }
-
-  let hangingIndent = String(repeating: " ", count: contentStart)
-  let maxContentLength = maxLength - contentStart
+  let hangingIndent = String(repeating: " ", count: hangingIndentWidth)
+  let maxContentLength = maxLength - hangingIndentWidth
 
   var result = ""
-  var remaining = String(line.dropFirst(contentStart))
+  var remaining = String(line.dropFirst(hangingIndentWidth))
 
   while !remaining.isEmpty {
     if remaining.count <= maxContentLength {
@@ -351,7 +339,7 @@ func wrapLine(_ line: String, maxLength: Int) -> String {
     }
   }
 
-  return String(line.prefix(contentStart)) + result
+  return String(line.prefix(hangingIndentWidth)) + result
 }
 
 // MARK: - Command Handlers

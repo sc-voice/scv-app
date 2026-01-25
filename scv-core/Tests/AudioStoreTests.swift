@@ -912,4 +912,93 @@ struct AudioStoreTests {
       "so_i_have_heard: input=\(inputSize / 1024)KB, output=\(outputSize / 1024)KB, ratio=\(String(format: "%.2f", compressionRatio))x, time=\(String(format: "%.3f", totalTime))s",
     )
   }
+
+  @Test("BENCHMARK: DN10:2.32.2 AVAudioConverter M4A conversion")
+  func benchmarkDN10AVAudioConverterM4A() async throws {
+    let fileManager = FileManager.default
+    let root = projectRoot()
+    let outputDir = root.appendingPathComponent("local/audio")
+    let cafStore = AudioStore.create(path: outputDir, type: .caf)
+    let context = AudioContext(for: "en")
+
+    print("Text: \(dn10_2_32_2_text.prefix(100))...")
+    print("Text length: \(dn10_2_32_2_text.count) characters\n")
+
+    // 1️⃣ Synthesize to CAF
+    print("1️⃣ CAF Synthesis:")
+    let cafStart = Date()
+    let cafUrl = try await cafStore.storeAudio(text: dn10_2_32_2_text, audioContext: context)
+    let cafTime = Date().timeIntervalSince(cafStart)
+    let cafSize = try FileManager.default.attributesOfItem(atPath: cafUrl.path)[.size] as? Int ?? 0
+    print("   Time: \(String(format: "%.3f", cafTime))s")
+    print("   Size: \(cafSize) bytes (\(cafSize / 1024) KB)\n")
+
+    // 2️⃣ Convert CAF to M4A using AVAudioConverter
+    print("2️⃣ CAF→M4A Conversion (AVAudioConverter):")
+    let m4aUrl = URL(fileURLWithPath: cafUrl.path.replacingOccurrences(of: ".caf", with: "_av.m4a"))
+    try? fileManager.removeItem(atPath: m4aUrl.path)
+
+    let conversionStart = Date()
+    let inputAudioFile = try AVAudioFile(forReading: cafUrl)
+    let inputFormat = inputAudioFile.processingFormat
+    let frameCount = AVAudioFramePosition(inputAudioFile.length)
+
+    let m4aSettings: [String: Any] = [
+      AVFormatIDKey: kAudioFormatMPEG4AAC,
+      AVSampleRateKey: inputFormat.sampleRate,
+      AVNumberOfChannelsKey: inputFormat.channelCount,
+    ]
+
+    let outputAudioFile = try AVAudioFile(forWriting: m4aUrl, settings: m4aSettings)
+    let outputFormat = AVAudioFormat(
+      commonFormat: .pcmFormatFloat32,
+      sampleRate: inputFormat.sampleRate,
+      channels: inputFormat.channelCount,
+      interleaved: false
+    )!
+
+    guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat) else {
+      throw NSError(domain: "AVAudioConverter", code: -1)
+    }
+
+    let bufferSize: AVAudioFrameCount = 4096
+    var totalFramesProcessed: AVAudioFrameCount = 0
+
+    while totalFramesProcessed < frameCount {
+      let framesRemaining = frameCount - AVAudioFramePosition(totalFramesProcessed)
+      let framesToRead = AVAudioFrameCount(min(framesRemaining, AVAudioFramePosition(bufferSize)))
+
+      let inputBuffer = AVAudioPCMBuffer(pcmFormat: inputFormat, frameCapacity: framesToRead)!
+      try inputAudioFile.read(into: inputBuffer, frameCount: framesToRead)
+
+      if inputBuffer.frameLength == 0 { break }
+
+      let outputBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: bufferSize)!
+      try converter.convert(to: outputBuffer, from: inputBuffer)
+      try outputAudioFile.write(from: outputBuffer)
+
+      totalFramesProcessed += inputBuffer.frameLength
+    }
+
+    let conversionTime = Date().timeIntervalSince(conversionStart)
+    let m4aSize = try fileManager.attributesOfItem(atPath: m4aUrl.path)[.size] as? Int ?? 0
+
+    print("   Time: \(String(format: "%.3f", conversionTime))s")
+    print("   Size: \(m4aSize) bytes (\(m4aSize / 1024) KB)\n")
+
+    let compressionRatio = Double(cafSize) / Double(m4aSize)
+    let spaceSaved = cafSize - m4aSize
+
+    print("=== RESULTS ===")
+    print("Segment: dn10:2.32.2 (\(dn10_2_32_2_text.count) chars)")
+    print("CAF synthesis: \(String(format: "%.3f", cafTime))s → \(cafSize / 1024) KB")
+    print("CAF→M4A conversion: \(String(format: "%.3f", conversionTime))s → \(m4aSize / 1024) KB")
+    print("Compression ratio: \(String(format: "%.2f", compressionRatio))x")
+    print("Space saved: \(spaceSaved / 1024) KB (\((cafSize - m4aSize) * 100 / cafSize)%)\n")
+
+    cc.ok1(
+      #line,
+      "dn10:2.32.2 AVAudioConverter: synthesis=\(String(format: "%.3f", cafTime))s, convert=\(String(format: "%.3f", conversionTime))s, ratio=\(String(format: "%.2f", compressionRatio))x",
+    )
+  }
 }
