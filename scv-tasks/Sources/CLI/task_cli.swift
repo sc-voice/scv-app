@@ -124,6 +124,27 @@ func parseArgs() throws
   return (rootDirectory, command, commandArgs)
 }
 
+// MARK: - Helpers
+
+func formatRelevanceBar(_ relevance: Double) -> String {
+  let clamped = max(0, min(1, relevance))
+  let scaled = clamped * 10  // 0-10 scale for 5 chars (2 per char)
+  var bar = ""
+
+  for i in 0..<5 {
+    let threshold = Double((4 - i) * 2)
+    if scaled >= threshold + 2 {
+      bar.append("█")
+    } else if scaled > threshold + 1 {
+      bar.append("▐")
+    } else {
+      bar.append("░")
+    }
+  }
+
+  return bar
+}
+
 // MARK: - Command Handlers
 
 func handleList(args: [String], rootDirectory: URL) throws {
@@ -436,7 +457,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
         case 0: // Terse: index only
           print("  \(index + 1).")
         case 1: // Normal: 2 lines max
-          var firstLine = "  \(index + 1). [\(String(format: "%.2f", ref.relevance))]"
+          var firstLine = "  \(index + 1). \(formatRelevanceBar(ref.relevance))"
           if let url = ref.url {
             firstLine += " \(url.absoluteString)"
             print(firstLine)
@@ -1162,7 +1183,7 @@ func handleReferenceList(args: [String], rootDirectory: URL) throws {
     print("References:")
     for (index, ref) in task.references.enumerated() {
       print(
-        "  \(index + 1). [\(String(format: "%.2f", ref.relevance))]",
+        "  \(index + 1). \(formatRelevanceBar(ref.relevance))",
         terminator: "",
       )
       if let url = ref.url {
