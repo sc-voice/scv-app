@@ -48,6 +48,34 @@
     {
       "description" : "Replace afconvert subprocess in AudioStore.convertCAFToM4A() with AVAudioConverter implementation",
       "id" : "3E8AEECE-14F1-41D1-AC1F-4DC879279489"
+    },
+    {
+      "description" : "Compile and verify sync AVAudioConverter implementation works",
+      "id" : "789AF944-F314-4FD7-96F4-29EFB0FDF9DF"
+    },
+    {
+      "description" : "Audit all call sites of convertCAFToM4A in codebase",
+      "id" : "3070859A-4077-4551-B94E-CDA8327E3E67"
+    },
+    {
+      "description" : "Change convertCAFToM4A signature from throws to async throws",
+      "id" : "9015A813-571E-409B-BE63-A7911694CDE7"
+    },
+    {
+      "description" : "Update all call sites to await convertCAFToM4A",
+      "id" : "34CDC883-CC5D-4008-95AD-7F80539F055F"
+    },
+    {
+      "description" : "Implement background Task wrapper for fire-and-forget async conversion",
+      "id" : "6DDFEF04-FF22-4C0E-A399-D4031B78744B"
+    },
+    {
+      "description" : "Add error logging for async conversion failures",
+      "id" : "6032D237-26F4-479A-9BAA-EF5AC2FB12E8"
+    },
+    {
+      "description" : "Test async conversion doesn't block playback of CAF file",
+      "id" : "654E0DDF-8680-42DC-9D70-F58DCB849DCA"
     }
   ],
   "references" : [
@@ -77,6 +105,12 @@
       "relevance" : 0.95,
       "text" : "doc\/AudioStore.md Phase 4 section updated with research completion status, key findings, benchmark results, and next steps for future SuttaPlayer integration task",
       "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/AudioStore.md"
+    },
+    {
+      "id" : "AZv2gyW0cACKb1OUQgZhQw",
+      "relevance" : 0.95,
+      "text" : "doc\/BackgroundAudio.md updated with Dual-Format Playback Strategy section describing two-stage architecture (CAF synthesis + optional async M4A compaction), playback strategy, benchmark data, and implementation implications for SuttaPlayer",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/BackgroundAudio.md"
     },
     {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
@@ -207,12 +241,6 @@
       "id" : "019bf09e-0c1b-7d73-bf1c-a7d1f80caaf4",
       "relevance" : 0.5,
       "text" : "Implementation pattern: 1) Read CAF with AVAudioFile, 2) Create AVAudioConverter (PCM → MPEG4AAC), 3) Convert buffers in chunks, 4) Write to M4A, 5) Clean up CAF temp file"
-    },
-    {
-      "id" : "AZv2gyW0cACKb1OUQgZhQw",
-      "relevance" : 0.95,
-      "text" : "doc\/BackgroundAudio.md updated with Dual-Format Playback Strategy section describing two-stage architecture (CAF synthesis + optional async M4A compaction), playback strategy, benchmark data, and implementation implications for SuttaPlayer",
-      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/BackgroundAudio.md"
     }
   ],
   "requiredTasks" : [
@@ -220,5 +248,5 @@
   ],
   "state" : "active",
   "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
-  "updatedAt" : "2026-01-25T18:55:48Z"
+  "updatedAt" : "2026-01-27T12:46:08Z"
 }
