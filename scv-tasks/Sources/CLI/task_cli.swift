@@ -90,7 +90,21 @@ do {
   case "ref", "reference":
     try handleReference(args: commandArgs, rootDirectory: rootDirectory)
   case "help", "-h", "--help":
-    printUsage()
+    if !commandArgs.isEmpty {
+      let helpTarget = commandArgs[0]
+      let validCommands = Set([
+        "init", "list", "add", "push", "pop", "show", "delete",
+        "action", "ref", "reference"
+      ])
+      if validCommands.contains(helpTarget) {
+        try printHelpForCommand(helpTarget)
+      } else {
+        print("Error: Unknown command '\(helpTarget)'")
+        print("Valid commands: init, list, add, push, pop, show, delete, action, ref, reference")
+      }
+    } else {
+      printUsage()
+    }
   default:
     print("Error: Unknown command '\(command)'")
     printUsage()
@@ -268,7 +282,7 @@ func parseArgs() throws
       let taskManager = TaskManager(basePath: finalRootDirectory)
       let tasks = try taskManager.allTasks()
       if let newestTask = tasks.max(by: { $0.id < $1.id }) {
-        commandTask = newestTask.fileName
+        commandTask = newestTask.idFile
         currentTaskUUIDV7 = newestTask.id
       }
     }
@@ -350,19 +364,20 @@ func handleList(args: [String], rootDirectory: URL) throws {
     throw CliError.unknownOption(args[0])
   }
 
-  let taskManager = TaskManager(basePath: rootDirectory)
-  let tasks = try taskManager.allTasks()
+  let world = TaskWorld.shared
+  let allTaskIds = world.allTaskIds(showFileName: true)
+  let stackTaskIds = world.stackTaskIds()
 
   // Separate tasks into stack and non-stack groups
-  let stackTaskIds = Set(WorldModel.shared.taskStack)
-  let stackTasks = WorldModel.shared.taskStack
-    .compactMap { stackId in tasks.first { $0.id == stackId } }
-  let nonStackTasks = tasks
-    .filter { !stackTaskIds.contains($0.id) }
-    .sorted { $0.id > $1.id }
+  // Display stack in reverse order (top of stack first)
+  let stackTasks = stackTaskIds.reversed().compactMap { world.taskFrom(anyId: $0) }
+  let nonStackTasks = allTaskIds
+    .compactMap { world.taskFrom(anyId: $0) }
+    .filter { !world.isStackTaskId($0.idFile) }
+    .sorted { $0.idFile > $1.idFile }
   let sortedTasks = stackTasks + nonStackTasks
 
-  let effectiveLimit = WorldModel.shared.limit
+  let effectiveLimit = world.limit
   var count = 0
 
   for task in sortedTasks {
@@ -370,16 +385,19 @@ func handleList(args: [String], rootDirectory: URL) throws {
       break
     }
 
+    // Emoji based on task state
     let emoji = switch task.state {
     case .blocked:
-      "🚫"
+      "🔴"
+    case .pending:
+      "🐢"
     case .active:
-      stackTaskIds.contains(task.id) ? "🟢" : "🐢"
+      world.isStackTaskId(task.idFile) ? "🟢" : "🐢"
     case .done:
       "☑️"
     }
 
-    print("\(task.fileName) \(emoji) \(task.name)")
+    print("\(task.idFile) \(emoji) \(task.name)")
     count += 1
   }
 }
@@ -415,15 +433,10 @@ func handleAdd(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-n/--name")
   }
 
-  let task = Task(
-    name: name,
-    summary: summary ?? "",
-  )
+  let world = TaskWorld(basePath: rootDirectory)
+  let task = try world.createTaskSync(name: name, summary: summary ?? "")
 
-  let taskManager = TaskManager(basePath: rootDirectory)
-  try taskManager.save(task)
-
-  print("Created task: \(task.fileName) - \(task.name)")
+  print("Created task: \(task.idFile) - \(task.name)")
 }
 
 func handleInit(args: [String], rootDirectory: URL) throws {
@@ -494,7 +507,7 @@ func handlePush(args: [String], rootDirectory: URL) throws {
     let fullPrefix = prefix.hasPrefix("T_") ? prefix : "T_" + prefix
 
     for task in sortedTasks {
-      if task.fileName.hasPrefix(fullPrefix) {
+      if task.idFile.hasPrefix(fullPrefix) {
         taskToPush = task
         break
       }
@@ -512,16 +525,12 @@ func handlePush(args: [String], rootDirectory: URL) throws {
     throw CliError.noTasksFound
   }
 
-  // Remove from stack if present, then push to top
-  if let index = WorldModel.shared.taskStack.firstIndex(of: task.id) {
-    WorldModel.shared.taskStack.remove(at: index)
-  }
-  WorldModel.shared.pushTask(task.id)
-  print("Pushed \(task.fileName) to stack")
+  let world = TaskWorld(basePath: rootDirectory)
 
-  // Serialize WorldModel
-  let worldPath = rootDirectory.appendingPathComponent(".task-world.json")
-  try WorldModel.shared.save(to: worldPath)
+  // Remove from stack if present, then push to top
+  world.unstackTaskId(task.idFile)
+  world.pushTaskId(task.idFile)
+  print("Pushed \(task.idFile) to stack")
 }
 
 func handlePop(args: [String], rootDirectory: URL) throws {
@@ -532,24 +541,17 @@ func handlePop(args: [String], rootDirectory: URL) throws {
     throw CliError.unknownOption(arg)
   }
 
-  guard !WorldModel.shared.taskStack.isEmpty else {
+  let world = TaskWorld(basePath: rootDirectory)
+
+  guard let poppedTaskId = world.popTaskId() else {
     throw CliError.missingRequired("task stack is empty")
   }
 
-  let poppedTaskId = WorldModel.shared.taskStack.removeLast()
-
-  let taskManager = TaskManager(basePath: rootDirectory)
-  let tasks = try taskManager.allTasks()
-
-  if let task = tasks.first(where: { $0.id == poppedTaskId }) {
-    print("Popped \(task.fileName) from stack")
+  if let task = world.taskFrom(anyId: poppedTaskId) {
+    print("Popped \(task.idFile) from stack")
   } else {
-    print("Popped task \(poppedTaskId.uuidString) from stack")
+    print("Popped task \(poppedTaskId) from stack")
   }
-
-  // Serialize WorldModel
-  let worldPath = rootDirectory.appendingPathComponent(".task-world.json")
-  try WorldModel.shared.save(to: worldPath)
 }
 
 func handleShow(args: [String], rootDirectory: URL) throws {
@@ -572,6 +574,9 @@ func handleShow(args: [String], rootDirectory: URL) throws {
         throw CliError.missingValue(arg)
       }
       format = args[i]
+    } else if !arg.hasPrefix("-") {
+      // Positional argument: task prefix
+      taskPrefix = arg
     } else {
       throw CliError.unknownOption(arg)
     }
@@ -579,9 +584,10 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  let taskManager = TaskManager(basePath: rootDirectory)
-  let tasks = try taskManager.allTasks()
-  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
+  let world = TaskWorld.shared
+  let allTaskIds = world.allTaskIds(showFileName: true)
+  let allTasks = allTaskIds.compactMap { world.taskFrom(anyId: $0) }
+  let task = try findTask(by: taskPrefix, from: allTasks, rootDirectory: rootDirectory)
 
   switch format.lowercased() {
   case "json":
@@ -598,16 +604,34 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     dateFormatter.timeStyle = .short
     dateFormatter.timeZone = TimeZone.current
 
-    print("Task: \(task.fileName) (Created: \(dateFormatter.string(from: task.createdAt)))")
+    print("Task: \(task.idFile) (Created: \(dateFormatter.string(from: task.createdAt)))")
     print("Name: \(task.name)")
     print("Summary: \(task.summary)")
     print("State: \(task.state.rawValue) (Updated: \(dateFormatter.string(from: task.updatedAt)))")
+
+    // Display blockers (required tasks that are not done)
+    if !task.requiredTasks.isEmpty {
+      var blockers: [(name: String, state: String)] = []
+      for requiredTaskId in task.requiredTasks {
+        if let requiredTask = world.taskFrom(anyId: requiredTaskId),
+           requiredTask.state != TaskState.done {
+          blockers.append((name: requiredTask.name, state: requiredTask.state.rawValue))
+        }
+      }
+
+      if !blockers.isEmpty {
+        print("\nBlockers:")
+        for (index, blocker) in blockers.enumerated() {
+          print("  \(index + 1). [\(blocker.state)] \(blocker.name)")
+        }
+      }
+    }
     if !task.plannedActions.isEmpty {
       print("\nPlanned Actions:")
-      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared.limit : task.plannedActions.count
+      let effectiveLimit = world.limit > 0 ? world.limit : task.plannedActions.count
       let displayPlannedActions = Array(task.plannedActions.prefix(effectiveLimit))
       for (index, action) in displayPlannedActions.enumerated() {
-        print(wrapLine("  \(index + 1). \(action.description)", maxLength: WorldModel.shared.lineLength))
+        print(wrapLine("  \(index + 1). \(action.description)", maxLength: world.lineLength))
       }
       if task.plannedActions.count > effectiveLimit {
         print("  ...")
@@ -701,7 +725,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
   // Prompt for confirmation unless --force
   if !force {
-    print("Delete task: \(task.fileName) - \(task.name)")
+    print("Delete task: \(task.idFile) - \(task.name)")
     print("Are you sure? (y/n): ", terminator: "")
     fflush(stdout)
 
@@ -713,10 +737,10 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
   // Delete the task file
   let filePath = rootDirectory.appendingPathComponent("Tasks")
-    .appendingPathComponent("\(task.fileName).json")
+    .appendingPathComponent("\(task.idFile).json")
   try FileManager.default.removeItem(at: filePath)
 
-  print("Deleted task: \(task.fileName) - \(task.name)")
+  print("Deleted task: \(task.idFile) - \(task.name)")
 }
 
 func handleAction(args: [String], rootDirectory: URL) throws {
@@ -833,11 +857,11 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -846,8 +870,8 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -872,7 +896,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     task.updatedAt = Date()
     try taskManager.save(task)
     print(
-      "Inserted action #\(position) in \(task.fileName): \(description)",
+      "Inserted action #\(position) in \(task.idFile): \(description)",
     )
   } else {
     // Append to end (default behavior)
@@ -880,7 +904,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     task.updatedAt = Date()
     try taskManager.save(task)
     print(
-      "Added action #\(task.plannedActions.count) to \(task.fileName): \(description)",
+      "Added action #\(task.plannedActions.count) to \(task.idFile): \(description)",
     )
   }
 }
@@ -935,11 +959,11 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -948,8 +972,8 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -973,7 +997,7 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Replaced action #\(actionNumber) in \(task.fileName)")
+  print("Replaced action #\(actionNumber) in \(task.idFile)")
   print("  Old: \(oldDescription)")
   print("  New: \(description)")
 }
@@ -1019,11 +1043,11 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1032,8 +1056,8 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1059,7 +1083,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
   try taskManager.save(task)
 
   print(
-    "Completed action #\(actionNumber) in \(task.fileName): \(actionDescription)",
+    "Completed action #\(actionNumber) in \(task.idFile): \(actionDescription)",
   )
 }
 
@@ -1107,11 +1131,11 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1120,8 +1144,8 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1144,7 +1168,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
   // Prompt for confirmation unless --force
   if !force {
     print(
-      "Delete action #\(actionNumber) from \(task.fileName): \(actionDescription)",
+      "Delete action #\(actionNumber) from \(task.idFile): \(actionDescription)",
     )
     print("Are you sure? (y/n): ", terminator: "")
     fflush(stdout)
@@ -1161,7 +1185,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
   try taskManager.save(task)
 
   print(
-    "Deleted action #\(actionNumber) from \(task.fileName): \(actionDescription)",
+    "Deleted action #\(actionNumber) from \(task.idFile): \(actionDescription)",
   )
 }
 
@@ -1315,11 +1339,11 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1328,8 +1352,8 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1348,7 +1372,7 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Added reference #\(task.references.count) to \(task.fileName)")
+  print("Added reference #\(task.references.count) to \(task.idFile)")
 }
 
 func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
@@ -1418,11 +1442,11 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1431,8 +1455,8 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1468,7 +1492,7 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Replaced reference #\(refNumber) in \(task.fileName)")
+  print("Replaced reference #\(refNumber) in \(task.idFile)")
 }
 
 func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
@@ -1515,11 +1539,11 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
   } else {
     // Treat as file prefix
     let prefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(prefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(prefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(prefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(prefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1528,8 +1552,8 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(prefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1558,7 +1582,7 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
 
   // Prompt for confirmation unless --force
   if !force {
-    print("Delete reference #\(refNumber) from \(task.fileName): \(refDesc)")
+    print("Delete reference #\(refNumber) from \(task.idFile): \(refDesc)")
     print("Are you sure? (y/n): ", terminator: "")
     fflush(stdout)
 
@@ -1573,7 +1597,7 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
 
   try taskManager.save(task)
 
-  print("Deleted reference #\(refNumber) from \(task.fileName): \(refDesc)")
+  print("Deleted reference #\(refNumber) from \(task.idFile): \(refDesc)")
 }
 
 // MARK: - Error Types
@@ -1662,11 +1686,11 @@ func findTask(by prefix: String?, from tasks: [Task], rootDirectory: URL) throws
   } else {
     // Treat as file prefix
     let fullPrefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
-    var matchingTasks = tasks.filter { $0.fileName.hasPrefix(fullPrefix) }
+    var matchingTasks = tasks.filter { $0.idFile.hasPrefix(fullPrefix) }
 
     if matchingTasks.isEmpty {
       matchingTasks = tasks
-        .filter { $0.fileName.lowercased().hasPrefix(fullPrefix.lowercased()) }
+        .filter { $0.idFile.lowercased().hasPrefix(fullPrefix.lowercased()) }
     }
 
     guard !matchingTasks.isEmpty else {
@@ -1675,8 +1699,8 @@ func findTask(by prefix: String?, from tasks: [Task], rootDirectory: URL) throws
 
     guard matchingTasks.count == 1 else {
       print("Error: Multiple tasks match prefix '\(fullPrefix)':")
-      for t in matchingTasks.sorted(by: { $0.fileName < $1.fileName }) {
-        print("  \(t.fileName) - \(t.name)")
+      for t in matchingTasks.sorted(by: { $0.idFile < $1.idFile }) {
+        print("  \(t.idFile) - \(t.name)")
       }
       exit(1)
     }
@@ -1692,6 +1716,125 @@ func findTask(by prefix: String?, from tasks: [Task], rootDirectory: URL) throws
 }
 
 // MARK: - Usage
+
+func printHelpForCommand(_ command: String) throws {
+  switch command {
+  case "init":
+    print("Usage: task init")
+    print("")
+    print("Initialize task infrastructure in the current directory.")
+    print("Creates Tasks/ directory and .task-world.json file.")
+    print("")
+    print("Example:")
+    print("  task init")
+  case "list":
+    print("Usage: task list")
+    print("")
+    print("List all tasks sorted by stack status and creation date.")
+    print("Shows emoji indicators: 🚫 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
+    print("")
+    print("Example:")
+    print("  task list")
+  case "add":
+    print("Usage: task add -n NAME [-s SUMMARY]")
+    print("")
+    print("Create a new task.")
+    print("")
+    print("Options:")
+    print("  -n, --name TEXT      Task name (required)")
+    print("  -s, --summary TEXT   Task summary (optional)")
+    print("")
+    print("Example:")
+    print("  task add -n \"Implement feature X\" -s \"Add user authentication\"")
+  case "push":
+    print("Usage: task push [-t|--task PREFIX]")
+    print("")
+    print("Push a task to the stack (for prioritization).")
+    print("If already stacked, moves to top.")
+    print("")
+    print("Options:")
+    print("  -t, --task PREFIX    Task prefix or full name (default: most recent)")
+    print("")
+    print("Example:")
+    print("  task push -t T_AZ")
+    print("  task push")
+  case "pop":
+    print("Usage: task pop")
+    print("")
+    print("Remove the top task from the stack.")
+    print("")
+    print("Example:")
+    print("  task pop")
+  case "show":
+    print("Usage: task show [-t|--task PREFIX] [-f|--format FORMAT]")
+    print("")
+    print("Display task details including actions and references.")
+    print("")
+    print("Options:")
+    print("  -t, --task PREFIX    Task prefix or full name (default: current task)")
+    print("  -f, --format FORMAT  Output format: json or text (default: text)")
+    print("")
+    print("Example:")
+    print("  task show -t T_AZ")
+    print("  task show -t T_AZ -f json")
+  case "delete":
+    print("Usage: task delete [-t|--task PREFIX] [--force]")
+    print("")
+    print("Delete a task (prompts for confirmation unless --force).")
+    print("")
+    print("Options:")
+    print("  -t, --task PREFIX    Task prefix or full name (default: current task)")
+    print("  --force              Skip confirmation prompt")
+    print("")
+    print("Example:")
+    print("  task delete -t T_AZ")
+    print("  task delete -t T_AZ --force")
+  case "action":
+    print("Usage: task action <subcommand> [OPTIONS]")
+    print("")
+    print("Manage planned and completed actions for tasks.")
+    print("")
+    print("Subcommands:")
+    print("  list [-t|--task PREFIX]")
+    print("      List actions for task")
+    print("  add [-i NUMBER] [-t|--task PREFIX] DESCRIPTION")
+    print("      Add action (insert at position if -i specified)")
+    print("  replace -i NUMBER [-t|--task PREFIX] DESCRIPTION")
+    print("      Replace action #NUMBER (1-based)")
+    print("  done -i NUMBER [-t|--task PREFIX]")
+    print("      Move action #NUMBER to completed")
+    print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
+    print("      Delete action #NUMBER")
+    print("")
+    print("Example:")
+    print("  task action list")
+    print("  task action add -t T_AZ \"New action\"")
+    print("  task action add -i 1 \"Insert at position 1\"")
+    print("  task action done -i 1")
+  case "ref", "reference":
+    print("Usage: task ref <subcommand> [OPTIONS]")
+    print("")
+    print("Manage references (URLs, text, relevance scores) for tasks.")
+    print("Synonyms: ref, reference")
+    print("")
+    print("Subcommands:")
+    print("  list [-t|--task PREFIX]")
+    print("      List references for task")
+    print("  add [URL|TEXT] [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]")
+    print("      Add reference (positional: URL or text, or use -u/-x flags)")
+    print("  replace -i NUMBER [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]")
+    print("      Replace reference #NUMBER")
+    print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
+    print("      Delete reference #NUMBER")
+    print("")
+    print("Example:")
+    print("  task ref list -t T_AZ")
+    print("  task ref add https://example.com")
+    print("  task reference add -t T_AZ https://example.com -x \"Example\" -r 0.8")
+  default:
+    throw CliError.unknownSubcommand(command)
+  }
+}
 
 func printUsage() {
   let usage = """
@@ -1752,8 +1895,9 @@ func printUsage() {
     task delete -t T_AZvt --force
     task action list
     task action list -t T_AZ
-    task action add -t T_AZ "First action"
-    task action add "Another action"
+    task action add -t T_AZ "New appended action"
+    task action add "Another appended action"
+    task action add -i 1 "New first action"
     task action replace -i 1 "Updated action"
     task action done -i 1
     task action delete -i 1

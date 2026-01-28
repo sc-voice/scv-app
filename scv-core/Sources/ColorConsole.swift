@@ -34,7 +34,11 @@ public final class ColorConsole: Sendable {
 
   // Thread-safe timestamp tracking
   private static let timestampLock = NSLock()
+  /// appLaunchTime: Written once in init(), never modified after. Safe via NSLock.
+  /// See: doc/ColorConsole.md#thread-safety
   private nonisolated(unsafe) static var appLaunchTime: Date = .init()
+  /// lastOutputTime: Only updated inside NSLock in getElapsedTimeAndUpdate().
+  /// See: doc/ColorConsole.md#thread-safety
   private nonisolated(unsafe) static var lastOutputTime: Date = .init()
 
   /// Initialize ColorConsole

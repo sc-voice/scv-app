@@ -90,7 +90,19 @@ Example: `✅AudioStore:storeAudio:1234.567s+0.002 Cached 87KB`
 
 ## Thread Safety
 
-ColorConsole is `Sendable` and thread-safe via `NSLock`. Safe from any thread.
+ColorConsole is `Sendable` and thread-safe for concurrent logging from multiple threads.
+
+**Implementation Details:**
+1. **Instance properties immutable** - All stored properties (sourceFile, sourceMethod, verbosity, context) are `let` and frozen after initialization. See: ColorConsole.swift:30-33
+2. **Static state protected by NSLock** - Global mutable state (appLaunchTime, lastOutputTime) is guarded by NSLock. See: ColorConsole.swift:36, 75-76, 60-65
+3. **Critical section** - Only timestamp state is serialized inside the lock. The print() operation occurs outside the lock (lines 95, 109, 124, 139), allowing concurrent output. This is intentional—interleaved console output is expected behavior for concurrent logging, not a safety violation.
+
+**Thread-Safety Guarantees:**
+- `appLaunchTime` - Written once during first ColorConsole init(), never modified after
+- `lastOutputTime` - Only updated inside lock in `getElapsedTimeAndUpdate()`
+- `nonisolated(unsafe)` declarations - Compiler bypasses safety checks; developer manually asserts safety via NSLock protection
+
+**Design Intent:** Serialize timestamp tracking to ensure chronologically accurate elapsed-time metrics across threads, while allowing concurrent log output to avoid lock contention on the print operation itself.
 
 ## Limitations
 

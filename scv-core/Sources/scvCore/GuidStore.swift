@@ -28,7 +28,7 @@ struct GuidStoreConfig {
 
 /// File-based storage system for GUID-identified items with hierarchical
 /// directory organization
-class GuidStore {
+final class GuidStore: @unchecked Sendable {
   let storePath: URL
   let folderPrefix: Int
   let suffix: String

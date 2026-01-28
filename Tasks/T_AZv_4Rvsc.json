@@ -1,0 +1,20 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-27T14:35:01Z",
+  "id" : "019BFFE1-1BEC-7000-9AD2-49A03FDC0945",
+  "name" : "Make GuidStore thread-safe",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "state" : "active",
+  "summary" : "Serialize FileManager operations with NSLock; fix race conditions in directory creation and deletion",
+  "updatedAt" : "2026-01-27T14:35:01Z"
+}

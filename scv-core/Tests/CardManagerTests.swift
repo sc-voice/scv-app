@@ -54,7 +54,7 @@ struct CardManagerTests {
     manager.selectCard(card1)
     #expect(manager.selectedCard == card1)
 
-    manager.removeCard(card1)
+    manager.removeCardId(card1.id)
 
     // Should select the next card
     #expect(manager.selectedCard == card2)
@@ -80,7 +80,7 @@ struct CardManagerTests {
     manager.selectCard(card2)
     #expect(manager.selectedCard == card2)
 
-    manager.removeCard(card2)
+    manager.removeCardId(card2.id)
 
     // Should select card1 (next older card after deletion)
     #expect(manager.selectedCard == card1)
@@ -105,7 +105,7 @@ struct CardManagerTests {
     manager.selectCard(card3)
     #expect(manager.selectedCard == card3)
 
-    manager.removeCard(card3)
+    manager.removeCardId(card3.id)
 
     // Should select card2 (last remaining)
     #expect(manager.selectedCard == card2)
@@ -125,7 +125,7 @@ struct CardManagerTests {
     manager.selectCard(onlyCard)
     #expect(manager.selectedCard == onlyCard)
 
-    manager.removeCard(onlyCard)
+    manager.removeCardId(onlyCard.id)
 
     // After deleting the only card, an about card should be auto-created
     #expect(manager.selectedCard != nil)
@@ -151,7 +151,7 @@ struct CardManagerTests {
     let selectedCardId = manager.selectedCard?.id
 
     // Delete card1 (not selected)
-    manager.removeCard(card1)
+    manager.removeCardId(card1.id)
 
     // Selection should remain card2
     #expect(manager.selectedCard?.id == selectedCardId)
@@ -189,7 +189,7 @@ struct CardManagerTests {
     let card1 = manager.allCards.first!
 
     // Delete the card
-    manager.removeCard(card1)
+    manager.removeCardId(card1.id)
 
     // Try to find the deleted card by ID
     let foundCard = manager.cardFromId(card1.id)
@@ -230,7 +230,7 @@ struct CardManagerTests {
     #expect(manager.selectedCardId == card1.id)
 
     // After removing card1, recentCardId should be card2.id (newly selected)
-    manager.removeCard(card1)
+    manager.removeCardId(card1.id)
     #expect(manager.selectedCardId == card2.id)
     #expect(manager.recentCardId == card2.id)
   }
@@ -250,7 +250,7 @@ struct CardManagerTests {
 
     #expect(manager.totalCount == 2)
 
-    manager.removeCard(initialCard)
+    manager.removeCardId(initialCard.id)
 
     #expect(manager.totalCount == 1)
     #expect(manager.selectedCard == newCard)
@@ -273,7 +273,7 @@ struct CardManagerTests {
     #expect(manager.count(for: .search) == 1)
     #expect(manager.count(for: .sutta) == 1)
 
-    manager.removeCard(aboutCard)
+    manager.removeCardId(aboutCard.id)
 
     #expect(manager.count(for: .about) == 0)
     #expect(manager.count(for: .search) == 1)
@@ -352,9 +352,9 @@ struct CardManagerTests {
     manager.selectCard(card1)
 
     // Delete cards in rapid sequence
-    manager.removeCard(card1)
-    manager.removeCard(card3)
-    manager.removeCard(card5)
+    manager.removeCardId(card1.id)
+    manager.removeCardId(card3.id)
+    manager.removeCardId(card5.id)
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
@@ -383,8 +383,8 @@ struct CardManagerTests {
     manager.selectCard(card3)
 
     // Delete non-contiguous cards while card3 is selected
-    manager.removeCard(card1)
-    manager.removeCard(card5)
+    manager.removeCardId(card1.id)
+    manager.removeCardId(card5.id)
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
@@ -411,17 +411,17 @@ struct CardManagerTests {
     manager.selectCard(card2)
 
     // Delete card2 - should select next older card (card1)
-    manager.removeCard(card2)
+    manager.removeCardId(card2.id)
     #expect(manager.selectedCard == card1)
     #expect(manager.totalCount >= 1)
 
     // Delete card1 - should select next newer (card3, since no older exists)
-    manager.removeCard(card1)
+    manager.removeCardId(card1.id)
     #expect(manager.selectedCard == card3)
     #expect(manager.totalCount >= 1)
 
     // Delete card3 - should select card4 (remaining, newest)
-    manager.removeCard(card3)
+    manager.removeCardId(card3.id)
     #expect(manager.selectedCard == card4)
     #expect(manager.totalCount == 1)
   }
@@ -479,9 +479,9 @@ struct CardManagerTests {
     #expect(manager.count(for: .sutta) == 3)
 
     // Delete alternating cards
-    manager.removeCard(aboutCard)
-    manager.removeCard(suttaCard1)
-    manager.removeCard(searchCard2)
+    manager.removeCardId(aboutCard.id)
+    manager.removeCardId(suttaCard1.id)
+    manager.removeCardId(searchCard2.id)
 
     // Should always have at least one card
     #expect(manager.totalCount >= 1)
@@ -535,7 +535,7 @@ struct CardManagerTests {
     // Rapidly remove cards until one remains
     while manager.allCards.count > 1 {
       let cardToRemove = manager.allCards.first!
-      manager.removeCard(cardToRemove)
+      manager.removeCardId(cardToRemove.id)
 
       // After each removal, validate invariant
       #expect(manager.selectedCard != nil)
@@ -567,11 +567,11 @@ struct CardManagerTests {
     #expect(manager.totalCount == 6) // 1 initial + 5 added
 
     // Remove 2 cards
-    manager.removeCard(manager.allCards[0])
+    manager.removeCardId(manager.allCards[0].id)
     #expect(manager.selectedCard != nil)
     #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
 
-    manager.removeCard(manager.allCards[0])
+    manager.removeCardId(manager.allCards[0].id)
     #expect(manager.selectedCard != nil)
     #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
 
@@ -587,7 +587,7 @@ struct CardManagerTests {
 
     // Remove 5 cards
     for _ in 0 ..< 5 {
-      manager.removeCard(manager.allCards[0])
+      manager.removeCardId(manager.allCards[0].id)
       #expect(manager.selectedCard != nil)
       #expect(manager.allCards.contains { $0.id == manager.selectedCard?.id })
     }
@@ -622,7 +622,7 @@ struct CardManagerTests {
 
     let manager = CardManager(modelContext: context)
     let card = manager.allCards.first!
-    manager.removeCard(card)
+    manager.removeCardId(card.id)
 
     let binding = manager.bindCard(id: card.id)
 

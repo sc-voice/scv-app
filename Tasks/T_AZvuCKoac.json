@@ -39,12 +39,7 @@
     {
       "description" : "Determine time needed for M4A conversion of a large DN10 segment - COMPLETED: AVAudioConverter converts 5.3MB CAF to 280KB M4A in 0.075s (19.15x compression). afconvert: 0.082s → 256KB (20.91x). AVAudioConverter is 8% faster, only 24KB larger file (9% size difference). Performance is acceptable for production use.",
       "id" : "815BFCD0-F829-4905-8D34-5237F55B6639"
-    }
-  ],
-  "createdAt" : "2026-01-24T03:25:03Z",
-  "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
-  "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
-  "plannedActions" : [
+    },
     {
       "description" : "Replace afconvert subprocess in AudioStore.convertCAFToM4A() with AVAudioConverter implementation",
       "id" : "3E8AEECE-14F1-41D1-AC1F-4DC879279489"
@@ -62,16 +57,41 @@
       "id" : "9015A813-571E-409B-BE63-A7911694CDE7"
     },
     {
-      "description" : "Update all call sites to await convertCAFToM4A",
-      "id" : "34CDC883-CC5D-4008-95AD-7F80539F055F"
+      "description" : "Change performSynthesis signature from throws to async throws",
+      "id" : "D2831D00-3EB1-40A7-A0E0-85E7F76210F8"
     },
     {
-      "description" : "Implement background Task wrapper for fire-and-forget async conversion",
+      "description" : "Update performSynthesis call to convertCAFToM4A to await",
+      "id" : "BBCD6765-A676-4BB3-B6FA-60A19BB76528"
+    }
+  ],
+  "createdAt" : "2026-01-24T03:25:03Z",
+  "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
+  "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
+  "plannedActions" : [
+    {
+      "description" : "Update storeAudio caching logic: check M4A first, then CAF, return M4A if exists, else CAF if exists",
       "id" : "6DDFEF04-FF22-4C0E-A399-D4031B78744B"
     },
     {
-      "description" : "Add error logging for async conversion failures",
+      "description" : "Update storeAudio to synthesize CAF, start background Task.detached with @Sendable and weak self for M4A conversion, return CAF URL immediately (decouple conversion from synthesis)",
+      "id" : "6DDFEF04-FF22-4C0E-A399-D4031B78744C"
+    },
+    {
+      "description" : "Add AudioStore: @unchecked Sendable conformance (all properties immutable after init, ColorConsole is Sendable with NSLock thread-safety, GuidStore already @unchecked Sendable)",
+      "id" : "AABB1234-5678-9ABC-DEF0-123456789ABC"
+    },
+    {
+      "description" : "Add error logging for async conversion failures (cc.bad1 on M4A conversion errors to facilitate debugging, CAF URL already returned)",
       "id" : "6032D237-26F4-479A-9BAA-EF5AC2FB12E8"
+    },
+    {
+      "description" : "Compile after all changes",
+      "id" : "CCCC1111-2222-3333-4444-555566667777"
+    },
+    {
+      "description" : "Run tests to verify no breakage",
+      "id" : "DDDD1111-2222-3333-4444-555566667777"
     },
     {
       "description" : "Test async conversion doesn't block playback of CAF file",
@@ -79,6 +99,21 @@
     }
   ],
   "references" : [
+    {
+      "id" : "SESSION-NOTES-SENDABLE",
+      "relevance" : 0.95,
+      "text" : "SESSION NOTES: AudioStore Sendable analysis. All properties immutable after init: guidStore (@unchecked Sendable), audioType (enum), cc (Sendable with NSLock thread-safety), timeout (TimeInterval). Blocked on T_AZv_4Rvsc: GuidStore has FileManager race conditions in directory creation/deletion that must be fixed before AudioStore can safely be @unchecked Sendable."
+    },
+    {
+      "id" : "SESSION-NOTES-PATTERNS",
+      "relevance" : 0.9,
+      "text" : "SESSION NOTES: Task.detached patterns learned. Use @Sendable on closure to suppress sendability warnings for fire-and-forget background work. Combine with [weak self] capture to prevent keeping AudioStore alive during background M4A conversion. Guard let self before doing work prevents executing if AudioStore deallocated. Error handling via cc.bad1 logs without blocking caller—CAF URL already returned so playback unaffected."
+    },
+    {
+      "id" : "SESSION-NOTES-ARCHITECTURE",
+      "relevance" : 0.9,
+      "text" : "SESSION NOTES: Deferred M4A conversion architecture implemented. storeAudio caching: check M4A first, then CAF, return M4A if exists else CAF if exists. On cache miss: synthesize to CAF immediately, start Task.detached for background M4A conversion, return CAF URL to caller. Enables playback without waiting for conversion. M4A replaces CAF when conversion completes in background."
+    },
     {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7dbf4ac9b39",
       "relevance" : 1,
@@ -244,9 +279,9 @@
     }
   ],
   "requiredTasks" : [
-
+    "019BFFE1-1BEC-7000-9AD2-49A03FDC0945"
   ],
   "state" : "active",
   "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
-  "updatedAt" : "2026-01-27T12:46:08Z"
+  "updatedAt" : "2026-01-27T14:25:00Z"
 }

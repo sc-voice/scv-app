@@ -50,9 +50,10 @@ public struct CompactionStatus: Sendable {
 /// - Format: Audio files (CAF or M4A)
 /// - Organization:
 /// {language}-{audioContextHash[:7]}/{chapter}/{storageKey}.{suffix}
-final class AudioStore {
+final class AudioStore: Sendable {
   private let guidStore: GuidStore
   private let audioType: AudioType
+  private let cc = ColorConsole(#file, "AudioStore", dbg.AudioStore.other)
   let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 
   /// Shared singleton instance for production use
@@ -178,39 +179,61 @@ final class AudioStore {
       )
     }
 
-    let url = audioUrl(text: text, audioContext: audioContext, forceUrl: true)!
+    let finalUrl = audioUrl(text: text, audioContext: audioContext, forceUrl: true)!
 
-    // If already cached, return immediately
-    if FileManager.default.fileExists(atPath: url.path) {
-      return url
+    // Compute CAF URL (for .m4a mode)
+    let cafUrl = audioType == .m4a
+      ? URL(fileURLWithPath: finalUrl.path.replacingOccurrences(of: ".m4a", with: ".caf"))
+      : finalUrl
+
+    // Check for cached M4A first (if applicable)
+    if audioType == .m4a, FileManager.default.fileExists(atPath: finalUrl.path) {
+      return finalUrl
+    }
+
+    // Check for cached CAF as fallback
+    if FileManager.default.fileExists(atPath: cafUrl.path) {
+      return cafUrl
     }
 
     // Ensure output directory exists
-    let outputDir = url.deletingLastPathComponent()
+    let outputDir = cafUrl.deletingLastPathComponent()
     try FileManager.default.createDirectory(
       at: outputDir,
       withIntermediateDirectories: true,
     )
 
-    // Perform synthesis and write to file
+    // Perform synthesis to CAF
     let effectiveTimeout = timeout ?? self.timeout
-    try performSynthesis(
+    try await performSynthesis(
       text: text,
       audioContext: audioContext,
-      to: url,
+      to: cafUrl,
       timeout: effectiveTimeout,
     )
 
-    return url
+    // If M4A requested, start background conversion task (don't await)
+    if audioType == .m4a {
+      Task.detached { @Sendable [weak self] in
+        guard let self else { return }
+        do {
+          try await self.convertCAFToM4A(cafUrl: cafUrl, m4aUrl: finalUrl)
+        } catch {
+          cc.bad1(#line, "M4A conversion failed: \(error)")
+        }
+      }
+    }
+
+    return cafUrl
   }
 
-  /// Perform synthesis and write to audio file (CAF or M4A).
+  /// Perform synthesis and write to CAF audio file.
   private func performSynthesis(
     text: String,
     audioContext: AudioContext,
-    to url: URL,
+    to cafUrl: URL,
     timeout: TimeInterval,
-  ) throws {
+  ) async throws {
     let fileManager = FileManager.default
 
     // Create utterance with audio context voice settings
@@ -220,13 +243,8 @@ final class AudioStore {
     utterance.pitchMultiplier = audioContext.pitch
     utterance.volume = 1.0
 
-    // For M4A format, synthesize to temporary CAF first, then convert
-    let outputUrl = audioType == .m4a
-      ? URL(fileURLWithPath: url.path.replacingOccurrences(
-        of: ".m4a",
-        with: ".caf",
-      ))
-      : url
+    // Synthesize directly to CAF file
+    let outputUrl = cafUrl
 
     // Setup synthesis with file writing
     let synthesizer = AVSpeechSynthesizer()
@@ -293,63 +311,91 @@ final class AudioStore {
       )
     }
 
-    // Convert CAF to M4A if needed (macOS only)
-    #if os(macOS)
-    if audioType == .m4a {
-      try convertCAFToM4A(cafUrl: outputUrl, m4aUrl: url)
-    }
-    #else
-    if audioType == .m4a {
-      throw NSError(
-        domain: "AudioStore",
-        code: -5,
-        userInfo: [
-          NSLocalizedDescriptionKey: "M4A conversion not supported on this platform",
-        ],
-      )
-    }
-    #endif
   }
 
-  /// Convert CAF file to M4A (AAC codec) format using afconvert utility.
+  /// Convert CAF file to M4A (AAC codec) format using AVAudioConverter.
   ///
-  /// Uses the macOS `afconvert` command-line tool to encode CAF to AAC (M4A).
+  /// Uses native Swift AVAudioConverter to encode CAF to AAC (M4A).
   /// This provides ~7x compression over uncompressed PCM.
   ///
   /// - Parameters:
   ///   - cafUrl: URL to source CAF file
   ///   - m4aUrl: URL to destination M4A file
   /// - Throws: Conversion errors
-  #if os(macOS)
-  private func convertCAFToM4A(cafUrl: URL, m4aUrl: URL) throws {
-    let process = Process()
-    process.launchPath = "/usr/bin/afconvert"
-    // Simplified args: let afconvert handle AAC encoding automatically
-    process.arguments = [
-      "-f", "m4af", // Output format: M4A file
-      "-d", "aac", // Data format: AAC codec
-      cafUrl.path,
-      m4aUrl.path,
-    ]
-
-    let errorPipe = Pipe()
-    process.standardError = errorPipe
-    process.standardOutput = Pipe()
-
+  private func convertCAFToM4A(cafUrl: URL, m4aUrl: URL) async throws {
     do {
-      try process.run()
-      process.waitUntilExit()
+      // Step 1: Read CAF file
+      let inputAudioFile = try AVAudioFile(forReading: cafUrl)
+      let inputFormat = inputAudioFile.processingFormat
+      let frameCount = AVAudioFramePosition(inputAudioFile.length)
 
-      if process.terminationStatus != 0 {
-        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        let errorMsg = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+      // Step 2: Create PCM output format for converter
+      let outputFormat = AVAudioFormat(
+        commonFormat: .pcmFormatFloat32,
+        sampleRate: inputFormat.sampleRate,
+        channels: inputFormat.channelCount,
+        interleaved: false,
+      )!
+
+      // Step 3: Create converter (reuse throughout chunk processing)
+      guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+      else {
         throw NSError(
           domain: "AudioStore",
-          code: -4,
+          code: -3,
           userInfo: [
-            NSLocalizedDescriptionKey: "afconvert failed: \(errorMsg.trimmingCharacters(in: .whitespacesAndNewlines))",
+            NSLocalizedDescriptionKey: "Failed to create AVAudioConverter"
           ],
         )
+      }
+
+      // Step 4: Create output file with AAC settings
+      let m4aSettings: [String: Any] = [
+        AVFormatIDKey: kAudioFormatMPEG4AAC,
+        AVSampleRateKey: inputFormat.sampleRate,
+        AVNumberOfChannelsKey: inputFormat.channelCount,
+      ]
+
+      let outputAudioFile = try AVAudioFile(
+        forWriting: m4aUrl,
+        settings: m4aSettings,
+      )
+
+      // Step 5: Convert in chunks
+      let bufferSize: AVAudioFrameCount = 4096
+      var totalFramesProcessed: AVAudioFrameCount = 0
+
+      while totalFramesProcessed < frameCount {
+        let framesRemaining = frameCount - AVAudioFramePosition(totalFramesProcessed)
+        let framesToRead = AVAudioFrameCount(min(
+          framesRemaining,
+          AVAudioFramePosition(bufferSize),
+        ))
+
+        // Read chunk from input
+        let inputBuffer = AVAudioPCMBuffer(
+          pcmFormat: inputFormat,
+          frameCapacity: framesToRead,
+        )!
+        try inputAudioFile.read(into: inputBuffer, frameCount: framesToRead)
+
+        if inputBuffer.frameLength == 0 {
+          break
+        }
+
+        // Create output buffer for converted data
+        let outputBuffer = AVAudioPCMBuffer(
+          pcmFormat: outputFormat,
+          frameCapacity: bufferSize,
+        )!
+
+        // Convert chunk using same converter instance
+        try converter.convert(to: outputBuffer, from: inputBuffer)
+
+        // Write converted buffer
+        try outputAudioFile.write(from: outputBuffer)
+
+        totalFramesProcessed += inputBuffer.frameLength
       }
 
       // Clean up temporary CAF file
@@ -360,7 +406,6 @@ final class AudioStore {
       throw error
     }
   }
-  #endif
 
   /// List all volumes in the audio store (for testing).
   ///

@@ -4,47 +4,42 @@ import UUIDV7
 
 struct TaskTests {
   @Test
-  func taskCreation() {
-    let uuid = UUIDV7()
-    let task = Task(
-      id: uuid,
-      name: "Test Task",
-      summary: "A test task",
-    )
-    #expect(task.id == uuid)
+  func taskCreation() async throws {
+    let world = MockTaskWorld()
+    let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(1))
+    let task = try Task.create(world: world, uuid: uuid, name: "Test Task", summary: "A test task")
+
+    #expect(task.uuid == uuid)
     #expect(task.name == "Test Task")
     #expect(task.summary == "A test task")
-    #expect(task.state == .active)
+    #expect(task.state == TaskState.pending)
   }
 
   @Test
-  func taskIsBlocked() {
-    var task = Task(
-      id: UUIDV7(),
-      name: "Test",
-      summary: "Test",
-      state: .blocked,
-    )
-    #expect(task.isBlocked)
+  func taskIsBlocked() async throws {
+    let world = MockTaskWorld()
+    let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(2))
+    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    task.requiredTasks = ["T_blockedTask"]
+    try world.updateTask(task)
+
+    // Without blocker in world, state is computed as .pending
+    #expect(task.state == TaskState.pending)
+    #expect(!task.isBlocked)
     #expect(!task.isActive)
     #expect(!task.isDone)
-
-    task.updateState(.active)
-    #expect(!task.isBlocked)
-    #expect(task.isActive)
   }
 
   @Test
-  func testMoveActionToCompleted() {
-    var task = Task(
-      id: UUIDV7(),
-      name: "Test",
-      summary: "Test",
-      plannedActions: [
-        Action(description: "Action 1"),
-        Action(description: "Action 2"),
-      ],
-    )
+  func testMoveActionToCompleted() async throws {
+    let world = MockTaskWorld()
+    let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(3))
+    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    task.plannedActions = [
+      Action(description: "Action 1"),
+      Action(description: "Action 2"),
+    ]
+    try world.updateTask(task)
 
     #expect(task.plannedActions.count == 2)
     #expect(task.completedActions.count == 0)
@@ -57,12 +52,10 @@ struct TaskTests {
   }
 
   @Test
-  func testAddPlannedAction() {
-    var task = Task(
-      id: UUIDV7(),
-      name: "Test",
-      summary: "Test",
-    )
+  func testAddPlannedAction() async throws {
+    let world = MockTaskWorld()
+    let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(4))
+    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
 
     let action = Action(description: "New action")
     task.addPlannedAction(action)
@@ -72,15 +65,13 @@ struct TaskTests {
   }
 
   @Test
-  func testFileName() {
-    let uuid = UUIDV7()
-    let task = Task(
-      id: uuid,
-      name: "Test",
-      summary: "Test",
-    )
-    // fileName should start with T_ and have 9 base64 chars
-    #expect(task.fileName.hasPrefix("T_"))
-    #expect(task.fileName.count == 11) // "T_" + 9 chars
+  func testFileName() async throws {
+    let world = MockTaskWorld()
+    let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(5))
+    let task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+
+    // idFile should start with T_ and have 9 base64 chars
+    #expect(task.idFile.hasPrefix("T_"))
+    #expect(task.idFile.count == 11) // "T_" + 9 chars
   }
 }

@@ -410,11 +410,6 @@ public class CardManager: ICardManager {
     }
   }
 
-  @available(*, deprecated, message: "Use removeCardId(_:) instead")
-  public func removeCard(_ card: Card) {
-    removeCardId(card.id)
-  }
-
   /// Finds the next card to select after deleting a card
   /// With reverse chronological order, selects the next older card (or newer if
   /// none older)
@@ -443,7 +438,7 @@ public class CardManager: ICardManager {
     for index in indices {
       if index < cards.count {
         let card = cards[index]
-        removeCard(card)
+        removeCardId(card.id)
       }
     }
   }
