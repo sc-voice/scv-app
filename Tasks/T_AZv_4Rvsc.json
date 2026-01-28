@@ -6,7 +6,30 @@
   "id" : "019BFFE1-1BEC-7000-9AD2-49A03FDC0945",
   "name" : "Make GuidStore thread-safe",
   "plannedActions" : [
-
+    {
+      "description" : "Add NSLock field to GuidStore class",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF17532D"
+    },
+    {
+      "description" : "Protect init() directory creation in GuidStore with lock",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF17532E"
+    },
+    {
+      "description" : "Protect guidPath() methods (both overloads) with lock for volume/chapter creation",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF17532F"
+    },
+    {
+      "description" : "Protect clearVolume() with lock for atomic file collection and deletion",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF175330"
+    },
+    {
+      "description" : "Protect listVolumes() with lock for consistency",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF175331"
+    },
+    {
+      "description" : "Run all GuidStoreTests to verify no regressions",
+      "id" : "70D0B6F2-708C-40C1-94DD-F645BF175332"
+    }
   ],
   "references" : [
 
@@ -14,7 +37,6 @@
   "requiredTasks" : [
 
   ],
-  "state" : "active",
   "summary" : "Serialize FileManager operations with NSLock; fix race conditions in directory creation and deletion",
-  "updatedAt" : "2026-01-27T14:35:01Z"
+  "updatedAt" : "2026-01-28T21:14:28Z"
 }

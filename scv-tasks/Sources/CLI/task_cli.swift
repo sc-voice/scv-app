@@ -830,9 +830,22 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     } else {
       // Positional argument - description
       description = arg
+      i += 1
       break
     }
 
+    i += 1
+  }
+
+  // Check for extra positional arguments
+  while i < args.count {
+    let arg = args[i]
+    if !arg.hasPrefix("-") {
+      let cc = ColorConsole(#file, #function, 1)
+      cc.bad1(#line, "Expected at most 1 positional argument, got extra: \(arg)")
+      try printHelpForCommand("action")
+      throw CliError.invalidArgument("Too many positional arguments")
+    }
     i += 1
   }
 
@@ -1609,6 +1622,7 @@ enum CliError: LocalizedError {
   case unknownFormat(String)
   case invalidInteger(String)
   case invalidActionNumber(String)
+  case invalidArgument(String)
   case noTasksFound
   case taskNotFound
   case unknownSubcommand(String)
@@ -1628,6 +1642,8 @@ enum CliError: LocalizedError {
       "Invalid integer value '\(val)'"
     case let .invalidActionNumber(val):
       "Invalid action number '\(val)'. Must be a positive integer (1-based)"
+    case let .invalidArgument(msg):
+      msg
     case .noTasksFound:
       "No tasks found"
     case .taskNotFound:

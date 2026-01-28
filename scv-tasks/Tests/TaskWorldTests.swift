@@ -223,4 +223,50 @@ struct TaskWorldTests {
     #expect(deleted == true)
     #expect(world.taskFrom(anyId: task.idFile) == nil)
   }
+
+  @Test
+  func stackTaskReturnedWhenAvailable() async throws {
+    let tempDir = createTempDir()
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    let world = TaskWorld(basePath: tempDir)
+    let task1 = try await world.createTask(name: "Task 1", summary: "")
+    let task2 = try await world.createTask(name: "Task 2", summary: "")
+    let task3 = try await world.createTask(name: "Task 3", summary: "")
+
+    // Stack should be empty
+    #expect(world.stackTaskIds().isEmpty)
+
+    // After pushing task2, currentTaskId() should return task2
+    world.pushTaskId(task2.idFile)
+    if let currentId = world.currentTaskId() {
+      let currentTask = world.taskFrom(anyId: currentId)
+      #expect(currentTask?.uuid == task2.uuid)
+    } else {
+      #expect(Bool(false), "currentTaskId() returned nil when stack is not empty")
+    }
+  }
+
+  @Test
+  func multipleStackedTasksReturnTopOfStack() async throws {
+    let tempDir = createTempDir()
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    let world = TaskWorld(basePath: tempDir)
+    let task1 = try await world.createTask(name: "Task 1", summary: "")
+    let task2 = try await world.createTask(name: "Task 2", summary: "")
+    let task3 = try await world.createTask(name: "Task 3", summary: "")
+
+    // Push task1, then task2 to stack
+    world.pushTaskId(task1.idFile)
+    world.pushTaskId(task2.idFile)
+
+    // currentTaskId() should return task2 (top of stack)
+    if let currentId = world.currentTaskId() {
+      let currentTask = world.taskFrom(anyId: currentId)
+      #expect(currentTask?.uuid == task2.uuid)
+    } else {
+      #expect(Bool(false), "currentTaskId() returned nil when stack is not empty")
+    }
+  }
 }
