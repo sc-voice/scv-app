@@ -69,6 +69,11 @@ public struct Task: Codable, Identifiable, Sendable {
       }
     }
 
+    // Done if all required tasks are done, has completed actions, and no planned actions
+    if !completedActions.isEmpty && plannedActions.isEmpty {
+      return .done
+    }
+
     // Active if on stack, otherwise pending
     return world.isStackTaskId(idFile) ? .active : .pending
   }

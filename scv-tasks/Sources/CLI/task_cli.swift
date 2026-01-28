@@ -364,7 +364,7 @@ func handleList(args: [String], rootDirectory: URL) throws {
     throw CliError.unknownOption(args[0])
   }
 
-  let world = TaskWorld.shared
+  let world = TaskWorld(basePath: rootDirectory)
   let allTaskIds = world.allTaskIds(showFileName: true)
   let stackTaskIds = world.stackTaskIds()
 
@@ -382,6 +382,7 @@ func handleList(args: [String], rootDirectory: URL) throws {
 
   for task in sortedTasks {
     if effectiveLimit > 0, count >= effectiveLimit {
+      print("...")
       break
     }
 
@@ -394,11 +395,11 @@ func handleList(args: [String], rootDirectory: URL) throws {
     case .active:
       world.isStackTaskId(task.idFile) ? "🟢" : "🐢"
     case .done:
-      "☑️"
+      "☑️ "
     }
 
-    print("\(task.idFile) \(emoji) \(task.name)")
     count += 1
+    print("  \(count). \(task.idFile) \(emoji) \(task.name)")
   }
 }
 
@@ -1675,6 +1676,7 @@ func taskProjectRoot() throws -> URL {
     if parent == currentPath {
       // Reached filesystem root without finding .task-world.json
       print("Error: Task infrastructure not found in current directory or ancestors.")
+      print("Current path: \(currentPath)")
       print("")
       print("To initialize task infrastructure in the current directory, run:")
       print("  task init")
