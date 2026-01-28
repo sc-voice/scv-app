@@ -50,7 +50,7 @@ public struct CompactionStatus: Sendable {
 /// - Format: Audio files (CAF or M4A)
 /// - Organization:
 /// {language}-{audioContextHash[:7]}/{chapter}/{storageKey}.{suffix}
-final class AudioStore: Sendable {
+final class AudioStore: @unchecked Sendable {
   private let guidStore: GuidStore
   private let audioType: AudioType
   private let cc = ColorConsole(#file, "AudioStore", dbg.AudioStore.other)
@@ -219,6 +219,7 @@ final class AudioStore: Sendable {
         do {
           try await self.convertCAFToM4A(cafUrl: cafUrl, m4aUrl: finalUrl)
         } catch {
+          let cc = ColorConsole(#file, "AudioStore.M4AConversion", dbg.AudioStore.other)
           cc.bad1(#line, "M4A conversion failed: \(error)")
         }
       }

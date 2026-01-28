@@ -63,12 +63,7 @@
     {
       "description" : "Update performSynthesis call to convertCAFToM4A to await",
       "id" : "BBCD6765-A676-4BB3-B6FA-60A19BB76528"
-    }
-  ],
-  "createdAt" : "2026-01-24T03:25:03Z",
-  "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
-  "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
-  "plannedActions" : [
+    },
     {
       "description" : "Update storeAudio caching logic: check M4A first, then CAF, return M4A if exists, else CAF if exists",
       "id" : "6DDFEF04-FF22-4C0E-A399-D4031B78744B"
@@ -92,28 +87,18 @@
     {
       "description" : "Run tests to verify no breakage",
       "id" : "DDDD1111-2222-3333-4444-555566667777"
-    },
+    }
+  ],
+  "createdAt" : "2026-01-24T03:25:03Z",
+  "id" : "019BEE08-AA1A-7000-BA3E-A27231CAED05",
+  "name" : "Replace afconvert CLI with AVAudioConverter in AudioStore",
+  "plannedActions" : [
     {
       "description" : "Test async conversion doesn't block playback of CAF file",
       "id" : "654E0DDF-8680-42DC-9D70-F58DCB849DCA"
     }
   ],
   "references" : [
-    {
-      "id" : "SESSION-NOTES-SENDABLE",
-      "relevance" : 0.95,
-      "text" : "SESSION NOTES: AudioStore Sendable analysis. All properties immutable after init: guidStore (@unchecked Sendable), audioType (enum), cc (Sendable with NSLock thread-safety), timeout (TimeInterval). Blocked on T_AZv_4Rvsc: GuidStore has FileManager race conditions in directory creation/deletion that must be fixed before AudioStore can safely be @unchecked Sendable."
-    },
-    {
-      "id" : "SESSION-NOTES-PATTERNS",
-      "relevance" : 0.9,
-      "text" : "SESSION NOTES: Task.detached patterns learned. Use @Sendable on closure to suppress sendability warnings for fire-and-forget background work. Combine with [weak self] capture to prevent keeping AudioStore alive during background M4A conversion. Guard let self before doing work prevents executing if AudioStore deallocated. Error handling via cc.bad1 logs without blocking caller—CAF URL already returned so playback unaffected."
-    },
-    {
-      "id" : "SESSION-NOTES-ARCHITECTURE",
-      "relevance" : 0.9,
-      "text" : "SESSION NOTES: Deferred M4A conversion architecture implemented. storeAudio caching: check M4A first, then CAF, return M4A if exists else CAF if exists. On cache miss: synthesize to CAF immediately, start Task.detached for background M4A conversion, return CAF URL to caller. Enables playback without waiting for conversion. M4A replaces CAF when conversion completes in background."
-    },
     {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7dbf4ac9b39",
       "relevance" : 1,
@@ -148,6 +133,11 @@
       "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/BackgroundAudio.md"
     },
     {
+      "id" : "SESSION-NOTES-SENDABLE",
+      "relevance" : 0.95,
+      "text" : "SESSION NOTES: AudioStore Sendable analysis. All properties immutable after init: guidStore (@unchecked Sendable), audioType (enum), cc (Sendable with NSLock thread-safety), timeout (TimeInterval). Blocked on T_AZv_4Rvsc: GuidStore has FileManager race conditions in directory creation\/deletion that must be fixed before AudioStore can safely be @unchecked Sendable."
+    },
+    {
       "id" : "019bf09e-0c1b-7d73-bf1c-a7cdd7836af0",
       "relevance" : 0.9,
       "url" : ".\/scv-core\/Sources\/AudioStore.swift:302-349"
@@ -176,6 +166,16 @@
       "id" : "AZv2DoolcACeGyxGbbPhpA",
       "relevance" : 0.9,
       "text" : "AVEncoderBitRateKey and AVEncoderBitRateStrategyKey cause NSInvalidArgumentException crashes when used with AVAudioFile(forWriting:) settings dictionary."
+    },
+    {
+      "id" : "SESSION-NOTES-ARCHITECTURE",
+      "relevance" : 0.9,
+      "text" : "SESSION NOTES: Deferred M4A conversion architecture implemented. storeAudio caching: check M4A first, then CAF, return M4A if exists else CAF if exists. On cache miss: synthesize to CAF immediately, start Task.detached for background M4A conversion, return CAF URL to caller. Enables playback without waiting for conversion. M4A replaces CAF when conversion completes in background."
+    },
+    {
+      "id" : "SESSION-NOTES-PATTERNS",
+      "relevance" : 0.9,
+      "text" : "SESSION NOTES: Task.detached patterns learned. Use @Sendable on closure to suppress sendability warnings for fire-and-forget background work. Combine with [weak self] capture to prevent keeping AudioStore alive during background M4A conversion. Guard let self before doing work prevents executing if AudioStore deallocated. Error handling via cc.bad1 logs without blocking caller—CAF URL already returned so playback unaffected."
     },
     {
       "id" : "AZv1OOgscACxhDAYB5J15w",
@@ -281,7 +281,6 @@
   "requiredTasks" : [
     "019BFFE1-1BEC-7000-9AD2-49A03FDC0945"
   ],
-  "state" : "active",
   "summary" : "Use native Swift frameworks instead of subprocess for CAF to M4A conversion",
-  "updatedAt" : "2026-01-27T14:25:00Z"
+  "updatedAt" : "2026-01-28T23:49:21Z"
 }

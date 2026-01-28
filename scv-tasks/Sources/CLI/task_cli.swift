@@ -1036,9 +1036,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  guard let actionNumber = commandItem else {
-    throw CliError.missingRequired("-i/--item")
-  }
+  let actionNumber = commandItem ?? 1
 
   let inputPrefix = taskPrefix ?? commandTask
   guard let inputPrefix else {
@@ -1819,8 +1817,8 @@ func printHelpForCommand(_ command: String) throws {
     print("      Add action (insert at position if -i specified)")
     print("  replace -i NUMBER [-t|--task PREFIX] DESCRIPTION")
     print("      Replace action #NUMBER (1-based)")
-    print("  done -i NUMBER [-t|--task PREFIX]")
-    print("      Move action #NUMBER to completed")
+    print("  done [-i NUMBER] [-t|--task PREFIX]")
+    print("      Move first planned action to completed (or action #NUMBER if -i specified)")
     print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
     print("      Delete action #NUMBER")
     print("")
@@ -1828,7 +1826,7 @@ func printHelpForCommand(_ command: String) throws {
     print("  task action list")
     print("  task action add -t T_AZ \"New action\"")
     print("  task action add -i 1 \"Insert at position 1\"")
-    print("  task action done -i 1")
+    print("  task action done  # move first planned action to completed actions")
   case "ref", "reference":
     print("Usage: task ref <subcommand> [OPTIONS]")
     print("")
@@ -1885,8 +1883,8 @@ func printUsage() {
                         Add action to task (insert at position if -i specified)
       replace -i NUMBER [-t|--task PREFIX] DESCRIPTION
                         Replace action #NUMBER (1-based, use -i|--item)
-      done -i NUMBER [-t|--task PREFIX]
-                        Move action #NUMBER to completed (1-based, use -i|--item)
+      done [-i NUMBER] [-t|--task PREFIX]
+                        Move first planned action to completed (or action #NUMBER if -i specified)
       delete -i NUMBER [-t|--task PREFIX] [--force]
                         Delete action #NUMBER (1-based, use -i|--item)
     ref|reference <subcommand> [OPTIONS]
@@ -1917,7 +1915,7 @@ func printUsage() {
     task action add "Another appended action"
     task action add -i 1 "New first action"
     task action replace -i 1 "Updated action"
-    task action done -i 1
+    task action done  # move first planned action to completed actions
     task action delete -i 1
     task action delete -i 1 --force
     task ref list

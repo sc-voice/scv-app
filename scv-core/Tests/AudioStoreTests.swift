@@ -1001,4 +1001,31 @@ struct AudioStoreTests {
       "dn10:2.32.2 AVAudioConverter: synthesis=\(String(format: "%.3f", cafTime))s, convert=\(String(format: "%.3f", conversionTime))s, ratio=\(String(format: "%.2f", compressionRatio))x",
     )
   }
+
+  @Test("PLAYBACK: Play 'So I have heard.' from AudioStore")
+  func playbackStoreAudioCAF() async throws {
+    let root = projectRoot()
+    let testDir = root.appendingPathComponent("local/test-audio")
+    let store = AudioStore.create(path: testDir, type: .caf)
+    let context = AudioContext(for: "en")
+
+    print("\n=== PLAYBACK TEST ===")
+    print("Synthesizing and playing 'So I have heard.'\n")
+
+    let url = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+
+    #expect(url.pathExtension == "caf", "Should return CAF file")
+
+    let player = try AVAudioPlayer(contentsOf: url)
+    #expect(player.prepareToPlay(), "Player should prepare successfully")
+    #expect(player.duration > 0, "Audio duration should be positive")
+
+    print("Playing audio... (duration: \(String(format: "%.2f", player.duration))s)")
+    player.play()
+
+    // Wait for playback to complete
+    try await Task.sleep(for: .seconds(player.duration + 0.5))
+
+    print("Playback complete\n")
+  }
 }
