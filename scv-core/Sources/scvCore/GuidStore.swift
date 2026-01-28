@@ -35,6 +35,7 @@ final class GuidStore: @unchecked Sendable {
   let defaultVolume: String
 
   private let fileManager = FileManager.default
+  private let lock = NSLock()
 
   /// Initialize GuidStore with configuration
   /// - Parameter config: Configuration options
@@ -54,7 +55,9 @@ final class GuidStore: @unchecked Sendable {
       storePath = documentsUrl.appendingPathComponent(config.storeName)
     }
 
-    // Create store directory
+    // Create store directory (protected by lock)
+    lock.lock()
+    defer { lock.unlock() }
     try? fileManager.createDirectory(
       at: storePath,
       withIntermediateDirectories: true,
@@ -85,7 +88,10 @@ final class GuidStore: @unchecked Sendable {
   func guidPath(guid: String, volume: String, chapter: String?,
                 suffix: String) -> URL
   {
-    // Create volume directory
+    // Create volume directory (protected by lock)
+    lock.lock()
+    defer { lock.unlock() }
+
     let volumePath = storePath.appendingPathComponent(volume)
     try? fileManager.createDirectory(
       at: volumePath,
@@ -132,58 +138,65 @@ final class GuidStore: @unchecked Sendable {
 
   /// Asynchronously list all volumes in the store
   /// - Returns: Array of volume names
-  func listVolumes() async throws -> [String] {
-    let contents = try fileManager.contentsOfDirectory(
-      at: storePath,
-      includingPropertiesForKeys: nil,
-      options: [.skipsHiddenFiles],
-    )
-    return contents.map(\.lastPathComponent)
+  nonisolated func listVolumes() async throws -> [String] {
+    return try await Task.detached(priority: .userInitiated) { [weak self] in
+      guard let self else { return [] }
+      let contents = try self.fileManager.contentsOfDirectory(
+        at: self.storePath,
+        includingPropertiesForKeys: nil,
+        options: [.skipsHiddenFiles],
+      )
+      return contents.map(\.lastPathComponent)
+    }.value
   }
 
   /// Asynchronously delete all files in a volume
   /// - Parameter volume: Volume name to clear
   /// - Returns: Count of deleted files
-  func clearVolume(_ volume: String) async throws -> Int {
-    let volumePath = storePath.appendingPathComponent(volume)
+  nonisolated func clearVolume(_ volume: String) async throws -> Int {
+    return try await Task.detached(priority: .userInitiated) { [weak self] in
+      guard let self else { return 0 }
 
-    guard fileManager.fileExists(atPath: volumePath.path) else {
-      return 0
-    }
+      let volumePath = self.storePath.appendingPathComponent(volume)
 
-    var count = 0
+      guard self.fileManager.fileExists(atPath: volumePath.path) else {
+        return 0
+      }
 
-    // Recursively collect all file URLs
-    func collectFiles(at path: URL) throws -> [URL] {
-      var files: [URL] = []
-      let contents = try fileManager.contentsOfDirectory(
-        at: path,
-        includingPropertiesForKeys: nil,
-        options: [.skipsHiddenFiles],
-      )
-      for item in contents {
-        var isDir: ObjCBool = false
-        if fileManager.fileExists(atPath: item.path, isDirectory: &isDir) {
-          if isDir.boolValue {
-            try files.append(contentsOf: collectFiles(at: item))
-          } else {
-            files.append(item)
+      var count = 0
+
+      // Recursively collect all file URLs
+      func collectFiles(at path: URL) throws -> [URL] {
+        var files: [URL] = []
+        let contents = try self.fileManager.contentsOfDirectory(
+          at: path,
+          includingPropertiesForKeys: nil,
+          options: [.skipsHiddenFiles],
+        )
+        for item in contents {
+          var isDir: ObjCBool = false
+          if self.fileManager.fileExists(atPath: item.path, isDirectory: &isDir) {
+            if isDir.boolValue {
+              try files.append(contentsOf: collectFiles(at: item))
+            } else {
+              files.append(item)
+            }
           }
         }
+        return files
       }
-      return files
-    }
 
-    // Get all files and delete them
-    let files = try collectFiles(at: volumePath)
-    for fileUrl in files {
-      try fileManager.removeItem(at: fileUrl)
-      count += 1
-    }
+      // Get all files and delete them
+      let files = try collectFiles(at: volumePath)
+      for fileUrl in files {
+        try self.fileManager.removeItem(at: fileUrl)
+        count += 1
+      }
 
-    // Try to remove the volume directory if empty
-    try? fileManager.removeItem(at: volumePath)
+      // Try to remove the volume directory if empty
+      try? self.fileManager.removeItem(at: volumePath)
 
-    return count
+      return count
+    }.value
   }
 }
