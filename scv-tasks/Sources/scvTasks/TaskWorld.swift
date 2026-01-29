@@ -32,6 +32,16 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     set { worldModel.lineLength = newValue }
   }
 
+  public var showDone: Bool {
+    get { worldModel.showDone }
+    set { worldModel.showDone = newValue }
+  }
+
+  public var showUpdate: Bool {
+    get { worldModel.showUpdate }
+    set { worldModel.showUpdate = newValue }
+  }
+
   public init(basePath: URL? = nil) {
     let path = basePath ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     self.basePath = path

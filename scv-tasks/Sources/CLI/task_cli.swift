@@ -124,6 +124,8 @@ func parseArgs() throws
   var verbosityOverride: Int?
   var limitOverride: Int?
   var lineLengthOverride: Int?
+  var showDoneOverride: Bool?
+  var showUpdateOverride: Bool?
   var allArgs = Array(CommandLine.arguments.dropFirst())
   var globalOptionIndices = Set<Int>()  // Track which indices are global options
 
@@ -199,6 +201,22 @@ func parseArgs() throws
       commandItem = num
       globalOptionIndices.insert(i)
       i += 1
+    } else if arg == "--no-show-done" {
+      globalOptionIndices.insert(i)
+      showDoneOverride = false
+      i += 1
+    } else if arg == "--show-done" {
+      globalOptionIndices.insert(i)
+      showDoneOverride = true
+      i += 1
+    } else if arg == "--no-show-update" {
+      globalOptionIndices.insert(i)
+      showUpdateOverride = false
+      i += 1
+    } else if arg == "--show-update" {
+      globalOptionIndices.insert(i)
+      showUpdateOverride = true
+      i += 1
     } else {
       i += 1
     }
@@ -248,6 +266,8 @@ func parseArgs() throws
         WorldModel.shared.limit = loadedWorld.limit
         WorldModel.shared.verbosity = loadedWorld.verbosity
         WorldModel.shared.lineLength = loadedWorld.lineLength
+        WorldModel.shared.showDone = loadedWorld.showDone
+        WorldModel.shared.showUpdate = loadedWorld.showUpdate
       } catch {
         let cc = ColorConsole(#file, #function, DBG_TASK)
         cc.bad1(#line, "cannot load \(worldPath)")
@@ -255,7 +275,7 @@ func parseArgs() throws
       }
     }
 
-    // Apply verbosity, limit, and lineLength overrides if specified
+    // Apply verbosity, limit, lineLength, showDone, and showUpdate overrides if specified
     if let verbosity = verbosityOverride {
       WorldModel.shared.verbosity = verbosity
     }
@@ -265,7 +285,13 @@ func parseArgs() throws
     if let lineLength = lineLengthOverride {
       WorldModel.shared.lineLength = lineLength
     }
-    if verbosityOverride != nil || limitOverride != nil || lineLengthOverride != nil {
+    if let showDone = showDoneOverride {
+      WorldModel.shared.showDone = showDone
+    }
+    if let showUpdate = showUpdateOverride {
+      WorldModel.shared.showUpdate = showUpdate
+    }
+    if verbosityOverride != nil || limitOverride != nil || lineLengthOverride != nil || showDoneOverride != nil || showUpdateOverride != nil {
       let worldPath = finalRootDirectory.appendingPathComponent(".task-world.json")
       try WorldModel.shared.save(to: worldPath)
     }
@@ -359,14 +385,22 @@ func wrapLine(_ line: String, maxLength: Int, hangingIndentWidth: Int = 5) -> St
 // MARK: - Command Handlers
 
 func handleList(args: [String], rootDirectory: URL) throws {
-  var showDone = false
+  // Parse command-line overrides
+  var showDoneOverride: Bool?
+  var showUpdateOverride: Bool?
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
     if arg == "-sd" || arg == "--show-done" {
-      showDone = true
+      showDoneOverride = true
+    } else if arg == "--no-show-done" {
+      showDoneOverride = false
+    } else if arg == "-su" || arg == "--show-update" {
+      showUpdateOverride = true
+    } else if arg == "--no-show-update" {
+      showUpdateOverride = false
     } else {
       throw CliError.unknownOption(arg)
     }
@@ -375,24 +409,52 @@ func handleList(args: [String], rootDirectory: URL) throws {
   }
 
   let world = TaskWorld(basePath: rootDirectory)
+
+  // Use command-line overrides if specified, otherwise use persistent settings
+  let showDone = showDoneOverride ?? world.showDone
+  let showUpdate = showUpdateOverride ?? world.showUpdate
+
   let allTaskIds = world.allTaskIds(showFileName: true)
   let stackTaskIds = world.stackTaskIds()
 
   // Separate tasks into stack and non-stack groups
   // Display stack in reverse order (top of stack first)
   let stackTasks = stackTaskIds.reversed().compactMap { world.taskFrom(anyId: $0) }
-  let nonStackTasks = allTaskIds
+  let allNonStackTasks = allTaskIds
     .compactMap { world.taskFrom(anyId: $0) }
     .filter { !world.isStackTaskId($0.idFile) }
-    .sorted { $0.id > $1.id }
 
-  // Filter done tasks unless -sd flag is set
+  // Sort non-stack tasks by update date (descending) if showUpdate is true, otherwise by UUID (descending)
+  let nonStackTasks = showUpdate
+    ? allNonStackTasks.sorted { $0.updatedAt > $1.updatedAt }
+    : allNonStackTasks.sorted { $0.id > $1.id }
+
+  // Filter done tasks unless showDone is set
   let filteredStackTasks = showDone ? stackTasks : stackTasks.filter { $0.state != .done }
   let filteredNonStackTasks = showDone ? nonStackTasks : nonStackTasks.filter { $0.state != .done }
   let sortedTasks = filteredStackTasks + filteredNonStackTasks
 
   let effectiveLimit = world.limit
   var count = 0
+
+  // Create date formatter if showing update dates
+  let dateFormatter: DateFormatter?
+  if showUpdate {
+    let formatter = DateFormatter()
+    // Get locale-specific short date format template with 2-digit year
+    if let dateFormat = DateFormatter.dateFormat(fromTemplate: "yyMd", options: 0, locale: Locale.current) {
+      // Append 24-hour time format (HH:mm)
+      formatter.dateFormat = dateFormat + " HH:mm"
+    } else {
+      // Fallback if template generation fails
+      formatter.dateStyle = .short
+      formatter.timeStyle = .short
+      formatter.locale = Locale.current
+    }
+    dateFormatter = formatter
+  } else {
+    dateFormatter = nil
+  }
 
   for task in sortedTasks {
     if effectiveLimit > 0, count >= effectiveLimit {
@@ -413,7 +475,14 @@ func handleList(args: [String], rootDirectory: URL) throws {
     }
 
     count += 1
-    print("  \(count). \(task.idFile) \(emoji) \(task.name)")
+
+    let rowNum = String(format: "%3d", count)
+    if let formatter = dateFormatter {
+      let dateStr = formatter.string(from: task.updatedAt)
+      print("\(rowNum). \(dateStr) \(task.idFile) \(emoji) \(task.name)")
+    } else {
+      print("\(rowNum). \(task.idFile) \(emoji) \(task.name)")
+    }
   }
 }
 
@@ -1758,17 +1827,24 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task init")
   case "list":
-    print("Usage: task list [-sd|--show-done]")
+    print("Usage: task list [-sd|--show-done|--no-show-done] [-su|--show-update|--no-show-update]")
     print("")
     print("List all tasks sorted by stack status and creation date.")
-    print("By default, done tasks are hidden. Shows emoji indicators: 🔴 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
+    print("Persistent settings stored in .task-world.json. By default, done tasks are hidden and tasks sorted by UUID.")
+    print("Shows emoji indicators: 🔴 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
     print("")
     print("Options:")
-    print("  -sd, --show-done     Include done tasks in output (default: hidden)")
+    print("  -sd, --show-done        Include done tasks (persists)")
+    print("  --no-show-done          Hide done tasks (persists)")
+    print("  -su, --show-update      Show update date and sort by update date (persists)")
+    print("  --no-show-update        Hide update date and sort by UUID (persists)")
     print("")
     print("Example:")
     print("  task list")
     print("  task list -sd")
+    print("  task list -su")
+    print("  task list --show-done --show-update")
+    print("  task --no-show-done list  # global flag")
   case "add":
     print("Usage: task add -n NAME [-s SUMMARY]")
     print("")
@@ -1880,10 +1956,16 @@ func printUsage() {
     -l, --limit ROWS    Limit reference count (default: 20, 0 = unlimited)
     -ll, --ll, --line-length CHARS
                         Set output line length for wrapping (default: 80, min: 20)
+    --show-done         Include done tasks in list output (persists to .task-world.json)
+    --no-show-done      Exclude done tasks in list output (persists to .task-world.json)
+    --show-update       Show update dates in list output (persists to .task-world.json)
+    --no-show-update    Hide update dates in list output (persists to .task-world.json)
 
   Commands:
-    list [-sd|--show-done]
-                        List tasks (hides done by default; use -sd to show)
+    list [-sd|--show-done] [-su|--show-update]
+                        List tasks (by default: done hidden, sorted by UUID)
+                        (use -sd or --show-done to include done tasks)
+                        (use -su or --show-update to show dates and sort by update time)
                         (default limit: 20, 0 = unlimited)
     add -n NAME [-s TEXT]
                         Create new task with optional summary
