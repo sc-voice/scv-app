@@ -477,11 +477,12 @@ func handleList(args: [String], rootDirectory: URL) throws {
     count += 1
 
     let rowNum = String(format: "%3d", count)
+    let separator = world.isStackTaskId(task.idFile) ? ":" : "."
     if let formatter = dateFormatter {
       let dateStr = formatter.string(from: task.updatedAt)
-      print("\(rowNum). \(dateStr) \(task.idFile) \(emoji) \(task.name)")
+      print("\(rowNum)\(separator) \(dateStr) \(task.idFile) \(emoji) \(task.name)")
     } else {
-      print("\(rowNum). \(task.idFile) \(emoji) \(task.name)")
+      print("\(rowNum)\(separator) \(task.idFile) \(emoji) \(task.name)")
     }
   }
 }
@@ -566,6 +567,9 @@ func handlePush(args: [String], rootDirectory: URL) throws {
         throw CliError.missingValue(arg)
       }
       taskPrefix = args[i]
+    } else if !arg.hasPrefix("-") {
+      // Positional argument: task prefix
+      taskPrefix = arg
     } else {
       throw CliError.unknownOption(arg)
     }
@@ -573,41 +577,10 @@ func handlePush(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  // Determine which task to push
-  let inputPrefix = taskPrefix ?? commandTask
-
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
 
-  guard !tasks.isEmpty else {
-    throw CliError.noTasksFound
-  }
-
-  let sortedTasks = tasks.sorted { $0.id > $1.id }
-  var taskToPush: Task?
-
-  if let prefix = inputPrefix {
-    // Find task by prefix
-    let fullPrefix = prefix.hasPrefix("T_") ? prefix : "T_" + prefix
-
-    for task in sortedTasks {
-      if task.idFile.hasPrefix(fullPrefix) {
-        taskToPush = task
-        break
-      }
-    }
-
-    guard taskToPush != nil else {
-      throw CliError.taskNotFound
-    }
-  } else {
-    // No prefix specified and no commandTask - use most recently created
-    taskToPush = sortedTasks[0]
-  }
-
-  guard let task = taskToPush else {
-    throw CliError.noTasksFound
-  }
+  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
 
   let world = TaskWorld(basePath: rootDirectory)
 
@@ -1857,17 +1830,18 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task add -n \"Implement feature X\" -s \"Add user authentication\"")
   case "push":
-    print("Usage: task push [-t|--task PREFIX]")
+    print("Usage: task push [PREFIX] [-t|--task PREFIX]")
     print("")
     print("Push a task to the stack (for prioritization).")
     print("If already stacked, moves to top.")
     print("")
     print("Options:")
-    print("  -t, --task PREFIX    Task prefix or full name (default: most recent)")
+    print("  -t, --task PREFIX    Task prefix or full name (default: current task or most recent)")
     print("")
     print("Example:")
-    print("  task push -t T_AZ")
-    print("  task push")
+    print("  task push                # Use current task from stack")
+    print("  task push T_AZ           # Positional argument")
+    print("  task push -t T_AZ        # Named argument")
   case "pop":
     print("Usage: task pop")
     print("")
@@ -1969,8 +1943,8 @@ func printUsage() {
                         (default limit: 20, 0 = unlimited)
     add -n NAME [-s TEXT]
                         Create new task with optional summary
-    push [-t|--task PREFIX]
-                        Push task to stack (default: most recent if empty, current if set)
+    push [PREFIX] [-t|--task PREFIX]
+                        Push task to stack (optional PREFIX; default: current or most recent)
     pop                 Pop task from stack
     show [-t|--task PREFIX] [-f|--format FORMAT]
                         Show task details (format: json, text; default: text)
