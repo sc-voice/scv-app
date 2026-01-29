@@ -44,12 +44,31 @@
       "id" : "019bf09e-0c1a-708a-9c8e-cf1d3c3733f3",
       "relevance" : 0.5,
       "url" : ".\/doc\/BackgroundAudio.md"
+    },
+    {
+      "id" : "AZwKRg36cAC5-vEe3Pdkmw",
+      "relevance" : 0.5,
+      "text" : "Architecture: SuttaPlayer uses dependency injection for ISpeechSynthesizer via init parameter (SuttaPlayer.swift:29). This enables CachedSynthesizer to be injected as drop-in replacement for testing\/production."
+    },
+    {
+      "id" : "AZwKRhw2cAC1_zL5Cgwz3g",
+      "relevance" : 0.5,
+      "text" : "Design: IPlaybackDelegate (4 events) and ISpeechSynthesizer protocol already defined. SpeechSynthesizerImpl wraps AVSpeechSynthesizer + translates AVSpeechSynthesizerDelegate callbacks to IPlaybackDelegate events. CachedSynthesizer follows identical pattern: wrap AVAudioPlayer + emit same 4 events."
+    },
+    {
+      "id" : "AZwKRjeccACOmrU3G3a_eQ",
+      "relevance" : 0.5,
+      "text" : "Integration: AudioStore.shared exists (ready to use). AudioContext has hash for cache keys. AudioStore.storeAudio(text:audioContext) async method available. AudioStore not yet imported in scv-ui — CachedSynthesizer will be first UI integration point."
+    },
+    {
+      "id" : "AZwKRkyhcACPGDJyYeBzgw",
+      "relevance" : 0.5,
+      "text" : "Constraint: AVAudioPlayer requires explicit seek\/duration tracking (unlike AVSpeechSynthesizer which provides duration via utterance.duration). Will need to compute duration from synthesized audio file or track via AVAudioPlayerDelegate callbacks."
     }
   ],
   "requiredTasks" : [
 
   ],
-  "state" : "active",
   "summary" : "Implement cached speech synthesis for background audio",
-  "updatedAt" : "2026-01-24T01:53:50Z"
+  "updatedAt" : "2026-01-29T15:01:45Z"
 }
