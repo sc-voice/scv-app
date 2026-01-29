@@ -1028,4 +1028,82 @@ struct AudioStoreTests {
 
     print("Playback complete\n")
   }
+
+  @Test("ASYNC: M4A conversion doesn't block CAF playback")
+  func asyncM4AConversionDoesntBlock() async throws {
+    let root = projectRoot()
+    let testDir = root.appendingPathComponent("local/test-audio-m4a")
+
+    // Clean up test directory to ensure fresh test
+    try? FileManager.default.removeItem(at: testDir)
+
+    let store = AudioStore.create(path: testDir, type: .m4a)
+    let context = AudioContext(for: "en")
+
+    print("\n=== ASYNC M4A CONVERSION TEST ===")
+    print("Testing async conversion with type: .m4a\n")
+
+    let startTime = Date()
+    let url = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+    let elapsed = Date().timeIntervalSince(startTime)
+
+    print("storeAudio returned in \(String(format: "%.3f", elapsed))s")
+
+    // 1. Verify returned URL is CAF (not M4A)
+    #expect(url.pathExtension == "caf", "Should return CAF file for immediate playback")
+    print("✓ Returned CAF file: \(url.lastPathComponent)")
+
+    // 2. Verify CAF file exists
+    #expect(FileManager.default.fileExists(atPath: url.path), "CAF file should exist")
+    print("✓ CAF file exists")
+
+    // 3. Verify CAF is playable immediately
+    let player = try AVAudioPlayer(contentsOf: url)
+    #expect(player.prepareToPlay(), "CAF should be playable immediately")
+    #expect(player.duration > 0, "CAF duration should be positive")
+    print("✓ CAF is playable (duration: \(String(format: "%.2f", player.duration))s)")
+
+    // 4. Wait briefly for async conversion (max 2 seconds)
+    let m4aUrl = URL(fileURLWithPath: url.path.replacingOccurrences(of: ".caf", with: ".m4a"))
+    print("\nWaiting for async M4A conversion...")
+    var m4aExists = FileManager.default.fileExists(atPath: m4aUrl.path)
+
+    if !m4aExists {
+      for i in 1...20 {
+        try await Task.sleep(for: .milliseconds(100))
+        if FileManager.default.fileExists(atPath: m4aUrl.path) {
+          m4aExists = true
+          print("✓ M4A appeared after \(i * 100)ms")
+          break
+        }
+      }
+    } else {
+      print("✓ M4A already exists (conversion completed during synthesis)")
+    }
+
+    #expect(m4aExists, "M4A should appear after async conversion completes")
+
+    // 5. Verify M4A is valid
+    let m4aPlayer = try AVAudioPlayer(contentsOf: m4aUrl)
+    #expect(m4aPlayer.prepareToPlay(), "M4A should be playable")
+    print("✓ M4A is playable")
+
+    // 6. Verify CAF still exists (not deleted until next storeAudio returns M4A)
+    let cafStillExists = FileManager.default.fileExists(atPath: url.path)
+    #expect(cafStillExists, "CAF should remain until next storeAudio call returns M4A")
+    print("✓ CAF still exists (correct - not deleted yet)")
+
+    // 7. Second storeAudio call should return M4A and delete CAF
+    print("\nCalling storeAudio again...")
+    let url2 = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+    #expect(url2.pathExtension == "m4a", "Second call should return M4A")
+    print("✓ Second call returned M4A")
+
+    // 8. Now CAF should be deleted
+    let cafExistsAfterM4AReturn = FileManager.default.fileExists(atPath: url.path)
+    #expect(!cafExistsAfterM4AReturn, "CAF should be deleted when M4A is returned")
+    print("✓ CAF deleted after M4A was returned")
+
+    print("\n=== TEST COMPLETE ===\n")
+  }
 }

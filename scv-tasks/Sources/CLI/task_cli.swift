@@ -359,9 +359,19 @@ func wrapLine(_ line: String, maxLength: Int, hangingIndentWidth: Int = 5) -> St
 // MARK: - Command Handlers
 
 func handleList(args: [String], rootDirectory: URL) throws {
-  // Check for unexpected arguments
-  if !args.isEmpty {
-    throw CliError.unknownOption(args[0])
+  var showDone = false
+  var i = 0
+
+  while i < args.count {
+    let arg = args[i]
+
+    if arg == "-sd" || arg == "--show-done" {
+      showDone = true
+    } else {
+      throw CliError.unknownOption(arg)
+    }
+
+    i += 1
   }
 
   let world = TaskWorld(basePath: rootDirectory)
@@ -374,8 +384,12 @@ func handleList(args: [String], rootDirectory: URL) throws {
   let nonStackTasks = allTaskIds
     .compactMap { world.taskFrom(anyId: $0) }
     .filter { !world.isStackTaskId($0.idFile) }
-    .sorted { $0.idFile > $1.idFile }
-  let sortedTasks = stackTasks + nonStackTasks
+    .sorted { $0.id > $1.id }
+
+  // Filter done tasks unless -sd flag is set
+  let filteredStackTasks = showDone ? stackTasks : stackTasks.filter { $0.state != .done }
+  let filteredNonStackTasks = showDone ? nonStackTasks : nonStackTasks.filter { $0.state != .done }
+  let sortedTasks = filteredStackTasks + filteredNonStackTasks
 
   let effectiveLimit = world.limit
   var count = 0
@@ -1744,13 +1758,17 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task init")
   case "list":
-    print("Usage: task list")
+    print("Usage: task list [-sd|--show-done]")
     print("")
     print("List all tasks sorted by stack status and creation date.")
-    print("Shows emoji indicators: 🚫 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
+    print("By default, done tasks are hidden. Shows emoji indicators: 🔴 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
+    print("")
+    print("Options:")
+    print("  -sd, --show-done     Include done tasks in output (default: hidden)")
     print("")
     print("Example:")
     print("  task list")
+    print("  task list -sd")
   case "add":
     print("Usage: task add -n NAME [-s SUMMARY]")
     print("")
@@ -1864,8 +1882,9 @@ func printUsage() {
                         Set output line length for wrapping (default: 80, min: 20)
 
   Commands:
-    list [-l|--limit MAXROWS]
-                        List tasks (default limit: 20, 0 = unlimited)
+    list [-sd|--show-done]
+                        List tasks (hides done by default; use -sd to show)
+                        (default limit: 20, 0 = unlimited)
     add -n NAME [-s TEXT]
                         Create new task with optional summary
     push [-t|--task PREFIX]

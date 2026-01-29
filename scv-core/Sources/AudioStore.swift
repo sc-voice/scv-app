@@ -188,6 +188,8 @@ final class AudioStore: @unchecked Sendable {
 
     // Check for cached M4A first (if applicable)
     if audioType == .m4a, FileManager.default.fileExists(atPath: finalUrl.path) {
+      // M4A exists, delete CAF if present (no longer needed)
+      try? FileManager.default.removeItem(at: cafUrl)
       return finalUrl
     }
 
@@ -399,8 +401,7 @@ final class AudioStore: @unchecked Sendable {
         totalFramesProcessed += inputBuffer.frameLength
       }
 
-      // Clean up temporary CAF file
-      try FileManager.default.removeItem(at: cafUrl)
+      // Note: CAF is NOT deleted here - it stays until next storeAudio call returns M4A
     } catch {
       // Clean up M4A if conversion failed
       try? FileManager.default.removeItem(at: m4aUrl)
