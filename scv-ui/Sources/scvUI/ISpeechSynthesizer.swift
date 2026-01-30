@@ -82,8 +82,10 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
   }
 
   @MainActor func resetSynthesizer() {
+    cc.ok2(#line, #function)
     innerSynthesizer = AVSpeechSynthesizer()
     innerSynthesizer.delegate = self
+    cc.ok2(#line, #function, "OK")
   }
 
   @MainActor func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {

@@ -123,13 +123,19 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     // Clear transition lock after 500ms to allow next action
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-      if !self.synthesizer.isSpeaking, self.isPlaying {
-        self.cc.bad1(
-          #line,
-          #function,
-          "Synthesizer failed to start after 500ms - showing alert",
-        )
+      let isSpeaking = self.synthesizer.isSpeaking
+      let isPlaying = self.isPlaying 
+      if isSpeaking && isPlaying {
+        self.cc.ok1(#line, #function, "synthesizer started!")
+      } else if isPlaying {
+        // User expects playing audio
+        // Alert user: Synthesizer failed to start after 500ms
+        self.cc.bad1( #line, #function, "isSpeaking:\(isSpeaking)",
+          "isPlaying:\(isPlaying)")
         self.showSpeechErrorAlert()
+      } else {
+        // User expects paused audio, 
+        self.cc.ok1( #line, #function, "paused OK")
       }
       self.isTransitioning = false
     }
@@ -162,28 +168,26 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     configureAudioSession()
 
     isPlaying = true
-    AudioEffects.shared.announce(.play)
+    var startIndex = 0
+    if let currentScid = currentSutta?.currentScid,
+       let index = segments.firstIndex(where: { $0.scid == currentScid })
+    {
+      startIndex = index
+      cc.ok2( #line, #function, "startIndex:\(startIndex)")
+    } else {
+      startIndex = currentSegmentIndex
+      cc.ok2( #line, #function, "startIndex:\(startIndex)")
+    }
+    if startIndex == 0 {
+      AudioEffects.shared.announce(.play)
+    }
     #if os(iOS)
       UIApplication.shared.isIdleTimerDisabled = true
     #else
       // macOS: no idle timer to disable
     #endif
 
-    // Start playback at currentScid if set, otherwise use currentSegmentIndex
-    if let currentScid = currentSutta?.currentScid,
-       let index = segments.firstIndex(where: { $0.scid == currentScid })
-    {
-      cc.ok1(#line, #function, "playing from currentScid:", currentScid)
-      playSegmentAt(at: index)
-    } else {
-      cc.ok1(
-        #line,
-        #function,
-        "playing from currentSegmentIndex:",
-        currentSegmentIndex,
-      )
-      playSegmentAt(at: currentSegmentIndex)
-    }
+    playSegmentAt(at: startIndex)
     cc.ok1(#line, #function, "play() complete - isPlaying:", isPlaying)
   }
 
@@ -225,7 +229,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         preferredStyle: .alert,
       )
       alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-        self.resetSynthesizer()
+        self.resetPlayer()
       })
 
       if let windowScene = UIApplication.shared.connectedScenes
@@ -239,8 +243,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   }
 
   @MainActor
-  private func resetSynthesizer() {
-    cc.ok1(#line, #function, "Resetting synthesizer")
+  private func resetPlayer() {
+    cc.ok2(#line, #function)
 
     // Save state before reset
     let wasPlaying = isPlaying
@@ -260,11 +264,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     // Resume playback if it was playing
     if wasPlaying, sutta != nil {
-      cc.ok1(#line, #function, "Resuming playback from index:", playFromIndex)
+      cc.ok2(#line, #function, "Resuming playback from index:", playFromIndex)
       playSegmentAt(at: playFromIndex)
     }
 
-    cc.ok1(#line, #function, "Synthesizer reset complete")
+    cc.ok1(#line, #function, "OK")
   }
 
   private func playSegmentAt(at index: Int) {
@@ -373,22 +377,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // When user jumps to a different segment, playSegmentAt updates
     // nextIndexToPlay,
     // so stale callbacks will use the updated target
-    cc.ok1(
-      #line,
-      #function,
-      "Playback finished - isPlaying:",
-      isPlaying,
-      "nextIndexToPlay:",
-      nextIndexToPlay,
-    )
     if isPlaying {
+      cc.ok1( #line, #function, "isPlaying:\(isPlaying)",
+        "nextIndexToPlay:\(nextIndexToPlay)")
       playSegmentAt(at: nextIndexToPlay)
     } else {
-      cc.ok1(
-        #line,
-        #function,
-        "Playback finished but isPlaying=false, not continuing",
-      )
+      cc.ok1(#line, #function, "isPlaying=false")
     }
   }
-}
+} // SuttaPlayer

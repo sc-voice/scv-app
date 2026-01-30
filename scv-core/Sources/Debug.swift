@@ -20,7 +20,7 @@ public struct dbg: Sendable {
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct AudioStore: Sendable {

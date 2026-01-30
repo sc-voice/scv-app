@@ -5,7 +5,6 @@ import scvCore
 @MainActor
 public final class AudioEffects: ObservableObject {
   public static let shared = AudioEffects()
-
   public enum Sound {
     case silent
     case click
@@ -104,6 +103,7 @@ public final class AudioEffects: ObservableObject {
       audioPlayer = try AVAudioPlayer(contentsOf: url)
       audioPlayer?.volume = sound.bias * soundEffectVolume
       audioPlayer?.play()
+      cc.ok1(#line, #function, sound.filename)
     } catch {
       cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
     }
@@ -114,7 +114,7 @@ public final class AudioEffects: ObservableObject {
     case .play:
       .block
     case .pause:
-      .block
+      .chirp
     case .endSutta:
       .bell
     case .noText:
