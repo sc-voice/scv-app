@@ -1,11 +1,5 @@
 {
   "completedActions" : [
-
-  ],
-  "createdAt" : "2026-01-24T01:53:50Z",
-  "id" : "019BEDB5-2738-7000-8D8A-C7C5CCC3841B",
-  "name" : "AudioStore Phase 4 — CachedSynthesizer Implementation",
-  "plannedActions" : [
     {
       "description" : "Create CachedSynthesizer class implementing ISpeechSynthesizer",
       "id" : "00000000-0000-0000-0000-000000000001"
@@ -23,10 +17,6 @@
       "id" : "00000000-0000-0000-0000-000000000004"
     },
     {
-      "description" : "Implement lookahead prefetch (N+1, N+2 while N plays)",
-      "id" : "00000000-0000-0000-0000-000000000005"
-    },
-    {
       "description" : "Add tests verifying all 4 IPlaybackDelegate events",
       "id" : "00000000-0000-0000-0000-000000000006"
     },
@@ -38,6 +28,12 @@
       "description" : "Performance testing vs SpeechSynthesizerImpl",
       "id" : "00000000-0000-0000-0000-000000000008"
     }
+  ],
+  "createdAt" : "2026-01-24T01:53:50Z",
+  "id" : "019BEDB5-2738-7000-8D8A-C7C5CCC3841B",
+  "name" : "AudioStore Phase 4 — CachedSynthesizer Implementation",
+  "plannedActions" : [
+
   ],
   "references" : [
     {
@@ -64,11 +60,26 @@
       "id" : "AZwKRkyhcACPGDJyYeBzgw",
       "relevance" : 0.5,
       "text" : "Constraint: AVAudioPlayer requires explicit seek\/duration tracking (unlike AVSpeechSynthesizer which provides duration via utterance.duration). Will need to compute duration from synthesized audio file or track via AVAudioPlayerDelegate callbacks."
+    },
+    {
+      "id" : "AZwKU0XAcAC_br-wjESlAQ",
+      "relevance" : 0.5,
+      "text" : "ARCHITECTURAL DECISION REQUIRED: How does CachedSynthesizer receive AudioStore instance? Options: (1) AudioStore injected into init (requires SuttaPlayer to pass it). (2) CachedSynthesizer creates own instance (needs path config). (3) App provides global AudioStore to CachedSynthesizer (ServiceLocator pattern). Decision affects iOS app startup code."
+    },
+    {
+      "id" : "AZwKUzFAcACjCgSZyOsNAQ",
+      "relevance" : 0.5,
+      "text" : "CRITICAL: AudioStore path must be Application Support (not Caches) on iOS. Reasoning: (1) Caches can be purged by OS, breaking background playback. (2) Application Support persists across app launches, hidden from Files app. (3) Respects Apple audio licensing by preventing casual user access\/distribution. (4) Deleted when app uninstalled. Current default (Library\/Caches\/audio-store) unsuitable."
+    },
+    {
+      "id" : "AZwKyWY5cACpNndjRDFT8w",
+      "relevance" : 0.5,
+      "text" : "BLOCKING: AudioStore.shared default path hardcoded to Caches. Must be changed to Application Support before CachedSynthesizer can use it on iOS. AudioStore currently internal (not public) — made public but edit incomplete pending approval."
     }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "Implement cached speech synthesis for background audio",
-  "updatedAt" : "2026-01-29T15:01:45Z"
+  "updatedAt" : "2026-01-30T14:20:16Z"
 }

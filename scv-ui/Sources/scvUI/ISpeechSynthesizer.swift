@@ -24,17 +24,17 @@ protocol IPlaybackDelegate {
 /// AVSpeechSynthesizer in production.
 protocol ISpeechSynthesizer {
   /// Whether the synthesizer is currently speaking
-  var isSpeaking: Bool { get }
+  @MainActor var isSpeaking: Bool { get }
 
   /// Playback event listener (simplified, AVFoundation-independent)
-  var playbackDelegate: IPlaybackDelegate? { get set }
+  @MainActor var playbackDelegate: IPlaybackDelegate? { get set }
 
   /// The delegate that receives speech synthesis callbacks (internal,
   /// AVFoundation-specific)
-  var delegate: AVSpeechSynthesizerDelegate? { get set }
+  @MainActor var delegate: AVSpeechSynthesizerDelegate? { get set }
 
   /// Stop speaking at the specified boundary
-  func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool
+  @MainActor func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool
 
   /// High-level playback: configure and speak utterance from text and audio
   /// settings
@@ -46,7 +46,7 @@ protocol ISpeechSynthesizer {
   ///   - text: Text to synthesize and play
   ///   - audioContext: Voice settings (language, voiceId, pitch, rate, pauses)
   /// - Throws: On synthesis or playback errors
-  func playText(_ text: String, audioContext: AudioContext) throws
+  @MainActor func playText(_ text: String, audioContext: AudioContext) throws
 }
 
 /// Concrete implementation of ISpeechSynthesizer wrapping AVSpeechSynthesizer
@@ -55,31 +55,31 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
   AVSpeechSynthesizerDelegate
 {
   private let innerSynthesizer = AVSpeechSynthesizer()
-  var playbackDelegate: IPlaybackDelegate?
+  @MainActor var playbackDelegate: IPlaybackDelegate?
 
   override init() {
     super.init()
     innerSynthesizer.delegate = self
   }
 
-  var isSpeaking: Bool {
+  @MainActor var isSpeaking: Bool {
     innerSynthesizer.isSpeaking
   }
 
-  var delegate: AVSpeechSynthesizerDelegate? {
+  @MainActor var delegate: AVSpeechSynthesizerDelegate? {
     get { innerSynthesizer.delegate }
     set { innerSynthesizer.delegate = newValue }
   }
 
-  private func speak(_ utterance: AVSpeechUtterance) throws {
+  @MainActor private func speak(_ utterance: AVSpeechUtterance) throws {
     innerSynthesizer.speak(utterance)
   }
 
-  func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
+  @MainActor func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
     innerSynthesizer.stopSpeaking(at: boundary)
   }
 
-  func playText(_ text: String, audioContext: AudioContext) throws {
+  @MainActor func playText(_ text: String, audioContext: AudioContext) throws {
     let utterance = AVSpeechUtterance(string: text)
 
     // Get docLangSettings for the specified language

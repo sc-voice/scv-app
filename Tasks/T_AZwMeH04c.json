@@ -1,0 +1,29 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-01-30T01:15:48Z",
+  "id" : "019C0C78-7D38-7000-877D-A92F8CF85B9B",
+  "name" : "Identify suttas that are background playable",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "issues": [{
+    "issue": "How do we know if each segment in a playable sutta has a matching cached audio file?",
+    "notes": "The background cache for a playable sutta may become partial as authors revise individual sutta segments, which will invalidate those segments in the cache becuase the audio will no longer match the revised segment text. To handle revised segments, we could store the ebt-data repository github revision hash that includes the content for which the playback was generated. When the content is updated, the stored github hash will not match the stored hash and the sutta will no longer be background playable.",
+    "relevance": 0.2
+  },{
+    "issue": "When do we enable background playback?",
+    "notes": "As the sutta plays, we can call AudioStore.storeText() to generate the audio if necessary for segments following the currrently playing segment, wrapping around to the first segment until we traverse all sutta segments. A full round trip by definition means that the entire sutta is background playable and that we can enable the lockscreen.",
+    "relevance": 1.0,
+    "resolution": "relevant since this may be best UX"
+  }],
+  "summary" : "A sutta is background playable if all its segments are cached",
+  "updatedAt" : "2026-01-30T01:15:48Z"
+}

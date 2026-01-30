@@ -45,19 +45,19 @@ public struct CompactionStatus: Sendable {
 ///
 /// - Design: Single shared instance (production) + factory method for test
 /// instances
-/// - Storage: Library/Caches/audio-store by default (override via
+/// - Storage: Library/Application Support/audio-store by default (override via
 /// create(path:))
 /// - Format: Audio files (CAF or M4A)
 /// - Organization:
 /// {language}-{audioContextHash[:7]}/{chapter}/{storageKey}.{suffix}
-final class AudioStore: @unchecked Sendable {
+public final class AudioStore: @unchecked Sendable {
   private let guidStore: GuidStore
   private let audioType: AudioType
   private let cc = ColorConsole(#file, "AudioStore", dbg.AudioStore.other)
   let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 
   /// Shared singleton instance for production use
-  nonisolated(unsafe) static let shared = AudioStore.create()
+  public nonisolated(unsafe) static let shared = AudioStore.create()
 
   /// Private initializer - use create() factory method instead
   private init(
@@ -75,7 +75,7 @@ final class AudioStore: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - path: Custom path for audio storage (defaults to
-  /// Library/Caches/audio-store)
+  /// Library/Application Support/audio-store)
   ///     Useful for testing with isolated directories.
   ///   - type: Audio format type (.caf or .m4a), defaults to .caf
   ///   - timeout: Synthesis timeout in seconds (default 5s)
@@ -98,9 +98,9 @@ final class AudioStore: @unchecked Sendable {
     if let customPath = path {
       config.storePath = customPath
     } else {
-      let cachesURL = FileManager.default
-        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-      config.storePath = cachesURL.appendingPathComponent("audio-store")
+      let appSupportURL = FileManager.default
+        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+      config.storePath = appSupportURL.appendingPathComponent("audio-store")
     }
 
     let guidStore = GuidStore(config: config)
@@ -116,8 +116,8 @@ final class AudioStore: @unchecked Sendable {
   /// false, return URL only if cached.
   /// - Returns: URL to audio file (cached or computed path), or nil if
   /// forceUrl=false and not cached
-  func audioUrl(text: String, audioContext: AudioContext,
-                forceUrl: Bool = false) -> URL?
+  public func audioUrl(text: String, audioContext: AudioContext,
+                       forceUrl: Bool = false) -> URL?
   {
     let storageKey = computeStorageKey(text: text, audioContext: audioContext)
     let volume = volumeName(lang: audioContext.docLang, hash: audioContext.hash)
