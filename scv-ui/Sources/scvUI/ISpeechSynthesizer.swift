@@ -47,14 +47,20 @@ protocol ISpeechSynthesizer {
   ///   - audioContext: Voice settings (language, voiceId, pitch, rate, pauses)
   /// - Throws: On synthesis or playback errors
   @MainActor func playText(_ text: String, audioContext: AudioContext) throws
+
+  /// reset speech synthesizer state
+  /// Implementation must create a new AVSpeechSynthesizer to avoid problems
+  /// with inconsistent states when changing playback parameters
+  @MainActor func resetSynthesizer()
 }
 
 /// Concrete implementation of ISpeechSynthesizer wrapping AVSpeechSynthesizer
 /// Translates AVSpeechSynthesizerDelegate callbacks to IPlaybackDelegate events
+@MainActor
 final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
   AVSpeechSynthesizerDelegate
 {
-  private let innerSynthesizer = AVSpeechSynthesizer()
+  private var innerSynthesizer = AVSpeechSynthesizer()
   @MainActor var playbackDelegate: IPlaybackDelegate?
 
   override init() {
@@ -73,6 +79,11 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
 
   @MainActor private func speak(_ utterance: AVSpeechUtterance) throws {
     innerSynthesizer.speak(utterance)
+  }
+
+  @MainActor func resetSynthesizer() {
+    innerSynthesizer = AVSpeechSynthesizer()
+    innerSynthesizer.delegate = self
   }
 
   @MainActor func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {

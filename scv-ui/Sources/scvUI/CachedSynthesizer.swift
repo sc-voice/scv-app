@@ -2,16 +2,22 @@ import AVFoundation
 import Foundation
 import scvCore
 
-/// Concrete implementation of ISpeechSynthesizer wrapping AVAudioPlayer for cached audio playback.
+/// Concrete implementation of ISpeechSynthesizer wrapping AVAudioPlayer for
+/// cached audio playback.
 /// Translates AVAudioPlayerDelegate callbacks to IPlaybackDelegate events.
 /// Uses AudioStore to retrieve cached/synthesized audio files for playback.
 ///
-/// IMPORTANT: @MainActor on class enforces playback lifecycle coordination with AudioStore.
-/// AudioStore contract: URLs are stable until next playText() call on MainActor.
-/// This isolation ensures background compression can't interfere with active playback.
+/// IMPORTANT: @MainActor on class enforces playback lifecycle coordination with
+/// AudioStore.
+/// AudioStore contract: URLs are stable until next playText() call on
+/// MainActor.
+/// This isolation ensures background compression can't interfere with active
+/// playback.
 /// Also allows nonisolated delegate methods to safely access mutable state.
 @MainActor
-final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelegate {
+final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
+  AVAudioPlayerDelegate
+{
   private let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
   private let audioStore: AudioStore
   private var audioPlayer: AVAudioPlayer?
@@ -34,7 +40,11 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
     set { /* AVAudioPlayer has no AVSpeechSynthesizerDelegate equivalent */ }
   }
 
-  func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
+  /// AudioStore automatically creates a new AVSpeechSynthesizer for each
+  /// synthesis
+  func resetSynthesizer() {}
+
+  func stopSpeaking(at _: AVSpeechBoundary) -> Bool {
     guard isCurrentlySpeaking else { return false }
     audioPlayer?.stop()
     isCurrentlySpeaking = false
@@ -50,7 +60,10 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
     isCurrentlySpeaking = false
 
     // Get cached audio file from AudioStore
-    guard let audioUrl = audioStore.audioUrl(text: text, audioContext: audioContext) else {
+    guard let audioUrl = audioStore.audioUrl(
+      text: text,
+      audioContext: audioContext,
+    ) else {
       cc.bad1(#line, "Audio not cached for text: \(text.prefix(50))...")
       throw NSError(
         domain: "CachedSynthesizer",
@@ -63,7 +76,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
     // Create and configure AVAudioPlayer
     let player = try AVAudioPlayer(contentsOf: audioUrl)
     player.delegate = self
-    self.audioPlayer = player
+    audioPlayer = player
 
     // Start playback
     isCurrentlySpeaking = true
@@ -78,7 +91,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
 
   nonisolated func audioPlayerDidFinishPlaying(
     _: AVAudioPlayer,
-    successfully _: Bool
+    successfully _: Bool,
   ) {
     Task { @MainActor in
       self.isCurrentlySpeaking = false
@@ -87,7 +100,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
     }
   }
 
-  nonisolated func audioPlayerBeginInterruption(_ player: AVAudioPlayer) {
+  nonisolated func audioPlayerBeginInterruption(_: AVAudioPlayer) {
     Task { @MainActor in
       self.playbackDelegate?.onPlaybackPaused()
       self.cc.ok2(#line, "Playback paused by interruption")
@@ -96,7 +109,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer, AVAudioPlayerDelega
 
   nonisolated func audioPlayerEndInterruption(
     _: AVAudioPlayer,
-    withOptions flags: UInt
+    withOptions flags: UInt,
   ) {
     Task { @MainActor in
       #if os(iOS)

@@ -10,7 +10,14 @@ public class WorldModel: @unchecked Sendable, Codable {
   public var showDone: Bool
   public var showUpdate: Bool
 
-  public init(taskStack: [TaskId] = [], limit: Int = 20, verbosity: Int = 1, lineLength: Int = 80, showDone: Bool = false, showUpdate: Bool = false) {
+  public init(
+    taskStack: [TaskId] = [],
+    limit: Int = 20,
+    verbosity: Int = 1,
+    lineLength: Int = 80,
+    showDone: Bool = false,
+    showUpdate: Bool = false,
+  ) {
     self.taskStack = taskStack
     self.limit = limit
     self.verbosity = max(0, min(2, verbosity)) // Clamp to 0-2
@@ -31,10 +38,15 @@ public class WorldModel: @unchecked Sendable, Codable {
       forKey: .verbosity,
     ) ?? 1
     verbosity = max(0, min(2, verbosityValue))
-    let lineLengthValue = try container.decodeIfPresent(Int.self, forKey: .lineLength) ?? 80
+    let lineLengthValue = try container.decodeIfPresent(
+      Int.self,
+      forKey: .lineLength,
+    ) ?? 80
     lineLength = max(20, lineLengthValue)
-    showDone = try container.decodeIfPresent(Bool.self, forKey: .showDone) ?? false
-    showUpdate = try container.decodeIfPresent(Bool.self, forKey: .showUpdate) ?? false
+    showDone = try container
+      .decodeIfPresent(Bool.self, forKey: .showDone) ?? false
+    showUpdate = try container
+      .decodeIfPresent(Bool.self, forKey: .showUpdate) ?? false
   }
 
   public func encode(to encoder: Encoder) throws {

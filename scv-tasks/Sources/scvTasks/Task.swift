@@ -25,7 +25,7 @@ struct AnyCodableTaskId: Codable {
     } else {
       throw DecodingError.dataCorruptedError(
         in: container,
-        debugDescription: "Expected UUID or String"
+        debugDescription: "Expected UUID or String",
       )
     }
   }
@@ -45,7 +45,8 @@ public struct Task: Codable, Identifiable, Sendable {
   // May need @unchecked Sendable or refactor taskWorld access pattern.
 
   public let uuid: UUIDV7
-  public let idFile: String  // Computed from uuid at init, stored for convenience
+  public let idFile: String // Computed from uuid at init, stored for
+  // convenience
   public var name: String
   public var summary: String
   public var requiredTasks: [AnyTaskId]
@@ -64,13 +65,16 @@ public struct Task: Codable, Identifiable, Sendable {
 
     // Blocked if any required task is not done
     for requiredId in requiredTasks {
-      if let requiredTask = world.taskFrom(anyId: requiredId), requiredTask.state != .done {
+      if let requiredTask = world.taskFrom(anyId: requiredId),
+         requiredTask.state != .done
+      {
         return .blocked
       }
     }
 
-    // Done if all required tasks are done, has completed actions, and no planned actions
-    if !completedActions.isEmpty && plannedActions.isEmpty {
+    // Done if all required tasks are done, has completed actions, and no
+    // planned actions
+    if !completedActions.isEmpty, plannedActions.isEmpty {
       return .done
     }
 
@@ -93,10 +97,10 @@ public struct Task: Codable, Identifiable, Sendable {
     references: [Reference] = [],
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
-    taskWorld: ITaskWorld? = nil
+    taskWorld: ITaskWorld? = nil,
   ) {
     self.uuid = uuid
-    self.idFile = Task.uuidToFilename(uuid)
+    idFile = Task.uuidToFilename(uuid)
     self.name = name
     self.summary = summary
     self.requiredTasks = requiredTasks
@@ -124,7 +128,7 @@ public struct Task: Codable, Identifiable, Sendable {
     var requiredTasksResult: [AnyTaskId] = []
     if let container = try container.decodeIfPresent(
       [AnyCodableTaskId].self,
-      forKey: .requiredTasks
+      forKey: .requiredTasks,
     ) {
       for item in container {
         if let uuid = item.uuidV7Value {
@@ -161,7 +165,8 @@ public struct Task: Codable, Identifiable, Sendable {
 
     // Get taskWorld from decoder userInfo
     if let key = CodingUserInfoKey(rawValue: "taskWorld"),
-       let world = decoder.userInfo[key] as? ITaskWorld {
+       let world = decoder.userInfo[key] as? ITaskWorld
+    {
       taskWorld = world
     } else {
       taskWorld = nil
@@ -170,13 +175,15 @@ public struct Task: Codable, Identifiable, Sendable {
 
   // MARK: - Factory Method (Internal)
 
-  /// Create a new Task with guaranteed unique filename by checking against taskWorld.
+  /// Create a new Task with guaranteed unique filename by checking against
+  /// taskWorld.
   /// Throws if filename collision detected.
   /// Called by ITaskWorld.createTask() to ensure filename uniqueness.
   ///
   /// - Parameters:
   ///   - world: The TaskWorld to check for filename uniqueness
-  ///   - uuid: The UUID for the task (default: new monotonic UUIDV7). Tests can pass deterministic UUIDs.
+  ///   - uuid: The UUID for the task (default: new monotonic UUIDV7). Tests can
+  /// pass deterministic UUIDs.
   ///   - name: Task name (default: empty string, can be updated later)
   ///   - summary: Task summary (default: empty string, can be updated later)
   /// - Throws: TaskCreationError.filenameTaken if filename already exists
@@ -184,7 +191,7 @@ public struct Task: Codable, Identifiable, Sendable {
     world: ITaskWorld,
     uuid: UUIDV7 = UUIDV7(),
     name: String = "",
-    summary: String = ""
+    summary: String = "",
   ) throws -> Task {
     let filename = Task.uuidToFilename(uuid)
 
@@ -203,7 +210,7 @@ public struct Task: Codable, Identifiable, Sendable {
       references: [],
       createdAt: Date(),
       updatedAt: Date(),
-      taskWorld: world
+      taskWorld: world,
     )
   }
 
@@ -218,11 +225,12 @@ public struct Task: Codable, Identifiable, Sendable {
     try container.encode(references, forKey: .references)
     try container.encode(createdAt, forKey: .createdAt)
     try container.encode(updatedAt, forKey: .updatedAt)
-    // Note: state and taskWorld are NOT encoded (state is computed, taskWorld is context)
+    // Note: state and taskWorld are NOT encoded (state is computed, taskWorld
+    // is context)
   }
 
   enum CodingKeys: String, CodingKey {
-    case uuid = "id"  // JSON uses "id" field
+    case uuid = "id" // JSON uses "id" field
     case name
     case summary
     case requiredTasks

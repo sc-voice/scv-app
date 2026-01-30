@@ -37,6 +37,10 @@ class MockSpeechSynthesizerForSuttaPlayer: ISpeechSynthesizer,
     isSpeaking = true
   }
 
+  func resetSynthesizer() {
+    isSpeaking = false
+  }
+
   // MARK: - Playback event helpers for testing
 
   nonisolated func triggerDidStart() {
@@ -339,7 +343,8 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackWithPrecachedAudio()
+  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackWithPrecachedAudio(
+  )
     async throws
   {
     // Create temp AudioStore and pre-cache audio for first segment
@@ -359,7 +364,7 @@ struct SuttaPlayerTests {
       // Pre-cache audio for first segment
       _ = try await testStore.storeAudio(
         text: firstSegmentText,
-        audioContext: audioContext
+        audioContext: audioContext,
       )
 
       // Create SuttaPlayer with CachedSynthesizer
@@ -386,7 +391,8 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackError() async throws {
+  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackError(
+  ) async throws {
     // Create temp AudioStore with NO pre-cached audio
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
@@ -405,11 +411,13 @@ struct SuttaPlayerTests {
       // Try to play without pre-cached audio
       // CachedSynthesizer.playText() will throw because audio not cached
       // Note: play() sets isPlaying=true before attempting synthesis,
-      // so even if synthesis fails, isPlaying remains true. This is expected behavior.
+      // so even if synthesis fails, isPlaying remains true. This is expected
+      // behavior.
       player.play()
 
       // Verify play was called (isPlaying will be true)
-      // The error from CachedSynthesizer.playText() is caught and logged by SuttaPlayer
+      // The error from CachedSynthesizer.playText() is caught and logged by
+      // SuttaPlayer
       #expect(player.isPlaying == true)
 
       // Pause to stop playback

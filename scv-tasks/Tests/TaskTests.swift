@@ -7,7 +7,12 @@ struct TaskTests {
   func taskCreation() async throws {
     let world = MockTaskWorld()
     let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(1))
-    let task = try Task.create(world: world, uuid: uuid, name: "Test Task", summary: "A test task")
+    let task = try Task.create(
+      world: world,
+      uuid: uuid,
+      name: "Test Task",
+      summary: "A test task",
+    )
 
     #expect(task.uuid == uuid)
     #expect(task.name == "Test Task")
@@ -19,7 +24,12 @@ struct TaskTests {
   func taskIsBlocked() async throws {
     let world = MockTaskWorld()
     let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(2))
-    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    var task = try Task.create(
+      world: world,
+      uuid: uuid,
+      name: "Test",
+      summary: "Test",
+    )
     task.requiredTasks = ["T_blockedTask"]
     try world.updateTask(task)
 
@@ -34,7 +44,12 @@ struct TaskTests {
   func testMoveActionToCompleted() async throws {
     let world = MockTaskWorld()
     let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(3))
-    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    var task = try Task.create(
+      world: world,
+      uuid: uuid,
+      name: "Test",
+      summary: "Test",
+    )
     task.plannedActions = [
       Action(description: "Action 1"),
       Action(description: "Action 2"),
@@ -55,7 +70,12 @@ struct TaskTests {
   func testAddPlannedAction() async throws {
     let world = MockTaskWorld()
     let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(4))
-    var task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    var task = try Task.create(
+      world: world,
+      uuid: uuid,
+      name: "Test",
+      summary: "Test",
+    )
 
     let action = Action(description: "New action")
     task.addPlannedAction(action)
@@ -65,10 +85,15 @@ struct TaskTests {
   }
 
   @Test
-  func testFileName() async throws {
+  func fileName() async throws {
     let world = MockTaskWorld()
     let uuid = UUIDV7(timeIntervalSince1970: 0, UInt32(5))
-    let task = try Task.create(world: world, uuid: uuid, name: "Test", summary: "Test")
+    let task = try Task.create(
+      world: world,
+      uuid: uuid,
+      name: "Test",
+      summary: "Test",
+    )
 
     // idFile should start with T_ and have 9 base64 chars
     #expect(task.idFile.hasPrefix("T_"))

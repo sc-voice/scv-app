@@ -179,15 +179,24 @@ public final class AudioStore: @unchecked Sendable {
       )
     }
 
-    let finalUrl = audioUrl(text: text, audioContext: audioContext, forceUrl: true)!
+    let finalUrl = audioUrl(
+      text: text,
+      audioContext: audioContext,
+      forceUrl: true,
+    )!
 
     // Compute CAF URL (for .m4a mode)
     let cafUrl = audioType == .m4a
-      ? URL(fileURLWithPath: finalUrl.path.replacingOccurrences(of: ".m4a", with: ".caf"))
+      ? URL(fileURLWithPath: finalUrl.path.replacingOccurrences(
+        of: ".m4a",
+        with: ".caf",
+      ))
       : finalUrl
 
     // Check for cached M4A first (if applicable)
-    if audioType == .m4a, FileManager.default.fileExists(atPath: finalUrl.path) {
+    if audioType == .m4a,
+       FileManager.default.fileExists(atPath: finalUrl.path)
+    {
       // M4A exists, delete CAF if present (no longer needed)
       try? FileManager.default.removeItem(at: cafUrl)
       return finalUrl
@@ -219,9 +228,13 @@ public final class AudioStore: @unchecked Sendable {
       Task.detached { @Sendable [weak self] in
         guard let self else { return }
         do {
-          try await self.convertCAFToM4A(cafUrl: cafUrl, m4aUrl: finalUrl)
+          try await convertCAFToM4A(cafUrl: cafUrl, m4aUrl: finalUrl)
         } catch {
-          let cc = ColorConsole(#file, "AudioStore.M4AConversion", dbg.AudioStore.other)
+          let cc = ColorConsole(
+            #file,
+            "AudioStore.M4AConversion",
+            dbg.AudioStore.other,
+          )
           cc.bad1(#line, "M4A conversion failed: \(error)")
         }
       }
@@ -313,7 +326,6 @@ public final class AudioStore: @unchecked Sendable {
         ],
       )
     }
-
   }
 
   /// Convert CAF file to M4A (AAC codec) format using AVAudioConverter.
@@ -341,13 +353,16 @@ public final class AudioStore: @unchecked Sendable {
       )!
 
       // Step 3: Create converter (reuse throughout chunk processing)
-      guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+      guard let converter = AVAudioConverter(
+        from: inputFormat,
+        to: outputFormat,
+      )
       else {
         throw NSError(
           domain: "AudioStore",
           code: -3,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to create AVAudioConverter"
+            NSLocalizedDescriptionKey: "Failed to create AVAudioConverter",
           ],
         )
       }
@@ -369,7 +384,8 @@ public final class AudioStore: @unchecked Sendable {
       var totalFramesProcessed: AVAudioFrameCount = 0
 
       while totalFramesProcessed < frameCount {
-        let framesRemaining = frameCount - AVAudioFramePosition(totalFramesProcessed)
+        let framesRemaining = frameCount -
+          AVAudioFramePosition(totalFramesProcessed)
         let framesToRead = AVAudioFrameCount(min(
           framesRemaining,
           AVAudioFramePosition(bufferSize),
@@ -401,7 +417,8 @@ public final class AudioStore: @unchecked Sendable {
         totalFramesProcessed += inputBuffer.frameLength
       }
 
-      // Note: CAF is NOT deleted here - it stays until next storeAudio call returns M4A
+      // Note: CAF is NOT deleted here - it stays until next storeAudio call
+      // returns M4A
     } catch {
       // Clean up M4A if conversion failed
       try? FileManager.default.removeItem(at: m4aUrl)

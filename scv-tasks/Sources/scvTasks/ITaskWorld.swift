@@ -1,7 +1,8 @@
 import Foundation
 import UUIDV7
 
-/// AnyTaskId can be either a filename string (e.g., "T_AZvuCKoac") or UUID string
+/// AnyTaskId can be either a filename string (e.g., "T_AZvuCKoac") or UUID
+/// string
 public typealias AnyTaskId = String
 
 /// ITaskWorld defines the complete API for task management.

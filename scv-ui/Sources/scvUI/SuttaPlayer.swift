@@ -96,7 +96,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   @MainActor
   public func load(_ sutta: MLDocument) {
-    synthesizer.stopSpeaking(at: .immediate)
+    _ = synthesizer.stopSpeaking(at: .immediate)
     currentSutta = sutta
     segments = sutta.segments()
     currentSegmentIndex = 0
@@ -157,12 +157,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     // Create fresh synthesizer for each play attempt (but preserve mocks for
     // testing)
-    synthesizer.stopSpeaking(at: .immediate)
-    if synthesizer is SpeechSynthesizerImpl {
-      synthesizer = SpeechSynthesizerImpl()
-      synthesizer.playbackDelegate = self
-      configureAudioSession()
-    }
+    _ = synthesizer.stopSpeaking(at: .immediate)
+    synthesizer.resetSynthesizer()
+    configureAudioSession()
 
     isPlaying = true
     AudioEffects.shared.announce(.play)
@@ -207,7 +204,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   @MainActor
   public func pause() {
-    synthesizer.stopSpeaking(at: .immediate)
+    _ = synthesizer.stopSpeaking(at: .immediate)
     isPlaying = false
     AudioEffects.shared.announce(.pause)
     #if os(iOS)
@@ -250,7 +247,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     let playFromIndex = currentSegmentIndex
     let sutta = currentSutta
 
-    synthesizer.stopSpeaking(at: .immediate)
+    _ = synthesizer.stopSpeaking(at: .immediate)
 
     // Create new synthesizer instance
     synthesizer = SpeechSynthesizerImpl()

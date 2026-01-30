@@ -6,12 +6,13 @@ import UUIDV7
 let DBG_TASK = 2
 
 // Global state
-nonisolated(unsafe) var commandTask: String?  // T_BASE64 format (user-facing)
-nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7?  // UUID format (internal)
+nonisolated(unsafe) var commandTask: String? // T_BASE64 format (user-facing)
+nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
 nonisolated(unsafe) var commandItem: Int?
 
 // Quick check: ensure task infrastructure exists before proceeding
-// This prevents hanging when scvCore initializes in a directory without .task-world.json
+// This prevents hanging when scvCore initializes in a directory without
+// .task-world.json
 // Exception: "init" command doesn't require existing infrastructure
 do {
   let args = CommandLine.arguments
@@ -21,8 +22,8 @@ do {
     var worldPath: String?
 
     // Check for --world flag in arguments
-    for i in 0..<args.count {
-      if (args[i] == "-w" || args[i] == "--world") && i + 1 < args.count {
+    for i in 0 ..< args.count {
+      if args[i] == "-w" || args[i] == "--world", i + 1 < args.count {
         worldPath = args[i + 1]
         break
       }
@@ -37,7 +38,8 @@ do {
       var found = false
 
       while true {
-        let testPath = (currentPath as NSString).appendingPathComponent(".task-world.json")
+        let testPath = (currentPath as NSString)
+          .appendingPathComponent(".task-world.json")
         if fileManager.fileExists(atPath: testPath) {
           found = true
           break
@@ -49,9 +51,13 @@ do {
       }
 
       if !found {
-        print("Error: Task infrastructure not found in current directory or ancestors.")
+        print(
+          "Error: Task infrastructure not found in current directory or ancestors.",
+        )
         print("")
-        print("To initialize task infrastructure in the current directory, run:")
+        print(
+          "To initialize task infrastructure in the current directory, run:",
+        )
         print("  task init")
         print("")
         print("Or specify a project location with --world:")
@@ -94,13 +100,15 @@ do {
       let helpTarget = commandArgs[0]
       let validCommands = Set([
         "init", "list", "add", "push", "pop", "show", "delete",
-        "action", "ref", "reference"
+        "action", "ref", "reference",
       ])
       if validCommands.contains(helpTarget) {
         try printHelpForCommand(helpTarget)
       } else {
         print("Error: Unknown command '\(helpTarget)'")
-        print("Valid commands: init, list, add, push, pop, show, delete, action, ref, reference")
+        print(
+          "Valid commands: init, list, add, push, pop, show, delete, action, ref, reference",
+        )
       }
     } else {
       printUsage()
@@ -127,7 +135,7 @@ func parseArgs() throws
   var showDoneOverride: Bool?
   var showUpdateOverride: Bool?
   var allArgs = Array(CommandLine.arguments.dropFirst())
-  var globalOptionIndices = Set<Int>()  // Track which indices are global options
+  var globalOptionIndices = Set<Int>() // Track which indices are global options
 
   // First pass: extract global options from anywhere in the args
   var i = 0
@@ -231,7 +239,7 @@ func parseArgs() throws
     }
   }
 
-  guard let commandIndex = commandIndex else {
+  guard let commandIndex else {
     printUsage()
     exit(1)
   }
@@ -239,14 +247,19 @@ func parseArgs() throws
   let command = allArgs[commandIndex]
   // Pass only non-global-option args to the command
   let commandArgs = allArgs.enumerated()
-    .filter { offset, _ in offset > commandIndex && !globalOptionIndices.contains(offset) }
+    .filter { offset, _ in
+      offset > commandIndex && !globalOptionIndices.contains(offset)
+    }
     .map { _, arg in arg }
 
   // Set rootDirectory if not already specified via --world
   if rootDirectory == nil {
     if command == "init" {
       // init doesn't need to find .task-world.json, use current directory
-      rootDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+      rootDirectory = URL(
+        fileURLWithPath: FileManager.default.currentDirectoryPath,
+        isDirectory: true,
+      )
     } else {
       // Other commands need to find .task-world.json
       rootDirectory = try taskProjectRoot()
@@ -257,7 +270,8 @@ func parseArgs() throws
 
   // Load or initialize WorldModel (skip for init)
   if command != "init" {
-    let worldPath = finalRootDirectory.appendingPathComponent(".task-world.json")
+    let worldPath = finalRootDirectory
+      .appendingPathComponent(".task-world.json")
     if FileManager.default.fileExists(atPath: worldPath.path) {
       do {
         let loadedWorld = try WorldModel.load(from: worldPath)
@@ -275,7 +289,8 @@ func parseArgs() throws
       }
     }
 
-    // Apply verbosity, limit, lineLength, showDone, and showUpdate overrides if specified
+    // Apply verbosity, limit, lineLength, showDone, and showUpdate overrides if
+    // specified
     if let verbosity = verbosityOverride {
       WorldModel.shared.verbosity = verbosity
     }
@@ -291,13 +306,17 @@ func parseArgs() throws
     if let showUpdate = showUpdateOverride {
       WorldModel.shared.showUpdate = showUpdate
     }
-    if verbosityOverride != nil || limitOverride != nil || lineLengthOverride != nil || showDoneOverride != nil || showUpdateOverride != nil {
-      let worldPath = finalRootDirectory.appendingPathComponent(".task-world.json")
+    if verbosityOverride != nil || limitOverride != nil || lineLengthOverride !=
+      nil || showDoneOverride != nil || showUpdateOverride != nil
+    {
+      let worldPath = finalRootDirectory
+        .appendingPathComponent(".task-world.json")
       try WorldModel.shared.save(to: worldPath)
     }
   }
 
-  // Set commandTask from current top of stack, or newest task if stack empty (skip for init)
+  // Set commandTask from current top of stack, or newest task if stack empty
+  // (skip for init)
   if command != "init" {
     if let taskId = WorldModel.shared.currentTask() {
       let base64 = Task.uuidToBase64(taskId)
@@ -321,10 +340,10 @@ func parseArgs() throws
 
 func formatRelevanceBar(_ relevance: Double) -> String {
   let clamped = max(0, min(1, relevance))
-  let scaled = clamped * 10  // 0-10 scale for 5 chars (2 per char)
+  let scaled = clamped * 10 // 0-10 scale for 5 chars (2 per char)
   var bar = ""
 
-  for i in 0..<5 {
+  for i in 0 ..< 5 {
     let threshold = Double((4 - i) * 2)
     if scaled >= threshold + 2 {
       bar.append("█")
@@ -338,7 +357,9 @@ func formatRelevanceBar(_ relevance: Double) -> String {
   return bar
 }
 
-func wrapLine(_ line: String, maxLength: Int, hangingIndentWidth: Int = 5) -> String {
+func wrapLine(_ line: String, maxLength: Int,
+              hangingIndentWidth: Int = 5) -> String
+{
   if line.count <= maxLength {
     return line
   }
@@ -356,7 +377,11 @@ func wrapLine(_ line: String, maxLength: Int, hangingIndentWidth: Int = 5) -> St
     }
 
     // Find last space within maxContentLength
-    let cutoffIndex = remaining.index(remaining.startIndex, offsetBy: maxContentLength, limitedBy: remaining.endIndex) ?? remaining.endIndex
+    let cutoffIndex = remaining.index(
+      remaining.startIndex,
+      offsetBy: maxContentLength,
+      limitedBy: remaining.endIndex,
+    ) ?? remaining.endIndex
     let beforeCutoff = String(remaining[..<cutoffIndex])
 
     if let lastSpace = beforeCutoff.lastIndex(of: " ") {
@@ -419,19 +444,23 @@ func handleList(args: [String], rootDirectory: URL) throws {
 
   // Separate tasks into stack and non-stack groups
   // Display stack in reverse order (top of stack first)
-  let stackTasks = stackTaskIds.reversed().compactMap { world.taskFrom(anyId: $0) }
+  let stackTasks = stackTaskIds.reversed()
+    .compactMap { world.taskFrom(anyId: $0) }
   let allNonStackTasks = allTaskIds
     .compactMap { world.taskFrom(anyId: $0) }
     .filter { !world.isStackTaskId($0.idFile) }
 
-  // Sort non-stack tasks by update date (descending) if showUpdate is true, otherwise by UUID (descending)
+  // Sort non-stack tasks by update date (descending) if showUpdate is true,
+  // otherwise by UUID (descending)
   let nonStackTasks = showUpdate
     ? allNonStackTasks.sorted { $0.updatedAt > $1.updatedAt }
     : allNonStackTasks.sorted { $0.id > $1.id }
 
   // Filter done tasks unless showDone is set
-  let filteredStackTasks = showDone ? stackTasks : stackTasks.filter { $0.state != .done }
-  let filteredNonStackTasks = showDone ? nonStackTasks : nonStackTasks.filter { $0.state != .done }
+  let filteredStackTasks = showDone ? stackTasks : stackTasks
+    .filter { $0.state != .done }
+  let filteredNonStackTasks = showDone ? nonStackTasks : nonStackTasks
+    .filter { $0.state != .done }
   let sortedTasks = filteredStackTasks + filteredNonStackTasks
 
   let effectiveLimit = world.limit
@@ -442,7 +471,11 @@ func handleList(args: [String], rootDirectory: URL) throws {
   if showUpdate {
     let formatter = DateFormatter()
     // Get locale-specific short date format template with 2-digit year
-    if let dateFormat = DateFormatter.dateFormat(fromTemplate: "yyMd", options: 0, locale: Locale.current) {
+    if let dateFormat = DateFormatter.dateFormat(
+      fromTemplate: "yyMd",
+      options: 0,
+      locale: Locale.current,
+    ) {
       // Append 24-hour time format (HH:mm)
       formatter.dateFormat = dateFormat + " HH:mm"
     } else {
@@ -480,7 +513,9 @@ func handleList(args: [String], rootDirectory: URL) throws {
     let separator = world.isStackTaskId(task.idFile) ? ":" : "."
     if let formatter = dateFormatter {
       let dateStr = formatter.string(from: task.updatedAt)
-      print("\(rowNum)\(separator) \(dateStr) \(task.idFile) \(emoji) \(task.name)")
+      print(
+        "\(rowNum)\(separator) \(dateStr) \(task.idFile) \(emoji) \(task.name)",
+      )
     } else {
       print("\(rowNum)\(separator) \(task.idFile) \(emoji) \(task.name)")
     }
@@ -531,7 +566,10 @@ func handleInit(args: [String], rootDirectory: URL) throws {
   }
 
   let fileManager = FileManager.default
-  let tasksDirectory = rootDirectory.appendingPathComponent("Tasks", isDirectory: true)
+  let tasksDirectory = rootDirectory.appendingPathComponent(
+    "Tasks",
+    isDirectory: true,
+  )
   let worldPath = rootDirectory.appendingPathComponent(".task-world.json")
 
   // Create Tasks directory if it doesn't exist
@@ -539,7 +577,7 @@ func handleInit(args: [String], rootDirectory: URL) throws {
     try fileManager.createDirectory(
       at: tasksDirectory,
       withIntermediateDirectories: true,
-      attributes: nil
+      attributes: nil,
     )
     print("Created Tasks directory")
   }
@@ -580,7 +618,11 @@ func handlePush(args: [String], rootDirectory: URL) throws {
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
 
-  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
+  let task = try findTask(
+    by: taskPrefix,
+    from: tasks,
+    rootDirectory: rootDirectory,
+  )
 
   let world = TaskWorld(basePath: rootDirectory)
 
@@ -644,7 +686,11 @@ func handleShow(args: [String], rootDirectory: URL) throws {
   let world = TaskWorld.shared
   let allTaskIds = world.allTaskIds(showFileName: true)
   let allTasks = allTaskIds.compactMap { world.taskFrom(anyId: $0) }
-  let task = try findTask(by: taskPrefix, from: allTasks, rootDirectory: rootDirectory)
+  let task = try findTask(
+    by: taskPrefix,
+    from: allTasks,
+    rootDirectory: rootDirectory,
+  )
 
   switch format.lowercased() {
   case "json":
@@ -661,18 +707,26 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     dateFormatter.timeStyle = .short
     dateFormatter.timeZone = TimeZone.current
 
-    print("Task: \(task.idFile) (Created: \(dateFormatter.string(from: task.createdAt)))")
+    print(
+      "Task: \(task.idFile) (Created: \(dateFormatter.string(from: task.createdAt)))",
+    )
     print("Name: \(task.name)")
     print("Summary: \(task.summary)")
-    print("State: \(task.state.rawValue) (Updated: \(dateFormatter.string(from: task.updatedAt)))")
+    print(
+      "State: \(task.state.rawValue) (Updated: \(dateFormatter.string(from: task.updatedAt)))",
+    )
 
     // Display blockers (required tasks that are not done)
     if !task.requiredTasks.isEmpty {
       var blockers: [(name: String, state: String)] = []
       for requiredTaskId in task.requiredTasks {
         if let requiredTask = world.taskFrom(anyId: requiredTaskId),
-           requiredTask.state != TaskState.done {
-          blockers.append((name: requiredTask.name, state: requiredTask.state.rawValue))
+           requiredTask.state != TaskState.done
+        {
+          blockers.append((
+            name: requiredTask.name,
+            state: requiredTask.state.rawValue,
+          ))
         }
       }
 
@@ -685,10 +739,15 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     }
     if !task.plannedActions.isEmpty {
       print("\nPlanned Actions:")
-      let effectiveLimit = world.limit > 0 ? world.limit : task.plannedActions.count
-      let displayPlannedActions = Array(task.plannedActions.prefix(effectiveLimit))
+      let effectiveLimit = world.limit > 0 ? world.limit : task.plannedActions
+        .count
+      let displayPlannedActions = Array(task.plannedActions
+        .prefix(effectiveLimit))
       for (index, action) in displayPlannedActions.enumerated() {
-        print(wrapLine("  \(index + 1). \(action.description)", maxLength: world.lineLength))
+        print(wrapLine(
+          "  \(index + 1). \(action.description)",
+          maxLength: world.lineLength,
+        ))
       }
       if task.plannedActions.count > effectiveLimit {
         print("  ...")
@@ -696,10 +755,15 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     }
     if !task.completedActions.isEmpty {
       print("\nCompleted Actions:")
-      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared.limit : task.completedActions.count
-      let displayCompletedActions = Array(task.completedActions.prefix(effectiveLimit))
+      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared
+        .limit : task.completedActions.count
+      let displayCompletedActions = Array(task.completedActions
+        .prefix(effectiveLimit))
       for (index, action) in displayCompletedActions.enumerated() {
-        print(wrapLine("  \(index + 1). \(action.description)", maxLength: WorldModel.shared.lineLength))
+        print(wrapLine(
+          "  \(index + 1). \(action.description)",
+          maxLength: WorldModel.shared.lineLength,
+        ))
       }
       if task.completedActions.count > effectiveLimit {
         print("  ...")
@@ -707,7 +771,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     }
     if !task.references.isEmpty {
       print("\nReferences:")
-      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared.limit : task.references.count
+      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared
+        .limit : task.references.count
       let displayReferences = Array(task.references.prefix(effectiveLimit))
       let isClipped = task.references.count > effectiveLimit
 
@@ -721,7 +786,10 @@ func handleShow(args: [String], rootDirectory: URL) throws {
             firstLine += " \(url.absoluteString)"
             print(wrapLine(firstLine, maxLength: WorldModel.shared.lineLength))
             if let text = ref.text {
-              print(wrapLine("     \(text)", maxLength: WorldModel.shared.lineLength))
+              print(wrapLine(
+                "     \(text)",
+                maxLength: WorldModel.shared.lineLength,
+              ))
             }
           } else if let text = ref.text {
             firstLine += " \(text)"
@@ -731,12 +799,21 @@ func handleShow(args: [String], rootDirectory: URL) throws {
           }
         case 2: // Verbose: all fields
           print("  \(index + 1).")
-          print(wrapLine("    id: \(ref.id)", maxLength: WorldModel.shared.lineLength))
+          print(wrapLine(
+            "    id: \(ref.id)",
+            maxLength: WorldModel.shared.lineLength,
+          ))
           if let text = ref.text {
-            print(wrapLine("    text: \(text)", maxLength: WorldModel.shared.lineLength))
+            print(wrapLine(
+              "    text: \(text)",
+              maxLength: WorldModel.shared.lineLength,
+            ))
           }
           if let url = ref.url {
-            print(wrapLine("    url: \(url.absoluteString)", maxLength: WorldModel.shared.lineLength))
+            print(wrapLine(
+              "    url: \(url.absoluteString)",
+              maxLength: WorldModel.shared.lineLength,
+            ))
           }
           print("    relevance: \(String(format: "%.2f", ref.relevance))")
         default:
@@ -778,7 +855,11 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
-  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
+  let task = try findTask(
+    by: taskPrefix,
+    from: tasks,
+    rootDirectory: rootDirectory,
+  )
 
   // Prompt for confirmation unless --force
   if !force {
@@ -849,7 +930,11 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
-  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
+  let task = try findTask(
+    by: taskPrefix,
+    from: tasks,
+    rootDirectory: rootDirectory,
+  )
 
   if task.plannedActions.isEmpty {
     print("No planned actions")
@@ -899,7 +984,10 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     let arg = args[i]
     if !arg.hasPrefix("-") {
       let cc = ColorConsole(#file, #function, 1)
-      cc.bad1(#line, "Expected at most 1 positional argument, got extra: \(arg)")
+      cc.bad1(
+        #line,
+        "Expected at most 1 positional argument, got extra: \(arg)",
+      )
       try printHelpForCommand("action")
       throw CliError.invalidArgument("Too many positional arguments")
     }
@@ -1310,7 +1398,11 @@ func handleReferenceList(args: [String], rootDirectory: URL) throws {
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
-  let task = try findTask(by: taskPrefix, from: tasks, rootDirectory: rootDirectory)
+  let task = try findTask(
+    by: taskPrefix,
+    from: tasks,
+    rootDirectory: rootDirectory,
+  )
 
   if task.references.isEmpty {
     print("No references")
@@ -1729,7 +1821,9 @@ func taskProjectRoot() throws -> URL {
       .path
     if parent == currentPath {
       // Reached filesystem root without finding .task-world.json
-      print("Error: Task infrastructure not found in current directory or ancestors.")
+      print(
+        "Error: Task infrastructure not found in current directory or ancestors.",
+      )
       print("Current path: \(currentPath)")
       print("")
       print("To initialize task infrastructure in the current directory, run:")
@@ -1744,7 +1838,9 @@ func taskProjectRoot() throws -> URL {
   }
 }
 
-func findTask(by prefix: String?, from tasks: [Task], rootDirectory: URL) throws -> Task {
+func findTask(by prefix: String?, from tasks: [Task],
+              rootDirectory _: URL) throws -> Task
+{
   let inputPrefix = prefix ?? commandTask
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
@@ -1757,7 +1853,8 @@ func findTask(by prefix: String?, from tasks: [Task], rootDirectory: URL) throws
     task = tasks.first { $0.id.uuidString == inputPrefix }
   } else {
     // Treat as file prefix
-    let fullPrefix = inputPrefix.hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
+    let fullPrefix = inputPrefix
+      .hasPrefix("T_") ? inputPrefix : "T_" + inputPrefix
     var matchingTasks = tasks.filter { $0.idFile.hasPrefix(fullPrefix) }
 
     if matchingTasks.isEmpty {
@@ -1800,17 +1897,25 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task init")
   case "list":
-    print("Usage: task list [-sd|--show-done|--no-show-done] [-su|--show-update|--no-show-update]")
+    print(
+      "Usage: task list [-sd|--show-done|--no-show-done] [-su|--show-update|--no-show-update]",
+    )
     print("")
     print("List all tasks sorted by stack status and creation date.")
-    print("Persistent settings stored in .task-world.json. By default, done tasks are hidden and tasks sorted by UUID.")
+    print(
+      "Persistent settings stored in .task-world.json. By default, done tasks are hidden and tasks sorted by UUID.",
+    )
     print("Shows emoji indicators: 🔴 blocked, 🟢 stacked, 🐢 unstacked, ☑️ done")
     print("")
     print("Options:")
     print("  -sd, --show-done        Include done tasks (persists)")
     print("  --no-show-done          Hide done tasks (persists)")
-    print("  -su, --show-update      Show update date and sort by update date (persists)")
-    print("  --no-show-update        Hide update date and sort by UUID (persists)")
+    print(
+      "  -su, --show-update      Show update date and sort by update date (persists)",
+    )
+    print(
+      "  --no-show-update        Hide update date and sort by UUID (persists)",
+    )
     print("")
     print("Example:")
     print("  task list")
@@ -1828,7 +1933,9 @@ func printHelpForCommand(_ command: String) throws {
     print("  -s, --summary TEXT   Task summary (optional)")
     print("")
     print("Example:")
-    print("  task add -n \"Implement feature X\" -s \"Add user authentication\"")
+    print(
+      "  task add -n \"Implement feature X\" -s \"Add user authentication\"",
+    )
   case "push":
     print("Usage: task push [PREFIX] [-t|--task PREFIX]")
     print("")
@@ -1836,7 +1943,9 @@ func printHelpForCommand(_ command: String) throws {
     print("If already stacked, moves to top.")
     print("")
     print("Options:")
-    print("  -t, --task PREFIX    Task prefix or full name (default: current task or most recent)")
+    print(
+      "  -t, --task PREFIX    Task prefix or full name (default: current task or most recent)",
+    )
     print("")
     print("Example:")
     print("  task push                # Use current task from stack")
@@ -1855,7 +1964,9 @@ func printHelpForCommand(_ command: String) throws {
     print("Display task details including actions and references.")
     print("")
     print("Options:")
-    print("  -t, --task PREFIX    Task prefix or full name (default: current task)")
+    print(
+      "  -t, --task PREFIX    Task prefix or full name (default: current task)",
+    )
     print("  -f, --format FORMAT  Output format: json or text (default: text)")
     print("")
     print("Example:")
@@ -1867,7 +1978,9 @@ func printHelpForCommand(_ command: String) throws {
     print("Delete a task (prompts for confirmation unless --force).")
     print("")
     print("Options:")
-    print("  -t, --task PREFIX    Task prefix or full name (default: current task)")
+    print(
+      "  -t, --task PREFIX    Task prefix or full name (default: current task)",
+    )
     print("  --force              Skip confirmation prompt")
     print("")
     print("Example:")
@@ -1886,7 +1999,9 @@ func printHelpForCommand(_ command: String) throws {
     print("  replace -i NUMBER [-t|--task PREFIX] DESCRIPTION")
     print("      Replace action #NUMBER (1-based)")
     print("  done [-i NUMBER] [-t|--task PREFIX]")
-    print("      Move first planned action to completed (or action #NUMBER if -i specified)")
+    print(
+      "      Move first planned action to completed (or action #NUMBER if -i specified)",
+    )
     print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
     print("      Delete action #NUMBER")
     print("")
@@ -1894,7 +2009,9 @@ func printHelpForCommand(_ command: String) throws {
     print("  task action list")
     print("  task action add -t T_AZ \"New action\"")
     print("  task action add -i 1 \"Insert at position 1\"")
-    print("  task action done  # move first planned action to completed actions")
+    print(
+      "  task action done  # move first planned action to completed actions",
+    )
   case "ref", "reference":
     print("Usage: task ref <subcommand> [OPTIONS]")
     print("")
@@ -1904,9 +2021,13 @@ func printHelpForCommand(_ command: String) throws {
     print("Subcommands:")
     print("  list [-t|--task PREFIX]")
     print("      List references for task")
-    print("  add [URL|TEXT] [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]")
+    print(
+      "  add [URL|TEXT] [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]",
+    )
     print("      Add reference (positional: URL or text, or use -u/-x flags)")
-    print("  replace -i NUMBER [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]")
+    print(
+      "  replace -i NUMBER [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]",
+    )
     print("      Replace reference #NUMBER")
     print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
     print("      Delete reference #NUMBER")
@@ -1914,7 +2035,9 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task ref list -t T_AZ")
     print("  task ref add https://example.com")
-    print("  task reference add -t T_AZ https://example.com -x \"Example\" -r 0.8")
+    print(
+      "  task reference add -t T_AZ https://example.com -x \"Example\" -r 0.8",
+    )
   default:
     throw CliError.unknownSubcommand(command)
   }

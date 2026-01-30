@@ -1,17 +1,20 @@
 import Foundation
 import UUIDV7
 
-/// TaskWorld implements ITaskWorld as the single API entry point for task management.
+/// TaskWorld implements ITaskWorld as the single API entry point for task
+/// management.
 /// All mutations are atomic and durable (persisted to disk immediately).
 ///
-/// **Thread Safety**: TaskWorld is designed for single-threaded use (e.g., task_cli).
+/// **Thread Safety**: TaskWorld is designed for single-threaded use (e.g.,
+/// task_cli).
 /// Marked `@unchecked Sendable` for Swift concurrency compatibility.
-/// In the future, if multi-threaded access is needed, add locks to mutable state
+/// In the future, if multi-threaded access is needed, add locks to mutable
+/// state
 /// (taskMap, _taskStack) without changing the public API.
 public class TaskWorld: ITaskWorld, @unchecked Sendable {
   public static let shared = TaskWorld()
 
-  private var taskMap: [String: Task] = [:]  // keyed by filename or UUID string
+  private var taskMap: [String: Task] = [:] // keyed by filename or UUID string
   private var worldModel: WorldModel
   private var basePath: URL
   private var taskManager: TaskManager
@@ -43,21 +46,24 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   }
 
   public init(basePath: URL? = nil) {
-    let path = basePath ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    let path = basePath ??
+      URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
     self.basePath = path
-    self.taskManager = TaskManager(basePath: path)
-    self.worldFilePath = path.appendingPathComponent(".task-world.json")
+    taskManager = TaskManager(basePath: path)
+    worldFilePath = path.appendingPathComponent(".task-world.json")
 
     // Load world model (stack + preferences)
     if FileManager.default.fileExists(atPath: worldFilePath.path) {
       do {
-        self.worldModel = try WorldModel.load(from: worldFilePath)
+        worldModel = try WorldModel.load(from: worldFilePath)
       } catch {
-        print("Warning: Failed to load world model: \(error). Starting with defaults.")
-        self.worldModel = WorldModel()
+        print(
+          "Warning: Failed to load world model: \(error). Starting with defaults.",
+        )
+        worldModel = WorldModel()
       }
     } else {
-      self.worldModel = WorldModel()
+      worldModel = WorldModel()
     }
 
     // Load all tasks into memory
@@ -103,7 +109,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
         retries += 1
         if retries < maxRetries {
           do {
-            try await _Concurrency.Task.sleep(nanoseconds: 1_000_000)  // 1ms
+            try await _Concurrency.Task.sleep(nanoseconds: 1_000_000) // 1ms
           } catch {
             // If sleep is cancelled, continue immediately
           }
@@ -111,7 +117,8 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
       }
     }
 
-    throw TaskCreationError.filenameTaken("Failed to create task after \(maxRetries) retries")
+    throw TaskCreationError
+      .filenameTaken("Failed to create task after \(maxRetries) retries")
   }
 
   public func createTaskSync(name: String, summary: String) throws -> Task {
@@ -167,7 +174,8 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     guard let task = taskMap[id] else { return false }
     do {
       let fileName = task.idFile + ".json"
-      let fileURL = basePath.appendingPathComponent("Tasks").appendingPathComponent(fileName)
+      let fileURL = basePath.appendingPathComponent("Tasks")
+        .appendingPathComponent(fileName)
       try FileManager.default.removeItem(at: fileURL)
       taskMap.removeValue(forKey: task.idFile)
       taskMap.removeValue(forKey: task.uuid.uuidString)
@@ -178,7 +186,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   }
 
   public func stackTaskIds() -> [AnyTaskId] {
-    worldModel.taskStack.map { $0.uuidString }
+    worldModel.taskStack.map(\.uuidString)
   }
 
   public func pushTaskId(_ id: AnyTaskId) {
@@ -195,7 +203,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   }
 
   public func currentTaskId() -> AnyTaskId? {
-    worldModel.currentTask().map { $0.uuidString }
+    worldModel.currentTask().map(\.uuidString)
   }
 
   public func isStackTaskId(_ id: AnyTaskId) -> Bool {

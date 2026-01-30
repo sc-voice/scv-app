@@ -6,21 +6,35 @@ import UUIDV7
 struct TaskWorldTests {
   private func createTempDir() -> URL {
     let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
-      .appendingPathComponent("taskworld-\(UUID().uuidString)", isDirectory: true)
-    try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+      .appendingPathComponent(
+        "taskworld-\(UUID().uuidString)",
+        isDirectory: true,
+      )
+    try? FileManager.default.createDirectory(
+      at: tempDir,
+      withIntermediateDirectories: true,
+    )
     return tempDir
   }
 
   private func writeSampleTask(to dir: URL, uuid: UUIDV7, name: String) throws {
     let mockWorld = MockTaskWorld()
-    let task = try Task.create(world: mockWorld, uuid: uuid, name: name, summary: "Sample task")
+    let task = try Task.create(
+      world: mockWorld,
+      uuid: uuid,
+      name: name,
+      summary: "Sample task",
+    )
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .iso8601
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     let data = try encoder.encode(task)
     let fileName = Task.uuidToFilename(uuid) + ".json"
     let fileURL = dir.appendingPathComponent("Tasks", isDirectory: true)
-    try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(
+      at: fileURL,
+      withIntermediateDirectories: true,
+    )
     try data.write(to: fileURL.appendingPathComponent(fileName))
   }
 
@@ -111,7 +125,9 @@ struct TaskWorldTests {
     #expect(world.stackTaskIds().count == 2)
 
     // Current task should be task2
-    if let currentId = world.currentTaskId(), let currentTask = world.taskFrom(anyId: currentId) {
+    if let currentId = world.currentTaskId(),
+       let currentTask = world.taskFrom(anyId: currentId)
+    {
       #expect(currentTask.uuid == task2.uuid)
     } else {
       #expect(Bool(false), "Current task not found")
@@ -123,7 +139,7 @@ struct TaskWorldTests {
     if let poppedId = popped {
       let poppedTask = world.taskFrom(anyId: poppedId)
       #expect(poppedTask != nil)
-      if let poppedTask = poppedTask {
+      if let poppedTask {
         #expect(poppedTask.uuid == task2.uuid)
       }
     }
@@ -134,10 +150,10 @@ struct TaskWorldTests {
     // Current task should now be task1
     let currentId = world.currentTaskId()
     #expect(currentId != nil)
-    if let currentId = currentId {
+    if let currentId {
       let currentTask = world.taskFrom(anyId: currentId)
       #expect(currentTask != nil)
-      if let currentTask = currentTask {
+      if let currentTask {
         #expect(currentTask.uuid == task1.uuid)
       }
     }
@@ -160,7 +176,9 @@ struct TaskWorldTests {
     #expect(stack.count == 1)
     #expect(world.taskFrom(anyId: stack[0])?.uuid == task.uuid)
 
-    if let currentId = world.currentTaskId(), let currentTask = world.taskFrom(anyId: currentId) {
+    if let currentId = world.currentTaskId(),
+       let currentTask = world.taskFrom(anyId: currentId)
+    {
       #expect(currentTask.uuid == task.uuid)
     } else {
       #expect(Bool(false), "Current task not found after push")
@@ -243,7 +261,10 @@ struct TaskWorldTests {
       let currentTask = world.taskFrom(anyId: currentId)
       #expect(currentTask?.uuid == task2.uuid)
     } else {
-      #expect(Bool(false), "currentTaskId() returned nil when stack is not empty")
+      #expect(
+        Bool(false),
+        "currentTaskId() returned nil when stack is not empty",
+      )
     }
   }
 
@@ -266,7 +287,10 @@ struct TaskWorldTests {
       let currentTask = world.taskFrom(anyId: currentId)
       #expect(currentTask?.uuid == task2.uuid)
     } else {
-      #expect(Bool(false), "currentTaskId() returned nil when stack is not empty")
+      #expect(
+        Bool(false),
+        "currentTaskId() returned nil when stack is not empty",
+      )
     }
   }
 }

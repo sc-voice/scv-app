@@ -46,7 +46,10 @@ struct CachedSynthesizerTests {
     // Synthesize short test audio
     let testText = "test"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Create CachedSynthesizer with test store
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -75,7 +78,10 @@ struct CachedSynthesizerTests {
     // Synthesize short test audio
     let testText = "test"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Create CachedSynthesizer with test store
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -86,10 +92,10 @@ struct CachedSynthesizerTests {
 
     // Wait for audio to finish playing (with timeout)
     let startTime = Date()
-    while testDelegate.didFinishCalls == 0
-      && Date().timeIntervalSince(startTime) < 5.0
+    while testDelegate.didFinishCalls == 0,
+          Date().timeIntervalSince(startTime) < 5.0
     {
-      try await Task.sleep(nanoseconds: 50_000_000)  // 50ms
+      try await Task.sleep(nanoseconds: 50_000_000) // 50ms
     }
 
     // Assert: onPlaybackFinished should have been called
@@ -112,7 +118,10 @@ struct CachedSynthesizerTests {
     // Synthesize longer test audio (so we have time to pause)
     let testText = "testng one two three"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Create CachedSynthesizer with test store
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -122,13 +131,15 @@ struct CachedSynthesizerTests {
     try synth.playText(testText, audioContext: audioContext)
 
     // Wait a bit for playback to start, then simulate interruption
-    try await Task.sleep(nanoseconds: 100_000_000)  // 100ms
+    try await Task.sleep(nanoseconds: 100_000_000) // 100ms
 
     // Simulate audio interruption (calls audioPlayerBeginInterruption)
-    // Note: We can't directly trigger this in a unit test without mocking AVAudioPlayer
+    // Note: We can't directly trigger this in a unit test without mocking
+    // AVAudioPlayer
     // or actually interrupting audio (e.g., call, alarm).
     // For now, verify the infrastructure is in place.
-    // In integration testing, actual system audio interruption would trigger this.
+    // In integration testing, actual system audio interruption would trigger
+    // this.
 
     cc.ok1(#line, "onPlaybackPaused event infrastructure verified")
 
@@ -148,7 +159,10 @@ struct CachedSynthesizerTests {
     // Synthesize longer test audio (so we have time for pause/continue)
     let testText = "hello world this is a test"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Create CachedSynthesizer with test store
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -163,7 +177,8 @@ struct CachedSynthesizerTests {
     // 1. Mocking AVAudioPlayer
     // 2. Actually triggering system interruption
     // For now, verify the infrastructure is in place.
-    // In integration testing, actual system audio interruption recovery would trigger this.
+    // In integration testing, actual system audio interruption recovery would
+    // trigger this.
 
     cc.ok1(#line, "onPlaybackContinued event infrastructure verified")
 

@@ -927,15 +927,22 @@ struct AudioStoreTests {
     // 1️⃣ Synthesize to CAF
     print("1️⃣ CAF Synthesis:")
     let cafStart = Date()
-    let cafUrl = try await cafStore.storeAudio(text: dn10_2_32_2_text, audioContext: context)
+    let cafUrl = try await cafStore.storeAudio(
+      text: dn10_2_32_2_text,
+      audioContext: context,
+    )
     let cafTime = Date().timeIntervalSince(cafStart)
-    let cafSize = try FileManager.default.attributesOfItem(atPath: cafUrl.path)[.size] as? Int ?? 0
+    let cafSize = try FileManager.default
+      .attributesOfItem(atPath: cafUrl.path)[.size] as? Int ?? 0
     print("   Time: \(String(format: "%.3f", cafTime))s")
     print("   Size: \(cafSize) bytes (\(cafSize / 1024) KB)\n")
 
     // 2️⃣ Convert CAF to M4A using AVAudioConverter
     print("2️⃣ CAF→M4A Conversion (AVAudioConverter):")
-    let m4aUrl = URL(fileURLWithPath: cafUrl.path.replacingOccurrences(of: ".caf", with: "_av.m4a"))
+    let m4aUrl = URL(fileURLWithPath: cafUrl.path.replacingOccurrences(
+      of: ".caf",
+      with: "_av.m4a",
+    ))
     try? fileManager.removeItem(atPath: m4aUrl.path)
 
     let conversionStart = Date()
@@ -949,15 +956,19 @@ struct AudioStoreTests {
       AVNumberOfChannelsKey: inputFormat.channelCount,
     ]
 
-    let outputAudioFile = try AVAudioFile(forWriting: m4aUrl, settings: m4aSettings)
+    let outputAudioFile = try AVAudioFile(
+      forWriting: m4aUrl,
+      settings: m4aSettings,
+    )
     let outputFormat = AVAudioFormat(
       commonFormat: .pcmFormatFloat32,
       sampleRate: inputFormat.sampleRate,
       channels: inputFormat.channelCount,
-      interleaved: false
+      interleaved: false,
     )!
 
-    guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat) else {
+    guard let converter = AVAudioConverter(from: inputFormat, to: outputFormat)
+    else {
       throw NSError(domain: "AVAudioConverter", code: -1)
     }
 
@@ -965,15 +976,25 @@ struct AudioStoreTests {
     var totalFramesProcessed: AVAudioFrameCount = 0
 
     while totalFramesProcessed < frameCount {
-      let framesRemaining = frameCount - AVAudioFramePosition(totalFramesProcessed)
-      let framesToRead = AVAudioFrameCount(min(framesRemaining, AVAudioFramePosition(bufferSize)))
+      let framesRemaining = frameCount -
+        AVAudioFramePosition(totalFramesProcessed)
+      let framesToRead = AVAudioFrameCount(min(
+        framesRemaining,
+        AVAudioFramePosition(bufferSize),
+      ))
 
-      let inputBuffer = AVAudioPCMBuffer(pcmFormat: inputFormat, frameCapacity: framesToRead)!
+      let inputBuffer = AVAudioPCMBuffer(
+        pcmFormat: inputFormat,
+        frameCapacity: framesToRead,
+      )!
       try inputAudioFile.read(into: inputBuffer, frameCount: framesToRead)
 
       if inputBuffer.frameLength == 0 { break }
 
-      let outputBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: bufferSize)!
+      let outputBuffer = AVAudioPCMBuffer(
+        pcmFormat: outputFormat,
+        frameCapacity: bufferSize,
+      )!
       try converter.convert(to: outputBuffer, from: inputBuffer)
       try outputAudioFile.write(from: outputBuffer)
 
@@ -981,7 +1002,8 @@ struct AudioStoreTests {
     }
 
     let conversionTime = Date().timeIntervalSince(conversionStart)
-    let m4aSize = try fileManager.attributesOfItem(atPath: m4aUrl.path)[.size] as? Int ?? 0
+    let m4aSize = try fileManager
+      .attributesOfItem(atPath: m4aUrl.path)[.size] as? Int ?? 0
 
     print("   Time: \(String(format: "%.3f", conversionTime))s")
     print("   Size: \(m4aSize) bytes (\(m4aSize / 1024) KB)\n")
@@ -991,10 +1013,16 @@ struct AudioStoreTests {
 
     print("=== RESULTS ===")
     print("Segment: dn10:2.32.2 (\(dn10_2_32_2_text.count) chars)")
-    print("CAF synthesis: \(String(format: "%.3f", cafTime))s → \(cafSize / 1024) KB")
-    print("CAF→M4A conversion: \(String(format: "%.3f", conversionTime))s → \(m4aSize / 1024) KB")
+    print(
+      "CAF synthesis: \(String(format: "%.3f", cafTime))s → \(cafSize / 1024) KB",
+    )
+    print(
+      "CAF→M4A conversion: \(String(format: "%.3f", conversionTime))s → \(m4aSize / 1024) KB",
+    )
     print("Compression ratio: \(String(format: "%.2f", compressionRatio))x")
-    print("Space saved: \(spaceSaved / 1024) KB (\((cafSize - m4aSize) * 100 / cafSize)%)\n")
+    print(
+      "Space saved: \(spaceSaved / 1024) KB (\((cafSize - m4aSize) * 100 / cafSize)%)\n",
+    )
 
     cc.ok1(
       #line,
@@ -1012,7 +1040,10 @@ struct AudioStoreTests {
     print("\n=== PLAYBACK TEST ===")
     print("Synthesizing and playing 'So I have heard.'\n")
 
-    let url = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+    let url = try await store.storeAudio(
+      text: "So I have heard.",
+      audioContext: context,
+    )
 
     #expect(url.pathExtension == "caf", "Should return CAF file")
 
@@ -1020,7 +1051,9 @@ struct AudioStoreTests {
     #expect(player.prepareToPlay(), "Player should prepare successfully")
     #expect(player.duration > 0, "Audio duration should be positive")
 
-    print("Playing audio... (duration: \(String(format: "%.2f", player.duration))s)")
+    print(
+      "Playing audio... (duration: \(String(format: "%.2f", player.duration))s)",
+    )
     player.play()
 
     // Wait for playback to complete
@@ -1044,32 +1077,46 @@ struct AudioStoreTests {
     print("Testing async conversion with type: .m4a\n")
 
     let startTime = Date()
-    let url = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+    let url = try await store.storeAudio(
+      text: "So I have heard.",
+      audioContext: context,
+    )
     let elapsed = Date().timeIntervalSince(startTime)
 
     print("storeAudio returned in \(String(format: "%.3f", elapsed))s")
 
     // 1. Verify returned URL is CAF (not M4A)
-    #expect(url.pathExtension == "caf", "Should return CAF file for immediate playback")
+    #expect(
+      url.pathExtension == "caf",
+      "Should return CAF file for immediate playback",
+    )
     print("✓ Returned CAF file: \(url.lastPathComponent)")
 
     // 2. Verify CAF file exists
-    #expect(FileManager.default.fileExists(atPath: url.path), "CAF file should exist")
+    #expect(
+      FileManager.default.fileExists(atPath: url.path),
+      "CAF file should exist",
+    )
     print("✓ CAF file exists")
 
     // 3. Verify CAF is playable immediately
     let player = try AVAudioPlayer(contentsOf: url)
     #expect(player.prepareToPlay(), "CAF should be playable immediately")
     #expect(player.duration > 0, "CAF duration should be positive")
-    print("✓ CAF is playable (duration: \(String(format: "%.2f", player.duration))s)")
+    print(
+      "✓ CAF is playable (duration: \(String(format: "%.2f", player.duration))s)",
+    )
 
     // 4. Wait briefly for async conversion (max 2 seconds)
-    let m4aUrl = URL(fileURLWithPath: url.path.replacingOccurrences(of: ".caf", with: ".m4a"))
+    let m4aUrl = URL(fileURLWithPath: url.path.replacingOccurrences(
+      of: ".caf",
+      with: ".m4a",
+    ))
     print("\nWaiting for async M4A conversion...")
     var m4aExists = FileManager.default.fileExists(atPath: m4aUrl.path)
 
     if !m4aExists {
-      for i in 1...20 {
+      for i in 1 ... 20 {
         try await Task.sleep(for: .milliseconds(100))
         if FileManager.default.fileExists(atPath: m4aUrl.path) {
           m4aExists = true
@@ -1088,20 +1135,31 @@ struct AudioStoreTests {
     #expect(m4aPlayer.prepareToPlay(), "M4A should be playable")
     print("✓ M4A is playable")
 
-    // 6. Verify CAF still exists (not deleted until next storeAudio returns M4A)
+    // 6. Verify CAF still exists (not deleted until next storeAudio returns
+    // M4A)
     let cafStillExists = FileManager.default.fileExists(atPath: url.path)
-    #expect(cafStillExists, "CAF should remain until next storeAudio call returns M4A")
+    #expect(
+      cafStillExists,
+      "CAF should remain until next storeAudio call returns M4A",
+    )
     print("✓ CAF still exists (correct - not deleted yet)")
 
     // 7. Second storeAudio call should return M4A and delete CAF
     print("\nCalling storeAudio again...")
-    let url2 = try await store.storeAudio(text: "So I have heard.", audioContext: context)
+    let url2 = try await store.storeAudio(
+      text: "So I have heard.",
+      audioContext: context,
+    )
     #expect(url2.pathExtension == "m4a", "Second call should return M4A")
     print("✓ Second call returned M4A")
 
     // 8. Now CAF should be deleted
-    let cafExistsAfterM4AReturn = FileManager.default.fileExists(atPath: url.path)
-    #expect(!cafExistsAfterM4AReturn, "CAF should be deleted when M4A is returned")
+    let cafExistsAfterM4AReturn = FileManager.default
+      .fileExists(atPath: url.path)
+    #expect(
+      !cafExistsAfterM4AReturn,
+      "CAF should be deleted when M4A is returned",
+    )
     print("✓ CAF deleted after M4A was returned")
 
     print("\n=== TEST COMPLETE ===\n")

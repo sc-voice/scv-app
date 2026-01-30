@@ -38,7 +38,10 @@ struct SynthesizerPerformanceTests {
     let audioContext = AudioContext(for: "en")
 
     // Pre-synthesize and cache audio
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Create CachedSynthesizer
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -51,10 +54,10 @@ struct SynthesizerPerformanceTests {
 
     // Wait for playback to start
     let maxWait: TimeInterval = 2.0
-    while perfDelegate.startTime == nil
-      && Date().timeIntervalSince(playStartTime) < maxWait
+    while perfDelegate.startTime == nil,
+          Date().timeIntervalSince(playStartTime) < maxWait
     {
-      try await Task.sleep(nanoseconds: 10_000_000)  // 10ms
+      try await Task.sleep(nanoseconds: 10_000_000) // 10ms
     }
 
     guard let startTime = perfDelegate.startTime else {
@@ -62,14 +65,14 @@ struct SynthesizerPerformanceTests {
       throw NSError(
         domain: "PerformanceTest",
         code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Playback timeout"]
+        userInfo: [NSLocalizedDescriptionKey: "Playback timeout"],
       )
     }
 
     let startupLatency = startTime.timeIntervalSince(playStartTime)
     cc.ok1(
       #line,
-      "CachedSynthesizer startup latency: \(String(format: "%.3f", startupLatency))s"
+      "CachedSynthesizer startup latency: \(String(format: "%.3f", startupLatency))s",
     )
 
     // Assert: startup latency should be <0.5s (AVAudioPlayer is fast)
@@ -96,10 +99,10 @@ struct SynthesizerPerformanceTests {
 
     // Wait for playback to start
     let maxWait: TimeInterval = 5.0
-    while perfDelegate.startTime == nil
-      && Date().timeIntervalSince(playStartTime) < maxWait
+    while perfDelegate.startTime == nil,
+          Date().timeIntervalSince(playStartTime) < maxWait
     {
-      try await Task.sleep(nanoseconds: 50_000_000)  // 50ms
+      try await Task.sleep(nanoseconds: 50_000_000) // 50ms
     }
 
     guard let startTime = perfDelegate.startTime else {
@@ -107,14 +110,14 @@ struct SynthesizerPerformanceTests {
       throw NSError(
         domain: "PerformanceTest",
         code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Playback timeout"]
+        userInfo: [NSLocalizedDescriptionKey: "Playback timeout"],
       )
     }
 
     let startupLatency = startTime.timeIntervalSince(playStartTime)
     cc.ok1(
       #line,
-      "SpeechSynthesizerImpl startup latency: \(String(format: "%.3f", startupLatency))s"
+      "SpeechSynthesizerImpl startup latency: \(String(format: "%.3f", startupLatency))s",
     )
 
     // Assert: startup latency will be larger (synthesis takes time)
@@ -129,7 +132,8 @@ struct SynthesizerPerformanceTests {
   @MainActor
   func performanceComparison_CachedIsFasterThanLiveSync() async throws {
     // This test verifies the expected performance characteristic:
-    // CachedSynthesizer should have lower startup latency than SpeechSynthesizerImpl
+    // CachedSynthesizer should have lower startup latency than
+    // SpeechSynthesizerImpl
 
     // Setup: AudioStore with cached audio
     let tempDir = FileManager.default.temporaryDirectory
@@ -138,7 +142,10 @@ struct SynthesizerPerformanceTests {
 
     let testText = "performance test"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     // Test 1: CachedSynthesizer
     let cachedSynth = CachedSynthesizer(audioStore: testStore)
@@ -148,8 +155,8 @@ struct SynthesizerPerformanceTests {
     let cachedStartTime = Date()
     try cachedSynth.playText(testText, audioContext: audioContext)
 
-    while cachedDelegate.startTime == nil
-      && Date().timeIntervalSince(cachedStartTime) < 2.0
+    while cachedDelegate.startTime == nil,
+          Date().timeIntervalSince(cachedStartTime) < 2.0
     {
       try await Task.sleep(nanoseconds: 10_000_000)
     }
@@ -165,8 +172,8 @@ struct SynthesizerPerformanceTests {
     let liveStartTime = Date()
     try liveSynth.playText(testText, audioContext: audioContext)
 
-    while liveDelegate.startTime == nil
-      && Date().timeIntervalSince(liveStartTime) < 5.0
+    while liveDelegate.startTime == nil,
+          Date().timeIntervalSince(liveStartTime) < 5.0
     {
       try await Task.sleep(nanoseconds: 50_000_000)
     }
@@ -176,7 +183,7 @@ struct SynthesizerPerformanceTests {
 
     cc.ok1(
       #line,
-      "CachedSynthesizer: \(String(format: "%.3f", cachedLatency))s vs SpeechSynthesizer: \(String(format: "%.3f", liveLatency))s"
+      "CachedSynthesizer: \(String(format: "%.3f", cachedLatency))s vs SpeechSynthesizer: \(String(format: "%.3f", liveLatency))s",
     )
 
     // Assert: Cached should be faster than live synthesis
@@ -198,7 +205,10 @@ struct SynthesizerPerformanceTests {
 
     let testText = "test audio duration"
     let audioContext = AudioContext(for: "en")
-    _ = try await testStore.storeAudio(text: testText, audioContext: audioContext)
+    _ = try await testStore.storeAudio(
+      text: testText,
+      audioContext: audioContext,
+    )
 
     let synth = CachedSynthesizer(audioStore: testStore)
     let perfDelegate = PerformanceDelegate()
@@ -209,30 +219,31 @@ struct SynthesizerPerformanceTests {
 
     // Wait for playback to complete
     let maxWait: TimeInterval = 5.0
-    while perfDelegate.endTime == nil
-      && Date().timeIntervalSince(playStartTime) < maxWait
+    while perfDelegate.endTime == nil,
+          Date().timeIntervalSince(playStartTime) < maxWait
     {
       try await Task.sleep(nanoseconds: 50_000_000)
     }
 
-    guard let startTime = perfDelegate.startTime, let endTime = perfDelegate.endTime
+    guard let startTime = perfDelegate.startTime,
+          let endTime = perfDelegate.endTime
     else {
       cc.bad1(#line, "Playback did not complete")
       throw NSError(
         domain: "PerformanceTest",
         code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Playback incomplete"]
+        userInfo: [NSLocalizedDescriptionKey: "Playback incomplete"],
       )
     }
 
     let playbackDuration = endTime.timeIntervalSince(startTime)
     cc.ok1(
       #line,
-      "Playback duration: \(String(format: "%.3f", playbackDuration))s"
+      "Playback duration: \(String(format: "%.3f", playbackDuration))s",
     )
 
     // Assert: playback should complete within 5 seconds
-    #expect(playbackDuration > 0.1)  // At least 100ms of audio
+    #expect(playbackDuration > 0.1) // At least 100ms of audio
     #expect(playbackDuration < 5.0)
 
     // Cleanup
