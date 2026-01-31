@@ -1,0 +1,54 @@
+{
+  "completedActions" : [
+    {
+      "complexity" : "Low",
+      "description" : "Read AudioStore.swift to understand storage key computation and synthesis API",
+      "duration" : 600,
+      "name" : "Research AudioStore API"
+    },
+    {
+      "complexity" : "Low-Moderate",
+      "description" : "Create SynthesisRequest struct (text, context, playback). Implement priority queue (playback:true first). Add dedup logic: merge requests with same (text,context), playback:true overrides false",
+      "duration" : 1200,
+      "name" : "Add queue data structures"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Implement queue processor loop: dequeue request, call storeAudio(text, context), extract playback code from playText(), conditionally play if playback:true, repeat. Modify playText() to check cache (audioUrl forceUrl:false), if hit play immediately, if miss queue SynthesisRequest with playback:true",
+      "duration" : 3600,
+      "name" : "Implement queue processor and playText()"
+    },
+    {
+      "complexity" : "Low-Moderate",
+      "description" : "Modify stopSpeaking(): iterate queue and set all playback=false first (disarm pending playback requests), then stop AVAudioPlayer. Handle interruptions similarly",
+      "duration" : 1200,
+      "name" : "Handle stopSpeaking() and interruptions"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Write tests: cached playback, uncached playback, concurrent same-text requests (deduplication), concurrent different-text requests, synthesis failures, interruptions",
+      "duration" : 3600,
+      "name" : "Write queueing tests"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "Run existing SuttaPlayerTests.swift and app tests to verify no regressions",
+      "duration" : 600,
+      "name" : "Verify existing tests pass"
+    }
+  ],
+  "createdAt" : "2026-01-31T12:40:44Z",
+  "id" : "019C1411-EA0D-7000-BDBF-E2236299CCA5",
+  "name" : "CachedSynthesizer.playText should queue request",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Implement priority synthesis queue with deduplication. playText() queues SynthesisRequest(text, context, playback:true); background synthesis queues with playback:false. Queue processor executes serially, merges duplicate requests (playback:true overrides false), processes on-demand before background. stopSpeaking() sets all playback flags to false.",
+  "updatedAt" : "2026-01-31T14:10:46Z"
+}

@@ -165,7 +165,7 @@ public final class AudioStore: @unchecked Sendable {
   /// Throws if exceeded.
   /// - Returns: URL to synthesized audio file
   /// - Throws: File creation errors, synthesis failures, or timeout
-  func storeAudio(
+  public func storeAudio(
     text: String,
     audioContext: AudioContext,
     timeout: TimeInterval? = nil,
