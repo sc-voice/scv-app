@@ -99,4 +99,18 @@ struct TaskTests {
     #expect(task.idFile.hasPrefix("T_"))
     #expect(task.idFile.count == 11) // "T_" + 9 chars
   }
+
+  @Test
+  func shortIdTest() throws {
+    // verify that actionId will be unique and shjort
+    let uuid1 = UUIDV7()
+    let uuid2 = UUIDV7()
+    let id1 = Task.shortId(uuid1)
+    let id2 = Task.shortId(uuid2)
+    print("id1:\(id1)")
+    print("id2:\(id2)")
+    #expect(id1 != id2)
+    #expect(id1.count == 8)
+  }
+
 }

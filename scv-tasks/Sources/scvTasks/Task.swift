@@ -265,6 +265,13 @@ public struct Task: Codable, Identifiable, Sendable {
     state == .done
   }
 
+  // Convert UUIDV7 to action id (e.g., "A_AZvuCKoac")
+  public static func shortId(_ uuid: UUIDV7 = UUIDV7()) -> String {
+    let base64 = Task.uuidToBase64(uuid)
+    let shortId = String(Array(base64)[3...10])
+    return "\(shortId)"
+  }
+
   // Convert UUIDV7 to filename (e.g., "T_AZvuCKoac")
   public static func uuidToFilename(_ uuid: UUIDV7) -> String {
     let base64 = uuidToBase64(uuid)

@@ -19,57 +19,48 @@ do {
   let isInitCommand = args.contains("init")
 
   if !isInitCommand {
-    var worldPath: String?
+    //var worldPath: String?
 
     // Check for --world flag in arguments
     for i in 0 ..< args.count {
       if args[i] == "-w" || args[i] == "--world", i + 1 < args.count {
-        worldPath = args[i + 1]
+        //worldPath = args[i + 1]
         break
       }
     }
 
-    let checkPath: String
-    if let explicit = worldPath {
-      checkPath = explicit
-    } else {
-      var currentPath = FileManager.default.currentDirectoryPath
-      let fileManager = FileManager.default
-      var found = false
+    var currentPath = FileManager.default.currentDirectoryPath
+    let fileManager = FileManager.default
+    var found = false
 
-      while true {
-        let testPath = (currentPath as NSString)
-          .appendingPathComponent(".task-world.json")
-        if fileManager.fileExists(atPath: testPath) {
-          found = true
-          break
-        }
-
-        let parent = (currentPath as NSString).deletingLastPathComponent
-        if parent == currentPath { break }
-        currentPath = parent
+    while true {
+      let testPath = (currentPath as NSString)
+        .appendingPathComponent(".task-world.json")
+      if fileManager.fileExists(atPath: testPath) {
+        found = true
+        break
       }
 
-      if !found {
-        print(
-          "Error: Task infrastructure not found in current directory or ancestors.",
-        )
-        print("")
-        print(
-          "To initialize task infrastructure in the current directory, run:",
-        )
-        print("  task init")
-        print("")
-        print("Or specify a project location with --world:")
-        print("  task --world /path/to/project list")
-        exit(1)
-      }
-      checkPath = currentPath
+      let parent = (currentPath as NSString).deletingLastPathComponent
+      if parent == currentPath { break }
+      currentPath = parent
+    }
+
+    if !found {
+      print(
+        "Error: Task infrastructure not found in current directory or ancestors.",
+      )
+      print("")
+      print(
+        "To initialize task infrastructure in the current directory, run:",
+      )
+      print("  task init")
+      print("")
+      print("Or specify a project location with --world:")
+      print("  task --world /path/to/project list")
+      exit(1)
     }
   }
-} catch {
-  print("Error: \(error)")
-  exit(1)
 }
 
 // Parse command line arguments and initialize
@@ -134,7 +125,7 @@ func parseArgs() throws
   var lineLengthOverride: Int?
   var showDoneOverride: Bool?
   var showUpdateOverride: Bool?
-  var allArgs = Array(CommandLine.arguments.dropFirst())
+  let allArgs = Array(CommandLine.arguments.dropFirst())
   var globalOptionIndices = Set<Int>() // Track which indices are global options
 
   // First pass: extract global options from anywhere in the args
@@ -633,13 +624,6 @@ func handlePush(args: [String], rootDirectory: URL) throws {
 }
 
 func handlePop(args: [String], rootDirectory: URL) throws {
-  var i = 0
-
-  while i < args.count {
-    let arg = args[i]
-    throw CliError.unknownOption(arg)
-  }
-
   let world = TaskWorld(basePath: rootDirectory)
 
   guard let poppedTaskId = world.popTaskId() else {
@@ -650,6 +634,35 @@ func handlePop(args: [String], rootDirectory: URL) throws {
     print("Popped \(task.idFile) from stack")
   } else {
     print("Popped task \(poppedTaskId) from stack")
+  }
+}
+
+func showActions(title:String, actions:[Action]) {
+  if !actions.isEmpty {
+    let world = TaskWorld.shared
+
+    print("\n\(title)")
+    let effectiveLimit = world.limit > 0 ? world.limit : actions.count
+    let displayActions = Array(actions.prefix(effectiveLimit))
+    for (index, action) in displayActions.enumerated() {
+      let hours =  action.duration == nil
+        ? nil
+        : "\((10*action.duration!/3600).rounded()/10)h"
+      let parts:[String?] = [
+        action.id,
+        action.name,
+        action.description,
+        action.complexity,
+        hours,
+      ]
+      let line = "  \(index + 1). " +
+        parts .compactMap { $0 } .joined(separator: "; ")
+
+      print(wrapLine( line, maxLength: world.lineLength))
+    }
+    if actions.count > effectiveLimit {
+      print("  ...")
+    }
   }
 }
 
@@ -737,38 +750,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
         }
       }
     }
-    if !task.plannedActions.isEmpty {
-      print("\nPlanned Actions:")
-      let effectiveLimit = world.limit > 0 ? world.limit : task.plannedActions
-        .count
-      let displayPlannedActions = Array(task.plannedActions
-        .prefix(effectiveLimit))
-      for (index, action) in displayPlannedActions.enumerated() {
-        print(wrapLine(
-          "  \(index + 1). \(action.description)",
-          maxLength: world.lineLength,
-        ))
-      }
-      if task.plannedActions.count > effectiveLimit {
-        print("  ...")
-      }
-    }
-    if !task.completedActions.isEmpty {
-      print("\nCompleted Actions:")
-      let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared
-        .limit : task.completedActions.count
-      let displayCompletedActions = Array(task.completedActions
-        .prefix(effectiveLimit))
-      for (index, action) in displayCompletedActions.enumerated() {
-        print(wrapLine(
-          "  \(index + 1). \(action.description)",
-          maxLength: WorldModel.shared.lineLength,
-        ))
-      }
-      if task.completedActions.count > effectiveLimit {
-        print("  ...")
-      }
-    }
+    showActions(title:"Planned Actions:", actions:task.plannedActions)
+    showActions(title:"Completed Actions:", actions:task.completedActions)
     if !task.references.isEmpty {
       print("\nReferences:")
       let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared

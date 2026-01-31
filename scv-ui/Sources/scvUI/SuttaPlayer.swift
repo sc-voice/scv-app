@@ -124,18 +124,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // Clear transition lock after 500ms to allow next action
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
       let isSpeaking = self.synthesizer.isSpeaking
-      let isPlaying = self.isPlaying 
-      if isSpeaking && isPlaying {
+      let isPlaying = self.isPlaying
+      if isSpeaking, isPlaying {
         self.cc.ok1(#line, #function, "synthesizer started!")
       } else if isPlaying {
         // User expects playing audio
         // Alert user: Synthesizer failed to start after 500ms
-        self.cc.bad1( #line, #function, "isSpeaking:\(isSpeaking)",
-          "isPlaying:\(isPlaying)")
+        self.cc.bad1(#line, #function, "isSpeaking:\(isSpeaking)",
+                     "isPlaying:\(isPlaying)")
         self.showSpeechErrorAlert()
       } else {
-        // User expects paused audio, 
-        self.cc.ok1( #line, #function, "paused OK")
+        // User expects paused audio,
+        self.cc.ok1(#line, #function, "paused OK")
       }
       self.isTransitioning = false
     }
@@ -173,10 +173,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
        let index = segments.firstIndex(where: { $0.scid == currentScid })
     {
       startIndex = index
-      cc.ok2( #line, #function, "startIndex:\(startIndex)")
+      cc.ok2(#line, #function, "startIndex:\(startIndex)")
     } else {
       startIndex = currentSegmentIndex
-      cc.ok2( #line, #function, "startIndex:\(startIndex)")
+      cc.ok2(#line, #function, "startIndex:\(startIndex)")
     }
     if startIndex == 0 {
       AudioEffects.shared.announce(.play)
@@ -378,8 +378,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // nextIndexToPlay,
     // so stale callbacks will use the updated target
     if isPlaying {
-      cc.ok1( #line, #function, "isPlaying:\(isPlaying)",
-        "nextIndexToPlay:\(nextIndexToPlay)")
+      cc.ok1(#line, #function, "isPlaying:\(isPlaying)",
+             "nextIndexToPlay:\(nextIndexToPlay)")
       playSegmentAt(at: nextIndexToPlay)
     } else {
       cc.ok1(#line, #function, "isPlaying=false")
