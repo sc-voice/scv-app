@@ -11,18 +11,18 @@
       "description" : "make test-app — SuttaPlayerTests.swift should still pass",
       "duration" : 1800,
       "name" : "Run existing tests"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Test playback quality, timing, interruptions, edge cases",
+      "duration" : 6300,
+      "name" : "Manual foreground verification"
     }
   ],
   "createdAt" : "2026-01-30T18:45:50Z",
   "id" : "019C1039-D230-7000-B6DB-23CDCD85DA8C",
   "name" : "SuttaPlayer should use CachedSynthesizer for background playback",
   "plannedActions" : [
-    {
-      "complexity" : "Moderate",
-      "description" : "Test playback quality, timing, interruptions, edge cases",
-      "duration" : 6300,
-      "name" : "Manual foreground verification"
-    },
     {
       "complexity" : "Moderate",
       "description" : "MPRemoteCommandCenter class + BackgroundPlaybackManagerTests.swift",
@@ -68,8 +68,9 @@
     }
   ],
   "requiredTasks" : [
-    "019C1411-EA0D-7000-BDBF-E2236299CCA5"
+    "019C1411-EA0D-7000-BDBF-E2236299CCA5",
+    "T_AZwZdMBoc"
   ],
   "summary" : "",
-  "updatedAt" : "2026-01-31T14:44:32Z"
+  "updatedAt" : "2026-02-01T13:42:44Z"
 }

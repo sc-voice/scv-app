@@ -4,7 +4,7 @@ import scvCore
 
 /// Request to synthesize text and optionally play the result.
 /// url is the cache file path (computed from text + audioContext).
-private struct SynthesisRequest {
+internal struct SynthesisRequest {
   let text: String
   let audioContext: AudioContext
   let url: URL  // from audioStore.audioUrl(forceUrl: true)
@@ -57,6 +57,33 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   /// AudioStore automatically creates a new AVSpeechSynthesizer for each
   /// synthesis
   func resetSynthesizer() {}
+
+  /// Queue synthesis for caching without playback.
+  ///
+  /// Synthesizes text to audio file but does NOT play it.
+  /// Useful for prefetching audio during app idle time.
+  ///
+  /// Deduplication: Same URL queued multiple times merges into one request.
+  /// Priority: Playback requests (playText) processed before cache-only requests.
+  ///
+  /// - Parameters:
+  ///   - text: Text to synthesize and cache
+  ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
+  public func queueSynthesisOnly(text: String, audioContext: AudioContext) {
+    let url = audioStore.audioUrl(
+      text: text,
+      audioContext: audioContext,
+      forceUrl: true
+    )!
+    let request = SynthesisRequest(
+      text: text,
+      audioContext: audioContext,
+      url: url,
+      playback: false  // Key: don't play after synthesis
+    )
+    queueRequest(request)
+    cc.ok1(#line, #function, "Queued synthesis-only for:", text.prefix(50))
+  }
 
   // MARK: - Queue Management
 

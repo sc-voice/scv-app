@@ -1,0 +1,38 @@
+{
+  "completedActions" : [
+    {
+      "description" : "Design API signature and parameters (suttaRef, progressCallback, error handling)",
+      "id" : "ZeuMicAC"
+    },
+    {
+      "description" : "Expose queueSynthesisOnly in CachedSynthesizer for cache-only synthesis requests",
+      "id" : "ZeuNPcAC"
+    },
+    {
+      "description" : "Implement prepareSuttaAudio in SuttaPlayer (load sutta, iterate segments, queue synthesis)",
+      "id" : "ZeuN5cAC"
+    },
+    {
+      "description" : "Write unit tests for prepareSuttaAudio in SuttaPlayerTests.swift",
+      "id" : "ZeuOkcAC"
+    },
+    {
+      "description" : "Build (make build-core + make build-app) and test (make test-app)",
+      "id" : "ZeuPgcAC"
+    }
+  ],
+  "createdAt" : "2026-02-01T13:46:47Z",
+  "id" : "019C1974-C068-7000-846F-2C52A19E3C2C",
+  "name" : "SuttaPlayer.prepareSuttaAudio(suttaRef:) async",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Method stores audio files for every segment in sutta",
+  "updatedAt" : "2026-02-01T14:29:56Z"
+}

@@ -8,6 +8,13 @@ import scvCore
   // macOS: UIKit not available
 #endif
 
+// MARK: - Error Types
+
+public enum SuttaPlayerError: Error {
+  case documentNotFound(SuttaRef)
+  case noValidSegments
+}
+
 @MainActor
 public final class SuttaPlayer: NSObject, ObservableObject,
   IPlaybackDelegate
@@ -104,6 +111,94 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     currentSegmentIndex = 0
     isPlaying = false
     cc.ok1(#line, #function, "isPlaying:", isPlaying)
+  }
+
+  /// Queue synthesis of all segments in a sutta without playing.
+  ///
+  /// Prefetches audio for every segment in the sutta by synthesizing text to
+  /// audio files. Returns immediately while synthesis happens asynchronously in
+  /// background. Audio context is transaction invariant (constant for all segments).
+  ///
+  /// Deduplication: If the same text is queued multiple times, synthesis occurs
+  /// once and the result is cached.
+  ///
+  /// Priority: Playback requests (from play()) have higher priority than
+  /// prefetch requests, so user interaction is never blocked by prefetch.
+  ///
+  /// - Parameters:
+  ///   - suttaRef: Reference to sutta to prefetch (e.g., "mn1/en/sujato")
+  ///   - progressCallback: Optional callback reporting (current, total) segments queued.
+  ///     Called after each segment is queued (sync).
+  ///
+  /// - Throws: SuttaPlayerError.documentNotFound if sutta not found,
+  ///   SuttaPlayerError.noValidSegments if no text to synthesize
+  public func prepareSuttaAudio(
+    suttaRef: SuttaRef,
+    progressCallback: ((Int, Int) -> Void)? = nil,
+  ) async throws {
+    cc.ok2(#line, #function, "Starting prefetch for:", suttaRef.suttaUid)
+
+    // Load document
+    guard let mlDoc = await EbtData.getMLDocument(suttaRef: suttaRef) else {
+      cc.bad1(#line, #function, "Document not found:", suttaRef.suttaUid)
+      throw SuttaPlayerError.documentNotFound(suttaRef)
+    }
+
+    // Audio context is transaction invariant
+    let audioContext = AudioContext(for: mlDoc.docLang)
+    cc.ok2(
+      #line,
+      #function,
+      "Created audioContext for language:",
+      mlDoc.docLang,
+      "hash:",
+      audioContext.hash.prefix(7),
+    )
+
+    // Iterate segments
+    let segments = mlDoc.segments()
+    var successCount = 0
+
+    for (index, segment) in segments.enumerated() {
+      let text = segment.doc ?? ""
+      if text.isEmpty {
+        cc.ok2(
+          #line,
+          #function,
+          "Skipping empty segment",
+          segment.scid,
+          "(\(index + 1)/\(segments.count))",
+        )
+        progressCallback?(index + 1, segments.count)
+        continue
+      }
+
+      // Queue synthesis without playback
+      synthesizer.queueSynthesisOnly(text: text, audioContext: audioContext)
+      successCount += 1
+
+      cc.ok2(
+        #line,
+        #function,
+        "Queued segment",
+        segment.scid,
+        "(\(index + 1)/\(segments.count))",
+      )
+
+      // Report progress
+      progressCallback?(index + 1, segments.count)
+    }
+
+    if successCount == 0 {
+      cc.bad1(#line, #function, "No valid segments found")
+      throw SuttaPlayerError.noValidSegments
+    }
+
+    cc.ok1(
+      #line,
+      #function,
+      "Prefetch complete: queued \(successCount) of \(segments.count) segments",
+    )
   }
 
   @MainActor
