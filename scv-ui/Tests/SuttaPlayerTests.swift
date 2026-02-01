@@ -278,6 +278,7 @@ struct SuttaPlayerTests {
       // User pauses playback
       player.pause()
       #expect(player.isPlaying == false)
+      #expect(player.isSynthesizerSpeaking == false)
 
       // Trigger didFinish while not playing - should NOT advance
       mockSynthesizer.triggerDidFinish()

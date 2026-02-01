@@ -25,8 +25,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   private var currentSegmentIndex = 0
   private var nextIndexToPlay = 0
   private var isTransitioning = false
+  private var pendingPlaybackCheck: DispatchWorkItem?
+  private var earliestPlaybackTime: Date = Date()
 
-  init(synthesizer: ISpeechSynthesizer = SpeechSynthesizerImpl()) {
+  init(synthesizer: ISpeechSynthesizer = CachedSynthesizer()) {
     self.synthesizer = synthesizer
     super.init()
     cc.ok2(#line, "init() starting")
@@ -121,24 +123,33 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       cc.ok1(#line, #function, "play - isPlaying:", isPlaying)
     }
 
-    // Clear transition lock after 500ms to allow next action
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+    // Verify that requested playback has started
+    // Cancel any pending check from previous action
+    pendingPlaybackCheck?.cancel()
+
+    // Schedule timeout check - will be cancelled when playback actually starts
+    let workItem = DispatchWorkItem { [weak self] in
+      guard let self else { return }
       let isSpeaking = self.synthesizer.isSpeaking
       let isPlaying = self.isPlaying
       if isSpeaking, isPlaying {
         self.cc.ok1(#line, #function, "synthesizer started!")
       } else if isPlaying {
         // User expects playing audio
-        // Alert user: Synthesizer failed to start after 500ms
+        // Alert user: Synthesizer failed to start after 5s
         self.cc.bad1(#line, #function, "isSpeaking:\(isSpeaking)",
                      "isPlaying:\(isPlaying)")
         self.showSpeechErrorAlert()
       } else {
-        // User expects paused audio,
+        // User expects paused audio
         self.cc.ok1(#line, #function, "paused OK")
       }
       self.isTransitioning = false
+      self.pendingPlaybackCheck = nil
     }
+
+    pendingPlaybackCheck = workItem
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
   }
 
   @MainActor
@@ -210,6 +221,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   public func pause() {
     _ = synthesizer.stopSpeaking(at: .immediate)
     isPlaying = false
+    isSynthesizerSpeaking = false
+    // Cancel pending playback check since we're pausing
+    pendingPlaybackCheck?.cancel()
+    pendingPlaybackCheck = nil
+    isTransitioning = false
     AudioEffects.shared.announce(.pause)
     #if os(iOS)
       UIApplication.shared.isIdleTimerDisabled = false
@@ -222,14 +238,16 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   @MainActor
   private func showSpeechErrorAlert() {
+    cc.bad2(#line, #function, "begin")
     #if os(iOS)
       let alert = UIAlertController(
         title: "Speech problems",
         message: "Close and reopen scVoice".localized,
         preferredStyle: .alert,
       )
-      alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-        self.resetPlayer()
+      alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+        self?.cc.bad2(#line, #function, "resetPlayer")
+        self?.resetPlayer()
       })
 
       if let windowScene = UIApplication.shared.connectedScenes
@@ -240,6 +258,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         rootViewController.present(alert, animated: true)
       }
     #endif
+    cc.bad1(#line, #function, "end")
   }
 
   @MainActor
@@ -254,7 +273,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     _ = synthesizer.stopSpeaking(at: .immediate)
 
     // Create new synthesizer instance
-    synthesizer = SpeechSynthesizerImpl()
+    synthesizer = CachedSynthesizer()
     synthesizer.playbackDelegate = self
 
     // Reconfigure audio session
@@ -268,7 +287,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       playSegmentAt(at: playFromIndex)
     }
 
-    cc.ok1(#line, #function, "OK")
+    cc.ok1(#line, #function)
   }
 
   private func playSegmentAt(at index: Int) {
@@ -320,8 +339,20 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     nextIndexToPlay = index + 1
     let langCode = currentSutta?.docLang ?? "en"
-    playText(text, langCode: langCode)
-    cc.ok1(#line, #function, "isPlaying:", isPlaying)
+
+    // Respect segmentPause: delay playback if needed
+    let now = Date()
+    let delay = max(0, earliestPlaybackTime.timeIntervalSince(now))
+
+    if delay > 0 {
+      DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+        self.cc.ok1(#line, #function, "isPlaying:", self.isPlaying)
+        self.playText(text, langCode: langCode)
+      }
+    } else {
+      cc.ok1(#line, #function, "isPlaying:", isPlaying)
+      playText(text, langCode: langCode)
+    }
   }
 
   private func playText(_ text: String, langCode _: String) {
@@ -353,6 +384,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public func onPlaybackStarted() {
     isSynthesizerSpeaking = true
+    // Cancel pending timeout check - playback actually started
+    pendingPlaybackCheck?.cancel()
+    pendingPlaybackCheck = nil
+    isTransitioning = false
     cc.ok1(
       #line,
       #function,
@@ -373,6 +408,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public func onPlaybackFinished() {
     isSynthesizerSpeaking = false
+
+    // Set earliest time next segment can play (respecting segmentPause)
+    if let pause = audioContext?.segmentPause {
+      earliestPlaybackTime = Date().addingTimeInterval(pause)
+    }
+
     // Play the next segment as determined by nextIndexToPlay
     // When user jumps to a different segment, playSegmentAt updates
     // nextIndexToPlay,

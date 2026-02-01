@@ -19,6 +19,7 @@ public struct SettingsView: View {
   @Environment(\.dismiss) var dismiss
   @State private var isLoading = true
   @State private var showResetConfirmation = false
+  @State private var showClearAudioConfirmation = false
   @State private var showDocLangPicker = false
   @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
@@ -195,11 +196,20 @@ public struct SettingsView: View {
                   set: { _ in toggleSection("advanced") },
                 ),
               ) {
-                Button(
-                  "settings.reset.button".localized,
-                  role: .destructive,
-                ) {
-                  showResetConfirmation = true
+                VStack(alignment: .leading, spacing: 12) {
+                  Button(
+                    "settings.clear.audio.button".localized,
+                    role: .destructive,
+                  ) {
+                    showClearAudioConfirmation = true
+                  }
+
+                  Button(
+                    "settings.reset.button".localized,
+                    role: .destructive,
+                  ) {
+                    showResetConfirmation = true
+                  }
                 }
               }
             }
@@ -238,6 +248,26 @@ public struct SettingsView: View {
       ) {}
     } message: {
       Text("settings.reset.alert.message".localized)
+    }
+    .alert(
+      "settings.clear.audio.alert.title".localized,
+      isPresented: $showClearAudioConfirmation,
+    ) {
+      Button(
+        "alert.clear".localized,
+        role: .destructive,
+      ) {
+        Task {
+          _ = await AudioStore.shared.clearAllAudio()
+          cc.ok1(#line, "cleared all audio")
+        }
+      }
+      Button(
+        "alert.cancel".localized,
+        role: .cancel,
+      ) {}
+    } message: {
+      Text("settings.clear.audio.alert.message".localized)
     }
     .onAppear {
       isLoading = false

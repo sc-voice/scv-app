@@ -91,6 +91,18 @@
 /* Alert button label for canceling action */
 "alert.cancel" = "Cancel";
 
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Clear Audio Store";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Clear Audio Store?";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "This will delete all cached audio and cannot be undone.";
+
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Clear";
+
 /* Settings toggle label for playing Pali text during narration */
 "settings.play.pali" = "Pali";
 

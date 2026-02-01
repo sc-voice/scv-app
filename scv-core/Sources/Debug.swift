@@ -4,7 +4,7 @@ import Foundation
 // ColorConsole methods.
 public struct dbg: Sendable {
   public struct AboutCardView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct App: Sendable {
@@ -16,7 +16,7 @@ public struct dbg: Sendable {
   }
 
   public struct AppRootView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AudioEffects: Sendable {
@@ -28,15 +28,19 @@ public struct dbg: Sendable {
   }
 
   public struct AutoComplete: Sendable {
+    public static let other: Int = 0
+  }
+
+  public struct CachedSynthesizer: Sendable {
     public static let other: Int = 2
   }
 
   public struct CardManager: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct CardSidebarView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct ContentView: Sendable {
@@ -44,7 +48,7 @@ public struct dbg: Sendable {
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 1
+    public static let other: Int = 0
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -61,7 +65,7 @@ public struct dbg: Sendable {
   }
 
   public struct IOSView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct Lemmatizer: Sendable {
@@ -73,11 +77,11 @@ public struct dbg: Sendable {
   }
 
   public struct SCVApp: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SearchCardView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SegmentLayout: Sendable {
@@ -101,7 +105,7 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaCardView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SuttaRef: Sendable {
@@ -109,11 +113,11 @@ public struct dbg: Sendable {
   }
 
   public struct Tipitaka: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct TipitakaView: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct ZStd: Sendable {

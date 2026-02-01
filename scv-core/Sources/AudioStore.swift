@@ -535,6 +535,52 @@ public final class AudioStore: @unchecked Sendable {
     }
   }
 
+  /// Clear all audio files from the AudioStore.
+  ///
+  /// Deletes all volumes and their contents. Used when user wants to
+  /// reclaim disk space or reset audio cache.
+  ///
+  /// - Returns: Number of volumes deleted
+  public func clearAllAudio() async -> Int {
+    let cc = ColorConsole(#file, #function, dbg.AudioStore.other)
+    var deletedCount = 0
+
+    do {
+      let allVolumes = try await guidStore.listVolumes()
+      cc.ok2(
+        #line,
+        #function,
+        "Found",
+        allVolumes.count,
+        "total volumes to delete",
+      )
+
+      for volume in allVolumes {
+        do {
+          _ = try await guidStore.clearVolume(volume)
+          cc.ok2(#line, #function, "Deleted volume:", volume)
+          deletedCount += 1
+        } catch {
+          cc.bad2(
+            #line,
+            #function,
+            "Failed to delete volume",
+            volume,
+            "error:",
+            error,
+          )
+          continue
+        }
+      }
+
+      cc.ok1(#line, #function, "Clear complete: deleted=\(deletedCount)")
+      return deletedCount
+    } catch {
+      cc.bad1(#line, #function, "Failed to list volumes: \(error)")
+      return 0
+    }
+  }
+
   /// Format volume name from language and audio context hash.
   ///
   /// Volume names group audio files by language and audio context, enabling

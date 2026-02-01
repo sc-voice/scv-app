@@ -2,9 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-IMPORTANT! READ IMMEDIATELY WITHOUT ASKING PERMISSION: 
-  - global CLAUDE.md
-  - WORK.md
+Read without ~/.claude/CLAUDE.md immediately without asking permission
+Run `task show` to understand current work focus
 
 ## Project Overview
 

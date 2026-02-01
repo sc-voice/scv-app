@@ -27,7 +27,7 @@ private struct SynthesisRequest {
 final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   AVAudioPlayerDelegate
 {
-  private let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
+  private let cc = ColorConsole(#file, #function, dbg.CachedSynthesizer.other)
   private let audioStore: AudioStore
   private var audioPlayer: AVAudioPlayer?
   private var isCurrentlySpeaking = false
@@ -63,13 +63,14 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   /// Start the queue processor task (runs continuously in background)
   private func startQueueProcessor() {
     guard queueProcessorTask == nil else {
-      cc.ok2(#line, "Queue processor already running")
+      cc.ok2(#line, #function, "Queue task already running")
       return
     }
-    cc.ok2(#line, "Starting queue processor")
+    cc.ok2(#line, #function, "Starting task...")
     queueProcessorTask = Task {
       await processQueue()
     }
+    cc.ok1(#line, #function, "Task started")
   }
 
   /// Add synthesis request to queue with deduplication and priority sorting.
@@ -186,11 +187,11 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
       forceUrl: false,
     ) {
       // Audio exists → play immediately
-      cc.ok2(#line, "Audio cached, playing immediately")
+      cc.ok2(#line, #function, "Audio cached, playing immediately")
       playAudio(audioUrl)
+      cc.ok1(#line, #function)
     } else {
       // Audio doesn't exist → queue synthesis with playback
-      cc.ok2(#line, "Audio not cached, queueing synthesis")
       let url = audioStore.audioUrl(
         text: text,
         audioContext: audioContext,
@@ -203,6 +204,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
         playback: true,
       )
       queueRequest(request)
+      cc.ok1(#line, #function, "Queued synthesis+playback", url)
     }
   }
 
@@ -215,7 +217,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
     Task { @MainActor in
       self.isCurrentlySpeaking = false
       self.playbackDelegate?.onPlaybackFinished()
-      self.cc.ok2(#line, "Playback finished")
+      self.cc.ok1(#line, #function)
     }
   }
 
@@ -225,11 +227,11 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
       for i in 0..<self.synthesisQueue.count {
         if self.synthesisQueue[i].playback {
           self.synthesisQueue[i].playback = false
-          self.cc.ok2(#line, "Disarmed playback during interruption at index:", i)
+          self.cc.ok2(#line, #function, "Disarmed playback at:", i)
         }
       }
       self.playbackDelegate?.onPlaybackPaused()
-      self.cc.ok2(#line, "Playback paused by interruption")
+      self.cc.ok1(#line, #function)
     }
   }
 
@@ -242,13 +244,13 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
         if flags == AVAudioSession.InterruptionOptions.shouldResume.rawValue {
           self.audioPlayer?.play()
           self.playbackDelegate?.onPlaybackContinued()
-          self.cc.ok2(#line, "Playback resumed")
+          self.cc.ok1(#line, #function)
         }
       #else
         // On macOS, always resume
         self.audioPlayer?.play()
         self.playbackDelegate?.onPlaybackContinued()
-        self.cc.ok2(#line, "Playback resumed")
+        self.cc.ok1(#line, #function)
       #endif
     }
   }
