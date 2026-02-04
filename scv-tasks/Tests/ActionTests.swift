@@ -37,7 +37,7 @@ struct ActionTests {
     let duration = TimeInterval(123)
     let action = Action(
       description: description,
-      name:name,
+      name: name,
       id: id,
       complexity: complexity,
       duration: duration,
@@ -58,5 +58,4 @@ struct ActionTests {
     #expect(decoded.complexity == action.complexity)
     #expect(decoded.duration == action.duration)
   }
-
 }

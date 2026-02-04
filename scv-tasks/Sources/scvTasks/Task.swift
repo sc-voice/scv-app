@@ -268,7 +268,7 @@ public struct Task: Codable, Identifiable, Sendable {
   // Convert UUIDV7 to action id (e.g., "A_AZvuCKoac")
   public static func shortId(_ uuid: UUIDV7 = UUIDV7()) -> String {
     let base64 = Task.uuidToBase64(uuid)
-    let shortId = String(Array(base64)[3...10])
+    let shortId = String(Array(base64)[3 ... 10])
     return "\(shortId)"
   }
 

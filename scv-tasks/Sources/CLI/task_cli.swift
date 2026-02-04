@@ -19,12 +19,12 @@ do {
   let isInitCommand = args.contains("init")
 
   if !isInitCommand {
-    //var worldPath: String?
+    // var worldPath: String?
 
     // Check for --world flag in arguments
     for i in 0 ..< args.count {
       if args[i] == "-w" || args[i] == "--world", i + 1 < args.count {
-        //worldPath = args[i + 1]
+        // worldPath = args[i + 1]
         break
       }
     }
@@ -623,7 +623,7 @@ func handlePush(args: [String], rootDirectory: URL) throws {
   print("Pushed \(task.idFile) to stack")
 }
 
-func handlePop(args: [String], rootDirectory: URL) throws {
+func handlePop(args _: [String], rootDirectory: URL) throws {
   let world = TaskWorld(basePath: rootDirectory)
 
   guard let poppedTaskId = world.popTaskId() else {
@@ -637,7 +637,7 @@ func handlePop(args: [String], rootDirectory: URL) throws {
   }
 }
 
-func showActions(title:String, actions:[Action]) {
+func showActions(title: String, actions: [Action]) {
   if !actions.isEmpty {
     let world = TaskWorld.shared
 
@@ -645,10 +645,10 @@ func showActions(title:String, actions:[Action]) {
     let effectiveLimit = world.limit > 0 ? world.limit : actions.count
     let displayActions = Array(actions.prefix(effectiveLimit))
     for (index, action) in displayActions.enumerated() {
-      let hours =  action.duration == nil
+      let hours = action.duration == nil
         ? nil
-        : "\((10*action.duration!/3600).rounded()/10)h"
-      let parts:[String?] = [
+        : "\((10 * action.duration! / 3600).rounded() / 10)h"
+      let parts: [String?] = [
         action.id,
         action.name,
         action.description,
@@ -656,9 +656,9 @@ func showActions(title:String, actions:[Action]) {
         hours,
       ]
       let line = "  \(index + 1). " +
-        parts .compactMap { $0 } .joined(separator: "; ")
+        parts.compactMap(\.self).joined(separator: "; ")
 
-      print(wrapLine( line, maxLength: world.lineLength))
+      print(wrapLine(line, maxLength: world.lineLength))
     }
     if actions.count > effectiveLimit {
       print("  ...")
@@ -750,8 +750,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
         }
       }
     }
-    showActions(title:"Planned Actions:", actions:task.plannedActions)
-    showActions(title:"Completed Actions:", actions:task.completedActions)
+    showActions(title: "Planned Actions:", actions: task.plannedActions)
+    showActions(title: "Completed Actions:", actions: task.completedActions)
     if !task.references.isEmpty {
       print("\nReferences:")
       let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared

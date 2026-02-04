@@ -1,0 +1,41 @@
+{
+  "completedActions" : [
+    {
+      "description" : "Read full prepareSuttaAudio() to map side effects and cancellation behavior",
+      "id" : "ZskWRcAC"
+    },
+    {
+      "description" : "Add progress state to SuttaCardView (@State for progress tracking, Task cancellation)",
+      "id" : "ZskW9cAC"
+    },
+    {
+      "description" : "Implement context menu with determinate progress indicator",
+      "id" : "ZskXmcAC"
+    },
+    {
+      "description" : "Test cancellation doesn't corrupt app state",
+      "id" : "ZskYPcAC"
+    },
+    {
+      "description" : "Verify prepareSuttaAudio() completes successfully",
+      "id" : "ZskY2cAC"
+    }
+  ],
+  "createdAt" : "2026-02-01T14:53:42Z",
+  "id" : "019C19B2-0156-7000-94CE-6D42E2F95AE6",
+  "name" : "Implement SuttaCard long-press Background Playback prefetch",
+  "plannedActions" : [
+    {
+      "description" : "Implement AudioSynthesisManager for background audio synthesis",
+      "id" : "khrAFcAC"
+    }
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Add long-press gesture to play button with modal Background Playback cache operation, determinate progress indicator, and cancellation support",
+  "updatedAt" : "2026-02-03T17:22:12Z"
+}
