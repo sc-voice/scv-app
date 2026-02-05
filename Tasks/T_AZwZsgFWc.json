@@ -31,11 +31,15 @@
     }
   ],
   "references" : [
-
+    {
+      "id" : "AZwvJz4gcACMXQTs4idVIA",
+      "relevance" : 0.5,
+      "text" : "T_AZwkidSQc"
+    }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "Add long-press gesture to play button with modal Background Playback cache operation, determinate progress indicator, and cancellation support",
-  "updatedAt" : "2026-02-03T17:22:12Z"
+  "updatedAt" : "2026-02-05T18:53:46Z"
 }

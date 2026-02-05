@@ -40,7 +40,11 @@ import Testing
   func initWithAudioContext() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
     let context = AudioContext(for: "de")
-    let session = AudioSynthesisSession(suttaRef, progressCallback: { _ in }, audioContext: context)
+    let session = AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { _ in },
+      audioContext: context,
+    )
 
     let value = await session.value
     #expect(value.audioContext == context)
@@ -50,9 +54,12 @@ import Testing
   func loadSuttaSegmentsValid() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
     var lastSnapshot: SessionSnapshot?
-    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
-      lastSnapshot = snapshot
-    })
+    let session = AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { snapshot in
+        lastSnapshot = snapshot
+      },
+    )
 
     await session.loadSuttaSegments()
 
@@ -99,9 +106,12 @@ import Testing
     // mn1/en/soma is a valid sutta ref but author soma has no data for it
     let suttaRef = SuttaRef.create("mn1/en/soma")!
     var lastSnapshot: SessionSnapshot?
-    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
-      lastSnapshot = snapshot
-    })
+    let session = AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { snapshot in
+        lastSnapshot = snapshot
+      },
+    )
 
     await session.loadSuttaSegments()
 
@@ -129,22 +139,37 @@ import Testing
   func cancelSetsCancelledState() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
     var lastSnapshot: SessionSnapshot?
-    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
-      lastSnapshot = snapshot
-    })
+    let session = AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { snapshot in
+        lastSnapshot = snapshot
+      },
+    )
 
     let cancelValue = await session.cancel()
 
     let value = await session.value
-    #expect(value.state == .cancelled, "State should be .cancelled after cancel()")
+    #expect(
+      value.state == .cancelled,
+      "State should be .cancelled after cancel()",
+    )
 
     // Verify cancelValue equals current session value
-    #expect(cancelValue == value, "cancelValue should equal current session value")
+    #expect(
+      cancelValue == value,
+      "cancelValue should equal current session value",
+    )
 
     // Verify callback was invoked with cancelled state
     #expect(lastSnapshot != nil, "progressCallback should have been invoked")
-    #expect(lastSnapshot?.state == .cancelled, "Callback should have .cancelled state")
-    #expect(lastSnapshot == cancelValue, "Callback snapshot should equal cancelValue")
+    #expect(
+      lastSnapshot?.state == .cancelled,
+      "Callback should have .cancelled state",
+    )
+    #expect(
+      lastSnapshot == cancelValue,
+      "Callback snapshot should equal cancelValue",
+    )
   }
 
   @Test("INTEGRATION: execute() synthesizes thig1.1/en/soma to completion")
@@ -153,8 +178,12 @@ import Testing
 
     // Use persistent test audio store in local/build
     let projectRoot = projectRoot()
-    let testAudioDir = projectRoot.appendingPathComponent("local/build/test-audio-store")
-    try? FileManager.default.createDirectory(at: testAudioDir, withIntermediateDirectories: true)
+    let testAudioDir = projectRoot
+      .appendingPathComponent("local/build/test-audio-store")
+    try? FileManager.default.createDirectory(
+      at: testAudioDir,
+      withIntermediateDirectories: true,
+    )
     let testStore = AudioStore.create(path: testAudioDir)
 
     // Track callbacks with thread-safe class
@@ -167,33 +196,57 @@ import Testing
 
     let startTime = Date()
 
-    let finalValue = await AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
-      tracker.callbackCount += 1
-      tracker.stateTransitions.append(snapshot.state)
-      tracker.finalSnapshot = snapshot
-    }, audioStore: testStore).execute()
+    let finalValue = await AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { snapshot in
+        tracker.callbackCount += 1
+        tracker.stateTransitions.append(snapshot.state)
+        tracker.finalSnapshot = snapshot
+      },
+      audioStore: testStore,
+    ).execute()
 
     let elapsedSeconds = Date().timeIntervalSince(startTime)
 
     // Verify execution completed
     #expect(finalValue.state == .completed, "Final state should be .completed")
-    #expect(tracker.finalSnapshot?.state == .completed, "Last callback should have .completed state")
+    #expect(
+      tracker.finalSnapshot?.state == .completed,
+      "Last callback should have .completed state",
+    )
 
     // Verify callbacks were fired
     #expect(tracker.callbackCount > 0, "Should have fired callbacks")
 
     // Verify state progression includes synthesizing
-    #expect(tracker.stateTransitions.contains(.synthesizing), "Should transition through .synthesizing")
+    #expect(
+      tracker.stateTransitions.contains(.synthesizing),
+      "Should transition through .synthesizing",
+    )
 
     // Verify steps advanced
     #expect(finalValue.currentStep > 0, "Should have advanced steps")
-    #expect(finalValue.currentStep == finalValue.totalSteps, "All steps should be completed")
+    #expect(
+      finalValue.currentStep == finalValue.totalSteps,
+      "All steps should be completed",
+    )
 
     // Verify completion time set
-    #expect(finalValue.estimatedCompletion <= Date(), "estimatedCompletion should be in past for completed state")
+    #expect(
+      finalValue.estimatedCompletion <= Date(),
+      "estimatedCompletion should be in past for completed state",
+    )
 
-    cc.ok1(#line, #function, "✅ Synthesis completed: \(finalValue.currentStep) steps in \(String(format: "%.2f", elapsedSeconds))s")
+    cc.ok1(
+      #line,
+      #function,
+      "✅ Synthesis completed: \(finalValue.currentStep) steps in \(String(format: "%.2f", elapsedSeconds))s",
+    )
     cc.ok1(#line, #function, "Audio stored at: \(testAudioDir.path)")
-    cc.ok1(#line, #function, "Callbacks: \(tracker.callbackCount), State transitions: \(tracker.stateTransitions)")
+    cc.ok1(
+      #line,
+      #function,
+      "Callbacks: \(tracker.callbackCount), State transitions: \(tracker.stateTransitions)",
+    )
   }
 }

@@ -42,7 +42,8 @@ actor AudioSynthesisSession {
     dbg.AudioSynthesisSession.other,
   )
 
-  // Work queue: segments loaded from EbtData, processed sequentially during execute()
+  // Work queue: segments loaded from EbtData, processed sequentially during
+  // execute()
   private var pendingSegments: [Segment] = []
   private let progressCallback: (SessionSnapshot) -> Void
 
@@ -58,13 +59,15 @@ actor AudioSynthesisSession {
   /// Current step in synthesis (incremented as segments complete)
   var currentStep: Int = 0
 
-  /// Current synthesis state (.idle, .synthesizing, .completed, .cancelled, .failed)
+  /// Current synthesis state (.idle, .synthesizing, .completed, .cancelled,
+  /// .failed)
   var state: SynthesisState = .idle
 
   /// Audio context (language, voice, pitch, rate) for synthesis
   var audioContext: AudioContext
 
-  /// "pli" or "doc" - selects which Segment property to synthesize. The selected property is extracted; if nil or empty, segment is skipped.
+  /// "pli" or "doc" - selects which Segment property to synthesize. The
+  /// selected property is extracted; if nil or empty, segment is skipped.
   private let segmentKey: String
 
   /// Step count for loading segments phase
@@ -74,7 +77,7 @@ actor AudioSynthesisSession {
   }
 
   /// Cached session snapshot (updated via updateSnapshot())
-  public private(set) var value: SessionSnapshot
+  private(set) var value: SessionSnapshot
 
   init(
     _ suttaRef: SuttaRef,
@@ -90,7 +93,7 @@ actor AudioSynthesisSession {
 
     // Initialize snapshot
     let now = Date()
-    self.value = SessionSnapshot(
+    value = SessionSnapshot(
       state: .idle,
       suttaRef: suttaRef,
       started: now,
@@ -103,22 +106,24 @@ actor AudioSynthesisSession {
     )
   }
 
-  /// Compute and cache snapshot reflecting current state, then fire progress callback
+  /// Compute and cache snapshot reflecting current state, then fire progress
+  /// callback
   private func updateSnapshot() {
     let elapsed = Date().timeIntervalSince(started)
     let estimatedCompletion: Date
 
-    // For finished states, use current time as actual completion
-    if case .failed = state {
-      estimatedCompletion = Date()
+      // For finished states, use current time as actual completion
+      = if case .failed = state
+    {
+      Date()
     } else if state == .completed || state == .cancelled {
-      estimatedCompletion = Date()
+      Date()
     } else if currentStep == 0 {
       // No baseline: estimate is started + elapsed
-      estimatedCompletion = started + elapsed
+      started + elapsed
     } else {
       // In progress: estimate based on rate
-      estimatedCompletion = started + elapsed * (Double(totalSteps) / Double(currentStep))
+      started + elapsed * (Double(totalSteps) / Double(currentStep))
     }
 
     value = SessionSnapshot(
@@ -156,9 +161,11 @@ actor AudioSynthesisSession {
 
   /// Execute synthesis of all segments in session's sutta.
   ///
-  /// Returns final snapshot showing completion state (completed, cancelled, or failed).
+  /// Returns final snapshot showing completion state (completed, cancelled, or
+  /// failed).
   /// Synthesis runs on background thread via actor.
-  /// progressCallback called repeatedly with state updates and once at completion.
+  /// progressCallback called repeatedly with state updates and once at
+  /// completion.
   func execute() async -> SessionSnapshot {
     // Guard: reject if not idle
     guard state == .idle else {
@@ -177,7 +184,7 @@ actor AudioSynthesisSession {
     await loadSuttaSegments()
 
     // Synthesize segments sequentially
-    while state == .synthesizing && !pendingSegments.isEmpty {
+    while state == .synthesizing, !pendingSegments.isEmpty {
       // Check cancellation before processing segment
       if state == .cancelled {
         cc.ok1(#line, #function, "Synthesis cancelled")
@@ -200,7 +207,7 @@ actor AudioSynthesisSession {
       do {
         _ = try await audioStore.storeAudio(
           text: text,
-          audioContext: audioContext
+          audioContext: audioContext,
         )
         cc.ok2(#line, #function, "Synthesized: \(segment.scid)")
         _ = incrementSynthesisState()
@@ -226,7 +233,8 @@ actor AudioSynthesisSession {
 
   /// Increment synthesis progress after processing a segment.
   ///
-  /// Updates currentStep, fires progress callback via updateSnapshot(), returns updated snapshot.
+  /// Updates currentStep, fires progress callback via updateSnapshot(), returns
+  /// updated snapshot.
   private func incrementSynthesisState() -> SessionSnapshot {
     currentStep += 1
     updateSnapshot()
@@ -235,7 +243,8 @@ actor AudioSynthesisSession {
 
   /// Cancels active synthesis job.
   ///
-  /// Sets state to .cancelled. Worker checks state before processing each segment.
+  /// Sets state to .cancelled. Worker checks state before processing each
+  /// segment.
   /// Current segment completes gracefully. Pending segments discarded.
   /// Final callback sent with state = .cancelled.
   func cancel() -> SessionSnapshot {
@@ -243,5 +252,4 @@ actor AudioSynthesisSession {
     updateSnapshot()
     return value
   }
-
 }

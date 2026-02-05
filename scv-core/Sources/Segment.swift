@@ -106,9 +106,9 @@ public extension Segment {
   func textOf(_ key: String) -> String {
     switch key {
     case "pli":
-      return pli ?? ""
+      pli ?? ""
     default:
-      return doc ?? ""
+      doc ?? ""
     }
   }
 }
