@@ -4,11 +4,11 @@ import scvCore
 
 /// Request to synthesize text and optionally play the result.
 /// url is the cache file path (computed from text + audioContext).
-internal struct SynthesisRequest {
+struct SynthesisRequest {
   let text: String
   let audioContext: AudioContext
-  let url: URL  // from audioStore.audioUrl(forceUrl: true)
-  var playback: Bool  // true: play after synthesis, false: just cache
+  let url: URL // from audioStore.audioUrl(forceUrl: true)
+  var playback: Bool // true: play after synthesis, false: just cache
 }
 
 /// Concrete implementation of ISpeechSynthesizer wrapping AVAudioPlayer for
@@ -64,22 +64,23 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   /// Useful for prefetching audio during app idle time.
   ///
   /// Deduplication: Same URL queued multiple times merges into one request.
-  /// Priority: Playback requests (playText) processed before cache-only requests.
+  /// Priority: Playback requests (playText) processed before cache-only
+  /// requests.
   ///
   /// - Parameters:
   ///   - text: Text to synthesize and cache
   ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
-  public func queueSynthesisOnly(text: String, audioContext: AudioContext) {
+  func queueSynthesisOnly(text: String, audioContext: AudioContext) {
     let url = audioStore.audioUrl(
       text: text,
       audioContext: audioContext,
-      forceUrl: true
+      forceUrl: true,
     )!
     let request = SynthesisRequest(
       text: text,
       audioContext: audioContext,
       url: url,
-      playback: false  // Key: don't play after synthesis
+      playback: false, // Key: don't play after synthesis
     )
     queueRequest(request)
     cc.ok1(#line, #function, "Queued synthesis-only for:", text.prefix(50))
@@ -103,7 +104,13 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   /// Add synthesis request to queue with deduplication and priority sorting.
   /// Merges duplicate URLs: playback:true overrides playback:false.
   private func queueRequest(_ request: SynthesisRequest) {
-    cc.ok2(#line, "Queueing request for:", request.text.prefix(50), "playback:", request.playback)
+    cc.ok2(
+      #line,
+      "Queueing request for:",
+      request.text.prefix(50),
+      "playback:",
+      request.playback,
+    )
 
     // Check if URL already in queue
     if let index = synthesisQueue.firstIndex(where: { $0.url == request.url }) {
@@ -120,7 +127,11 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
 
     // Sort by priority: playback:true first (descending)
     synthesisQueue.sort { $0.playback && !$1.playback }
-    cc.ok2(#line, "Queue sorted, playback items first, size:", synthesisQueue.count)
+    cc.ok2(
+      #line,
+      "Queue sorted, playback items first, size:",
+      synthesisQueue.count,
+    )
   }
 
   /// Process synthesis queue continuously (runs in background Task).
@@ -129,13 +140,19 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
     while true {
       // Wait while queue is empty
       while synthesisQueue.isEmpty {
-        try? await Task.sleep(nanoseconds: 100_000_000)  // 100ms
+        try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
       }
 
       guard !synthesisQueue.isEmpty else { continue }
 
       let request = synthesisQueue.removeFirst()
-      cc.ok2(#line, "Processing queue request for:", request.text.prefix(50), "playback:", request.playback)
+      cc.ok2(
+        #line,
+        "Processing queue request for:",
+        request.text.prefix(50),
+        "playback:",
+        request.playback,
+      )
 
       do {
         // Synthesize (or retrieve if already cached)
@@ -150,7 +167,13 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
           playAudio(request.url)
         }
       } catch {
-        cc.bad1(#line, "Synthesis failed for:", request.text.prefix(50), "error:", error)
+        cc.bad1(
+          #line,
+          "Synthesis failed for:",
+          request.text.prefix(50),
+          "error:",
+          error,
+        )
       }
     }
   }
@@ -185,7 +208,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   func stopSpeaking(at _: AVSpeechBoundary) -> Bool {
     // First: disarm pending playback requests (set playback:false)
     // This prevents queue processor from starting playback on dequeued requests
-    for i in 0..<synthesisQueue.count {
+    for i in 0 ..< synthesisQueue.count {
       if synthesisQueue[i].playback {
         synthesisQueue[i].playback = false
         cc.ok2(#line, "Disarmed playback for queued request at index:", i)
@@ -251,7 +274,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   nonisolated func audioPlayerBeginInterruption(_: AVAudioPlayer) {
     Task { @MainActor in
       // Disarm pending playback requests during interruption
-      for i in 0..<self.synthesisQueue.count {
+      for i in 0 ..< self.synthesisQueue.count {
         if self.synthesisQueue[i].playback {
           self.synthesisQueue[i].playback = false
           self.cc.ok2(#line, #function, "Disarmed playback at:", i)

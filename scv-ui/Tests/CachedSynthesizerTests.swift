@@ -282,7 +282,8 @@ struct CachedSynthesizerTests {
     let stopped = synth.stopSpeaking(at: .immediate)
 
     // Wait to see if playback happens (it shouldn't because we disarmed it)
-    try await Task.sleep(nanoseconds: 2_000_000_000) // 2s wait for synthesis to complete
+    try await Task
+      .sleep(nanoseconds: 2_000_000_000) // 2s wait for synthesis to complete
 
     // Assert: stopSpeaking should return true (was in transition),
     // and pending playback should be disarmed
@@ -336,7 +337,10 @@ struct CachedSynthesizerTests {
     // (one for each text, serially not overlapping)
     #expect(testDelegate.didStartCalls == 2)
     #expect(testDelegate.didFinishCalls == 2)
-    cc.ok1(#line, "Serial playback: first text finished, second text started and finished")
+    cc.ok1(
+      #line,
+      "Serial playback: first text finished, second text started and finished",
+    )
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)

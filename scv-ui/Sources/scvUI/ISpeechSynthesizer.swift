@@ -59,7 +59,8 @@ protocol ISpeechSynthesizer {
   /// Useful for prefetching audio during app idle time.
   ///
   /// Deduplication: Same URL queued multiple times merges into one request.
-  /// Priority: Playback requests (playText) processed before cache-only requests.
+  /// Priority: Playback requests (playText) processed before cache-only
+  /// requests.
   ///
   /// - Parameters:
   ///   - text: Text to synthesize and cache
@@ -101,7 +102,10 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
     cc.ok2(#line, #function, "OK")
   }
 
-  @MainActor func queueSynthesisOnly(text: String, audioContext: AudioContext) {
+  @MainActor func queueSynthesisOnly(
+    text _: String,
+    audioContext _: AudioContext,
+  ) {
     // No-op: SpeechSynthesizerImpl doesn't cache audio
     // This method exists to satisfy ISpeechSynthesizer protocol
   }

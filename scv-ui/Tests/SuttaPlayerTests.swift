@@ -44,7 +44,7 @@ class MockSpeechSynthesizerForSuttaPlayer: ISpeechSynthesizer,
     isSpeaking = false
   }
 
-  func queueSynthesisOnly(text: String, audioContext: AudioContext) {
+  func queueSynthesisOnly(text: String, audioContext _: AudioContext) {
     queueSynthesisOnlyWasCalled = true
     queuedTexts.append(text)
   }
@@ -446,14 +446,21 @@ struct SuttaPlayerTests {
     let player = SuttaPlayer(synthesizer: mockSynthesizer)
 
     // Use real test sutta: thig1.1/en/sujato
-    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "en", author: "sujato")
+    let suttaRef = try SuttaRef(
+      suttaUid: "thig1.1",
+      lang: "en",
+      author: "sujato",
+    )
 
     try await player.prepareSuttaAudio(suttaRef: suttaRef)
 
     // Verify queueSynthesisOnly was called for segments
     #expect(mockSynthesizer.queueSynthesisOnlyWasCalled == true)
     #expect(mockSynthesizer.queuedTexts.count > 0)
-    cc.ok1(#line, "passed - queued \(mockSynthesizer.queuedTexts.count) segments")
+    cc.ok1(
+      #line,
+      "passed - queued \(mockSynthesizer.queuedTexts.count) segments",
+    )
   }
 
   @Test
@@ -462,7 +469,11 @@ struct SuttaPlayerTests {
     let mockSynthesizer = MockSpeechSynthesizerForSuttaPlayer()
     let player = SuttaPlayer(synthesizer: mockSynthesizer)
 
-    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "en", author: "sujato")
+    let suttaRef = try SuttaRef(
+      suttaUid: "thig1.1",
+      lang: "en",
+      author: "sujato",
+    )
 
     try await player.prepareSuttaAudio(suttaRef: suttaRef)
 
@@ -478,14 +489,18 @@ struct SuttaPlayerTests {
     let mockSynthesizer = MockSpeechSynthesizerForSuttaPlayer()
     let player = SuttaPlayer(synthesizer: mockSynthesizer)
 
-    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "en", author: "sujato")
+    let suttaRef = try SuttaRef(
+      suttaUid: "thig1.1",
+      lang: "en",
+      author: "sujato",
+    )
     var progressReports: [(Int, Int)] = []
 
     try await player.prepareSuttaAudio(
       suttaRef: suttaRef,
       progressCallback: { current, total in
         progressReports.append((current, total))
-      }
+      },
     )
 
     // Verify progress was reported
@@ -505,7 +520,7 @@ struct SuttaPlayerTests {
     // Try to prepare audio for non-existent sutta
     do {
       try await player.prepareSuttaAudio(
-        suttaRef: SuttaRef(suttaUid: "nonexistent-sutta-uid")
+        suttaRef: SuttaRef(suttaUid: "nonexistent-sutta-uid"),
       )
       #expect(Bool(false), "Expected documentNotFound error")
     } catch let error as SuttaPlayerError {

@@ -33,7 +33,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   private var nextIndexToPlay = 0
   private var isTransitioning = false
   private var pendingPlaybackCheck: DispatchWorkItem?
-  private var earliestPlaybackTime: Date = Date()
+  private var earliestPlaybackTime: Date = .init()
 
   init(synthesizer: ISpeechSynthesizer = CachedSynthesizer()) {
     self.synthesizer = synthesizer
@@ -117,7 +117,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   ///
   /// Prefetches audio for every segment in the sutta by synthesizing text to
   /// audio files. Returns immediately while synthesis happens asynchronously in
-  /// background. Audio context is transaction invariant (constant for all segments).
+  /// background. Audio context is transaction invariant (constant for all
+  /// segments).
   ///
   /// Deduplication: If the same text is queued multiple times, synthesis occurs
   /// once and the result is cached.
@@ -127,7 +128,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   ///
   /// - Parameters:
   ///   - suttaRef: Reference to sutta to prefetch (e.g., "mn1/en/sujato")
-  ///   - progressCallback: Optional callback reporting (current, total) segments queued.
+  ///   - progressCallback: Optional callback reporting (current, total)
+  /// segments queued.
   ///     Called after each segment is queued (sync).
   ///
   /// - Throws: SuttaPlayerError.documentNotFound if sutta not found,
@@ -225,22 +227,22 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // Schedule timeout check - will be cancelled when playback actually starts
     let workItem = DispatchWorkItem { [weak self] in
       guard let self else { return }
-      let isSpeaking = self.synthesizer.isSpeaking
-      let isPlaying = self.isPlaying
+      let isSpeaking = synthesizer.isSpeaking
+      let isPlaying = isPlaying
       if isSpeaking, isPlaying {
-        self.cc.ok1(#line, #function, "synthesizer started!")
+        cc.ok1(#line, #function, "synthesizer started!")
       } else if isPlaying {
         // User expects playing audio
         // Alert user: Synthesizer failed to start after 5s
-        self.cc.bad1(#line, #function, "isSpeaking:\(isSpeaking)",
-                     "isPlaying:\(isPlaying)")
-        self.showSpeechErrorAlert()
+        cc.bad1(#line, #function, "isSpeaking:\(isSpeaking)",
+                "isPlaying:\(isPlaying)")
+        showSpeechErrorAlert()
       } else {
         // User expects paused audio
-        self.cc.ok1(#line, #function, "paused OK")
+        cc.ok1(#line, #function, "paused OK")
       }
-      self.isTransitioning = false
-      self.pendingPlaybackCheck = nil
+      isTransitioning = false
+      pendingPlaybackCheck = nil
     }
 
     pendingPlaybackCheck = workItem
@@ -340,10 +342,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         message: "Close and reopen scVoice".localized,
         preferredStyle: .alert,
       )
-      alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-        self?.cc.bad2(#line, #function, "resetPlayer")
-        self?.resetPlayer()
-      })
+      alert
+        .addAction(UIAlertAction(title: "OK",
+                                 style: .default)
+        { [weak self] _ in
+          self?.cc.bad2(#line, #function, "resetPlayer")
+          self?.resetPlayer()
+          })
 
       if let windowScene = UIApplication.shared.connectedScenes
         .first as? UIWindowScene,
