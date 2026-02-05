@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-01-14
+**Last updated:** 2026-02-04
 
 ## Overview
 
@@ -34,9 +34,9 @@ Run the script with:
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
 |     4304 | ✅ | en | ✅ | 1 | sujato |
-|     4062 | ✅ | de | ✅ | 1 | sabbamitta |
-|      904 | ✅ | ru | ✅ | 1 | sv |
-|      737 |    | sr |    | 1 | brankokovacevic |
+|     4071 | ✅ | de | ✅ | 1 | sabbamitta |
+|      906 | ✅ | ru | ✅ | 1 | sv |
+|      761 |    | sr |    | 1 | brankokovacevic |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
 |      337 | ✅ | ru | ✅ | 2 | narinyanievmenenko |
 |      313 |    | lt |    | 1 | piyadassi |
@@ -53,14 +53,15 @@ Run the script with:
 |       31 | ✅ | es | ✅ | 1 | font |
 |       26 | ✅ | vi |    | 1 | phantuananh |
 |       26 |    | et |    | 1 | thitanana |
-|       19 | ✅ | en |    | 5 | suddhaso |
+|       26 | ✅ | en |    | 5 | suddhaso |
+|       20 | ✅ | fr |    | 3 | christelle |
 |       19 | ✅ | de | ✅ | 2 | sonjabuege |
-|       14 | ✅ | fr |    | 3 | christelle |
 |       10 | ✅ | pl |    | 2 | marcinow |
 |        9 |    | gu |    | 1 | trush |
 |        9 | ✅ | es |    | 2 | maggatr |
 |        8 | ✅ | ru |    | 3 | syrkin |
 |        7 | ✅ | hi |    | 1 | trush |
+|        4 | ✅ | ru |    | 4 | khantibalo |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
@@ -68,11 +69,11 @@ Run the script with:
 |        2 |    | lo |    | 1 | jayasaro |
 |        2 |    | gsw |    | 1 | flavio |
 |        2 | ✅ | en |    | 6 | kovilo |
-|        1 | ✅ | ru |    | 4 | team |
+|        1 | ✅ | ru |    | 5 | team |
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    13338 files
+**Total:**    13390 files
 
 ## Inclusion Criteria
 
