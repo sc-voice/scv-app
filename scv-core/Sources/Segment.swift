@@ -99,4 +99,16 @@ public extension Segment {
   var isMatched: Bool {
     matched
   }
+
+  /// Returns text for the specified key ("pli" or "doc")
+  /// - Parameter key: "pli" for Pali text, any other value returns doc text
+  /// - Returns: The requested text, or empty string if not available
+  func textOf(_ key: String) -> String {
+    switch key {
+    case "pli":
+      return pli ?? ""
+    default:
+      return doc ?? ""
+    }
+  }
 }

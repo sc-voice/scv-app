@@ -10,15 +10,16 @@ public enum SynthesisState: Sendable, Equatable {
 }
 
 // Snapshot struct for progress callbacks
-public struct SessionSnapshot: Sendable {
+public struct SessionSnapshot: Sendable, Equatable {
   let state: SynthesisState
   let suttaRef: SuttaRef
   let started: Date
   let currentStep: Int
   let totalSteps: Int
   let audioContext: AudioContext
-  let estimatedTimeRemaining: TimeInterval
+  let estimatedCompletion: Date
   let currentSegment: Segment?
+  let segmentKey: String
 }
 
 /// Single-use session for background audio synthesis of one sutta.
@@ -41,36 +42,43 @@ actor AudioSynthesisSession {
     dbg.AudioSynthesisSession.other,
   )
 
-  // Work queue
+  // Work queue: segments loaded from EbtData, processed sequentially during execute()
   private var pendingSegments: [Segment] = []
-  private var progressCallback: ((SessionSnapshot) -> Void)?
-  private var lastCallbackSnapshot: SessionSnapshot?
+  private let progressCallback: (SessionSnapshot) -> Void
 
+  /// Sutta reference (language/translator) for this session
   var suttaRef: SuttaRef
+
+  /// Timestamp when execute() was called
   var started: Date = .init()
-  var completedSegments: Int = 0
+
+  /// Total segments to synthesize for this sutta
   var totalSegments: Int = 0
+
+  /// Current step in synthesis (incremented as segments complete)
   var currentStep: Int = 0
+
+  /// Current synthesis state (.idle, .synthesizing, .completed, .cancelled, .failed)
   var state: SynthesisState = .idle
+
+  /// Audio context (language, voice, pitch, rate) for synthesis
   var audioContext: AudioContext
+
+  /// "pli" or "doc" - selects which Segment property to synthesize. The selected property is extracted; if nil or empty, segment is skipped.
+  private let segmentKey: String
+
+  /// Step count for loading segments phase
   let STEP_LOAD_SEGMENTS: Int = 1
   var totalSteps: Int {
     totalSegments > 0 ? STEP_LOAD_SEGMENTS + totalSegments : 0
   }
 
-  var estimatedTimeRemaining: TimeInterval {
-    let stepsRemaining = max(0, totalSteps - currentStep)
-    let elapsed = Date().timeIntervalSince(started)
-    if currentStep == 0 { // no baseline for estimate
-      return elapsed
-    }
-    return elapsed * (Double(stepsRemaining) / Double(currentStep))
-  }
-
-  private let segmentKey: String
+  /// Cached session snapshot (updated via updateSnapshot())
+  public private(set) var value: SessionSnapshot
 
   init(
     _ suttaRef: SuttaRef,
+    progressCallback: @escaping (SessionSnapshot) -> Void,
     audioContext: AudioContext? = nil,
     audioStore: AudioStore? = nil,
   ) {
@@ -78,6 +86,54 @@ actor AudioSynthesisSession {
     segmentKey = suttaRef.lang == "pli" ? "pli" : "doc"
     self.audioStore = audioStore ?? AudioStore.shared
     self.audioContext = audioContext ?? AudioContext(for: suttaRef.lang)
+    self.progressCallback = progressCallback
+
+    // Initialize snapshot
+    let now = Date()
+    self.value = SessionSnapshot(
+      state: .idle,
+      suttaRef: suttaRef,
+      started: now,
+      currentStep: 0,
+      totalSteps: 0,
+      audioContext: self.audioContext,
+      estimatedCompletion: now,
+      currentSegment: nil,
+      segmentKey: segmentKey,
+    )
+  }
+
+  /// Compute and cache snapshot reflecting current state, then fire progress callback
+  private func updateSnapshot() {
+    let elapsed = Date().timeIntervalSince(started)
+    let estimatedCompletion: Date
+
+    // For finished states, use current time as actual completion
+    if case .failed = state {
+      estimatedCompletion = Date()
+    } else if state == .completed || state == .cancelled {
+      estimatedCompletion = Date()
+    } else if currentStep == 0 {
+      // No baseline: estimate is started + elapsed
+      estimatedCompletion = started + elapsed
+    } else {
+      // In progress: estimate based on rate
+      estimatedCompletion = started + elapsed * (Double(totalSteps) / Double(currentStep))
+    }
+
+    value = SessionSnapshot(
+      state: state,
+      suttaRef: suttaRef,
+      started: started,
+      currentStep: currentStep,
+      totalSteps: totalSteps,
+      audioContext: audioContext,
+      estimatedCompletion: estimatedCompletion,
+      currentSegment: pendingSegments.first,
+      segmentKey: segmentKey,
+    )
+
+    progressCallback(value)
   }
 
   func loadSuttaSegments() async {
@@ -87,7 +143,7 @@ actor AudioSynthesisSession {
       let errorMessage = "no segments for \(suttaRef)"
       state = .failed(errorMessage)
       cc.bad1(#line, #function, errorMessage)
-      progressCallback?(getValue())
+      updateSnapshot()
       return
     }
 
@@ -95,71 +151,97 @@ actor AudioSynthesisSession {
     totalSegments = segments.count
     cc.ok1(#line, #function, suttaRef.toString(), "[\(totalSegments) segments]")
     currentStep += STEP_LOAD_SEGMENTS
-    progressCallback?(getValue())
+    updateSnapshot()
   }
 
   /// Execute synthesis of all segments in session's sutta.
   ///
-  /// Returns immediately (non-blocking). Synthesis runs on background thread
-  /// via actor.
-  /// progressCallback called repeatedly with state updates and once at
-  /// completion
-  /// (success, error, or cancellation).
-  ///
-  /// - Parameter progressCallback: Called with progress updates and final
-  /// completion state
-  func execute(progressCallback: @escaping (SessionSnapshot)
-    -> Void) async
-  {
-    self.progressCallback = progressCallback
+  /// Returns final snapshot showing completion state (completed, cancelled, or failed).
+  /// Synthesis runs on background thread via actor.
+  /// progressCallback called repeatedly with state updates and once at completion.
+  func execute() async -> SessionSnapshot {
+    // Guard: reject if not idle
+    guard state == .idle else {
+      let errorMessage = "Cannot execute: state is \(state), expected .idle"
+      state = .failed(errorMessage)
+      cc.bad1(#line, #function, errorMessage)
+      updateSnapshot()
+      return value
+    }
+
     currentStep = 0
     state = .synthesizing
     started = Date()
+    updateSnapshot()
 
     await loadSuttaSegments()
 
-    // TODO: Iterate and synthesize via AudioStore
-    // TODO: Update progress and call progressCallback
-    // TODO: Handle cancellation and errors
+    // Synthesize segments sequentially
+    while state == .synthesizing && !pendingSegments.isEmpty {
+      // Check cancellation before processing segment
+      if state == .cancelled {
+        cc.ok1(#line, #function, "Synthesis cancelled")
+        return value
+      }
+
+      let segment = pendingSegments.removeFirst()
+
+      // Extract text using segmentKey
+      let text = segment.textOf(segmentKey)
+
+      // Skip blank segments
+      guard !text.trimmingCharacters(in: .whitespaces).isEmpty else {
+        cc.ok2(#line, #function, "Skipping blank segment: \(segment.scid)")
+        _ = incrementSynthesisState()
+        continue
+      }
+
+      // Synthesize via AudioStore
+      do {
+        _ = try await audioStore.storeAudio(
+          text: text,
+          audioContext: audioContext
+        )
+        cc.ok2(#line, #function, "Synthesized: \(segment.scid)")
+        _ = incrementSynthesisState()
+      } catch {
+        let errorMessage = "Synthesis failed for \(segment.scid): \(error.localizedDescription)"
+        state = .failed(errorMessage)
+        cc.bad1(#line, #function, errorMessage)
+        updateSnapshot()
+        return value
+      }
+    }
+
+    // Handle completion
+    if state == .synthesizing {
+      state = .completed
+      cc.ok1(#line, #function, suttaRef.toString(), "[\(state)]")
+      updateSnapshot()
+      return value
+    } else {
+      return value
+    }
+  }
+
+  /// Increment synthesis progress after processing a segment.
+  ///
+  /// Updates currentStep, fires progress callback via updateSnapshot(), returns updated snapshot.
+  private func incrementSynthesisState() -> SessionSnapshot {
+    currentStep += 1
+    updateSnapshot()
+    return value
   }
 
   /// Cancels active synthesis job.
   ///
-  /// Sets cancellation flag. Worker checks flag before processing each segment.
+  /// Sets state to .cancelled. Worker checks state before processing each segment.
   /// Current segment completes gracefully. Pending segments discarded.
   /// Final callback sent with state = .cancelled.
-  func cancel() async {
-    // TODO: Implementation
+  func cancel() -> SessionSnapshot {
+    state = .cancelled
+    updateSnapshot()
+    return value
   }
 
-  // MARK: - Testing Helpers
-
-  /// Returns current session state as snapshot (for testing)
-  func getValue() -> SessionSnapshot {
-    SessionSnapshot(
-      state: state,
-      suttaRef: suttaRef,
-      started: started,
-      currentStep: currentStep,
-      totalSteps: totalSteps,
-      audioContext: audioContext,
-      estimatedTimeRemaining: estimatedTimeRemaining,
-      currentSegment: pendingSegments.first,
-    )
-  }
-
-  /// Wraps progressCallback to track last invocation (for testing)
-  func setTestProgressCallback(_ callback: @escaping (SessionSnapshot)
-    -> Void)
-  {
-    progressCallback = { snapshot in
-      self.lastCallbackSnapshot = snapshot
-      callback(snapshot)
-    }
-  }
-
-  /// Returns last snapshot sent to progressCallback (for testing)
-  func getLastCallbackSnapshot() -> SessionSnapshot? {
-    lastCallbackSnapshot
-  }
 }

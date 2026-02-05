@@ -11,23 +11,10 @@
     {
       "description" : "Design SynthesisProgress struct",
       "id" : "kkkRGcAC"
-    }
-  ],
-  "createdAt" : "2026-02-03T17:25:38Z",
-  "id" : "019C2489-D490-7000-84C7-5C7600EABF39",
-  "name" : "Implement AudioSynthesisSession",
-  "plannedActions" : [
+    },
     {
       "description" : "Implement loadSuttaSegments",
       "id" : "qn-OacAC"
-    },
-    {
-      "description" : "Read and understand existing APIs (SuttaRef, AudioStore, SuttaPlayer.prepareSuttaAudio, EbtData, Segment)",
-      "id" : "kj2E6cAC"
-    },
-    {
-      "description" : "Define AudioSynthesisSession API with dev",
-      "id" : "klN9WcAC"
     },
     {
       "description" : "Decide: Cancellation semantics (delete partial files or leave them)",
@@ -36,6 +23,39 @@
     {
       "description" : "Decide: Completion callback (separate vs use progressCallback with isComplete flag)",
       "id" : "kmDEPcAC"
+    },
+    {
+      "description" : "Define AudioSynthesisSession API with dev",
+      "id" : "klN9WcAC"
+    },
+    {
+      "description" : "Read and understand existing APIs (SuttaRef, AudioStore, SuttaPlayer.prepareSuttaAudio, EbtData, Segment)",
+      "id" : "kj2E6cAC"
+    },
+    {
+      "description" : "Implement execute() synthesis loop with segment processing",
+      "id" : "uEOObcAC"
+    },
+    {
+      "description" : "Implement cancellation check in synthesis loop",
+      "id" : "uEQ_icAC"
+    },
+    {
+      "description" : "Implement progress updates and state transitions",
+      "id" : "uESzmcAC"
+    },
+    {
+      "description" : "Implement error handling and completion states",
+      "id" : "uEUWhcAC"
+    }
+  ],
+  "createdAt" : "2026-02-03T17:25:38Z",
+  "id" : "019C2489-D490-7000-84C7-5C7600EABF39",
+  "name" : "Implement AudioSynthesisSession",
+  "plannedActions" : [
+    {
+      "description" : "Test execute() with full synthesis workflow",
+      "id" : "uEV4ZcAC"
     }
   ],
   "references" : [
@@ -69,5 +89,5 @@
 
   ],
   "summary" : "Background audio synthesis pipeline with thread-safe queue management, cancellation support, and progress tracking. Separates synthesis orchestration from file persistence (AudioStore).",
-  "updatedAt" : "2026-02-04T21:47:27Z"
+  "updatedAt" : "2026-02-05T18:30:56Z"
 }

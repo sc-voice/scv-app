@@ -15,9 +15,9 @@ import Testing
   @Test("init creates session with suttaRef")
   func initWithSuttaRef() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
-    let session = AudioSynthesisSession(suttaRef)
+    let session = AudioSynthesisSession(suttaRef, progressCallback: { _ in })
 
-    let value = await session.getValue()
+    let value = await session.value
 
     // Verify all snapshot members
     #expect(value.suttaRef == suttaRef)
@@ -25,7 +25,7 @@ import Testing
     #expect(value.currentStep == 0)
     #expect(value.totalSteps == 0)
     #expect(value.currentSegment == nil)
-    #expect(value.estimatedTimeRemaining >= 0)
+    #expect(value.estimatedCompletion >= value.started)
 
     // Verify AudioContext language defaults to suttaRef.lang
     let defaultContext = AudioContext(for: suttaRef.lang)
@@ -40,21 +40,23 @@ import Testing
   func initWithAudioContext() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
     let context = AudioContext(for: "de")
-    let session = AudioSynthesisSession(suttaRef, audioContext: context)
+    let session = AudioSynthesisSession(suttaRef, progressCallback: { _ in }, audioContext: context)
 
-    let value = await session.getValue()
+    let value = await session.value
     #expect(value.audioContext == context)
   }
 
   @Test("loadSuttaSegments loads segments for valid sutta")
   func loadSuttaSegmentsValid() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
-    let session = AudioSynthesisSession(suttaRef)
+    var lastSnapshot: SessionSnapshot?
+    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
+      lastSnapshot = snapshot
+    })
 
-    await session.setTestProgressCallback { _ in }
     await session.loadSuttaSegments()
 
-    let value = await session.getValue()
+    let value = await session.value
     #expect(value.totalSteps > 0, "Should load segments for thig1.1")
     #expect(
       value.currentStep == 1,
@@ -62,21 +64,20 @@ import Testing
     )
 
     // Verify progressCallback was invoked with correct data
-    let callbackSnapshot = await session.getLastCallbackSnapshot()
     #expect(
-      callbackSnapshot != nil,
+      lastSnapshot != nil,
       "progressCallback should have been invoked",
     )
-    #expect(callbackSnapshot?.currentStep == 1)
-    #expect(callbackSnapshot?
+    #expect(lastSnapshot?.currentStep == 1)
+    #expect(lastSnapshot?
       .totalSteps == 10) // STEP_LOAD_SEGMENTS(1) + 9 segments
 
     // Verify currentSegment in snapshot with actual values
     #expect(
-      callbackSnapshot?.currentSegment != nil,
+      lastSnapshot?.currentSegment != nil,
       "currentSegment should be first segment in queue",
     )
-    if let currentSeg = callbackSnapshot?.currentSegment {
+    if let currentSeg = lastSnapshot?.currentSegment {
       // First segment of thig1.1/de/sabbamitta is "thig1.1:0.1"
       #expect(
         currentSeg.scid == "thig1.1:0.1",
@@ -97,12 +98,14 @@ import Testing
   func loadSuttaSegmentsEmptyRef() async {
     // mn1/en/soma is a valid sutta ref but author soma has no data for it
     let suttaRef = SuttaRef.create("mn1/en/soma")!
-    let session = AudioSynthesisSession(suttaRef)
+    var lastSnapshot: SessionSnapshot?
+    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
+      lastSnapshot = snapshot
+    })
 
-    await session.setTestProgressCallback { _ in }
     await session.loadSuttaSegments()
 
-    let value = await session.getValue()
+    let value = await session.value
     if case let .failed(errorMsg) = value.state {
       #expect(errorMsg.contains("no segments"))
     } else {
@@ -111,15 +114,86 @@ import Testing
     #expect(value.currentSegment == nil)
 
     // Verify progressCallback was invoked with failed state
-    let callbackSnapshot = await session.getLastCallbackSnapshot()
     #expect(
-      callbackSnapshot != nil,
+      lastSnapshot != nil,
       "progressCallback should have been invoked",
     )
-    if case let .failed(errorMsg) = callbackSnapshot?.state {
+    if case let .failed(errorMsg) = lastSnapshot?.state {
       #expect(errorMsg.contains("no segments"))
     } else {
       #expect(Bool(false), "Expected callback state .failed")
     }
+  }
+
+  @Test("cancel sets state to cancelled")
+  func cancelSetsCancelledState() async {
+    let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
+    var lastSnapshot: SessionSnapshot?
+    let session = AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
+      lastSnapshot = snapshot
+    })
+
+    let cancelValue = await session.cancel()
+
+    let value = await session.value
+    #expect(value.state == .cancelled, "State should be .cancelled after cancel()")
+
+    // Verify cancelValue equals current session value
+    #expect(cancelValue == value, "cancelValue should equal current session value")
+
+    // Verify callback was invoked with cancelled state
+    #expect(lastSnapshot != nil, "progressCallback should have been invoked")
+    #expect(lastSnapshot?.state == .cancelled, "Callback should have .cancelled state")
+    #expect(lastSnapshot == cancelValue, "Callback snapshot should equal cancelValue")
+  }
+
+  @Test("INTEGRATION: execute() synthesizes thig1.1/en/soma to completion")
+  func executeIntegrationThig1_1EnSoma() async {
+    let suttaRef = SuttaRef.create("thig1.1/en/soma")!
+
+    // Use persistent test audio store in local/build
+    let projectRoot = projectRoot()
+    let testAudioDir = projectRoot.appendingPathComponent("local/build/test-audio-store")
+    try? FileManager.default.createDirectory(at: testAudioDir, withIntermediateDirectories: true)
+    let testStore = AudioStore.create(path: testAudioDir)
+
+    // Track callbacks with thread-safe class
+    final class CallbackTracker: Sendable {
+      nonisolated(unsafe) var callbackCount = 0
+      nonisolated(unsafe) var stateTransitions: [SynthesisState] = []
+      nonisolated(unsafe) var finalSnapshot: SessionSnapshot?
+    }
+    let tracker = CallbackTracker()
+
+    let startTime = Date()
+
+    let finalValue = await AudioSynthesisSession(suttaRef, progressCallback: { snapshot in
+      tracker.callbackCount += 1
+      tracker.stateTransitions.append(snapshot.state)
+      tracker.finalSnapshot = snapshot
+    }, audioStore: testStore).execute()
+
+    let elapsedSeconds = Date().timeIntervalSince(startTime)
+
+    // Verify execution completed
+    #expect(finalValue.state == .completed, "Final state should be .completed")
+    #expect(tracker.finalSnapshot?.state == .completed, "Last callback should have .completed state")
+
+    // Verify callbacks were fired
+    #expect(tracker.callbackCount > 0, "Should have fired callbacks")
+
+    // Verify state progression includes synthesizing
+    #expect(tracker.stateTransitions.contains(.synthesizing), "Should transition through .synthesizing")
+
+    // Verify steps advanced
+    #expect(finalValue.currentStep > 0, "Should have advanced steps")
+    #expect(finalValue.currentStep == finalValue.totalSteps, "All steps should be completed")
+
+    // Verify completion time set
+    #expect(finalValue.estimatedCompletion <= Date(), "estimatedCompletion should be in past for completed state")
+
+    cc.ok1(#line, #function, "✅ Synthesis completed: \(finalValue.currentStep) steps in \(String(format: "%.2f", elapsedSeconds))s")
+    cc.ok1(#line, #function, "Audio stored at: \(testAudioDir.path)")
+    cc.ok1(#line, #function, "Callbacks: \(tracker.callbackCount), State transitions: \(tracker.stateTransitions)")
   }
 }
