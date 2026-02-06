@@ -357,3 +357,33 @@
 
 /* About card view: document count label in translations list */
 "about.documents" = "%@ dokumentai(-ų)";
+
+/* Synthesis modal: header title */
+"synthesis.title" = "Garso paruošimas";
+
+/* Synthesis modal: status label during synthesis */
+"synthesis.synthesizing" = "Sintetinimas...";
+
+/* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
+"synthesis.time_remaining" = "~%@ liko";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Baigta";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Atšaukta";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Klaida";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Pradedama...";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Atšaukti";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Atlikta";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Foninio atkūrimo režimas";

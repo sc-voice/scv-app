@@ -345,3 +345,33 @@
 
 /* About card view: document count label in translations list */
 "about.documents" = "%@ документов";
+
+/* Synthesis modal: header title */
+"synthesis.title" = "Подготовка аудио";
+
+/* Synthesis modal: status label during synthesis */
+"synthesis.synthesizing" = "Синтезирование...";
+
+/* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
+"synthesis.time_remaining" = "~%@ осталось";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Завершено";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Отменено";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Ошибка";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Запуск...";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Отмена";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Готово";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Воспроизведение в фоне";

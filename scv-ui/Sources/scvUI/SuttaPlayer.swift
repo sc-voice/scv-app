@@ -134,6 +134,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   ///
   /// - Throws: SuttaPlayerError.documentNotFound if sutta not found,
   ///   SuttaPlayerError.noValidSegments if no text to synthesize
+  /// Deprecated: Use AudioSynthesisSession for background synthesis instead.
+  ///
+  /// This method will be removed in a future version. AudioSynthesisSession provides
+  /// better progress tracking, cancellation support, and modern SwiftUI integration.
+  /// See: doc/AudioSynthesisSession.md
+  @available(*, deprecated, message: "Use AudioSynthesisSession instead. See doc/AudioSynthesisSession.md")
   public func prepareSuttaAudio(
     suttaRef: SuttaRef,
     progressCallback: ((Int, Int) -> Void)? = nil,

@@ -1,0 +1,23 @@
+{
+  "completedActions" : [
+    {
+      "title" : "Implement exponential moving average (EMA) for synthesis time estimation",
+      "description" : "Replaced elapsed-time-based estimation (vulnerable to cached segments) with EMA tracking. Added segmentSynthesisTime property tracking actual synthesis duration per segment. EMA uses smoothing factor α=0.3 to adapt to changing speeds. Estimation now calculated as: remaining_time = pending_segments_count × segmentSynthesisTime. Cached segments no longer distort baseline, and blank skips don't affect rate calculation. All 381 tests pass.",
+      "completedAt" : "2026-02-06T14:00:00Z"
+    }
+  ],
+  "createdAt" : "2026-02-06T13:44:57Z",
+  "id" : "019C3332-DC93-7000-88F9-DC53E24F3D22",
+  "name" : "AudioSynthesisSession underestimates completion time for parttially cached suttas",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "The estimate is affected by the negligible time taken to skip pre-cached segments.\n",
+  "updatedAt" : "2026-02-06T13:44:57Z"
+}

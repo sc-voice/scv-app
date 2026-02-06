@@ -11,15 +11,15 @@ public enum SynthesisState: Sendable, Equatable {
 
 // Snapshot struct for progress callbacks
 public struct SessionSnapshot: Sendable, Equatable {
-  let state: SynthesisState
-  let suttaRef: SuttaRef
-  let started: Date
-  let currentStep: Int
-  let totalSteps: Int
-  let audioContext: AudioContext
-  let estimatedCompletion: Date
-  let currentSegment: Segment?
-  let segmentKey: String
+  public let state: SynthesisState
+  public let suttaRef: SuttaRef
+  public let started: Date
+  public let currentStep: Int
+  public let totalSteps: Int
+  public let audioContext: AudioContext
+  public let estimatedCompletion: Date
+  public let currentSegment: Segment?
+  public let segmentKey: String
 }
 
 /// Single-use session for background audio synthesis of one sutta.
@@ -60,6 +60,12 @@ public actor AudioSynthesisSession {
   /// Current step in synthesis (incremented as segments complete)
   var currentStep: Int = 0
 
+  /// Exponential moving average of synthesis time per segment (in seconds)
+  var segmentSynthesisTime: Double = 0.1
+
+  /// Timestamp when current segment synthesis started
+  private var segmentStartTime: Date?
+
   /// Current synthesis state (.idle, .synthesizing, .completed, .cancelled,
   /// .failed)
   var state: SynthesisState = .idle
@@ -78,7 +84,7 @@ public actor AudioSynthesisSession {
   }
 
   /// Cached session snapshot (updated via updateSnapshot())
-  private(set) var value: SessionSnapshot
+  public private(set) var value: SessionSnapshot
 
   public init(
     _ suttaRef: SuttaRef,
@@ -124,8 +130,8 @@ public actor AudioSynthesisSession {
       // No baseline: estimate is started + elapsed
       started + elapsed
     } else {
-      // In progress: estimate based on rate
-      started + elapsed * (Double(totalSteps) / Double(currentStep))
+      // In progress: estimate remaining time based on average synthesis time per segment
+      Date() + (Double(pendingSegments.count) * segmentSynthesisTime)
     }
 
     value = SessionSnapshot(
@@ -212,10 +218,20 @@ public actor AudioSynthesisSession {
 
       // Synthesize via AudioStore
       do {
+        segmentStartTime = Date()
         _ = try await audioStore.storeAudio(
           text: text,
           audioContext: audioContext,
         )
+
+        // Update EMA of synthesis time
+        if let startTime = segmentStartTime {
+          let actualTime = Date().timeIntervalSince(startTime)
+          let alpha = 0.3  // smoothing factor
+          segmentSynthesisTime = alpha * actualTime + (1 - alpha) * segmentSynthesisTime
+        }
+        segmentStartTime = nil
+
         cc.ok2(#line, #function, "Synthesized: \(segment.scid)")
         _ = incrementSynthesisState()
       } catch {

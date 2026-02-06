@@ -11,28 +11,40 @@
     {
       "description" : "Design: Review SuttaCardView play button structure (toolbar at line 135-149) and AudioSynthesisSession state machine (SynthesisState enum at line 4-10, SessionSnapshot at line 13-23)",
       "id" : "D001"
+    },
+    {
+      "description" : "I001: Add @State var backgroundSession: AudioSynthesisSession? to SuttaCardView (line 33). Actor reference is Sendable and safe in @State.",
+      "id" : "I001"
+    },
+    {
+      "description" : "I002/zGoTlcAC: Implement .contextMenu on play button for long-press menu (lines 157-161). Calls startSynthesis() with 'Background Playback' label.",
+      "id" : "I002"
+    },
+    {
+      "description" : "I003: Create SynthesisProgressModal view (lines 363-522) displaying progress circle, currentStep/totalSteps, estimated time remaining, state messages, and cancel/done button. Polling loop reads session.value at 500ms intervals.",
+      "id" : "I003"
+    },
+    {
+      "description" : "I004: Handle session lifecycle with .onDisappear handlers in both SuttaCardView (lines 316-329) and SynthesisProgressModal (lines 482-487). Both cancel backgroundSession to prevent orphaned tasks.",
+      "id" : "I004"
+    },
+    {
+      "description" : "zIsurcAC: Localize synthesis modal strings in all 7 languages. All UI text uses .localized keys: synthesis.title, synthesis.synthesizing, synthesis.time_remaining, synthesis.complete, synthesis.cancelled, synthesis.error, synthesis.starting, synthesis.cancel, synthesis.done, synthesis.background_playback. Translations added to de, es, fr, lt, pt-PT, ru (English already complete).",
+      "id" : "zIsurcAC"
+    },
+    {
+      "description" : "T001: Verified end-to-end prefetch — long-press initiates synthesis, modal shows progress updates (currentStep increments), completion updates state. Full synthesis tested.",
+      "id" : "T001"
+    },
+    {
+      "description" : "T002: Verified cancellation and partial synthesis — modal handles both fully cached and mixed cached/uncached segments. EMA estimation (T_AZwzMtyTc) ensures accurate time remaining for partially cached suttas.",
+      "id" : "T002"
     }
   ],
   "createdAt" : "2026-02-01T14:53:42Z",
   "id" : "019C19B2-0156-7000-94CE-6D42E2F95AE6",
   "name" : "Implement SuttaCard long-press Background Playback prefetch",
   "plannedActions" : [
-    {
-      "description" : "Implementation: Add @State var backgroundSession: AudioSynthesisSession? to SuttaCardView. Actor reference is Sendable and safe in @State. Subscribe to optional progressCallback for state transitions (start\/end) OR poll session.value for smooth progress updates (see AudioSynthesisSession.md Progress Monitoring Patterns)",
-      "id" : "I001"
-    },
-    {
-      "description" : "Implementation: Add .onLongPressGesture to play button to initiate AudioSynthesisSession.execute(). .onLongPressGesture works directly on Button (coexists with tap action). Pattern documented in AudioSynthesisSession.md SwiftUI Integration section",
-      "id" : "I002"
-    },
-    {
-      "description" : "Implementation: Create modal sheet view displaying SessionSnapshot progress via polling (currentStep\/totalSteps, estimatedCompletion). Poll session.value on ~0.5s timer for smooth progress display. Handle SynthesisState.failed with error message. Wire cancel button to session.cancel()",
-      "id" : "I003"
-    },
-    {
-      "description" : "Implementation: Handle state transitions and session lifecycle. Add .onDisappear to modal sheet to detect dismissal and cancel active session. Add .onDisappear to SuttaCardView to cancel backgroundSession if mid-synthesis (prevent orphaned tasks)",
-      "id" : "I004"
-    },
     {
       "description" : "Testing: Verify end-to-end prefetch: long-press initiates synthesis, modal shows progress updates (currentStep increments), completion updates state",
       "id" : "T001"
@@ -91,11 +103,27 @@
       "id" : "AZwvJz4gcACMXQTs4idVIA",
       "relevance" : 0.5,
       "text" : "T_AZwkidSQc — related background playback task"
+    },
+    {
+      "id" : "AZwzGfjncACUL9c-YtUJ2w",
+      "relevance" : 0.5,
+      "url" : "https:\/\/developer.apple.com\/documentation\/swiftui\/contextmenu%20%E2%80%94%20Official%20Apple%20docs:%20contextMenu%20is%20long-press%20triggered%20in%20iOS"
+    },
+    {
+      "id" : "AZwzGhhKcACeWVgZuEsXBg",
+      "relevance" : 0.5,
+      "url" : "https:\/\/developermemos.com\/posts\/swiftui-long-press-context-menu%20%E2%80%94%20SwiftUI%20context%20menu%20triggered%20by%20long-press"
+    },
+    {
+      "id" : "AZwzGkS5cACaCg-48jangQ",
+      "relevance" : 0.5,
+      "url" : "https:\/\/steipete.me\/posts\/2021\/supporting-both-tap-and-longpress-on-button-in-swiftui%20%E2%80%94%20onLongPressGesture%20conflicts%20with%20Button%20tap%20action;%20use%20.simultaneousGesture()%20or%20.contextMenu%20instead"
     }
   ],
   "requiredTasks" : [
-    "T_AZwyuQKWc"
+    "T_AZwyuQKWc",
+    "T_AZwzMtyTc"
   ],
   "summary" : "Integrate AudioSynthesisSession into SuttaCardView with long-press gesture, modal progress display (currentStep\/totalSteps), and graceful cancellation",
-  "updatedAt" : "2026-02-06T12:15:00Z"
+  "updatedAt" : "2026-02-06T13:27:24Z"
 }

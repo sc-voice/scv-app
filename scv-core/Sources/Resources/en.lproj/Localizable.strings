@@ -369,3 +369,33 @@
 
 /* About card view: document count label in translations list */
 "about.documents" = "%@ documents";
+
+/* Synthesis modal: header title */
+"synthesis.title" = "Preparing Audio";
+
+/* Synthesis modal: status label during synthesis */
+"synthesis.synthesizing" = "Synthesizing...";
+
+/* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
+"synthesis.time_remaining" = "~%@ remaining";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Complete";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Cancelled";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Error";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Starting...";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Cancel";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Done";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Background Playback";
