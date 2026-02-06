@@ -130,7 +130,8 @@ public actor AudioSynthesisSession {
       // No baseline: estimate is started + elapsed
       started + elapsed
     } else {
-      // In progress: estimate remaining time based on average synthesis time per segment
+      // In progress: estimate remaining time based on average synthesis time
+      // per segment
       Date() + (Double(pendingSegments.count) * segmentSynthesisTime)
     }
 
@@ -227,8 +228,9 @@ public actor AudioSynthesisSession {
         // Update EMA of synthesis time
         if let startTime = segmentStartTime {
           let actualTime = Date().timeIntervalSince(startTime)
-          let alpha = 0.3  // smoothing factor
-          segmentSynthesisTime = alpha * actualTime + (1 - alpha) * segmentSynthesisTime
+          let alpha = 0.3 // smoothing factor
+          segmentSynthesisTime = alpha * actualTime + (1 - alpha) *
+            segmentSynthesisTime
         }
         segmentStartTime = nil
 

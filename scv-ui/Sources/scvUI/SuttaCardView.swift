@@ -156,7 +156,10 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
               .foregroundColor(themeProvider.theme.toolbarForeground)
               .contextMenu {
                 Button(action: startSynthesis) {
-                  Label("synthesis.background_playback".localized, systemImage: "waveform.circle.fill")
+                  Label(
+                    "synthesis.background_playback".localized,
+                    systemImage: "waveform.circle.fill",
+                  )
                 }
               }
             } else {
@@ -332,7 +335,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           SynthesisProgressModal(
             session: session,
             isPresented: $showSynthesisModal,
-            themeProvider: themeProvider
+            themeProvider: themeProvider,
           )
         }
       },
@@ -342,7 +345,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   // MARK: - Private Methods
 
   private func startSynthesis() {
-    guard let suttaRef = suttaRef else {
+    guard let suttaRef else {
       cc.bad2(#line, #function, "suttaRef is nil")
       return
     }
@@ -355,7 +358,11 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     // Execute synthesis on background thread
     Task {
       let finalSnapshot = await backgroundSession?.execute()
-      cc.ok1(#line, #function, "Synthesis completed: \(finalSnapshot?.state ?? .idle)")
+      cc.ok1(
+        #line,
+        #function,
+        "Synthesis completed: \(finalSnapshot?.state ?? .idle)",
+      )
     }
   }
 }
@@ -394,8 +401,15 @@ struct SynthesisProgressModal: View {
 
           if let snapshot = currentSnapshot, snapshot.totalSteps > 0 {
             Circle()
-              .trim(from: 0, to: CGFloat(snapshot.currentStep) / CGFloat(snapshot.totalSteps))
-              .stroke(themeProvider.theme.accentColor, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+              .trim(
+                from: 0,
+                to: CGFloat(snapshot.currentStep) /
+                  CGFloat(snapshot.totalSteps),
+              )
+              .stroke(
+                themeProvider.theme.accentColor,
+                style: StrokeStyle(lineWidth: 8, lineCap: .round),
+              )
               .frame(width: 120, height: 120)
               .rotationEffect(.degrees(-90))
               .animation(.linear, value: snapshot.currentStep)
@@ -426,11 +440,13 @@ struct SynthesisProgressModal: View {
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
               }
               // Time remaining
-              let timeRemaining = snapshot.estimatedCompletion.timeIntervalSinceNow
+              let timeRemaining = snapshot.estimatedCompletion
+                .timeIntervalSinceNow
               if timeRemaining > 0 {
                 let minutes = Int(timeRemaining) / 60
                 let seconds = Int(timeRemaining) % 60
-                Text("synthesis.time_remaining".localized("\(minutes)m \(seconds)s"))
+                Text("synthesis.time_remaining"
+                  .localized("\(minutes)m \(seconds)s"))
                   .font(.caption)
                   .foregroundColor(themeProvider.theme.secondaryTextColor)
               }
@@ -442,7 +458,7 @@ struct SynthesisProgressModal: View {
               Text("synthesis.cancelled".localized)
                 .font(.body)
                 .foregroundColor(themeProvider.theme.secondaryTextColor)
-            case .failed(let error):
+            case let .failed(error):
               Text("synthesis.error".localized)
                 .font(.body)
                 .foregroundColor(themeProvider.theme.errorTextColor)
@@ -461,12 +477,15 @@ struct SynthesisProgressModal: View {
 
       // Action button
       if let snapshot = currentSnapshot {
-        let isSynthesizing = if case .synthesizing = snapshot.state { true } else { false }
+        let isSynthesizing = if case .synthesizing = snapshot.state { true }
+        else { false }
         Button(action: handleButtonTap) {
-          Text(isSynthesizing ? "synthesis.cancel".localized : "synthesis.done".localized)
+          Text(isSynthesizing ? "synthesis.cancel".localized : "synthesis.done"
+            .localized)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSynthesizing ? Color.red : themeProvider.theme.accentColor)
+            .background(isSynthesizing ? Color.red : themeProvider.theme
+              .accentColor)
             .foregroundColor(.white)
             .cornerRadius(8)
         }
@@ -490,7 +509,8 @@ struct SynthesisProgressModal: View {
 
   private func handleButtonTap() {
     if let snapshot = currentSnapshot {
-      let isSynthesizing = if case .synthesizing = snapshot.state { true } else { false }
+      let isSynthesizing = if case .synthesizing = snapshot.state { true }
+      else { false }
       if isSynthesizing {
         Task {
           await session.cancel()
@@ -507,7 +527,11 @@ struct SynthesisProgressModal: View {
         // Poll session.value for current progress
         let snapshot = await session.value
         currentSnapshot = snapshot
-        cc.ok2(#line, #function, "Progress: \(snapshot.currentStep)/\(snapshot.totalSteps)")
+        cc.ok2(
+          #line,
+          #function,
+          "Progress: \(snapshot.currentStep)/\(snapshot.totalSteps)",
+        )
 
         // Sleep for ~0.5s before next poll
         try? await Task.sleep(nanoseconds: 500_000_000)

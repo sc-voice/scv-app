@@ -290,7 +290,10 @@ import Testing
     #expect(finalValue.state == .completed, "Final state should be .completed")
 
     // Verify progress via polling
-    #expect(finalValue.currentStep > 0, "Should have advanced steps via polling")
+    #expect(
+      finalValue.currentStep > 0,
+      "Should have advanced steps via polling",
+    )
     #expect(
       finalValue.currentStep == finalValue.totalSteps,
       "All steps should be completed",
