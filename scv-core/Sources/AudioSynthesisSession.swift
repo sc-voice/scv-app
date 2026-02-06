@@ -34,7 +34,7 @@ public struct SessionSnapshot: Sendable, Equatable {
 /// - Session: synthesizes text segments to audio files and stores via
 /// AudioStore
 /// - End User: requests sutta audio preparation and receives progress updates
-actor AudioSynthesisSession {
+public actor AudioSynthesisSession {
   private let audioStore: AudioStore
   private let cc = ColorConsole(
     #file,
@@ -45,7 +45,8 @@ actor AudioSynthesisSession {
   // Work queue: segments loaded from EbtData, processed sequentially during
   // execute()
   private var pendingSegments: [Segment] = []
-  private let progressCallback: (SessionSnapshot) -> Void
+  private let progressCallback: ((SessionSnapshot) -> Void)?
+  private var previousState: SynthesisState = .idle
 
   /// Sutta reference (language/translator) for this session
   var suttaRef: SuttaRef
@@ -79,9 +80,9 @@ actor AudioSynthesisSession {
   /// Cached session snapshot (updated via updateSnapshot())
   private(set) var value: SessionSnapshot
 
-  init(
+  public init(
     _ suttaRef: SuttaRef,
-    progressCallback: @escaping (SessionSnapshot) -> Void,
+    progressCallback: ((SessionSnapshot) -> Void)? = nil,
     audioContext: AudioContext? = nil,
     audioStore: AudioStore? = nil,
   ) {
@@ -106,8 +107,9 @@ actor AudioSynthesisSession {
     )
   }
 
-  /// Compute and cache snapshot reflecting current state, then fire progress
-  /// callback
+  /// Compute and cache snapshot reflecting current state.
+  /// Fire progress callback only on state transitions.
+  /// Always updates cached snapshot for polling.
   private func updateSnapshot() {
     let elapsed = Date().timeIntervalSince(started)
     let estimatedCompletion: Date
@@ -138,7 +140,11 @@ actor AudioSynthesisSession {
       segmentKey: segmentKey,
     )
 
-    progressCallback(value)
+    // Fire callback only on state transitions
+    if let cb = progressCallback, state != previousState {
+      cb(value)
+      previousState = state
+    }
   }
 
   func loadSuttaSegments() async {
@@ -164,9 +170,10 @@ actor AudioSynthesisSession {
   /// Returns final snapshot showing completion state (completed, cancelled, or
   /// failed).
   /// Synthesis runs on background thread via actor.
-  /// progressCallback called repeatedly with state updates and once at
-  /// completion.
-  func execute() async -> SessionSnapshot {
+  /// progressCallback (if provided) fires on state transitions: .synthesizing,
+  /// .completed, .cancelled, .failed.
+  /// Query session.value anytime for current progress via polling.
+  public func execute() async -> SessionSnapshot {
     // Guard: reject if not idle
     guard state == .idle else {
       let errorMessage = "Cannot execute: state is \(state), expected .idle"
@@ -233,8 +240,8 @@ actor AudioSynthesisSession {
 
   /// Increment synthesis progress after processing a segment.
   ///
-  /// Updates currentStep, fires progress callback via updateSnapshot(), returns
-  /// updated snapshot.
+  /// Updates currentStep and cached snapshot via updateSnapshot(). Does not
+  /// fire callback (state unchanged). Returns updated snapshot for polling.
   private func incrementSynthesisState() -> SessionSnapshot {
     currentStep += 1
     updateSnapshot()
@@ -246,8 +253,8 @@ actor AudioSynthesisSession {
   /// Sets state to .cancelled. Worker checks state before processing each
   /// segment.
   /// Current segment completes gracefully. Pending segments discarded.
-  /// Final callback sent with state = .cancelled.
-  func cancel() -> SessionSnapshot {
+  /// progressCallback (if provided) fires with state = .cancelled.
+  public func cancel() -> SessionSnapshot {
     state = .cancelled
     updateSnapshot()
     return value

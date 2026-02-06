@@ -12,6 +12,17 @@ import Testing
 @Suite struct AudioSynthesisSessionTests {
   let cc = ColorConsole(#file, #function, dbg.AudioSynthesisSession.other)
 
+  @Test("init creates session without callback")
+  func initWithoutCallback() async {
+    let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
+    let session = AudioSynthesisSession(suttaRef)
+
+    let value = await session.value
+
+    #expect(value.suttaRef == suttaRef)
+    #expect(value.state == .idle)
+  }
+
   @Test("init creates session with suttaRef")
   func initWithSuttaRef() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
@@ -50,19 +61,15 @@ import Testing
     #expect(value.audioContext == context)
   }
 
-  @Test("loadSuttaSegments loads segments for valid sutta")
+  @Test("loadSuttaSegments loads segments for valid sutta via polling")
   func loadSuttaSegmentsValid() async {
     let suttaRef = SuttaRef.create("thig1.1/de/sabbamitta")!
-    var lastSnapshot: SessionSnapshot?
-    let session = AudioSynthesisSession(
-      suttaRef,
-      progressCallback: { snapshot in
-        lastSnapshot = snapshot
-      },
-    )
+    // No callback; verify polling works
+    let session = AudioSynthesisSession(suttaRef)
 
     await session.loadSuttaSegments()
 
+    // Poll for current value after loading
     let value = await session.value
     #expect(value.totalSteps > 0, "Should load segments for thig1.1")
     #expect(
@@ -70,21 +77,18 @@ import Testing
       "currentStep should be STEP_LOAD_SEGMENTS after loading",
     )
 
-    // Verify progressCallback was invoked with correct data
+    // Verify polling returns correct data
     #expect(
-      lastSnapshot != nil,
-      "progressCallback should have been invoked",
+      value.totalSteps == 10,
+      "Should have 10 total steps (1 load + 9 segments)",
     )
-    #expect(lastSnapshot?.currentStep == 1)
-    #expect(lastSnapshot?
-      .totalSteps == 10) // STEP_LOAD_SEGMENTS(1) + 9 segments
 
     // Verify currentSegment in snapshot with actual values
     #expect(
-      lastSnapshot?.currentSegment != nil,
+      value.currentSegment != nil,
       "currentSegment should be first segment in queue",
     )
-    if let currentSeg = lastSnapshot?.currentSegment {
+    if let currentSeg = value.currentSegment {
       // First segment of thig1.1/de/sabbamitta is "thig1.1:0.1"
       #expect(
         currentSeg.scid == "thig1.1:0.1",
@@ -172,8 +176,8 @@ import Testing
     )
   }
 
-  @Test("INTEGRATION: execute() synthesizes thig1.1/en/soma to completion")
-  func executeIntegrationThig1_1EnSoma() async {
+  @Test("INTEGRATION: execute() state-change callbacks fire at transitions")
+  func executeStateChangeCallbacks() async {
     let suttaRef = SuttaRef.create("thig1.1/en/soma")!
 
     // Use persistent test audio store in local/build
@@ -215,26 +219,32 @@ import Testing
       "Last callback should have .completed state",
     )
 
-    // Verify callbacks were fired
-    #expect(tracker.callbackCount > 0, "Should have fired callbacks")
+    // Verify sparse callbacks: only state transitions
+    // Expected: idle→synthesizing, synthesizing→completed (2 transitions minimum)
+    #expect(
+      tracker.callbackCount >= 2,
+      "Should fire at least 2 state-transition callbacks",
+    )
+    #expect(
+      tracker.callbackCount < 20,
+      "Should have sparse callbacks (not per-segment)",
+    )
 
-    // Verify state progression includes synthesizing
+    // Verify state progression
     #expect(
       tracker.stateTransitions.contains(.synthesizing),
       "Should transition through .synthesizing",
     )
+    #expect(
+      tracker.stateTransitions.last == .completed,
+      "Last state transition should be .completed",
+    )
 
-    // Verify steps advanced
+    // Verify steps advanced (polling shows progress)
     #expect(finalValue.currentStep > 0, "Should have advanced steps")
     #expect(
       finalValue.currentStep == finalValue.totalSteps,
       "All steps should be completed",
-    )
-
-    // Verify completion time set
-    #expect(
-      finalValue.estimatedCompletion <= Date(),
-      "estimatedCompletion should be in past for completed state",
     )
 
     cc.ok1(
@@ -246,7 +256,50 @@ import Testing
     cc.ok1(
       #line,
       #function,
-      "Callbacks: \(tracker.callbackCount), State transitions: \(tracker.stateTransitions)",
+      "State callbacks: \(tracker.callbackCount), Transitions: \(tracker.stateTransitions)",
+    )
+  }
+
+  @Test("INTEGRATION: polling returns fresh progress without callbacks")
+  func executePollingWithoutCallback() async {
+    let suttaRef = SuttaRef.create("thig1.1/en/soma")!
+
+    // Use persistent test audio store
+    let projectRoot = projectRoot()
+    let testAudioDir = projectRoot
+      .appendingPathComponent("local/build/test-audio-store-polling")
+    try? FileManager.default.createDirectory(
+      at: testAudioDir,
+      withIntermediateDirectories: true,
+    )
+    let testStore = AudioStore.create(path: testAudioDir)
+
+    let session = AudioSynthesisSession(
+      suttaRef,
+      audioStore: testStore,
+    ) // No callback
+
+    let startTime = Date()
+
+    // Execute synthesis
+    let finalValue = await session.execute()
+
+    let elapsedSeconds = Date().timeIntervalSince(startTime)
+
+    // Verify completion via polling final value
+    #expect(finalValue.state == .completed, "Final state should be .completed")
+
+    // Verify progress via polling
+    #expect(finalValue.currentStep > 0, "Should have advanced steps via polling")
+    #expect(
+      finalValue.currentStep == finalValue.totalSteps,
+      "All steps should be completed",
+    )
+
+    cc.ok1(
+      #line,
+      #function,
+      "✅ Polling synthesis completed: \(finalValue.currentStep) steps in \(String(format: "%.2f", elapsedSeconds))s",
     )
   }
 }

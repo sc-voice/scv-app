@@ -229,9 +229,9 @@ See: Task T_AZwZsgFWc for implementation actions
 ### Design Constraints
 
 **Threading Model**
-- SessionSnapshot updates fire from AudioSynthesisSession actor (background thread)
-- SuttaCardView @State mutations require main thread
-- **Design requirement**: UI must handle thread marshaling for progress updates
+- **Callbacks**: If used for state transitions, progressCallback fires from AudioSynthesisSession actor (background thread). SuttaCardView @State mutations require main thread. Must marshal via DispatchQueue.main.async.
+- **Polling**: Modal runs on main thread; polls session.value from background actor. Session actor handles thread safety; no marshaling needed.
+- **Design choice**: Use polling for progress updates (simpler, no thread marshaling). Use optional callback for state transitions if desired (e.g., auto-dismiss modal on .completed/.failed).
 
 **State Persistence: "Background Audio Ready"**
 - **Decision**: Do NOT store "background audio ready" status on Card or MLDocument
@@ -268,12 +268,13 @@ See: Task T_AZwZsgFWc for implementation actions
 - Synthesis may fail (state = .failed) with error message
 - **Design requirement**: Modal must display error state and allow dismissal/retry
 
-**Progress Update Frequency**
-- progressCallback fires after each segment (100+ times for large suttas, ~1,167 for DN33)
-- SessionSnapshot provides estimatedCompletion (time-based field)
-- **Design decision**: Throttle UI updates to 0.5s intervals
-- Rationale: Humans perceive feedback at ~0.5s granularity. Faster updates are invisible but cause UI churn (especially with cached segments synthesizing quickly). Throttling reduces view redraws and battery drain.
-- Implementation: Track lastProgressUpdateTime in @State. In progressCallback, check elapsed time before updating UI. Always store latest snapshot (even when throttling skips update) so modal shows current state if opened mid-synthesis.
+**Progress Update Mechanism**
+- **State transitions**: progressCallback fires on state changes (.idle→.synthesizing, .synthesizing→.completed/cancelled/failed)
+- **Progress granularity**: For smooth per-segment progress display, modal should poll `session.value` on ~0.5s timer
+- Rationale: Callbacks keep UI responsive to synthesis start/end. Polling avoids excessive event firing (100+ times per sutta) while consumers control update frequency.
+- Implementation: Use `Timer` or `Task.sleep(nanoseconds:)` loop to poll session.value every 0.5s. Each poll returns fresh SessionSnapshot with current currentStep/totalSteps/estimatedCompletion.
+- SessionSnapshot is always up-to-date; polling shows actual progress without requiring callback events.
+- See: AudioSynthesisSession.md "Progress Monitoring Patterns" for detailed patterns
 
 **Trigger Mechanism**
 - Initial implementation: Long-press on play button (SuttaCardView toolbar, line 135-149)

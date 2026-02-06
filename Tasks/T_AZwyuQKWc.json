@@ -1,0 +1,35 @@
+{
+  "completedActions" : [
+    {
+      "description" : "Design: Answer open design questions in doc\/AudioSynthesisSession.md - RESOLVED: Optional callback fires on state changes only; polling available for high-frequency progress; no API throttling",
+      "id" : "yu1vzcAC"
+    },
+    {
+      "description" : "Implementation: Make progressCallback optional in init; fire only on state changes (.synthesizing, .completed, .cancelled, .failed)",
+      "id" : "yu2ehcAC"
+    },
+    {
+      "description" : "Testing: Verify state-change callbacks fire; verify polling returns fresh snapshots; test with large sutta DN33",
+      "id" : "yu3ONcAC"
+    }
+  ],
+  "createdAt" : "2026-02-06T11:31:51Z",
+  "id" : "019C32B9-0296-7000-ADB1-1DE6925CB05A",
+  "name" : "Implement optional progress callback with polling pattern in AudioSynthesisSession",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "id" : "R_throttle_1",
+      "relevance" : 1,
+      "text" : "Progress Callback Throttling design section with open questions",
+      "url" : "doc\/AudioSynthesisSession.md#Progress%20Callback%20Throttling"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Make progressCallback optional; fire on state changes only; document polling pattern for high-frequency progress tracking",
+  "updatedAt" : "2026-02-06T12:37:36Z"
+}

@@ -60,6 +60,7 @@ Create a new session for a sutta:
 ```swift
 let session = AudioSynthesisSession(
     suttaRef: SuttaRef,
+    progressCallback: ((SessionSnapshot) -> Void)? = nil,
     audioContext: AudioContext?,  // Optional; defaults to Settings.docLang
     audioStore: AudioStore?        // Optional; defaults to AudioStore.shared
 )
@@ -67,6 +68,7 @@ let session = AudioSynthesisSession(
 
 **Parameters:**
 - `suttaRef`: Sutta reference (e.g., SuttaRef.create("DN33/en/sujato"))
+- `progressCallback`: Optional closure invoked when session state changes (.synthesizing, .completed, .cancelled, .failed). See SessionSnapshot section for on-demand polling
 - `audioContext`: Audio settings (voice, pitch, rate). If nil, uses current document language
 - `audioStore`: Dependency injection for testing. If nil, uses production singleton
 
@@ -132,7 +134,7 @@ func cancel() -> SessionSnapshot
 
 ### SessionSnapshot
 
-Public readonly interface for progress callbacks:
+Public readonly interface accessed via callbacks or on-demand polling. The snapshot is always accessible as `session.value` for consumers who want to query progress without subscribing to callbacks.
 
 ```swift
 public struct SessionSnapshot: Sendable {
@@ -306,6 +308,41 @@ struct SuttaCardView: View {
 2. **Call async methods via Task/await**: All actor methods (`execute()`, `cancel()`) require `await`
 3. **Thread marshaling in callback**: progressCallback fires on background actor thread. Use `DispatchQueue.main.async { self.property = value }` to update @State
 4. **Cleanup on view dismissal**: Call `await backgroundSession?.cancel()` in `.onDisappear` to prevent orphaned synthesis tasks
+
+## Progress Monitoring Patterns
+
+### Callbacks (State Changes)
+
+progressCallback fires when session state changes:
+- `.idle` → `.synthesizing` (synthesis starts)
+- `.synthesizing` → `.completed` (all segments processed)
+- `.synthesizing` → `.cancelled` (user cancelled)
+- `.synthesizing` → `.failed(String)` (error halts synthesis)
+
+This is sparse: ~2 callbacks per session. Useful for UI state transitions (show/hide modal, enable/disable buttons).
+
+### Polling (On-Demand Progress)
+
+For high-frequency progress tracking (UI wanting per-segment granularity), query `session.value` directly:
+
+```swift
+Task {
+  while !Task.isCancelled {
+    let snapshot = await session.value
+    print("Step \(snapshot.currentStep)/\(snapshot.totalSteps)")
+    try? await Task.sleep(nanoseconds: 500_000_000)  // ~0.5s
+  }
+}
+```
+
+Polling always sees fresh snapshot—no throttling, no stale data. Consumers control update frequency on their schedule.
+
+### Consumer Patterns
+
+- **SuttaCardView** (UI): Subscribe to callbacks for state changes; optionally poll for smooth progress indication
+- **Tests**: Poll session.value for deterministic progress verification; no timing sleeps needed
+- **Background tasks**: Poll on custom schedule; no callbacks required
+- **CLI tools**: Poll with custom interval (0.1s, 1s, etc.) per requirements
 
 ## Related Documentation
 

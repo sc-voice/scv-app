@@ -3,6 +3,14 @@
     {
       "description" : "Implement AudioSynthesisSession for background audio synthesis",
       "id" : "khrAFcAC"
+    },
+    {
+      "description" : "Architectural refactor: Move callback throttling to AudioSynthesisSession (COMPLETED in T_AZwyuQKWc) — progressCallback now optional, fires on state transitions only; polling via session.value for smooth progress",
+      "id" : "yuJoYcAC"
+    },
+    {
+      "description" : "Design: Review SuttaCardView play button structure (toolbar at line 135-149) and AudioSynthesisSession state machine (SynthesisState enum at line 4-10, SessionSnapshot at line 13-23)",
+      "id" : "D001"
     }
   ],
   "createdAt" : "2026-02-01T14:53:42Z",
@@ -10,11 +18,7 @@
   "name" : "Implement SuttaCard long-press Background Playback prefetch",
   "plannedActions" : [
     {
-      "description" : "Design: Review SuttaCardView play button structure (toolbar at line 135-149) and AudioSynthesisSession state machine (SynthesisState enum at line 4-10, SessionSnapshot at line 13-23)",
-      "id" : "D001"
-    },
-    {
-      "description" : "Implementation: Add @State var backgroundSession: AudioSynthesisSession? to SuttaCardView. Actor reference is Sendable and safe in @State. progressCallback fires on background thread; marshal UI updates via DispatchQueue.main.async (see AudioSynthesisSession.md SwiftUI Integration section for pattern)",
+      "description" : "Implementation: Add @State var backgroundSession: AudioSynthesisSession? to SuttaCardView. Actor reference is Sendable and safe in @State. Subscribe to optional progressCallback for state transitions (start\/end) OR poll session.value for smooth progress updates (see AudioSynthesisSession.md Progress Monitoring Patterns)",
       "id" : "I001"
     },
     {
@@ -22,7 +26,7 @@
       "id" : "I002"
     },
     {
-      "description" : "Implementation: Create modal sheet view displaying SessionSnapshot progress (currentStep\/totalSteps, estimatedCompletion, state). Handle SynthesisState.failed with error message display. Wire cancel button to session.cancel()",
+      "description" : "Implementation: Create modal sheet view displaying SessionSnapshot progress via polling (currentStep\/totalSteps, estimatedCompletion). Poll session.value on ~0.5s timer for smooth progress display. Handle SynthesisState.failed with error message. Wire cancel button to session.cancel()",
       "id" : "I003"
     },
     {
@@ -51,7 +55,7 @@
     {
       "id" : "R001",
       "relevance" : 1,
-      "text" : "doc\/AudioSynthesisSession.md — API documentation and SwiftUI Integration pattern (lines 247-308) for holding actor in @State, calling async methods via Task\/await, and thread marshaling in progressCallback"
+      "text" : "doc\/AudioSynthesisSession.md — API documentation, Progress Monitoring Patterns (lines 312-345) for callbacks vs polling, and SwiftUI Integration (lines 247-308)"
     },
     {
       "id" : "R001b",
@@ -60,6 +64,11 @@
     },
     {
       "id" : "R002",
+      "relevance" : 1,
+      "text" : "doc\/SuttaCardView.md — State management structure, Progress Monitoring Patterns (callbacks vs polling), session lifecycle, and threading considerations for synthesis integration"
+    },
+    {
+      "id" : "R002b",
       "relevance" : 1,
       "text" : "scv-ui\/Sources\/scvUI\/SuttaCardView.swift:135-149 — play button in toolbar; target for long-press gesture integration"
     },
@@ -85,8 +94,8 @@
     }
   ],
   "requiredTasks" : [
-
+    "T_AZwyuQKWc"
   ],
   "summary" : "Integrate AudioSynthesisSession into SuttaCardView with long-press gesture, modal progress display (currentStep\/totalSteps), and graceful cancellation",
-  "updatedAt" : "2026-02-06T01:20:34Z"
+  "updatedAt" : "2026-02-06T12:15:00Z"
 }

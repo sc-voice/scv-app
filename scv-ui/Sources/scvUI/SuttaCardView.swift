@@ -30,6 +30,10 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var layout: SegmentLayout?
   @State private var availableWidth: CGFloat = 0
   @State private var toolbarTitle: String = ""
+  @State private var backgroundSession: AudioSynthesisSession?
+  @State private var showSynthesisModal = false
+  @State private var currentSnapshot: SessionSnapshot?
+  @State private var lastProgressUpdateTime = Date.distantPast
   let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
