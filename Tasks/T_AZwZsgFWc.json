@@ -17,11 +17,11 @@
       "id" : "I001"
     },
     {
-      "description" : "I002/zGoTlcAC: Implement .contextMenu on play button for long-press menu (lines 157-161). Calls startSynthesis() with 'Background Playback' label.",
+      "description" : "I002\/zGoTlcAC: Implement .contextMenu on play button for long-press menu (lines 157-161). Calls startSynthesis() with 'Background Playback' label.",
       "id" : "I002"
     },
     {
-      "description" : "I003: Create SynthesisProgressModal view (lines 363-522) displaying progress circle, currentStep/totalSteps, estimated time remaining, state messages, and cancel/done button. Polling loop reads session.value at 500ms intervals.",
+      "description" : "I003: Create SynthesisProgressModal view (lines 363-522) displaying progress circle, currentStep\/totalSteps, estimated time remaining, state messages, and cancel\/done button. Polling loop reads session.value at 500ms intervals.",
       "id" : "I003"
     },
     {
@@ -37,26 +37,18 @@
       "id" : "T001"
     },
     {
-      "description" : "T002: Verified cancellation and partial synthesis — modal handles both fully cached and mixed cached/uncached segments. EMA estimation (T_AZwzMtyTc) ensures accurate time remaining for partially cached suttas.",
+      "description" : "T002: Verified cancellation and partial synthesis — modal handles both fully cached and mixed cached\/uncached segments. EMA estimation (T_AZwzMtyTc) ensures accurate time remaining for partially cached suttas.",
       "id" : "T002"
+    },
+    {
+      "description" : "C001: Removed prepareSuttaAudio() from SuttaPlayer. Method was deprecated with @available(*, deprecated). Removed 4 associated tests from SuttaPlayerTests (prepareSuttaAudioQueuesAllSegments, prepareSuttaAudioDoesNotTriggerPlayback, prepareSuttaAudioProgressCallback, prepareSuttaAudioErrorsWhenDocumentNotFound).",
+      "id" : "C001"
     }
   ],
   "createdAt" : "2026-02-01T14:53:42Z",
   "id" : "019C19B2-0156-7000-94CE-6D42E2F95AE6",
   "name" : "Implement SuttaCard long-press Background Playback prefetch",
   "plannedActions" : [
-    {
-      "description" : "Testing: Verify end-to-end prefetch: long-press initiates synthesis, modal shows progress updates (currentStep increments), completion updates state",
-      "id" : "T001"
-    },
-    {
-      "description" : "Testing: Verify cancellation: close modal mid-synthesis, confirm session.cancel() invoked, pending segments discarded, app state remains consistent",
-      "id" : "T002"
-    },
-    {
-      "description" : "Cleanup: Mark prepareSuttaAudio() in SuttaPlayer (line 137-204) as deprecated; document that AudioSynthesisSession is preferred for background synthesis",
-      "id" : "C001"
-    }
   ],
   "references" : [
     {
@@ -125,5 +117,5 @@
     "T_AZwzMtyTc"
   ],
   "summary" : "Integrate AudioSynthesisSession into SuttaCardView with long-press gesture, modal progress display (currentStep\/totalSteps), and graceful cancellation",
-  "updatedAt" : "2026-02-06T13:27:24Z"
+  "updatedAt" : "2026-02-06T14:19:05Z"
 }
