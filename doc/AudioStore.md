@@ -72,6 +72,15 @@ let storageKey = mj.hash([
 
 Result: Unique key changes if segment content OR any audio setting changes.
 
+**⚠️ DESIGN ISSUE: SCID Dependency**
+- Current cache key includes `scid` (segment identifier)
+- SCID is metadata about segment location, not synthesized content
+- SCID is never spoken; only `text` is synthesized
+- **Potential mistake**: Including SCID constrains cache reuse. Same text from different sources (different SCID) creates separate cache entries unnecessarily.
+- **Better design**: Cache key should depend only on `(text, audioContext)`. Caller provides text to API; SCID is optional metadata.
+- **Impact**: Reduces cache hit rate for identical text with different origins. Should be revisited in future refactoring.
+- **For now**: Document as known constraint; flag for future optimization task.
+
 ### API Design
 
 **AudioStore class** (wraps GuidStore, singleton + factory pattern)

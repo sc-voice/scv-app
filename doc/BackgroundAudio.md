@@ -222,31 +222,64 @@ Task {
 
 See: `doc/AudioCompression.md` for full technical analysis
 
-## Proposed Next Steps
+## Phase 4: Long-Press Prefetch Integration
 
-1. **Phase 4 - CachedSynthesizer Implementation** (Pending)
-   - Create CachedSynthesizer class implementing ISpeechSynthesizer
-   - Wraps AudioStore.storeAudio() for cached playback
-   - Emits identical IPlaybackDelegate events as SpeechSynthesizerImpl
-   - Implement lookahead prefetch (N+1, N+2 while N plays)
-   - Add tests verifying all 4 IPlaybackDelegate events
-   - Test end-to-end: SuttaPlayer with injected CachedSynthesizer
+See: Task T_AZwZsgFWc for implementation actions
 
-2. **Phase 5 - M4A Optimization** (Pending - Two-stage architecture)
-   - Stage 1: CAF synthesis continues as-is (no change to existing code)
-   - Stage 2: Implement optional M4A compaction in background task
-     - Create M4A Compactor service (CAF → M4A conversion)
-     - Add compactedUrl() and compactToM4A() methods to AudioStore
-     - Link AudioToolbox framework for AVAudioConverter
-     - Implement user-controlled compaction setting
-     - Benchmark real-world corpus compression
+### Design Constraints
 
-3. **"Create Background Audio" Feature** (Pending)
-   - Mark sutta as "background ready" after playback completes
-   - Storage: Card model field `backgroundAudioContextHash: String?`
-   - Invalidation: hash changes when voice/rate/pitch settings change
-   - UI: Visual indicator on sutta card showing audio is cached
-   - Verification: check all segments exist with correct hash before marking ready
+**Threading Model**
+- SessionSnapshot updates fire from AudioSynthesisSession actor (background thread)
+- SuttaCardView @State mutations require main thread
+- **Design requirement**: UI must handle thread marshaling for progress updates
+
+**State Persistence: "Background Audio Ready"**
+- **Decision**: Do NOT store "background audio ready" status on Card or MLDocument
+- **Rationale**: Cache is source of truth via (text, audioContext) hash. Metadata would create sync burden.
+- **Verification mechanism**: To verify background audio cached, must check actual cache existence (slower but accurate)
+- **For this task**: No pre-verification needed. Synthesis is on-demand; audio is ready when complete.
+- **Future UX** (if needed): "Show cached status" would require cache lookup, not Card flag
+- **Note**: Cache key includes SCID (potential design issue flagged in AudioStore.md line 75)
+
+**Session Lifecycle**
+- User may dismiss SuttaCardView mid-synthesis
+- **Design decision**: Session must auto-cancel on dismissal (clean up pending segments)
+- Alternative: allow background continuation (not chosen - risk of orphaned tasks)
+
+**Audio Context Initialization**
+- When user initiates prefetch (long-press), create `AudioContext(for: suttaRef.lang)`
+- AudioContext.init() automatically captures current Settings.shared values at that moment (voiceId, pitch, rate, segmentPause)
+- Voicing is deterministic: if user later changes voice/pitch/rate, AudioContext hash changes, invalidating old cache
+- No prompt needed; use current settings at initiation time
+- See: scv-core/Sources/AudioContext.swift:99 for initialization pattern
+
+**Modal UI Design**
+- Circular progress bar displaying currentStep/totalSteps
+- Segment count in center of circle (e.g., "523/1167")
+- Label below progress bar (text describing synthesis state)
+- Button below label: "Cancel" during synthesis, "Done" when complete/failed
+- Simple and adequate provisional design; UX can evolve based on user feedback
+
+**Modal Dismissal**
+- User may swipe-to-dismiss modal or tap cancel button
+- **Design requirement**: Both dismissal methods must trigger session cancellation
+
+**Error Handling**
+- Synthesis may fail (state = .failed) with error message
+- **Design requirement**: Modal must display error state and allow dismissal/retry
+
+**Progress Update Frequency**
+- progressCallback fires after each segment (100+ times for large suttas, ~1,167 for DN33)
+- SessionSnapshot provides estimatedCompletion (time-based field)
+- **Design decision**: Throttle UI updates to 0.5s intervals
+- Rationale: Humans perceive feedback at ~0.5s granularity. Faster updates are invisible but cause UI churn (especially with cached segments synthesizing quickly). Throttling reduces view redraws and battery drain.
+- Implementation: Track lastProgressUpdateTime in @State. In progressCallback, check elapsed time before updating UI. Always store latest snapshot (even when throttling skips update) so modal shows current state if opened mid-synthesis.
+
+**Trigger Mechanism**
+- Initial implementation: Long-press on play button (SuttaCardView toolbar, line 135-149)
+- Rationale: Pragmatic starting point. UX evolves through user feedback rather than speculative design.
+- Future: May add menu item, context menu, or other triggers based on actual user behavior and feedback.
+- See: Task T_AZwZsgFWc for implementation details
 
 ## Measured Test Results
 

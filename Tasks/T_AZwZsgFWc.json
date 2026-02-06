@@ -1,24 +1,8 @@
 {
   "completedActions" : [
     {
-      "description" : "Read full prepareSuttaAudio() to map side effects and cancellation behavior",
-      "id" : "ZskWRcAC"
-    },
-    {
-      "description" : "Add progress state to SuttaCardView (@State for progress tracking, Task cancellation)",
-      "id" : "ZskW9cAC"
-    },
-    {
-      "description" : "Implement context menu with determinate progress indicator",
-      "id" : "ZskXmcAC"
-    },
-    {
-      "description" : "Test cancellation doesn't corrupt app state",
-      "id" : "ZskYPcAC"
-    },
-    {
-      "description" : "Verify prepareSuttaAudio() completes successfully",
-      "id" : "ZskY2cAC"
+      "description" : "Implement AudioSynthesisSession for background audio synthesis",
+      "id" : "khrAFcAC"
     }
   ],
   "createdAt" : "2026-02-01T14:53:42Z",
@@ -26,20 +10,83 @@
   "name" : "Implement SuttaCard long-press Background Playback prefetch",
   "plannedActions" : [
     {
-      "description" : "Implement AudioSynthesisManager for background audio synthesis",
-      "id" : "khrAFcAC"
+      "description" : "Design: Review SuttaCardView play button structure (toolbar at line 135-149) and AudioSynthesisSession state machine (SynthesisState enum at line 4-10, SessionSnapshot at line 13-23)",
+      "id" : "D001"
+    },
+    {
+      "description" : "Implementation: Add @State var backgroundSession: AudioSynthesisSession? to SuttaCardView. Actor reference is Sendable and safe in @State. progressCallback fires on background thread; marshal UI updates via DispatchQueue.main.async (see AudioSynthesisSession.md SwiftUI Integration section for pattern)",
+      "id" : "I001"
+    },
+    {
+      "description" : "Implementation: Add .onLongPressGesture to play button to initiate AudioSynthesisSession.execute(). .onLongPressGesture works directly on Button (coexists with tap action). Pattern documented in AudioSynthesisSession.md SwiftUI Integration section",
+      "id" : "I002"
+    },
+    {
+      "description" : "Implementation: Create modal sheet view displaying SessionSnapshot progress (currentStep\/totalSteps, estimatedCompletion, state). Handle SynthesisState.failed with error message display. Wire cancel button to session.cancel()",
+      "id" : "I003"
+    },
+    {
+      "description" : "Implementation: Handle state transitions and session lifecycle. Add .onDisappear to modal sheet to detect dismissal and cancel active session. Add .onDisappear to SuttaCardView to cancel backgroundSession if mid-synthesis (prevent orphaned tasks)",
+      "id" : "I004"
+    },
+    {
+      "description" : "Testing: Verify end-to-end prefetch: long-press initiates synthesis, modal shows progress updates (currentStep increments), completion updates state",
+      "id" : "T001"
+    },
+    {
+      "description" : "Testing: Verify cancellation: close modal mid-synthesis, confirm session.cancel() invoked, pending segments discarded, app state remains consistent",
+      "id" : "T002"
+    },
+    {
+      "description" : "Cleanup: Mark prepareSuttaAudio() in SuttaPlayer (line 137-204) as deprecated; document that AudioSynthesisSession is preferred for background synthesis",
+      "id" : "C001"
     }
   ],
   "references" : [
     {
+      "id" : "AZwwhL_XcACPEUqjfY-pbw",
+      "relevance" : 1,
+      "text" : "doc\/BackgroundAudio.md — Architectural constraints: progress UI requirements (lines 112-115), synthesis timing (lines 99-108), cancellation\/resume support (line 115)"
+    },
+    {
+      "id" : "R001",
+      "relevance" : 1,
+      "text" : "doc\/AudioSynthesisSession.md — API documentation and SwiftUI Integration pattern (lines 247-308) for holding actor in @State, calling async methods via Task\/await, and thread marshaling in progressCallback"
+    },
+    {
+      "id" : "R001b",
+      "relevance" : 1,
+      "text" : "scv-core\/Sources\/AudioSynthesisSession.swift — actor-based background synthesis with state machine (SynthesisState: idle\/synthesizing\/completed\/cancelled\/failed), SessionSnapshot progress tracking, and cancellation support"
+    },
+    {
+      "id" : "R002",
+      "relevance" : 1,
+      "text" : "scv-ui\/Sources\/scvUI\/SuttaCardView.swift:135-149 — play button in toolbar; target for long-press gesture integration"
+    },
+    {
+      "id" : "R003",
+      "relevance" : 0.9,
+      "text" : "scv-ui\/Sources\/scvUI\/SuttaPlayer.swift:137-204 — deprecated prepareSuttaAudio() method; document migration to AudioSynthesisSession"
+    },
+    {
+      "id" : "R004",
+      "relevance" : 0.8,
+      "text" : "scv-core\/Sources\/AudioContext.swift — AudioContext(for: language) initialization for synthesis audio context"
+    },
+    {
+      "id" : "R005",
+      "relevance" : 0.7,
+      "text" : "scv-core\/Sources\/AudioStore.swift — AudioStore.shared.storeAudio() used by AudioSynthesisSession for persistence"
+    },
+    {
       "id" : "AZwvJz4gcACMXQTs4idVIA",
       "relevance" : 0.5,
-      "text" : "T_AZwkidSQc"
+      "text" : "T_AZwkidSQc — related background playback task"
     }
   ],
   "requiredTasks" : [
 
   ],
-  "summary" : "Add long-press gesture to play button with modal Background Playback cache operation, determinate progress indicator, and cancellation support",
-  "updatedAt" : "2026-02-05T18:53:46Z"
+  "summary" : "Integrate AudioSynthesisSession into SuttaCardView with long-press gesture, modal progress display (currentStep\/totalSteps), and graceful cancellation",
+  "updatedAt" : "2026-02-06T01:20:34Z"
 }

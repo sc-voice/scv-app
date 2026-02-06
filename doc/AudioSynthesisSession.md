@@ -228,6 +228,85 @@ Uses Swift `actor` for automatic mutual exclusion. No manual locks needed.
 - Final callback sent with `state = .cancelled`
 - Cancellation stops all synthesis in that single-use session
 
+### Resume Capability (Implicit via Idempotent Caching)
+
+AudioSynthesisSession does not provide explicit pause/resume API (`pause()`, `resume()`).
+
+**Resume is implicitly supported through idempotent caching:**
+1. User initiates synthesis (long-press, menu item, or API call)
+2. Session synthesizes segments and caches audio via AudioStore.storeAudio()
+3. User backgrounds app mid-synthesis → cancellation via dismissal or app background
+4. Later, user re-triggers synthesis for same sutta
+5. New session loads segments again, calls AudioStore.storeAudio() for each
+6. AudioStore returns cached files for already-synthesized segments (no re-synthesis cost)
+7. Session only synthesizes remaining uncached segments
+8. User perceives seamless "resume"
+
+**Design advantage**: No session state persistence needed. Caching layer handles resume transparently. Sessions remain single-use and immutable.
+
+### SwiftUI Integration
+
+**Actor references in @State**: AudioSynthesisSession is a reference type (actor). It is `Sendable` and can be held safely in SwiftUI @State:
+
+```swift
+struct SuttaCardView: View {
+  @State var backgroundSession: AudioSynthesisSession?
+  @State var showSynthesisModal = false
+  @State var currentSnapshot: SessionSnapshot?
+
+  // Long-press on play button initiates synthesis
+  var body: some View {
+    Button(action: { startSynthesis() }) { ... }
+      .onLongPressGesture { startSynthesis() }
+  }
+
+  private func startSynthesis() {
+    guard let suttaRef = suttaRef else { return }
+
+    // Create session with callback for progress updates
+    backgroundSession = AudioSynthesisSession(
+      suttaRef,
+      progressCallback: { snapshot in
+        // Thread safety: callback fires on background actor thread
+        // Marshal UI updates to main thread via DispatchQueue.main.async
+        DispatchQueue.main.async {
+          self.currentSnapshot = snapshot
+        }
+      }
+    )
+
+    showSynthesisModal = true
+
+    // Execute synthesis on background thread via Task/await
+    Task {
+      let finalSnapshot = await backgroundSession?.execute()
+      // Synthesis complete; finalSnapshot contains final state
+    }
+  }
+
+  private func cancelSynthesis() {
+    // Safely call cancel() on actor via Task/await
+    Task {
+      await backgroundSession?.cancel()
+    }
+  }
+
+  // Clean up on view dismissal to prevent orphaned synthesis
+  .onDisappear {
+    Task {
+      await backgroundSession?.cancel()
+    }
+  }
+}
+```
+
+**Key patterns:**
+
+1. **Hold actor in @State**: Actors are reference types and `Sendable`, safe for @State
+2. **Call async methods via Task/await**: All actor methods (`execute()`, `cancel()`) require `await`
+3. **Thread marshaling in callback**: progressCallback fires on background actor thread. Use `DispatchQueue.main.async { self.property = value }` to update @State
+4. **Cleanup on view dismissal**: Call `await backgroundSession?.cancel()` in `.onDisappear` to prevent orphaned synthesis tasks
+
 ## Related Documentation
 
 - `doc/BackgroundAudio.md` — Architecture and UX for background audio
