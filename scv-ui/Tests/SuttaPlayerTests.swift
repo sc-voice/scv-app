@@ -23,9 +23,6 @@ class MockSpeechSynthesizerForSuttaPlayer: ISpeechSynthesizer,
   var lastPlayTextText: String?
   var lastPlayTextAudioContext: AudioContext?
 
-  var queueSynthesisOnlyWasCalled = false
-  var queuedTexts: [String] = []
-
   func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
     stopSpeakingWasCalled = true
     stopSpeakingBoundary = boundary
@@ -42,11 +39,6 @@ class MockSpeechSynthesizerForSuttaPlayer: ISpeechSynthesizer,
 
   func resetSynthesizer() {
     isSpeaking = false
-  }
-
-  func queueSynthesisOnly(text: String, audioContext _: AudioContext) {
-    queueSynthesisOnlyWasCalled = true
-    queuedTexts.append(text)
   }
 
   // MARK: - Playback event helpers for testing

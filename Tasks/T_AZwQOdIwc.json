@@ -22,44 +22,7 @@
   "createdAt" : "2026-01-30T18:45:50Z",
   "id" : "019C1039-D230-7000-B6DB-23CDCD85DA8C",
   "name" : "SuttaPlayer should use CachedSynthesizer for background playback",
-  "plannedActions" : [
-    {
-      "complexity" : "Moderate",
-      "description" : "MPRemoteCommandCenter class + BackgroundPlaybackManagerTests.swift",
-      "duration" : 9000,
-      "name" : "BackgroundPlaybackManager + new tests"
-    },
-    {
-      "complexity" : "Low",
-      "description" : "Verify background options, new integration tests",
-      "duration" : 3600,
-      "name" : "Audio Session Enhancement + new tests"
-    },
-    {
-      "complexity" : "Moderate",
-      "description" : "MPNowPlayingInfoCenter class + tests for info updates",
-      "duration" : 9000,
-      "name" : "Now Playing Info + new tests"
-    },
-    {
-      "complexity" : "Low-Moderate",
-      "description" : "Wire handlers, test command callbacks",
-      "duration" : 9000,
-      "name" : "Remote Command Integration + new tests"
-    },
-    {
-      "complexity" : "Low",
-      "description" : "beginBackgroundTask calls, test lifecycle",
-      "duration" : 5400,
-      "name" : "Background Task Management + new tests"
-    },
-    {
-      "complexity" : "Moderate",
-      "description" : "Full background playback flow",
-      "duration" : 7200,
-      "name" : "End-to-end integration tests"
-    }
-  ],
+  "plannedActions" : [],
   "references" : [
     {
       "id" : "AZwUEoRecACx7gtSyp_mwg",

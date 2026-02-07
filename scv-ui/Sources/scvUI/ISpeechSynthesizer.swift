@@ -52,20 +52,6 @@ protocol ISpeechSynthesizer {
   /// Implementation must create a new AVSpeechSynthesizer to avoid problems
   /// with inconsistent states when changing playback parameters
   @MainActor func resetSynthesizer()
-
-  /// Queue synthesis for caching without playback.
-  ///
-  /// Synthesizes text to audio file but does NOT play it.
-  /// Useful for prefetching audio during app idle time.
-  ///
-  /// Deduplication: Same URL queued multiple times merges into one request.
-  /// Priority: Playback requests (playText) processed before cache-only
-  /// requests.
-  ///
-  /// - Parameters:
-  ///   - text: Text to synthesize and cache
-  ///   - audioContext: Audio settings (voice, pitch, rate, etc.)
-  @MainActor func queueSynthesisOnly(text: String, audioContext: AudioContext)
 }
 
 /// Concrete implementation of ISpeechSynthesizer wrapping AVSpeechSynthesizer
@@ -100,14 +86,6 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
     innerSynthesizer = AVSpeechSynthesizer()
     innerSynthesizer.delegate = self
     cc.ok2(#line, #function, "OK")
-  }
-
-  @MainActor func queueSynthesisOnly(
-    text _: String,
-    audioContext _: AudioContext,
-  ) {
-    // No-op: SpeechSynthesizerImpl doesn't cache audio
-    // This method exists to satisfy ISpeechSynthesizer protocol
   }
 
   @MainActor func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {

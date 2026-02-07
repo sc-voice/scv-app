@@ -1,0 +1,78 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-06T20:24:53Z",
+  "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
+  "name" : "Implement background playback",
+  "plannedActions" : [
+    {
+      "complexity" : "Moderate",
+      "description" : "MPRemoteCommandCenter class + BackgroundPlaybackManagerTests.swift",
+      "duration" : 9000,
+      "name" : "BackgroundPlaybackManager + new tests"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "Verify background options, new integration tests",
+      "duration" : 3600,
+      "name" : "Audio Session Enhancement + new tests"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "MPNowPlayingInfoCenter class + tests for info updates",
+      "duration" : 9000,
+      "name" : "Now Playing Info + new tests"
+    },
+    {
+      "complexity" : "Low-Moderate",
+      "description" : "Wire handlers, test command callbacks",
+      "duration" : 9000,
+      "name" : "Remote Command Integration + new tests"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "beginBackgroundTask calls, test lifecycle",
+      "duration" : 5400,
+      "name" : "Background Task Management + new tests"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Full background playback flow",
+      "duration" : 7200,
+      "name" : "End-to-end integration tests"
+    }
+  ],
+  "references" : [
+    {
+      "id" : "AZw1CfPjcACe2Ry9bN_ODQ",
+      "relevance" : 0.5,
+      "text" : "doc\/BackgroundAudio.md"
+    },
+    {
+      "id" : "AZw1ClSJcACIqBdlkznIKQ",
+      "relevance" : 0.5,
+      "text" : "doc\/SuttaCardView.md"
+    },
+    {
+      "id" : "AZw1EEGBcACFPuTyo_VIGQ",
+      "relevance" : 0.5,
+      "text" : "SuttaCardView.swift"
+    },
+    {
+      "id" : "AZw1EfK4cAC4NL8Oro8NDw",
+      "relevance" : 0.5,
+      "text" : "CachedSynthesizer.swift"
+    },
+    {
+      "id" : "AZw2GhL5cAC5OM9Psp9OEx",
+      "relevance" : 0.5,
+      "text" : "doc\/AudioStore.md"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "As a user, I wish to click Background Playback to start playback from current segment. The playback should continue even if the user locks the screen.",
+  "updatedAt" : "2026-02-06T22:28:14Z"
+}
