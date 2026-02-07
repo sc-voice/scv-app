@@ -28,11 +28,23 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var audioContext: AudioContext?
 
   private var synthesizer: ISpeechSynthesizer
+  /// Segments extracted from currentSutta, used for sequential playback
   private var segments: [Segment] = []
+  /// Current playback position in segments array
   private var currentSegmentIndex = 0
+  /// Next segment index to play in onPlaybackFinished callback. Updated before
+  /// queuing
+  /// synthesizer.playText() to handle user jumps during async callbacks
   private var nextIndexToPlay = 0
+  /// Prevents rapid play/pause toggling from button mashing
   private var isTransitioning = false
+  /// Timeout check scheduled after togglePlayback(); cancelled when playback
+  /// actually starts.
+  /// Used to detect synthesis failures (5 second timeout)
   private var pendingPlaybackCheck: DispatchWorkItem?
+  /// Earliest time next segment can start playing, respecting segmentPause
+  /// setting
+  /// between segments for listener clarity
   private var earliestPlaybackTime: Date = .init()
 
   init(synthesizer: ISpeechSynthesizer = CachedSynthesizer()) {
@@ -88,6 +100,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     #endif
   }
 
+  /// iOS only: Configure audio session for playback.
+  /// - Category: .playback (allows audio while silent switch enabled)
+  /// - Options: .duckOthers (lowers other audio during speech for clarity)
+  /// macOS: no-op (no audio session needed)
   private func configureAudioSession() {
     #if os(iOS)
       do {
@@ -179,8 +195,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       audioContext?.hash ?? "nil",
     )
 
-    // Create fresh synthesizer for each play attempt (but preserve mocks for
-    // testing)
+    // Create fresh synthesizer for each play attempt to recover from synthesis
+    // failures.
+    // AVFoundation initialization (~50-100ms) is slower than reusing, but
+    // prevents
+    // stale synthesis state from blocking playback. Mocks preserved for
+    // testing.
     _ = synthesizer.stopSpeaking(at: .immediate)
     synthesizer.resetSynthesizer()
     configureAudioSession()
@@ -271,6 +291,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     cc.bad1(#line, #function, "end")
   }
 
+  /// Recovers from synthesis failures by creating a fresh synthesizer instance.
+  /// Called when synthesizer fails to start speaking within 5 seconds
+  /// (togglePlayback timeout).
+  /// Preserves playback state (wasPlaying, currentSegmentIndex) and resumes
+  /// from same position.
+  /// Fresh synthesizer instance improves failure recovery (see: ~50-100ms
+  /// creation cost for AVFoundation init)
   @MainActor
   private func resetPlayer() {
     cc.ok2(#line, #function)
@@ -300,6 +327,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     cc.ok1(#line, #function)
   }
 
+  /// Orchestrates playback of segment at given index.
+  /// - Validates isPlaying state and bounds
+  /// - Announces section/segment boundaries (.0/.1 scid suffixes)
+  /// - Handles empty segments (skips with 500ms delay)
+  /// - Respects segmentPause delay between segments
+  /// - Updates nextIndexToPlay before queuing synthesizer.playText() to handle
+  /// user jumps
   private func playSegmentAt(at index: Int) {
     cc.ok2(#line, #function, "index:", index)
 
@@ -329,7 +363,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       return
     }
 
-    // Announce section boundary (scid ending in .1)
+    // Announce section vs segment boundaries based on scid suffix for listener
+    // clarity.
+    // Suttas use scid hierarchy: chapter.0, chapter.1.1, chapter.2.1, etc.
+    // scid.0 = section header, scid.1+ = actual segments with content
     if segment.scid.hasSuffix(".0") {
       AudioEffects.shared.announce(.section)
     } else if segment.scid.hasSuffix(".1") {
@@ -340,6 +377,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     if text.isEmpty {
       AudioEffects.shared.announce(.noText)
+      // Skip empty segments with 500ms delay to let user hear .noText
+      // announcement
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         self.playSegmentAt(at: index + 1)
       }
@@ -347,6 +386,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       return
     }
 
+    // Set nextIndexToPlay BEFORE queuing synthesizer.playText() to handle user
+    // jumps.
+    // If user taps a different segment while onPlaybackFinished() callback is
+    // queued,
+    // playSegmentAt() updates this value, and the stale callback will use
+    // updated nextIndexToPlay
     nextIndexToPlay = index + 1
     let langCode = currentSutta?.docLang ?? "en"
 
@@ -365,6 +410,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
   }
 
+  /// Delegate to synthesizer to play text segment using current audioContext.
+  /// - audioContext contains voice, rate, pitch settings from Settings.shared
+  /// - Synthesis happens inline (no prefetch strategy)
+  /// - Synthesizer notifies via IPlaybackDelegate callbacks
+  /// (onPlaybackStarted/Finished)
   private func playText(_ text: String, langCode _: String) {
     guard let audioContext else {
       cc.bad1(#line, #function, "audioContext not initialized")
