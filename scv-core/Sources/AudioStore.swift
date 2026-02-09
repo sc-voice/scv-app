@@ -11,7 +11,7 @@ import AVFoundation
 import Foundation
 
 /// Audio file format type
-enum AudioType {
+public enum AudioType {
   case caf
   case m4a
 }
@@ -80,7 +80,7 @@ public final class AudioStore: @unchecked Sendable {
   ///   - type: Audio format type (.caf or .m4a), defaults to .caf
   ///   - timeout: Synthesis timeout in seconds (default 5s)
   /// - Returns: New AudioStore instance
-  static func create(
+  public static func create(
     path: URL? = nil,
     type: AudioType = .caf,
     timeout: TimeInterval = 5,

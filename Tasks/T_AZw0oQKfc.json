@@ -1,78 +1,186 @@
 {
   "completedActions" : [
-
+    {
+      "complexity" : "Low",
+      "description" : "Create minimal compilable BackgroundPlayer.swift and BackgroundPlayerTests.swift with stub implementations; establish class structure, enum definitions (PlaybackState), basic properties (@Published state, currentSegment, currentStep, totalSteps), and placeholder methods (play, pause, nextSegment, previousSegment); verify compilation without warnings",
+      "duration" : 1800,
+      "name" : "Create minimal compilable source and test files",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "Implement init(suttaRef:, audioContext:, audioStore:) constructor and @Published observable properties (state, synthesisSnapshot, playbackSnapshot); store suttaRef, audioContext, audioStore as private properties; initialize state to .idle; define PlaybackSnapshot struct with suttaRef, segment, segmentIndex, totalSegments, playbackDuration, elapsedPlaybackTime, trackTitle, artist",
+      "duration" : 1800,
+      "name" : "Implement init() and @Published observables",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Implement prepare() async throws -> PlaybackSnapshot; create AudioSynthesisSession internally; load segments via EbtData; find starting segment from suttaRef.scid; poll synthesisSnapshot during synthesis; transition state idle→synthesizing→paused; return PlaybackSnapshot on completion; handle errors and throw BackgroundPlayerError; write integration tests with thig1.1/de/sabbamitta",
+      "duration" : 5400,
+      "name" : "Implement prepare() and AudioSynthesisSession lifecycle",
+      "test" : "make test-ui"
+    }
   ],
   "createdAt" : "2026-02-06T20:24:53Z",
   "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
-  "name" : "Implement background playback",
+  "name" : "Implement BackgroundPlayer",
   "plannedActions" : [
     {
-      "complexity" : "Moderate",
-      "description" : "MPRemoteCommandCenter class + BackgroundPlaybackManagerTests.swift",
-      "duration" : 9000,
-      "name" : "BackgroundPlaybackManager + new tests"
+      "description" : "Design phase: clarify play() vs prepare() async workflows; determine responsibilities; document state machine and background task lifecycle",
+      "id" : "4yBf3cAC"
     },
     {
       "complexity" : "Low",
-      "description" : "Verify background options, new integration tests",
+      "description" : "Implement cancel() to halt synthesis and playback; stop AVAudioPlayer; cancel AudioSynthesisSession; transition to .cancelled state",
+      "duration" : 1800,
+      "name" : "Implement cancel()",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Implement play() and pause() methods; validate state; manage AVAudioPlayer playback; update playbackSnapshot with elapsed time; emit appropriate state transitions (.paused -> .playing, .playing -> .paused)",
       "duration" : 3600,
-      "name" : "Audio Session Enhancement + new tests"
+      "name" : "Implement play() and pause()",
+      "test" : "make test-ui"
     },
     {
       "complexity" : "Moderate",
-      "description" : "MPNowPlayingInfoCenter class + tests for info updates",
-      "duration" : 9000,
-      "name" : "Now Playing Info + new tests"
+      "description" : "Implement cancel() for playing audio; validate state; manage AVAudioPlayer playback; update playbackSnapshot with elapsed time; emit appropriate state transitions (.playing -> .cwncelled)",
+      "duration" : 3600,
+      "name" : "cancel() when playing",
+      "test" : "make test-ui"
     },
     {
-      "complexity" : "Low-Moderate",
-      "description" : "Wire handlers, test command callbacks",
-      "duration" : 9000,
-      "name" : "Remote Command Integration + new tests"
+      "complexity" : "Moderate",
+      "description" : "Implement playNext() and playPrevious() segment navigation; update currentSegment and segmentIndex; restart playback from new segment; handle elapsed time < 1s logic for playPrevious()",
+      "duration" : 3600,
+      "name" : "Implement playNext() and playPrevious()",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Configure AVAudioSession for background playback (.playback category, .defaultToSpeaker option); implement segment chaining via AVAudioPlayerDelegate callbacks; handle segment finish events to queue next segment's audio file",
+      "duration" : 5400,
+      "name" : "Implement AVAudioSession configuration and AVAudioPlayer delegation",
+      "test" : "make test-ui"
     },
     {
       "complexity" : "Low",
-      "description" : "beginBackgroundTask calls, test lifecycle",
-      "duration" : 5400,
-      "name" : "Background Task Management + new tests"
+      "description" : "Implement background task lifecycle: beginBackgroundTask() when entering playback; endBackgroundTask() when paused or playback completes; ensure proper cleanup on cancellation",
+      "duration" : 1800,
+      "name" : "Implement background task management",
+      "test" : "make test-ui"
     },
     {
       "complexity" : "Moderate",
-      "description" : "Full background playback flow",
-      "duration" : 7200,
-      "name" : "End-to-end integration tests"
+      "description" : "Update MPNowPlayingInfoCenter with sutta title, current segment\/total segments, elapsed time, artwork; sync with playback progress via timer or delegate callbacks",
+      "duration" : 5400,
+      "name" : "Lock screen metadata (Now Playing Info)",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Register MPRemoteCommandCenter play\/pause and playNext\/playPrevious handlers; test remote command callbacks from lock screen",
+      "duration" : 5400,
+      "name" : "Lock screen controls (Remote Commands)",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Trigger BackgroundPlayer from SuttaCardView (play button or menu item); pass audioContext from synthesis; handle state transitions in UI; cancel on view dismissal",
+      "duration" : 5400,
+      "name" : "Integration with SuttaCardView",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Moderate",
+      "description" : "Full playback flow: synthesize via AudioSynthesisSession, playback via AVAudioPlayer, lock screen metadata\/controls, background task lifecycle, state machine transitions",
+      "duration" : 5400,
+      "name" : "End-to-end integration tests",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "Compile BackgroundPlayer.swift; run all tests; verify no build errors or test failures",
+      "duration" : 1800,
+      "name" : "Build & verify",
+      "test" : "make test-ui"
     }
   ],
   "references" : [
     {
-      "id" : "AZw1CfPjcACe2Ry9bN_ODQ",
-      "relevance" : 0.5,
-      "text" : "doc\/BackgroundAudio.md"
+      "id" : "AZw4OxtRcACgRqSlYGGtVw",
+      "relevance" : 1,
+      "text" : "doc\/AudioSynthesisSession.md"
+    },
+    {
+      "id" : "AZw4amKKcACeZJc2deSsXQ",
+      "relevance" : 1,
+      "text" : "doc\/BackgroundPlayer.md"
+    },
+    {
+      "id" : "AZw4dY3pcACUtxrnc93KxA",
+      "relevance" : 1,
+      "text" : "scv-ui\/Sources\/scvUI\/BackgroundPlayer.swift"
+    },
+    {
+      "id" : "AZw4dY3pcACUtxrnc93KxB",
+      "relevance" : 1,
+      "text" : "scv-ui\/Tests\/BackgroundPlayerTests.swift"
     },
     {
       "id" : "AZw1ClSJcACIqBdlkznIKQ",
-      "relevance" : 0.5,
+      "relevance" : 0.8,
       "text" : "doc\/SuttaCardView.md"
     },
     {
+      "id" : "AZw4OpBCcACheLDRAuufkg",
+      "relevance" : 0.8,
+      "text" : "doc\/SuttaPlayer.md"
+    },
+    {
       "id" : "AZw1EEGBcACFPuTyo_VIGQ",
-      "relevance" : 0.5,
+      "relevance" : 0.7,
       "text" : "SuttaCardView.swift"
     },
     {
-      "id" : "AZw1EfK4cAC4NL8Oro8NDw",
+      "id" : "AZw2GhL5cAC5OM9Psp9OEx",
+      "relevance" : 0.7,
+      "text" : "doc\/AudioStore.md"
+    },
+    {
+      "id" : "AZw1CfPjcACe2Ry9bN_ODQ",
+      "relevance" : 0.6,
+      "text" : "doc\/BackgroundAudio.md"
+    },
+    {
+      "id" : "AZw6gvYMcAC1aXrNQUA2Rw",
       "relevance" : 0.5,
+      "text" : "MPNowPlayingInfoCenter - metadata displayed on lock screen",
+      "url" : "https:\/\/developer.apple.com\/documentation\/mediaplayer\/mpnowplayinginfocenter"
+    },
+    {
+      "id" : "AZw6gwF3cAClY_zoMkHJlw",
+      "relevance" : 0.5,
+      "text" : "MPRemoteCommandCenter - remote control commands available on lock screen",
+      "url" : "https:\/\/developer.apple.com\/documentation\/mediaplayer\/mpremotecommandcenter"
+    },
+    {
+      "id" : "AZw1EfK4cAC4NL8Oro8NDw",
+      "relevance" : 0.2,
       "text" : "CachedSynthesizer.swift"
     },
     {
-      "id" : "AZw2GhL5cAC5OM9Psp9OEx",
+      "id" : "AZw6gwbVcAC5G8a6PPcxKQ",
       "relevance" : 0.5,
-      "text" : "doc\/AudioStore.md"
+      "text" : "WWDC22 - Explore media metadata publishing and playback interactions",
+      "url" : "https:\/\/developer.apple.com\/videos\/play\/wwdc2022\/110338\/"
     }
   ],
   "requiredTasks" : [
 
   ],
-  "summary" : "User clicks Background Playback to start playback from current segment. The playback will continue even if the user locks the screen.",
-  "updatedAt" : "2026-02-06T22:28:14Z"
+  "summary" : "BackgroundPlayer orchestrates passive user listening of the current SuttaCard with minimal UX suitable for background playback.",
+  "updatedAt" : "2026-02-08T12:45:36Z"
 }

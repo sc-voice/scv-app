@@ -654,6 +654,7 @@ func showActions(title: String, actions: [Action]) {
         action.description,
         action.complexity,
         hours,
+        action.test,
       ]
       let line = "  \(index + 1). " +
         parts.compactMap(\.self).joined(separator: "; ")

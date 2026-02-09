@@ -66,13 +66,20 @@ All task operations flow through the ITaskWorld protocol, enabling stable code c
 - `state: TaskState` - Computed: .blocked if dependency unmet, else .active if on stack, else .pending
 - `taskWorld: ITaskWorld?` - Non-encoded world reference for state computation
 
-**Helper methods:**
-- `moveActionToCompleted(at:)`, `addPlannedAction()` - Action management
+**Instance methods:**
+- `moveActionToCompleted(at:)` - Move action from planned to completed
+- `addPlannedAction(_ action:)` - Add new planned action
 - `isBlocked`, `isActive`, `isDone` - State convenience properties
 
-**UUID encoding:**
-- `uuidToFilename()` - First 54 bits → 9-char URL-safe base64 (e.g., T_AZvuCKoac)
-- URL-safe: `+`→`-`, `/`→`_`, `=` removed; chronologically sortable by timestamp prefix
+**Static UUID encoding methods:**
+- `uuidToFilename(_ uuid:) -> String` - First 54 bits → `T_` prefix + 9-char URL-safe base64 (e.g., `T_AZvuCKoac`)
+- `uuidToBase64(_ uuid:) -> String` - Full 128-bit UUID → 24-char URL-safe base64 string
+- `shortId(_ uuid:) -> String` - First 54 bits → 8-char identifier (truncated base64, chars 3-10)
+- URL-safe encoding: `+`→`-`, `/`→`_`, `=` removed; chronologically sortable by 48-bit timestamp prefix
+
+**State computation:**
+- `state` property evaluates dependencies via `taskWorld` to determine if task is `.blocked`, `.active`, `.done`, or `.pending`
+- `.done` when all requiredTasks are done AND task has completedActions AND no plannedActions
 
 See: `scv-tasks/Sources/scvTasks/Task.swift`
 
@@ -93,9 +100,12 @@ See: `scv-tasks/Sources/scvTasks/TaskState.swift`
 **Purpose:** Represents a step within a task.
 
 **Fields:**
-- `id: UUID` - Unique action identifier
+- `id: String?` - Unique action identifier (auto-generated via `Task.shortId()`)
+- `name: String?` - Optional action name
 - `description: String` - Step description
-- `taskId: String?` - Optional task ID for stack operations
+- `complexity: String?` - Optional complexity indicator (e.g., "simple", "complex")
+- `duration: TimeInterval?` - Optional estimated duration in seconds
+- `test: String?` - Optional test description or command to verify completion
 
 See: `scv-tasks/Sources/scvTasks/Action.swift`
 
@@ -104,13 +114,14 @@ See: `scv-tasks/Sources/scvTasks/Action.swift`
 **Purpose:** Links to documentation or notes with relevance scoring.
 
 **Fields:**
-- `id: String` - Unique reference identifier (UUIDV7-derived base64)
+- `id: String` - Unique reference identifier; auto-generated via `Task.uuidToBase64(UUIDV7())` if not provided
 - `text: String?` - Arbitrary note text
 - `url: URL?` - Link to external resource
-- `relevance: Double` - Score 0-1 for sorting priority
+- `relevance: Double` - Score 0-1 for sorting priority (auto-clamped to 0...1 range)
 
 **Behavior:**
-- Automatically clamped to 0...1 range
+- References are auto-sorted by decreasing relevance, then by id
+- Relevance automatically clamped to 0...1 range
 - Auto-generates id if not provided
 
 See: `scv-tasks/Sources/scvTasks/Reference.swift`
@@ -129,6 +140,10 @@ See: `scv-tasks/Sources/scvTasks/Reference.swift`
 - Tasks: `Tasks/T_*.json` (individual files)
 - World state: `.task-world.json` (stack + preferences)
 
+**Properties:**
+- `limit`, `verbosity`, `lineLength` - Proxy to WorldModel preferences
+- `showDone`, `showUpdate` - Additional WorldModel toggles for display control
+
 **Init:**
 ```swift
 let world = TaskWorld(basePath: URL)  // defaults to current directory
@@ -145,6 +160,8 @@ See: `scv-tasks/Sources/scvTasks/TaskWorld.swift`
 - `limit: Int` - Display limit (clamped 0+)
 - `verbosity: Int` - Logging level (clamped 0-2)
 - `lineLength: Int` - Wrap width (minimum 20)
+- `showDone: Bool` - Whether to display completed tasks
+- `showUpdate: Bool` - Whether to show update timestamps
 
 **Stack operations:**
 - `pushTask()`, `popTask()`, `currentTask()`, `clearStack()`
@@ -209,6 +226,94 @@ Example:
 5. **Protocol-first API** - Stable ITaskWorld abstraction enables testing and future changes
 6. **Dual-key in-memory map** - Fast lookup by filename or UUID
 7. **Atomic durable mutations** - No explicit save calls needed
+
+## Public Module API
+
+### scvTasks.swift - Module Exports
+
+**Purpose:** Defines public type aliases and exports for the scv-tasks module.
+
+**Exports:**
+- `typealias TaskId = UUIDV7` - Core task identifier type
+- `typealias AnyTaskId = String` - Accept both filenames (T_AZvuCKoac) or UUID strings
+
+See: `scv-tasks/Sources/scvTasks/scvTasks.swift`
+
+## Usage Examples
+
+### Creating a Task
+
+```swift
+let world = TaskWorld(basePath: projectRoot)
+let task = try await world.createTask(
+  name: "Implement feature X",
+  summary: "Add new functionality to module Y"
+)
+```
+
+### Managing Task State
+
+```swift
+// Query a task
+if let task = world.taskFrom(anyId: "T_AZvuCKoac") {
+  print("Task state: \(task.state)")
+}
+
+// Check task completion
+if task.isDone {
+  print("Task completed!")
+}
+
+// Add planned action
+var task = try world.taskFrom(anyId: taskId)!
+task.addPlannedAction(Action(description: "Implement core logic"))
+try world.updateTask(task)
+```
+
+### Stack Operations (Context Switching)
+
+```swift
+// Push task onto stack
+world.pushTaskId(taskId)
+
+// Get current task
+if let currentId = world.currentTaskId() {
+  let current = world.taskFrom(anyId: currentId)
+}
+
+// Pop task off stack
+if let lastId = world.popTaskId() {
+  print("Finished task: \(lastId)")
+}
+```
+
+### Managing References
+
+```swift
+var task = try world.taskFrom(anyId: taskId)!
+task.references.append(Reference(
+  text: "See implementation guide",
+  url: URL(string: "https://example.com/guide"),
+  relevance: 0.9
+))
+try world.updateTask(task)
+```
+
+## References
+
+- `scv-tasks/Sources/scvTasks/ITaskWorld.swift` - Primary protocol; all code depends on this interface
+- `scv-tasks/Sources/scvTasks/Task.swift` - Core task model with UUID encoding and state computation
+- `scv-tasks/Sources/scvTasks/Action.swift` - Task step with name, description, complexity, duration
+- `scv-tasks/Sources/scvTasks/Reference.swift` - Documentation link with relevance scoring
+- `scv-tasks/Sources/scvTasks/TaskState.swift` - Task lifecycle enum (pending, blocked, active, done)
+- `scv-tasks/Sources/scvTasks/TaskWorld.swift` - ITaskWorld implementation with in-memory dual-key map
+- `scv-tasks/Sources/scvTasks/WorldModel.swift` - Stack and preferences manager; persisted to `.task-world.json`
+- `scv-tasks/Sources/scvTasks/TaskManager.swift` - Low-level file I/O for individual task JSON files
+- `scv-tasks/Sources/scvTasks/scvTasks.swift` - Module public exports (TaskId, AnyTaskId)
+- `scv-tasks/Sources/CLI/task_cli.swift` - Optional command-line tool for shell integration
+- `Tasks/T_*.json` - Individual task files (pretty-printed, sorted keys)
+- `.task-world.json` - Task stack and user preferences
+- `doc/Backlog.md` - Project backlog and task templates
 
 ## Future Enhancements
 
