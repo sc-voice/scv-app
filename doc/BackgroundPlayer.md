@@ -114,7 +114,7 @@ enum PlayerState {
   case cancelled        // Final1: Synthesis and playback cancelled
   case failed(String)   // Final2: Synthesis or playback failed
 }
-```swift
+```
 
 ```mermaid
 stateDiagram-v2
