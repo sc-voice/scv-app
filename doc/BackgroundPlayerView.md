@@ -31,11 +31,9 @@ stateDiagram-v2
     SynthesisUX --> Synthesizing: prepare()
     Synthesizing --> StartPlay: synthesis complete
     StartPlay --> Playing: show BPV playback UI 
-    Playing --> Playing: advance current segment after playing it
     Playing --> Paused: user click Pause
+    Playing --> Paused: at end of sutta
     Paused --> Playing: user clicks Play
-    Playing --> Pause: playing completed, set current segment to first
-    Pause --> Playing: user clicks Play 
 
     Pause --> Close: users clicks X icon
     Playing --> Close: users clicks X icon
@@ -44,7 +42,6 @@ stateDiagram-v2
 
     Synthesizing --> Failed: synthesis fails
     Playback --> Failed: playback fails
-    Failed --> Failed: show error message
     Failed --> Close: users clicks X icon
 
     Close --> [*]: stop playback/synthesis and close modal 
