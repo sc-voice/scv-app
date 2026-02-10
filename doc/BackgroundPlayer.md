@@ -131,7 +131,9 @@ stateDiagram-v2
 
     Playing --> Paused: pause()
     Playing --> Cancelled: cancel()
+    Playing --> Done: play complete
 
+    Done --> [*]
     Cancelled --> [*]
     Failed --> [*]
 ```
