@@ -34,13 +34,13 @@ stateDiagram-v2
     Playing --> Paused: at end of sutta
     Paused --> Playing: clicks Play
 
-    Pause --> Close: click X icon
+    Paused --> Close: click X icon
     Playing --> Close: click X icon
     Paused --> Close: click X icon
     Synthesizing --> Close: click X icon
 
     Synthesizing --> Failed: synthesis fails
-    Playback --> Failed: playback fails
+    Playing --> Failed: playback fails
     Failed --> Close: click X icon
 
     Close --> [*]: stop and close modal 
