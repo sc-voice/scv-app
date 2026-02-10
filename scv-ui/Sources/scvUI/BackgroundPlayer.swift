@@ -32,6 +32,7 @@ public enum PlaybackState: Equatable, Sendable {
   case playing
   case paused
   case cancelled
+  case done
   case failed(String)
 
   public var isFailed: Bool {
@@ -157,10 +158,45 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     )
     self.audioStore = audioStore
     super.init()
+
+    // Configure audio session for background playback
+    configureAudioSession()
+
     cc.ok2(#line, "init() complete")
   }
 
+  /// Configure AVAudioSession for background playback.
+  /// Sets category to .playback with .defaultToSpeaker option to allow playback
+  /// when lock screen is active and speaker/headphones can be used.
+  /// Only available on iOS.
+  private func configureAudioSession() {
+    #if os(iOS)
+      do {
+        let session = AVAudioSession.sharedInstance()
+
+        // Set category to .playback to enable background audio
+        try session.setCategory(
+          .playback,
+          options: [.defaultToSpeaker, .duckOthers]
+        )
+
+        // Activate the session
+        try session.setActive(true, options: .notifyOthersOnDeactivation)
+
+        cc.ok2(#line, "AVAudioSession configured for background playback")
+      } catch {
+        cc.bad1(#line, "Failed to configure audio session: \(error)")
+      }
+    #endif
+  }
+
   // MARK: - Internal State Management
+
+  /// Determine segmentKey based on sutta language
+  /// Returns "pli" if suttaRef.lang == "pli", otherwise "doc"
+  private var segmentKey: String {
+    suttaRef.lang == "pli" ? "pli" : "doc"
+  }
 
   /// Update playbackSnapshot observable from current segment state.
   /// Called whenever segment index or state changes.
@@ -170,13 +206,17 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     let segment = segments[currentSegmentIndex]
     let docPreview = (segment.doc ?? "").prefix(20)
 
+    // Get playback timing from AVAudioPlayer if available
+    let duration = audioPlayer?.duration ?? 0
+    let elapsedTime = audioPlayer?.currentTime ?? 0
+
     playbackSnapshot = PlaybackSnapshot(
       suttaRef: suttaRef,
       segment: segment,
       segmentIndex: currentSegmentIndex,
       totalSegments: segments.count,
-      playbackDuration: 0,
-      elapsedPlaybackTime: 0,
+      playbackDuration: duration,
+      elapsedPlaybackTime: elapsedTime,
       trackTitle: "\(segment.scid) \(docPreview)",
       artist: artistName
     )
@@ -283,6 +323,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     }
     audioPlayer = nil
 
+    // Capture final elapsed time before cancellation
+    updateSnapshot()
+
     // Transition to cancelled
     state = .cancelled
     cc.ok1(#line, "cancel() complete")
@@ -293,30 +336,184 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   /// Start playback from current segment
   public func play() {
     cc.ok2(#line, "play()")
+
+    // Guard: already playing
     guard state != .playing else {
       cc.ok2(#line, "Already playing")
       return
     }
-    state = .playing
+
+    // Guard: have valid segments and current index
+    guard !segments.isEmpty, currentSegmentIndex < segments.count else {
+      cc.bad1(#line, "No segments or invalid index")
+      state = .failed("No segments available")
+      return
+    }
+
+    let segment = segments[currentSegmentIndex]
+
+    // Get segment text using segmentKey
+    let segmentText = segment.textOf(segmentKey)
+
+    // Guard: segment has text to synthesize
+    guard !segmentText.trimmingCharacters(in: .whitespaces).isEmpty else {
+      cc.ok2(#line, "Segment has no text, skipping")
+      return
+    }
+
+    // Get audio URL from cache (forceUrl=false only returns if cached)
+    guard let audioUrl = audioStore.audioUrl(text: segmentText, audioContext: audioContext, forceUrl: false) else {
+      cc.bad1(#line, "Audio file not synthesized for segment")
+      state = .failed("Audio not available for segment")
+      return
+    }
+
+    do {
+      // Create AVAudioPlayer with cached audio file
+      audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
+      audioPlayer?.delegate = self
+      audioPlayer?.play()
+
+      // Transition to playing and update observable
+      state = .playing
+      updateSnapshot()
+      cc.ok1(#line, "Playback started for segment \(segment.scid)")
+    } catch {
+      cc.bad1(#line, "Failed to create player: \(error)")
+      state = .failed("Playback failed: \(error.localizedDescription)")
+    }
   }
 
   /// Pause playback
   public func pause() {
     cc.ok2(#line, "pause()")
+
+    // Guard: currently playing
     guard state == .playing else {
       cc.ok2(#line, "Not playing")
       return
     }
+
+    // Stop player
+    audioPlayer?.pause()
+
+    // Transition to paused and update observable
     state = .paused
+    updateSnapshot()
+    cc.ok1(#line, "Playback paused")
   }
 
-  /// Advance to next segment
-  public func nextSegment() {
-    cc.ok2(#line, "nextSegment()")
+  /// Advance to next segment and start playback
+  /// Pauses current playback, increments segment index, plays new segment
+  public func playNext() {
+    cc.ok2(#line, "playNext()")
+
+    // Guard: have valid segments
+    guard !segments.isEmpty, currentSegmentIndex < segments.count else {
+      cc.bad1(#line, "No segments available")
+      return
+    }
+
+    // Pause current playback
+    if state == .playing {
+      audioPlayer?.pause()
+    }
+
+    // Advance to next segment
+    if currentSegmentIndex < segments.count - 1 {
+      currentSegmentIndex += 1
+      cc.ok2(#line, "Advanced to segment \(currentSegmentIndex)")
+    } else {
+      cc.ok2(#line, "Already at last segment")
+      state = .paused
+      updateSnapshot()
+      return
+    }
+
+    // Start playback from new segment
+    play()
   }
 
-  /// Move to previous segment
-  public func previousSegment() {
-    cc.ok2(#line, "previousSegment()")
+  /// Move to previous segment or restart current segment if elapsed < 1s
+  /// - If paused or elapsed time < 1s: move to previous segment and play
+  /// - Otherwise: restart playback of current segment
+  public func playPrevious() {
+    cc.ok2(#line, "playPrevious()")
+
+    // Guard: have valid segments
+    guard !segments.isEmpty, currentSegmentIndex < segments.count else {
+      cc.bad1(#line, "No segments available")
+      return
+    }
+
+    // Pause current playback
+    if state == .playing {
+      audioPlayer?.pause()
+    }
+
+    // Get elapsed time from player (or 0 if not playing)
+    let elapsedTime = audioPlayer?.currentTime ?? 0
+
+    // Determine which segment to play
+    if state == .paused || elapsedTime < 1.0 {
+      // Go to previous segment
+      if currentSegmentIndex > 0 {
+        currentSegmentIndex -= 1
+        cc.ok2(#line, "Moved to previous segment \(currentSegmentIndex)")
+      } else {
+        cc.ok2(#line, "Already at first segment")
+        state = .paused
+        updateSnapshot()
+        return
+      }
+    } else {
+      // Restart current segment (elapsed time >= 1s)
+      cc.ok2(#line, "Elapsed time \(elapsedTime)s >= 1s, restarting current segment")
+    }
+
+    // Start playback from target segment
+    play()
+  }
+}
+
+// MARK: - AVAudioPlayerDelegate
+
+@MainActor
+extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
+  /// Called when AVAudioPlayer finishes playing
+  /// Implements segment chaining: automatically plays next segment if available
+  public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    cc.ok2(#line, "audioPlayerDidFinishPlaying(successfully: \(flag)) for segment \(currentSegmentIndex)")
+
+    guard flag else {
+      // Playback interrupted
+      state = .failed("Playback interrupted")
+      cc.bad1(#line, "Playback failed or interrupted for segment \(currentSegmentIndex)")
+      updateSnapshot()
+      return
+    }
+
+    // Segment playback completed successfully
+    cc.ok2(#line, "Segment \(currentSegmentIndex) playback completed")
+
+    // Check if there are more segments to play
+    if currentSegmentIndex < segments.count - 1 {
+      // Chain to next segment: advance index and play
+      currentSegmentIndex += 1
+      cc.ok2(#line, "Chaining to next segment: \(currentSegmentIndex)")
+      play()  // Automatically start next segment
+    } else {
+      // Reached last segment, transition to done
+      state = .done
+      updateSnapshot()
+      cc.ok1(#line, "Playback completed - reached end of sutta")
+    }
+  }
+
+  /// Called when audio decoding error occurs
+  public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+    cc.bad1(#line, "Audio decode error: \(error?.localizedDescription ?? "unknown")")
+    state = .failed("Audio decode error: \(error?.localizedDescription ?? "unknown")")
+    updateSnapshot()
   }
 }

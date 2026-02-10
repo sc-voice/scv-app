@@ -204,4 +204,229 @@ struct BackgroundPlayerTests {
     try FileManager.default.removeItem(at: tmpDir)
   }
 
+  // MARK: - Playback Control Tests
+
+  @Test("play() from paused state transitions to playing")
+  func testPlayFromPaused() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      #expect(player.state == .paused)
+      player.play()
+      #expect(player.state == .playing)
+      #expect(player.playbackSnapshot != nil)
+      #expect((player.playbackSnapshot?.playbackDuration ?? 0) > 0)
+    }
+  }
+
+  @Test("play() from playing state does nothing")
+  func testPlayFromPlayingDoesNothing() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      #expect(player.state == .paused)
+      player.play()
+      #expect(player.state == .playing)
+      let firstSnapshot = player.playbackSnapshot
+      player.play()  // Call play again
+      #expect(player.state == .playing)
+      #expect(player.playbackSnapshot == firstSnapshot)  // Snapshot unchanged
+    }
+  }
+
+  @Test("pause() from playing state transitions to paused")
+  func testPauseFromPlaying() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      #expect(player.state == .paused)
+      player.play()
+      #expect(player.state == .playing)
+      player.pause()
+      #expect(player.state == .paused)
+      #expect(player.playbackSnapshot != nil)
+    }
+  }
+
+  @Test("pause() from paused state does nothing")
+  func testPauseFromPausedDoesNothing() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      #expect(player.state == .paused)
+      player.pause()  // Call pause when already paused
+      #expect(player.state == .paused)
+    }
+  }
+
+  @Test("playbackSnapshot updates with audio duration and elapsed time")
+  func testPlaybackSnapshotTiming() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    let initialSnapshot = try await player.prepare()
+
+    await MainActor.run {
+      #expect(initialSnapshot.playbackDuration == 0)  // Before play
+      #expect(initialSnapshot.elapsedPlaybackTime == 0)
+
+      player.play()
+      #expect(player.state == .playing)
+
+      // After play, snapshot should have duration
+      let playingSnapshot = player.playbackSnapshot
+      #expect((playingSnapshot?.playbackDuration ?? 0) > 0)
+      #expect((playingSnapshot?.elapsedPlaybackTime ?? 0) >= 0)
+    }
+  }
+
+  // MARK: - Segment Navigation Tests
+
+  @Test("playNext() advances to next segment and plays")
+  func testPlayNext() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      let initialIndex = player.playbackSnapshot?.segmentIndex ?? -1
+      #expect(initialIndex == 0)  // Start at first segment
+
+      player.playNext()
+      #expect(player.state == .playing)  // Should be playing new segment
+
+      let nextIndex = player.playbackSnapshot?.segmentIndex ?? -1
+      #expect(nextIndex == initialIndex + 1)  // Advanced to next segment
+    }
+  }
+
+  @Test("playNext() at last segment does nothing")
+  func testPlayNextAtLastSegment() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    let snapshot = try await player.prepare()
+    let lastIndex = snapshot.totalSegments - 1
+
+    await MainActor.run {
+      // Manually set currentSegmentIndex to last segment
+      let currentPlayer = player
+      // Access to currentSegmentIndex is private, so we can't directly set it
+      // Instead, playNext until we reach last segment
+      while (currentPlayer.playbackSnapshot?.segmentIndex ?? 0) < lastIndex {
+        currentPlayer.playNext()
+      }
+
+      let indexBeforeCall = currentPlayer.playbackSnapshot?.segmentIndex ?? -1
+      currentPlayer.playNext()  // Try to advance past last segment
+      let indexAfterCall = currentPlayer.playbackSnapshot?.segmentIndex ?? -1
+
+      // Should stay at same segment
+      #expect(indexAfterCall == indexBeforeCall)
+    }
+  }
+
+  @Test("playPrevious() from paused moves to previous segment")
+  func testPlayPreviousFromPaused() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      // Advance to second segment first
+      player.playNext()
+      #expect((player.playbackSnapshot?.segmentIndex ?? -1) == 1)
+
+      let currentIndex = player.playbackSnapshot?.segmentIndex ?? -1
+      player.pause()
+      player.playPrevious()  // From paused state
+
+      let newIndex = player.playbackSnapshot?.segmentIndex ?? -1
+      #expect(newIndex == currentIndex - 1)  // Moved back one segment
+    }
+  }
+
+  @Test("playPrevious() at first segment does nothing")
+  func testPlayPreviousAtFirstSegment() async throws {
+    let suttaRef = try SuttaRef(suttaUid: "thig1.1", lang: "de", author: "sabbamitta")
+    let testAudioStorePath = URL(fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player")
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare to paused state
+    _ = try await player.prepare()
+
+    await MainActor.run {
+      #expect((player.playbackSnapshot?.segmentIndex ?? -1) == 0)  // At first segment
+
+      player.playPrevious()  // Try to move before first segment
+      #expect((player.playbackSnapshot?.segmentIndex ?? -1) == 0)  // Should stay at first
+    }
+  }
+
 }

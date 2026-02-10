@@ -1,0 +1,54 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-10T11:26:29Z",
+  "id" : "019C474D-889C-7000-85D1-A0BD0A8C322D",
+  "name" : "Design and implement BackgroundView as a replacement for the Background Playback code in SuttaCardView",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "id" : "ref_BackgroundPlayer_impl",
+      "text" : "BackgroundPlayer orchestrates synthesis & playback",
+      "url" : null,
+      "relevance" : 0.95
+    },
+    {
+      "id" : "ref_BackgroundPlayer_doc",
+      "text" : "doc/BackgroundPlayer.md - design & API documentation",
+      "url" : null,
+      "relevance" : 0.9
+    },
+    {
+      "id" : "ref_SuttaCardView_impl",
+      "text" : "scv-ui/Sources/scvUI/SuttaCardView.swift - file to refactor (~220 lines background code)",
+      "url" : null,
+      "relevance" : 0.95
+    },
+    {
+      "id" : "ref_SuttaCardView_doc",
+      "text" : "doc/SuttaCardView.md - Modal Progress Display lines 126-147, Progress Monitoring lines 108-122",
+      "url" : null,
+      "relevance" : 0.9
+    },
+    {
+      "id" : "ref_BackgroundPlayerTests",
+      "text" : "scv-ui/Tests/BackgroundPlayerTests.swift - test patterns to follow",
+      "url" : null,
+      "relevance" : 0.8
+    },
+    {
+      "id" : "ref_AudioSynthesisSession",
+      "text" : "scv-core/Sources/AudioSynthesisSession.swift - synthesis session actor",
+      "url" : null,
+      "relevance" : 0.8
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Extract ~220 lines of background synthesis UI code from SuttaCardView into reusable BackgroundView component that wraps BackgroundPlayer. Replace SynthesisProgressModal with BackgroundView. Reduce SuttaCardView complexity.",
+  "updatedAt" : "2026-02-10T11:26:29Z"
+}

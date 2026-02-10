@@ -16,9 +16,16 @@
     },
     {
       "complexity" : "Moderate",
-      "description" : "Implement prepare() async throws -> PlaybackSnapshot; create AudioSynthesisSession internally; load segments via EbtData; find starting segment from suttaRef.scid; poll synthesisSnapshot during synthesis; transition state idle→synthesizing→paused; return PlaybackSnapshot on completion; handle errors and throw BackgroundPlayerError; write integration tests with thig1.1/de/sabbamitta",
+      "description" : "Implement prepare() async throws -> PlaybackSnapshot; create AudioSynthesisSession internally; load segments via EbtData; find starting segment from suttaRef.scid; poll synthesisSnapshot during synthesis; transition state idle→synthesizing→paused; return PlaybackSnapshot on completion; handle errors and throw BackgroundPlayerError; write integration tests with thig1.1\/de\/sabbamitta",
       "duration" : 5400,
       "name" : "Implement prepare() and AudioSynthesisSession lifecycle",
+      "test" : "make test-ui"
+    },
+    {
+      "complexity" : "Low",
+      "description" : "Implement cancel() to halt synthesis and playback; stop AVAudioPlayer; cancel AudioSynthesisSession; transition to .cancelled state",
+      "duration" : 1800,
+      "name" : "Implement cancel()",
       "test" : "make test-ui"
     }
   ],
@@ -29,13 +36,6 @@
     {
       "description" : "Design phase: clarify play() vs prepare() async workflows; determine responsibilities; document state machine and background task lifecycle",
       "id" : "4yBf3cAC"
-    },
-    {
-      "complexity" : "Low",
-      "description" : "Implement cancel() to halt synthesis and playback; stop AVAudioPlayer; cancel AudioSynthesisSession; transition to .cancelled state",
-      "duration" : 1800,
-      "name" : "Implement cancel()",
-      "test" : "make test-ui"
     },
     {
       "complexity" : "Moderate",
@@ -167,20 +167,20 @@
       "url" : "https:\/\/developer.apple.com\/documentation\/mediaplayer\/mpremotecommandcenter"
     },
     {
-      "id" : "AZw1EfK4cAC4NL8Oro8NDw",
-      "relevance" : 0.2,
-      "text" : "CachedSynthesizer.swift"
-    },
-    {
       "id" : "AZw6gwbVcAC5G8a6PPcxKQ",
       "relevance" : 0.5,
       "text" : "WWDC22 - Explore media metadata publishing and playback interactions",
       "url" : "https:\/\/developer.apple.com\/videos\/play\/wwdc2022\/110338\/"
+    },
+    {
+      "id" : "AZw1EfK4cAC4NL8Oro8NDw",
+      "relevance" : 0.2,
+      "text" : "CachedSynthesizer.swift"
     }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "BackgroundPlayer orchestrates passive user listening of the current SuttaCard with minimal UX suitable for background playback.",
-  "updatedAt" : "2026-02-08T12:45:36Z"
+  "updatedAt" : "2026-02-10T00:56:15Z"
 }
