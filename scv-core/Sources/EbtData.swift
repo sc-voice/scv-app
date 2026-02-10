@@ -653,7 +653,7 @@ public actor EbtData {
       ) ?? author
 
       // Query segments for this sutta (schema v6: using suttaUid, scid, text)
-      let query = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
+      let query = "SELECT scid, text FROM segments WHERE suttaUid = ?"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
@@ -1016,7 +1016,7 @@ public actor EbtData {
         author: suttaRef.author ?? "",
       )
 
-      let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ? ORDER BY scid"
+      let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ?"
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
@@ -1046,6 +1046,9 @@ public actor EbtData {
         let segment = Segment(scid: scid, doc: text)
         segments.append(segment)
       }
+
+      // Sort segments using proper SCID ordering (not lexicographic string sort)
+      segments.sort { SuttaCentralId.compareLow($0.scid, $1.scid) < 0 }
 
       return segments
     } catch {

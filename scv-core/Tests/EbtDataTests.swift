@@ -532,4 +532,43 @@ struct EbtDataTests {
       #expect(lang2 == "pli")
     }
   }
+
+  @Test("segmentsOfSuttaRef returns segments ordered by SuttaCentralId.compareLow()")
+  func segmentsOfSuttaRefOrdering() async {
+    guard let suttaRef = SuttaRef.create("an1.1-10/en/sujato") else {
+      Issue.record("Failed to create SuttaRef")
+      return
+    }
+
+    let segments = await EbtData.shared.segmentsOfSuttaRef(suttaRef)
+
+    #expect(!segments.isEmpty, "Should have segments for an1.1-10")
+
+    // Verify segments are ordered by SuttaCentralId.compareLow()
+    // This catches bugs where SQL ORDER BY scid uses lexicographic sorting
+    // (which would place an1.10:1.0 before an1.2:1.0)
+    for i in 0 ..< segments.count - 1 {
+      let current = segments[i].scid
+      let next = segments[i + 1].scid
+      let ordering = SuttaCentralId.compareLow(current, next)
+
+      #expect(
+        ordering < 0,
+        "Segments not in proper order: '\(current)' should come before '\(next)', but got ordering=\(ordering)",
+      )
+    }
+
+    // Verify an1.2:1.0 comes before an1.10:1.0 (catches lexicographic sort bug)
+    let scids = segments.map { $0.scid }
+    guard let an1_2_idx = scids.firstIndex(of: "an1.2:1.0"),
+          let an1_10_idx = scids.firstIndex(of: "an1.10:1.0") else {
+      Issue.record("Expected segments an1.2:1.0 and an1.10:1.0 not found")
+      return
+    }
+
+    #expect(
+      an1_2_idx < an1_10_idx,
+      "Segment an1.2:1.0 should come before an1.10:1.0, but got indices \(an1_2_idx) and \(an1_10_idx)",
+    )
+  }
 }

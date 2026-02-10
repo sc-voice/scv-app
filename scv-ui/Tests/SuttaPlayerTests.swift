@@ -430,4 +430,32 @@ struct SuttaPlayerTests {
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
   }
+
+  @Test
+  @MainActor
+  func suttaPlayerIsActivePropertyDefaultsTrueAndCanBeToggled() async {
+    // Create a fresh instance (doesn't use .shared to avoid state pollution)
+    let tempDir = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let synth = CachedSynthesizer(audioStore: testStore)
+    let player = SuttaPlayer(synthesizer: synth)
+
+    // Verify isActive defaults to true
+    #expect(player.isActive == true)
+    cc.ok1(#line, "isActive defaults to true")
+
+    // Call setActive(false) - SuttaPlayer should skip interruption handling
+    player.setActive(false)
+    #expect(player.isActive == false)
+    cc.ok1(#line, "setActive(false) disables interruption handling")
+
+    // Call setActive(true) - SuttaPlayer should resume interruption handling
+    player.setActive(true)
+    #expect(player.isActive == true)
+    cc.ok1(#line, "setActive(true) re-enables interruption handling")
+
+    // Cleanup
+    try? FileManager.default.removeItem(at: tempDir)
+  }
 }

@@ -30,10 +30,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var layout: SegmentLayout?
   @State private var availableWidth: CGFloat = 0
   @State private var toolbarTitle: String = ""
-  @State private var backgroundSession: AudioSynthesisSession?
-  @State private var showSynthesisModal = false
-  @State private var currentSnapshot: SessionSnapshot?
-  @State private var lastProgressUpdateTime = Date.distantPast
+  @State private var backgroundPlayer: BackgroundPlayer?
+  @State private var showBackgroundPlayerView = false
   let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -155,7 +153,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 .localized : "a11y.button.play_audio".localized)
               .foregroundColor(themeProvider.theme.toolbarForeground)
               .contextMenu {
-                Button(action: startSynthesis) {
+                Button(action: startBackgroundPlayback) {
                   Label(
                     "synthesis.background_playback".localized,
                     systemImage: "waveform.circle.fill",
@@ -325,18 +323,26 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
           cc.ok1(#line, "Stopped playback on sutta card disappear")
         }
 
-        // Cancel background synthesis if mid-synthesis
+        // Cancel background playback if in progress
         Task {
-          await backgroundSession?.cancel()
+          if let bgPlayer = backgroundPlayer {
+            await bgPlayer.cancel()
+            // Re-enable SuttaPlayer interruption handling when background playback ends
+            SuttaPlayer.shared.setActive(true)
+          }
         }
       }
-      .sheet(isPresented: $showSynthesisModal) {
-        if let session = backgroundSession {
-          SynthesisProgressModal(
-            session: session,
-            isPresented: $showSynthesisModal,
+      .sheet(isPresented: $showBackgroundPlayerView) {
+        if let player = backgroundPlayer {
+          BackgroundPlayerView(
+            player: player,
+            isPresented: $showBackgroundPlayerView,
             themeProvider: themeProvider,
           )
+          .onDisappear {
+            // Re-enable SuttaPlayer interruption handling when BackgroundPlayerView closes
+            SuttaPlayer.shared.setActive(true)
+          }
         }
       },
     )
@@ -344,204 +350,27 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
 
   // MARK: - Private Methods
 
-  private func startSynthesis() {
+  private func startBackgroundPlayback() {
     guard let suttaRef else {
       cc.bad2(#line, #function, "suttaRef is nil")
       return
     }
 
-    // Create session without callback; modal will poll session.value
-    backgroundSession = AudioSynthesisSession(suttaRef)
-    showSynthesisModal = true
-    cc.ok2(#line, #function, "Starting synthesis for \(suttaRef.toString())")
+    // Disable SuttaPlayer interruption handling during background playback
+    // so lock screen doesn't interrupt background audio
+    SuttaPlayer.shared.setActive(false)
 
-    // Execute synthesis on background thread
-    Task {
-      let finalSnapshot = await backgroundSession?.execute()
-      cc.ok1(
-        #line,
-        #function,
-        "Synthesis completed: \(finalSnapshot?.state ?? .idle)",
-      )
-    }
-  }
-}
+    // Create BackgroundPlayer for this sutta
+    let player = BackgroundPlayer(suttaRef: suttaRef)
+    backgroundPlayer = player
+    showBackgroundPlayerView = true
+    cc.ok2(
+      #line,
+      #function,
+      "Starting background playback for \(suttaRef.toString())",
+    )
 
-// MARK: - SynthesisProgressModal
-
-/// Modal dialog showing background synthesis progress
-struct SynthesisProgressModal: View {
-  let session: AudioSynthesisSession
-  @Binding var isPresented: Bool
-  let themeProvider: ThemeProvider
-  @State private var currentSnapshot: SessionSnapshot?
-  @State private var pollingTask: Task<Void, Never>?
-  let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
-
-  var body: some View {
-    VStack(spacing: 24) {
-      // Header with sutta reference
-      VStack(spacing: 8) {
-        Text("synthesis.title".localized)
-          .font(.headline)
-          .foregroundColor(themeProvider.theme.textColor)
-        if let snapshot = currentSnapshot {
-          Text(snapshot.suttaRef.toString())
-            .font(.caption)
-            .foregroundColor(themeProvider.theme.secondaryTextColor)
-        }
-      }
-
-      // Progress circle with step counter
-      VStack(spacing: 12) {
-        ZStack {
-          Circle()
-            .stroke(themeProvider.theme.borderColor, lineWidth: 8)
-            .frame(width: 120, height: 120)
-
-          if let snapshot = currentSnapshot, snapshot.totalSteps > 0 {
-            Circle()
-              .trim(
-                from: 0,
-                to: CGFloat(snapshot.currentStep) /
-                  CGFloat(snapshot.totalSteps),
-              )
-              .stroke(
-                themeProvider.theme.accentColor,
-                style: StrokeStyle(lineWidth: 8, lineCap: .round),
-              )
-              .frame(width: 120, height: 120)
-              .rotationEffect(.degrees(-90))
-              .animation(.linear, value: snapshot.currentStep)
-          }
-
-          if let snapshot = currentSnapshot {
-            Text("\(snapshot.currentStep)/\(snapshot.totalSteps)")
-              .font(.system(.body, design: .monospaced))
-              .foregroundColor(themeProvider.theme.textColor)
-          } else {
-            Text("0/0")
-              .font(.system(.body, design: .monospaced))
-              .foregroundColor(themeProvider.theme.secondaryTextColor)
-          }
-        }
-
-        // State description
-        if let snapshot = currentSnapshot {
-          VStack(spacing: 8) {
-            switch snapshot.state {
-            case .synthesizing:
-              Text("synthesis.synthesizing".localized)
-                .font(.body)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-              if let segment = snapshot.currentSegment {
-                Text(segment.scid)
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-              }
-              // Time remaining
-              let timeRemaining = snapshot.estimatedCompletion
-                .timeIntervalSinceNow
-              if timeRemaining > 0 {
-                let minutes = Int(timeRemaining) / 60
-                let seconds = Int(timeRemaining) % 60
-                Text("synthesis.time_remaining"
-                  .localized("\(minutes)m \(seconds)s"))
-                  .font(.caption)
-                  .foregroundColor(themeProvider.theme.secondaryTextColor)
-              }
-            case .completed:
-              Text("synthesis.complete".localized)
-                .font(.body)
-                .foregroundColor(.green)
-            case .cancelled:
-              Text("synthesis.cancelled".localized)
-                .font(.body)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-            case let .failed(error):
-              Text("synthesis.error".localized)
-                .font(.body)
-                .foregroundColor(themeProvider.theme.errorTextColor)
-              Text(error)
-                .font(.caption)
-                .foregroundColor(themeProvider.theme.errorTextColor)
-                .lineLimit(3)
-            case .idle:
-              Text("synthesis.starting".localized)
-                .font(.body)
-                .foregroundColor(themeProvider.theme.secondaryTextColor)
-            }
-          }
-        }
-      }
-
-      // Action button
-      if let snapshot = currentSnapshot {
-        let isSynthesizing = if case .synthesizing = snapshot.state { true }
-        else { false }
-        Button(action: handleButtonTap) {
-          Text(isSynthesizing ? "synthesis.cancel".localized : "synthesis.done"
-            .localized)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(isSynthesizing ? Color.red : themeProvider.theme
-              .accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(8)
-        }
-      }
-
-      Spacer()
-    }
-    .padding(24)
-    .background(themeProvider.theme.cardBackground)
-    .onAppear {
-      startPolling()
-    }
-    .onDisappear {
-      stopPolling()
-      // Cancel session if dismissed while synthesizing
-      Task {
-        await session.cancel()
-      }
-    }
-  }
-
-  private func handleButtonTap() {
-    if let snapshot = currentSnapshot {
-      let isSynthesizing = if case .synthesizing = snapshot.state { true }
-      else { false }
-      if isSynthesizing {
-        Task {
-          await session.cancel()
-        }
-      } else {
-        isPresented = false
-      }
-    }
-  }
-
-  private func startPolling() {
-    pollingTask = Task {
-      while !Task.isCancelled {
-        // Poll session.value for current progress
-        let snapshot = await session.value
-        currentSnapshot = snapshot
-        cc.ok2(
-          #line,
-          #function,
-          "Progress: \(snapshot.currentStep)/\(snapshot.totalSteps)",
-        )
-
-        // Sleep for ~0.5s before next poll
-        try? await Task.sleep(nanoseconds: 500_000_000)
-      }
-    }
-  }
-
-  private func stopPolling() {
-    pollingTask?.cancel()
-    pollingTask = nil
+    // BackgroundPlayerView will call player.prepare() in its onAppear handler
   }
 }
 

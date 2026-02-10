@@ -26,6 +26,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var isSynthesizerSpeaking = false
   @Published public var currentSutta: MLDocument?
   @Published public var audioContext: AudioContext?
+  @Published private var _isActive = true
+
+  public var isActive: Bool {
+    _isActive
+  }
 
   private var synthesizer: ISpeechSynthesizer
   /// Segments extracted from currentSutta, used for sequential playback
@@ -57,6 +62,15 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     cc.ok2(#line, "init() complete")
   }
 
+  /// Set whether SuttaPlayer should handle audio interruptions
+  /// When BackgroundPlayer is active, SuttaPlayer should skip interruption handling
+  /// to prevent lock screen from interrupting background playback
+  @MainActor
+  public func setActive(_ value: Bool) {
+    _isActive = value
+    cc.ok1(#line, #function, "isActive: \(value)")
+  }
+
   private func setupAudioInterruptionHandler() {
     #if os(iOS)
       NotificationCenter.default.addObserver(
@@ -77,8 +91,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
           .InterruptionType(rawValue: typeValue.uintValue)
 
         if type == .began {
-          cc.bad1(#line, #function, "Audio session interrupted")
-          pause()
+          if self.isActive {
+            cc.bad1(#line, #function, "Audio session interrupted")
+            pause()
+          } else {
+            cc.ok2(#line, #function, "Audio session interrupted but isActive=false, skipping pause")
+          }
         } else if type == .ended {
           let options =
             (userInfo["AVAudioSessionInterruptionOptionKey"] as? NSNumber)?

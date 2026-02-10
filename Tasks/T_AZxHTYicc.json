@@ -1,54 +1,109 @@
 {
   "completedActions" : [
-
+    {
+      "description" : "Document user story and state diagram in BackgroundPlayerView.md",
+      "id" : "HsevOcAC"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Complete BackgroundPlayerView.md design (Architecture, API, Integration sections)",
+      "duration" : 900
+    },
+    {
+      "complexity" : "moderate",
+      "description" : "Implement BackgroundPlayerView.swift - Synthesis Phase (progress modal, polling, cancel\/done)",
+      "duration" : 1800
+    },
+    {
+      "complexity" : "moderate",
+      "description" : "Create BackgroundPlayerViewTests.swift - synthesis phase state transitions and polling",
+      "duration" : 1200
+    },
+    {
+      "complexity" : "moderate",
+      "description" : "Implement BackgroundPlayerView.swift - Playback Phase (controls, segment display, lock screen)",
+      "duration" : 1800
+    },
+    {
+      "complexity" : "moderate",
+      "description" : "Refactor SuttaCardView.swift (remove old synthesis code, integrate BackgroundPlayerView)",
+      "duration" : 1200
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Run all tests and verify no regressions",
+      "duration" : 600
+    }
   ],
   "createdAt" : "2026-02-10T11:26:29Z",
   "id" : "019C474D-889C-7000-85D1-A0BD0A8C322D",
   "name" : "Design and implement BackgroundView as a replacement for the Background Playback code in SuttaCardView",
   "plannedActions" : [
-
+    {
+      "complexity" : "moderate",
+      "description" : "Implement MPRemoteCommandCenter handlers (play\/pause\/next\/previous) and update MPNowPlayingInfoCenter metadata (title, artist, album, duration, elapsed time, artwork)",
+      "duration" : 5400,
+      "id" : "IDYOkcAC",
+      "test" : "Verify playback commands work via lock screen; confirm metadata displays correctly"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Add isActive property to SuttaPlayer with setActive(value:Bool) method; have SuttaPlayer skip audio interruption handling when isActive=false; SuttaCardView calls setActive(false) when starting BackgroundPlayer, setActive(true) when stopping",
+      "duration" : 1200,
+      "id" : "IpA3PcAC",
+      "test" : "Press side button during background playback, verify lock screen appears and audio continues uninterrupted"
+    }
   ],
   "references" : [
     {
       "id" : "ref_BackgroundPlayer_impl",
-      "text" : "BackgroundPlayer orchestrates synthesis & playback",
-      "url" : null,
-      "relevance" : 0.95
-    },
-    {
-      "id" : "ref_BackgroundPlayer_doc",
-      "text" : "doc/BackgroundPlayer.md - design & API documentation",
-      "url" : null,
-      "relevance" : 0.9
+      "relevance" : 0.95,
+      "text" : "BackgroundPlayer orchestrates synthesis & playback"
     },
     {
       "id" : "ref_SuttaCardView_impl",
-      "text" : "scv-ui/Sources/scvUI/SuttaCardView.swift - file to refactor (~220 lines background code)",
-      "url" : null,
-      "relevance" : 0.95
+      "relevance" : 0.95,
+      "text" : "scv-ui\/Sources\/scvUI\/SuttaCardView.swift - file to refactor (~220 lines background code)"
+    },
+    {
+      "id" : "ref_BackgroundPlayer_doc",
+      "relevance" : 0.9,
+      "text" : "doc\/BackgroundPlayer.md - design & API documentation"
     },
     {
       "id" : "ref_SuttaCardView_doc",
-      "text" : "doc/SuttaCardView.md - Modal Progress Display lines 126-147, Progress Monitoring lines 108-122",
-      "url" : null,
-      "relevance" : 0.9
-    },
-    {
-      "id" : "ref_BackgroundPlayerTests",
-      "text" : "scv-ui/Tests/BackgroundPlayerTests.swift - test patterns to follow",
-      "url" : null,
-      "relevance" : 0.8
+      "relevance" : 0.9,
+      "text" : "doc\/SuttaCardView.md - Modal Progress Display lines 126-147, Progress Monitoring lines 108-122"
     },
     {
       "id" : "ref_AudioSynthesisSession",
-      "text" : "scv-core/Sources/AudioSynthesisSession.swift - synthesis session actor",
-      "url" : null,
-      "relevance" : 0.8
+      "relevance" : 0.8,
+      "text" : "scv-core\/Sources\/AudioSynthesisSession.swift - synthesis session actor"
+    },
+    {
+      "id" : "ref_BackgroundPlayerTests",
+      "relevance" : 0.8,
+      "text" : "scv-ui\/Tests\/BackgroundPlayerTests.swift - test patterns to follow"
+    },
+    {
+      "id" : "ref_UIBackgroundModes_apple",
+      "relevance" : 0.95,
+      "text" : "https:\/\/developer.apple.com\/documentation\/bundleresources\/information-property-list\/uibackgroundmodes - UIBackgroundModes plist configuration for background audio"
+    },
+    {
+      "id" : "ref_ConfiguringBackgroundModes_apple",
+      "relevance" : 0.9,
+      "text" : "https:\/\/developer.apple.com\/documentation\/xcode\/configuring-background-execution-modes - Apple guide for configuring background execution modes"
+    },
+    {
+      "id" : "ref_UIBackgroundModes_missing",
+      "relevance" : 0.95,
+      "text" : "scv-ios\/scv-ios\/Info.plist - Missing UIBackgroundModes with audio capability (required for lock screen audio playback)"
     }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "Extract ~220 lines of background synthesis UI code from SuttaCardView into reusable BackgroundView component that wraps BackgroundPlayer. Replace SynthesisProgressModal with BackgroundView. Reduce SuttaCardView complexity.",
-  "updatedAt" : "2026-02-10T11:26:29Z"
+  "updatedAt" : "2026-02-10T17:40:36Z"
 }
