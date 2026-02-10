@@ -127,11 +127,12 @@ stateDiagram-v2
     Synthesizing --> Cancelled: cancel()
 
     Paused --> Playing: play()
-    Paused --> Cancelled: cancel()
 
+    Playing --> Done: play complete
     Playing --> Paused: pause()
     Playing --> Cancelled: cancel()
-    Playing --> Done: play complete
+
+    Paused --> Cancelled: cancel()
 
     Done --> [*]
     Cancelled --> [*]
