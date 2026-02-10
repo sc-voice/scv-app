@@ -34,12 +34,12 @@ stateDiagram-v2
     Playing --> PlayFirst: at end of sutta
     Paused --> Playing: clicks Play
 
-    PlayFirst --> Playing: first segment
-
     Paused --> Close: click X icon
     Playing --> Close: click X icon
     Paused --> Close: click X icon
     Synthesizing --> Close: click X icon
+
+    PlayFirst --> Playing: first segment
 
     Synthesizing --> Failed: synthesis fails
     Playing --> Failed: playback fails
