@@ -31,7 +31,6 @@ stateDiagram-v2
     Synthesizing --> StartPlay: synthesis complete
     StartPlay --> Playing: show BPV playback UI 
     Playing --> Paused: click Pause
-    Playing --> PlayFirst: at end of sutta
     Paused --> Playing: clicks Play
 
     Paused --> Close: click X icon
@@ -39,6 +38,7 @@ stateDiagram-v2
     Paused --> Close: click X icon
     Synthesizing --> Close: click X icon
 
+    Playing --> PlayFirst: at end of sutta
     PlayFirst --> Playing: first segment
 
     Synthesizing --> Failed: synthesis fails
