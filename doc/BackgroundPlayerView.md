@@ -27,22 +27,21 @@ Finally, the user may cancel background synthesis/playback at any time by simply
 stateDiagram-v2
     [*] --> Open: longpress Play Icon button
 
-    Open --> SynthesisUX: show BPV synthesis UI
-    SynthesisUX --> Synthesizing: prepare()
+    Open --> Synthesizing: BPV synthesis UI
     Synthesizing --> StartPlay: synthesis complete
     StartPlay --> Playing: show BPV playback UI 
-    Playing --> Paused: user click Pause
+    Playing --> Paused: click Pause
     Playing --> Paused: at end of sutta
-    Paused --> Playing: user clicks Play
+    Paused --> Playing: clicks Play
 
-    Pause --> Close: users clicks X icon
-    Playing --> Close: users clicks X icon
-    Paused --> Close: users clicks X icon
-    Synthesizing --> Close: users clicks X icon
+    Pause --> Close: click X icon
+    Playing --> Close: click X icon
+    Paused --> Close: click X icon
+    Synthesizing --> Close: click X icon
 
     Synthesizing --> Failed: synthesis fails
     Playback --> Failed: playback fails
-    Failed --> Close: users clicks X icon
+    Failed --> Close: click X icon
 
-    Close --> [*]: stop playback/synthesis and close modal 
+    Close --> [*]: stop and close modal 
 ```
