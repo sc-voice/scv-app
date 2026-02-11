@@ -51,7 +51,7 @@ func countSuttaPali(suttaRef: String) async throws {
     throw PaliWordsError.invalidSuttaRef(suttaRef)
   }
 
-  let counter = PaliWords(lang: suttaRef.lang)
+  let counter = PaliCounter(lang: suttaRef.lang)
   await counter.countPaliWords(suttaRef: suttaRef)
 
   // Get MLDocument to print segments with "iti"
@@ -102,7 +102,7 @@ func countSuttaPali(suttaRef: String) async throws {
 }
 
 func countDocPali(lang: String) async throws {
-  let counter = PaliWords(lang: lang)
+  let counter = PaliCounter(lang: lang)
   var processedCount = 0
   var totalSuttas = 0
 
