@@ -333,9 +333,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
       }
       .sheet(isPresented: $showBackgroundPlayerView) {
-        if let player = backgroundPlayer {
+        if let bgPlayer = backgroundPlayer {
           BackgroundPlayerView(
-            player: player,
+            player: bgPlayer,
             isPresented: $showBackgroundPlayerView,
             themeProvider: themeProvider,
           )
@@ -344,6 +344,12 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             SuttaPlayer.shared.setActive(true)
           }
         }
+      }
+      .onChange(of: backgroundPlayer?.playbackSnapshot) { _, newSnapshot in
+        if let mlDoc = card.mlDoc, let segment = newSnapshot?.segment {
+          mlDoc.currentScid = segment.scid
+          cc.ok2(#line, "Updated currentScid to \(segment.scid)")
+        }
       },
     )
   }
@@ -351,18 +357,35 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   // MARK: - Private Methods
 
   private func startBackgroundPlayback() {
-    guard let suttaRef else {
-      cc.bad2(#line, #function, "suttaRef is nil")
+    guard let mlDoc = card.mlDoc else {
+      cc.bad1(#line, #function, "mlDoc is nil")
       return
     }
+
+    guard let currentScid = mlDoc.currentScid else {
+      cc.bad1(#line, #function, "currentScid is nil")
+      return
+    }
+
+    guard let suttaRef = suttaRef else {
+      cc.bad1(#line, #function, "suttaRef is nil")
+      return
+    }
+
+    guard var playRef = SuttaRef.create(currentScid) else {
+      cc.bad1(#line, #function, "Failed to create SuttaRef from \(currentScid)")
+      return
+    }
+    playRef.lang = suttaRef.lang
+    playRef.author = suttaRef.author
 
     // Disable SuttaPlayer interruption handling during background playback
     // so lock screen doesn't interrupt background audio
     SuttaPlayer.shared.setActive(false)
 
-    // Create BackgroundPlayer for this sutta
-    let player = BackgroundPlayer(suttaRef: suttaRef)
-    backgroundPlayer = player
+    // Create BackgroundPlayer with SuttaRef including segment number
+    let bgPlayer = BackgroundPlayer(suttaRef: playRef)
+    backgroundPlayer = bgPlayer
     showBackgroundPlayerView = true
     cc.ok2(
       #line,

@@ -1,0 +1,68 @@
+{
+  "completedActions" : [
+    {
+      "description" : "Initialize BackgroundPlayer using currentScid instead of suttaRef.scid",
+      "id" : "Ou6MxcAC"
+    },
+    {
+      "description" : "Update currentScid as BackgroundPlayer plays each segment",
+      "id" : "Ou6NfcAC"
+    }
+  ],
+  "createdAt" : "2026-02-11T21:28:06Z",
+  "id" : "019C4E9A-AF7B-7000-B0B9-475336C90CCC",
+  "name" : "BackgroundPlayer should be integrated with currentScid",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "id" : "AZxOqVDGcACTjoPuPgFGfg",
+      "relevance" : 0.7,
+      "text" : "BackgroundPlayerView shows instantiation pattern",
+      "url" : "\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/BackgroundPlayerView.swift"
+    },
+    {
+      "id" : "AZxOqUF4cACE4n_RUBfgeg",
+      "relevance" : 0.6,
+      "text" : "SuttaCardView creates BackgroundPlayer with suttaRef",
+      "url" : "\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/SuttaCardView.swift"
+    },
+    {
+      "id" : "AZxOn609cACgb2bzoCSOmQ",
+      "relevance" : 0.5,
+      "text" : "BackgroundPlayer uses suttaRef.scid to initialize segment",
+      "url" : "\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/BackgroundPlayer.swift"
+    },
+    {
+      "id" : "AZxOn8-icACKFjWSmYl3qA",
+      "relevance" : 0.5,
+      "text" : "CardManager and currentScid state"
+    },
+    {
+      "id" : "AZxOohUgcACrFyOGAAdgXg",
+      "relevance" : 0.5,
+      "text" : "SuttaPlayer uses currentScid"
+    },
+    {
+      "id" : "AZxOoj6kcAC20nOv1HRbKQ",
+      "relevance" : 0.4,
+      "text" : "CardTests shows currentScid behavior"
+    },
+    {
+      "id" : "AZxOpeqbcACFJH7yYiY1mg",
+      "relevance" : 0.4,
+      "text" : "SegmentView mutates currentScid on tap"
+    },
+    {
+      "id" : "AZxOpfcXcACH1_wNboaGpg",
+      "relevance" : 0.3,
+      "text" : "SuttaCardView initializes currentScid"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-11T23:07:48Z"
+}

@@ -7,6 +7,45 @@ import scvCore
   import UIKit
 #endif
 
+// MARK: - Bundle Extension
+
+#if os(iOS)
+  extension Bundle {
+    var appIcon: UIImage? {
+      if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
+         let primary = icons["CFBundlePrimaryIcon"] as? [String: Any],
+         let files = primary["CFBundleIconFiles"] as? [String],
+         let icon = files.last
+      {
+        return UIImage(named: icon)
+      }
+      return nil
+    }
+  }
+
+  // Nonisolated function to create artwork from app icon
+  // Uses CGImage to avoid MainActor isolation issues with UIImage
+  nonisolated func createAppIconArtwork() -> MPMediaItemArtwork? {
+    // Load the lock screen icon image
+    guard let iconImage = UIImage(named: "LockScreenIcon") else {
+      return nil
+    }
+
+    // Extract CGImage (not MainActor-isolated)
+    guard let cgImage = iconImage.cgImage else {
+      return nil
+    }
+
+    let size = CGSize(width: cgImage.width, height: cgImage.height)
+
+    // Create MPMediaItemArtwork with closure that converts CGImage to UIImage
+    // The closure is called by MediaPlayer on a background thread
+    return MPMediaItemArtwork(boundsSize: size) { _ in
+      UIImage(cgImage: cgImage)
+    }
+  }
+#endif
+
 // MARK: - BackgroundPlayerError
 
 /// Errors thrown by BackgroundPlayer operations
@@ -141,6 +180,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   #if os(iOS)
     private var backgroundTaskId: UIBackgroundTaskIdentifier = .invalid
     private var remoteCommandsSetup = false
+    private var artWork: MPMediaItemArtwork?
   #endif
 
   // MARK: - Initialization
@@ -174,7 +214,19 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Setup remote command handlers for lock screen
     setupRemoteCommands()
 
-    cc.ok2(#line, "init() complete")
+    // Load app icon for lock screen artwork (iOS only)
+    #if os(iOS)
+      cc.ok2(#line, #function, "loading app icon artwork...")
+      // Create artwork from app icon (nonisolated, thread-safe via CGImage)
+      artWork = createAppIconArtwork()
+      if artWork != nil {
+        cc.ok1(#line, "Loaded app icon artwork for lock screen")
+      } else {
+        cc.bad1(#line, "Failed to load app icon artwork")
+      }
+    #endif
+
+    cc.ok1(#line, "init() complete")
   }
 
   /// Configure AVAudioSession for background playback.
@@ -337,6 +389,11 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       nowPlayingInfo[MPMediaItemPropertyComments] =
         "Segment \(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)"
 
+      // Add artwork if available
+      if let artwork = artWork {
+        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+      }
+
       MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
       cc.ok2(
@@ -346,12 +403,18 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     #endif
   }
 
-  /// Clear MPNowPlayingInfoCenter metadata (called on terminal states).
+  /// Reset MPNowPlayingInfoCenter metadata to defaults (called on terminal states).
+  /// Preserves album artwork set during init.
   /// Only available on iOS.
-  private func clearNowPlayingInfo() {
+  private func resetNowPlayingInfo() {
     #if os(iOS)
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-      cc.ok2(#line, "Cleared now playing info")
+      // Preserve artwork, clear dynamic metadata
+      var nowPlayingInfo = [String: Any]()
+      if let artwork = artWork {
+        nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+      }
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+      cc.ok1(#line, "Reset now playing info")
     #endif
   }
 
@@ -405,7 +468,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     segments = await EbtData.segmentsOfSuttaRef(suttaRef)
     guard !segments.isEmpty else {
       state = .failed("No segments found")
-      clearNowPlayingInfo()
+      resetNowPlayingInfo()
       cc.bad1(#line, "No segments found for \(suttaRef)")
       throw BackgroundPlayerError.noSegments
     }
@@ -465,14 +528,14 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     case let .failed(errorMsg):
       // Synthesis failed - transition to failed state
       state = .failed(errorMsg)
-      clearNowPlayingInfo()
+      resetNowPlayingInfo()
       cc.bad1(#line, errorMsg)
       throw BackgroundPlayerError.synthesisFailure(errorMsg)
     default:
       // Unexpected state (shouldn't occur in normal flow)
       let errorMsg = "Unexpected synthesis state: \(finalSnapshot.state)"
       state = .failed(errorMsg)
-      clearNowPlayingInfo()
+      resetNowPlayingInfo()
       cc.bad1(#line, errorMsg)
       throw BackgroundPlayerError.synthesisFailure(errorMsg)
     }
@@ -508,7 +571,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Transition to cancelled
     state = .cancelled
-    clearNowPlayingInfo()
+    resetNowPlayingInfo()
     cc.ok1(#line, "cancel() complete")
   }
 
@@ -557,7 +620,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Guard: segment has text to synthesize
     guard !segmentText.trimmingCharacters(in: .whitespaces).isEmpty else {
-      cc.ok2(#line, "Segment has no text, skipping")
+      cc.ok2(#line, #function, "Segment \(segment.scid) has no text, skipping")
       return
     }
 
@@ -701,7 +764,7 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
     guard flag else {
       // Playback interrupted
       state = .failed("Playback interrupted")
-      clearNowPlayingInfo()
+      resetNowPlayingInfo()
       cc.bad1(
         #line,
         "Playback failed or interrupted for segment \(currentSegmentIndex)",
@@ -729,7 +792,7 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
     } else {
       // Reached last segment, transition to done
       state = .done
-      clearNowPlayingInfo()
+      resetNowPlayingInfo()
       updateSnapshot()
       cc.ok1(#line, "Playback completed - reached end of sutta")
     }
@@ -743,7 +806,7 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
     )
     state =
       .failed("Audio decode error: \(error?.localizedDescription ?? "unknown")")
-    clearNowPlayingInfo()
+    resetNowPlayingInfo()
     updateSnapshot()
   }
 }

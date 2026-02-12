@@ -33,12 +33,7 @@
       "complexity" : "simple",
       "description" : "Run all tests and verify no regressions",
       "duration" : 600
-    }
-  ],
-  "createdAt" : "2026-02-10T11:26:29Z",
-  "id" : "019C474D-889C-7000-85D1-A0BD0A8C322D",
-  "name" : "Design and implement BackgroundView as a replacement for the Background Playback code in SuttaCardView",
-  "plannedActions" : [
+    },
     {
       "complexity" : "moderate",
       "description" : "Implement MPRemoteCommandCenter handlers (play\/pause\/next\/previous) and update MPNowPlayingInfoCenter metadata (title, artist, album, duration, elapsed time, artwork)",
@@ -54,6 +49,12 @@
       "test" : "Press side button during background playback, verify lock screen appears and audio continues uninterrupted"
     }
   ],
+  "createdAt" : "2026-02-10T11:26:29Z",
+  "id" : "019C474D-889C-7000-85D1-A0BD0A8C322D",
+  "name" : "Design and implement BackgroundView as a replacement for the Background Playback code in SuttaCardView",
+  "plannedActions" : [
+
+  ],
   "references" : [
     {
       "id" : "ref_BackgroundPlayer_impl",
@@ -66,9 +67,24 @@
       "text" : "scv-ui\/Sources\/scvUI\/SuttaCardView.swift - file to refactor (~220 lines background code)"
     },
     {
+      "id" : "ref_UIBackgroundModes_apple",
+      "relevance" : 0.95,
+      "text" : "https:\/\/developer.apple.com\/documentation\/bundleresources\/information-property-list\/uibackgroundmodes - UIBackgroundModes plist configuration for background audio"
+    },
+    {
+      "id" : "ref_UIBackgroundModes_missing",
+      "relevance" : 0.95,
+      "text" : "scv-ios\/scv-ios\/Info.plist - Missing UIBackgroundModes with audio capability (required for lock screen audio playback)"
+    },
+    {
       "id" : "ref_BackgroundPlayer_doc",
       "relevance" : 0.9,
       "text" : "doc\/BackgroundPlayer.md - design & API documentation"
+    },
+    {
+      "id" : "ref_ConfiguringBackgroundModes_apple",
+      "relevance" : 0.9,
+      "text" : "https:\/\/developer.apple.com\/documentation\/xcode\/configuring-background-execution-modes - Apple guide for configuring background execution modes"
     },
     {
       "id" : "ref_SuttaCardView_doc",
@@ -84,26 +100,11 @@
       "id" : "ref_BackgroundPlayerTests",
       "relevance" : 0.8,
       "text" : "scv-ui\/Tests\/BackgroundPlayerTests.swift - test patterns to follow"
-    },
-    {
-      "id" : "ref_UIBackgroundModes_apple",
-      "relevance" : 0.95,
-      "text" : "https:\/\/developer.apple.com\/documentation\/bundleresources\/information-property-list\/uibackgroundmodes - UIBackgroundModes plist configuration for background audio"
-    },
-    {
-      "id" : "ref_ConfiguringBackgroundModes_apple",
-      "relevance" : 0.9,
-      "text" : "https:\/\/developer.apple.com\/documentation\/xcode\/configuring-background-execution-modes - Apple guide for configuring background execution modes"
-    },
-    {
-      "id" : "ref_UIBackgroundModes_missing",
-      "relevance" : 0.95,
-      "text" : "scv-ios\/scv-ios\/Info.plist - Missing UIBackgroundModes with audio capability (required for lock screen audio playback)"
     }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "Extract ~220 lines of background synthesis UI code from SuttaCardView into reusable BackgroundView component that wraps BackgroundPlayer. Replace SynthesisProgressModal with BackgroundView. Reduce SuttaCardView complexity.",
-  "updatedAt" : "2026-02-10T17:40:36Z"
+  "updatedAt" : "2026-02-11T23:08:22Z"
 }

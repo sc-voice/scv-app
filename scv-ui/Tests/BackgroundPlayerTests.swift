@@ -112,6 +112,36 @@ struct BackgroundPlayerTests {
     }
   }
 
+  @Test("prepare() starts at segment identified by suttaRef.scid")
+  func prepareStartsAtSpecificSegment() async throws {
+    // Create SuttaRef with specific segment number (not just sutta UID)
+    guard let suttaRef = SuttaRef.create("thig1.1:0.3/de/sabbamitta") else {
+      #expect(Bool(false), "Failed to create SuttaRef with segment")
+      return
+    }
+
+    let testAudioStorePath =
+      URL(
+        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+      )
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare synthesis
+    let snapshot = try await player.prepare()
+
+    await MainActor.run {
+      #expect(player.state == .paused)
+      // Should start at segment 0.3 (3rd segment), not at first segment
+      #expect(snapshot.segment.scid == "thig1.1:0.3")
+      #expect(snapshot.segmentIndex > 0) // Not at first segment
+      #expect(player.playbackSnapshot?.segment.scid == "thig1.1:0.3")
+    }
+  }
+
   @Test("prepare() throws when sutta not found")
   func prepareThrowsNoSegments() async throws {
     let suttaRef = try SuttaRef(

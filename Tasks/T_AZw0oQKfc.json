@@ -27,12 +27,7 @@
       "duration" : 1800,
       "name" : "Implement cancel()",
       "test" : "make test-ui"
-    }
-  ],
-  "createdAt" : "2026-02-06T20:24:53Z",
-  "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
-  "name" : "Implement BackgroundPlayer",
-  "plannedActions" : [
+    },
     {
       "description" : "Design phase: clarify play() vs prepare() async workflows; determine responsibilities; document state machine and background task lifecycle",
       "id" : "4yBf3cAC"
@@ -44,6 +39,18 @@
       "name" : "Implement play() and pause()",
       "test" : "make test-ui"
     },
+    {
+      "complexity" : "Moderate",
+      "description" : "Update MPNowPlayingInfoCenter with sutta title, current segment\/total segments, elapsed time, artwork; sync with playback progress via timer or delegate callbacks",
+      "duration" : 5400,
+      "name" : "Lock screen metadata (Now Playing Info)",
+      "test" : "make test-ui"
+    }
+  ],
+  "createdAt" : "2026-02-06T20:24:53Z",
+  "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
+  "name" : "Implement BackgroundPlayer",
+  "plannedActions" : [
     {
       "complexity" : "Moderate",
       "description" : "Implement cancel() for playing audio; validate state; manage AVAudioPlayer playback; update playbackSnapshot with elapsed time; emit appropriate state transitions (.playing -> .cwncelled)",
@@ -70,13 +77,6 @@
       "description" : "Implement background task lifecycle: beginBackgroundTask() when entering playback; endBackgroundTask() when paused or playback completes; ensure proper cleanup on cancellation",
       "duration" : 1800,
       "name" : "Implement background task management",
-      "test" : "make test-ui"
-    },
-    {
-      "complexity" : "Moderate",
-      "description" : "Update MPNowPlayingInfoCenter with sutta title, current segment\/total segments, elapsed time, artwork; sync with playback progress via timer or delegate callbacks",
-      "duration" : 5400,
-      "name" : "Lock screen metadata (Now Playing Info)",
       "test" : "make test-ui"
     },
     {
@@ -182,5 +182,5 @@
 
   ],
   "summary" : "BackgroundPlayer orchestrates passive user listening of the current SuttaCard with minimal UX suitable for background playback.",
-  "updatedAt" : "2026-02-10T00:56:15Z"
+  "updatedAt" : "2026-02-12T02:37:08Z"
 }
