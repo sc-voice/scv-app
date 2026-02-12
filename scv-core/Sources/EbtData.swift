@@ -1047,7 +1047,8 @@ public actor EbtData {
         segments.append(segment)
       }
 
-      // Sort segments using proper SCID ordering (not lexicographic string sort)
+      // Sort segments using proper SCID ordering (not lexicographic string
+      // sort)
       segments.sort { SuttaCentralId.compareLow($0.scid, $1.scid) < 0 }
 
       return segments

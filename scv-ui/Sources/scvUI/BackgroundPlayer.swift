@@ -242,7 +242,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
         try session.setCategory(
           .playback,
           mode: .spokenAudio,
-          options: []
+          options: [],
         )
 
         // Activate the session
@@ -256,7 +256,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   }
 
   /// Setup audio session interruption handler for background playback.
-  /// Unlike foreground playback (SuttaPlayer), BackgroundPlayer continues playing
+  /// Unlike foreground playback (SuttaPlayer), BackgroundPlayer continues
+  /// playing
   /// through lock screen activation and other interruptions.
   /// Only available on iOS.
   private func setupAudioInterruptionHandler() {
@@ -282,12 +283,17 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
         if type == .began {
           // Lock screen or other interruption began
-          if self.state == .playing {
-            // During playback: continue through lock screen (background playback mode)
-            cc.ok2(#line, #function, "Lock screen activated but continuing playback")
+          if state == .playing {
+            // During playback: continue through lock screen (background
+            // playback mode)
+            cc.ok2(
+              #line,
+              #function,
+              "Lock screen activated but continuing playback",
+            )
           } else {
             // During synthesis or other states: allow normal interruption
-            cc.ok2(#line, #function, "Audio interrupted during \(self.state)")
+            cc.ok2(#line, #function, "Audio interrupted during \(state)")
           }
         } else if type == .ended {
           // Interruption ended (e.g., lock screen dismissed)
@@ -295,16 +301,26 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
           configureAudioSession()
 
           // Resume playback if we were playing before interruption
-          // Note: AVAudioSession needs time to reinitialize, so use dispatch_after
-          // with a small delay before resuming. This is a known workaround for iOS 14+
+          // Note: AVAudioSession needs time to reinitialize, so use
+          // dispatch_after
+          // with a small delay before resuming. This is a known workaround for
+          // iOS 14+
           // (See: https://github.com/liorazi/AVAudioSessionWorkaround)
-          if self.state == .playing {
-            cc.ok1(#line, #function, "Resuming playback after lock screen (delayed)")
+          if state == .playing {
+            cc.ok1(
+              #line,
+              #function,
+              "Resuming playback after lock screen (delayed)",
+            )
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
               self.play()
             }
           } else {
-            cc.ok2(#line, #function, "Interruption ended but not resuming - state: \(self.state)")
+            cc.ok2(
+              #line,
+              #function,
+              "Interruption ended but not resuming - state: \(state)",
+            )
           }
         }
       }
@@ -312,7 +328,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   }
 
   /// Setup MPRemoteCommandCenter handlers for lock screen controls.
-  /// Registers handlers for play, pause, skip forward (next), skip backward (previous).
+  /// Registers handlers for play, pause, skip forward (next), skip backward
+  /// (previous).
   /// Only available on iOS.
   private func setupRemoteCommands() {
     #if os(iOS)
@@ -352,7 +369,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   }
 
   /// Update MPNowPlayingInfoCenter with current playback metadata.
-  /// Called whenever playback state or segment changes to keep lock screen in sync.
+  /// Called whenever playback state or segment changes to keep lock screen in
+  /// sync.
   /// Only available on iOS.
   private func updateNowPlayingInfo() {
     #if os(iOS)
@@ -403,7 +421,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     #endif
   }
 
-  /// Reset MPNowPlayingInfoCenter metadata to defaults (called on terminal states).
+  /// Reset MPNowPlayingInfoCenter metadata to defaults (called on terminal
+  /// states).
   /// Preserves album artwork set during init.
   /// Only available on iOS.
   private func resetNowPlayingInfo() {
@@ -783,7 +802,8 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
       audioPlayer = nil
 
       // Set earliest time next segment can play (respecting segmentPause)
-      earliestPlaybackTime = Date().addingTimeInterval(audioContext.segmentPause)
+      earliestPlaybackTime = Date()
+        .addingTimeInterval(audioContext.segmentPause)
 
       // Chain to next segment: advance index and play
       currentSegmentIndex += 1

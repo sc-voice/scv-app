@@ -63,7 +63,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   }
 
   /// Set whether SuttaPlayer should handle audio interruptions
-  /// When BackgroundPlayer is active, SuttaPlayer should skip interruption handling
+  /// When BackgroundPlayer is active, SuttaPlayer should skip interruption
+  /// handling
   /// to prevent lock screen from interrupting background playback
   @MainActor
   public func setActive(_ value: Bool) {
@@ -91,11 +92,15 @@ public final class SuttaPlayer: NSObject, ObservableObject,
           .InterruptionType(rawValue: typeValue.uintValue)
 
         if type == .began {
-          if self.isActive {
+          if isActive {
             cc.bad1(#line, #function, "Audio session interrupted")
             pause()
           } else {
-            cc.ok2(#line, #function, "Audio session interrupted but isActive=false, skipping pause")
+            cc.ok2(
+              #line,
+              #function,
+              "Audio session interrupted but isActive=false, skipping pause",
+            )
           }
         } else if type == .ended {
           let options =

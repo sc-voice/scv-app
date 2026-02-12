@@ -533,7 +533,9 @@ struct EbtDataTests {
     }
   }
 
-  @Test("segmentsOfSuttaRef returns segments ordered by SuttaCentralId.compareLow()")
+  @Test(
+    "segmentsOfSuttaRef returns segments ordered by SuttaCentralId.compareLow()",
+  )
   func segmentsOfSuttaRefOrdering() async {
     guard let suttaRef = SuttaRef.create("an1.1-10/en/sujato") else {
       Issue.record("Failed to create SuttaRef")
@@ -559,9 +561,10 @@ struct EbtDataTests {
     }
 
     // Verify an1.2:1.0 comes before an1.10:1.0 (catches lexicographic sort bug)
-    let scids = segments.map { $0.scid }
+    let scids = segments.map(\.scid)
     guard let an1_2_idx = scids.firstIndex(of: "an1.2:1.0"),
-          let an1_10_idx = scids.firstIndex(of: "an1.10:1.0") else {
+          let an1_10_idx = scids.firstIndex(of: "an1.10:1.0")
+    else {
       Issue.record("Expected segments an1.2:1.0 and an1.10:1.0 not found")
       return
     }

@@ -327,7 +327,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         Task {
           if let bgPlayer = backgroundPlayer {
             await bgPlayer.cancel()
-            // Re-enable SuttaPlayer interruption handling when background playback ends
+            // Re-enable SuttaPlayer interruption handling when background
+            // playback ends
             SuttaPlayer.shared.setActive(true)
           }
         }
@@ -340,7 +341,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             themeProvider: themeProvider,
           )
           .onDisappear {
-            // Re-enable SuttaPlayer interruption handling when BackgroundPlayerView closes
+            // Re-enable SuttaPlayer interruption handling when
+            // BackgroundPlayerView closes
             SuttaPlayer.shared.setActive(true)
           }
         }
@@ -367,7 +369,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       return
     }
 
-    guard let suttaRef = suttaRef else {
+    guard let suttaRef else {
       cc.bad1(#line, #function, "suttaRef is nil")
       return
     }

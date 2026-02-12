@@ -375,7 +375,7 @@ struct BackgroundPlayerLockScreenTests {
     await MainActor.run {
       let totalSegments =
         player.playbackSnapshot?.totalSegments ?? 0
-      for _ in 0..<totalSegments {
+      for _ in 0 ..< totalSegments {
         player.playNext()
       }
 
