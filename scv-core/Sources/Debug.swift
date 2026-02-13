@@ -19,6 +19,10 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct AudioContext: Sendable {
+    public static let other: Int = 2
+  }
+
   public struct AudioEffects: Sendable {
     public static let other: Int = 2
   }

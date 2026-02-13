@@ -1062,6 +1062,87 @@ struct AudioStoreTests {
     print("Playback complete\n")
   }
 
+  @Test("diskSize() returns 0 for empty store")
+  func diskSizeEmptyStore() async {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+
+    let size = await store.diskSize()
+
+    #expect(size == 0, "Empty store should have size 0, got \(size)")
+  }
+
+  @Test("diskSize() returns positive value after synthesis")
+  func diskSizeAfterSynthesis() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+    let text = "So I have heard."
+
+    // Before synthesis: size should be 0
+    let sizeBefore = await store.diskSize()
+    #expect(sizeBefore == 0, "Size should be 0 before synthesis")
+
+    // Synthesize audio
+    _ = try await store.storeAudio(text: text, audioContext: context)
+
+    // After synthesis: size should be positive
+    let sizeAfter = await store.diskSize()
+    #expect(
+      sizeAfter > 50000,
+      "Size should be > 50KB after synthesis, got \(sizeAfter) bytes",
+    )
+  }
+
+  @Test("diskSize() increases with multiple files")
+  func diskSizeMultipleFiles() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+    let context = AudioContext(for: "en")
+
+    // Synthesize first file
+    _ = try await store.storeAudio(
+      text: "So I have heard.",
+      audioContext: context,
+    )
+    let sizeAfterFirst = await store.diskSize()
+
+    // Synthesize second file (different text)
+    _ = try await store.storeAudio(
+      text: "This is another sentence for testing.",
+      audioContext: context,
+    )
+    let sizeAfterSecond = await store.diskSize()
+
+    #expect(
+      sizeAfterSecond > sizeAfterFirst,
+      "Size should increase after adding second file",
+    )
+    #expect(
+      sizeAfterFirst > 50000,
+      "First file size should be > 50KB",
+    )
+  }
+
+  @Test("diskSize() returns 0 for non-existent store")
+  func diskSizeNonExistentStore() async {
+    let tempDir =
+      URL(
+        fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)/non-existent",
+      )
+    let store = AudioStore.create(path: tempDir)
+
+    let size = await store.diskSize()
+
+    #expect(
+      size == 0,
+      "Non-existent store should return 0, got \(size)",
+    )
+  }
+
   @Test("ASYNC: M4A conversion doesn't block CAF playback")
   func asyncM4AConversionDoesntBlock() async throws {
     let root = projectRoot()

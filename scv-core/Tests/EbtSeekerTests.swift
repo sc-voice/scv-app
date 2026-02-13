@@ -35,6 +35,9 @@ struct EbtSeekerTests {
 
   @Test("DE lemma search benchmark: all 38 results with exact scores")
   func deLemmaSearchBenchmark() async throws {
+    // WARNING: THIS IS A BRITTLE TEST THAT DETECTS RELEVANCE SCORE CHANGES
+    // IF TEST FAILS, ANALYZE DIFFERENCES FOUND (POSSIBLY TRANSLATOR CHANGE)
+    // IF TRANSLATOR CHANGE, ASK CLAUDE TO UPDATE TEST WITH ACTUAL DATA
     let seeker = try await EbtData.getSeeker(
       lang: "de",
       author: "sabbamitta",
@@ -43,13 +46,14 @@ struct EbtSeekerTests {
     let result = await seeker.searchLemma("abhängige entstehen")
     let msElapsed = (CFAbsoluteTimeGetCurrent() - timeStart) * 1000
 
-    // All 38 results after fixing Lemmatizer diacritical preservation
+    // All 39 results after fixing Lemmatizer diacritical preservation
     // Scores rounded to 3 decimal places
     let expected: [(sutta: String, score: Double)] = [
       ("an10.93/de/sabbamitta", 9.088),
       ("sn12.20/de/sabbamitta", 7.113),
       ("sn36.7/de/sabbamitta", 6.103),
       ("sn22.81/de/sabbamitta", 6.056),
+      ("mn152/de/sabbamitta", 6.048),
       ("mn28/de/sabbamitta", 6.038),
       ("sn12.1/de/sabbamitta", 4.098),
       ("dn15/de/sabbamitta", 4.016),
@@ -86,7 +90,7 @@ struct EbtSeekerTests {
       ("dn33/de/sabbamitta", 1.001),
     ]
 
-    #expect(result.items.count == 38)
+    #expect(result.items.count == 39)
 
     for (i, (expectedSutta, expectedScore)) in expected.enumerated() {
       let actual = result.items[i]

@@ -97,6 +97,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
   /// "Default".
   /// The hash property is computed and stored at initialization.
   public init(for docLang: String, from settings: Settings = Settings.shared) {
+    let cc = ColorConsole(#file, #function, dbg.AudioContext.other)
     self.docLang = docLang
 
     let langCode = ScvLanguage(code: docLang) ?? .english
@@ -106,9 +107,11 @@ public struct AudioContext: Codable, Hashable, Sendable {
     // Resolve voiceId: if empty (Default), capture actual default voice ID
     if !langSettings.voiceId.isEmpty {
       voiceId = langSettings.voiceId
+      cc.ok2(#line, #function, "voiceId:\(voiceId)")
     } else {
       let defaultVoice = AVSpeechSynthesisVoice(language: langCode.code)
       voiceId = defaultVoice?.identifier ?? ""
+      cc.ok2(#line, #function, "voiceId:\(voiceId)")
     }
 
     pitch = langSettings.pitch
@@ -125,6 +128,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
       "segmentPause": segmentPause,
     ]
     hash = mj.hash(dict)
+    cc.ok1(#line, #function, hash)
   }
 
   /// Compute deterministic hash of audio context using MerkleJson.

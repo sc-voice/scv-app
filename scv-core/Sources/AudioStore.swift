@@ -254,7 +254,7 @@ public final class AudioStore: @unchecked Sendable {
 
     // Create utterance with audio context voice settings
     let utterance = AVSpeechUtterance(string: text)
-    utterance.voice = AVSpeechSynthesisVoice(language: audioContext.docLang)
+    utterance.voice = AVSpeechSynthesisVoice(identifier: audioContext.voiceId)
     utterance.rate = AVSpeechUtteranceDefaultSpeechRate
     utterance.pitchMultiplier = audioContext.pitch
     utterance.volume = 1.0
@@ -593,5 +593,66 @@ public final class AudioStore: @unchecked Sendable {
   private func volumeName(lang: String, hash: String) -> String {
     let hashPrefix = String(hash.prefix(7))
     return "\(lang)-\(hashPrefix)"
+  }
+
+  /// Calculate total disk size of the audio store in bytes.
+  ///
+  /// Recursively traverses all volumes and audio files, summing their sizes.
+  /// Returns 0 if store doesn't exist or if calculation fails.
+  ///
+  /// - Returns: Total disk size in bytes
+  public func diskSize() async -> Int {
+    let fileManager = FileManager.default
+
+    func calculateDirectorySize(at path: URL) throws -> Int {
+      var totalSize = 0
+      let contents = try fileManager.contentsOfDirectory(
+        at: path,
+        includingPropertiesForKeys: [.fileSizeKey],
+        options: [.skipsHiddenFiles],
+      )
+
+      for item in contents {
+        var isDir: ObjCBool = false
+        guard fileManager.fileExists(atPath: item.path, isDirectory: &isDir)
+        else {
+          continue
+        }
+
+        if isDir.boolValue {
+          totalSize += try calculateDirectorySize(at: item)
+        } else {
+          let attributes = try fileManager.attributesOfItem(atPath: item.path)
+          if let fileSize = attributes[.size] as? Int {
+            totalSize += fileSize
+          }
+        }
+      }
+
+      return totalSize
+    }
+
+    return await Task.detached(priority: .userInitiated) { [weak self] in
+      guard let self else { return 0 }
+
+      guard fileManager.fileExists(atPath: guidStore.storePath.path) else {
+        return 0
+      }
+
+      do {
+        return try calculateDirectorySize(at: guidStore.storePath)
+      } catch {
+        let cc = ColorConsole(
+          #file,
+          "AudioStore.diskSize",
+          dbg.AudioStore.other,
+        )
+        cc.bad2(
+          #line,
+          "Failed to calculate disk size: \(error)",
+        )
+        return 0
+      }
+    }.value
   }
 }

@@ -24,6 +24,8 @@ public struct SettingsView: View {
   @State private var showDocAuthorPicker = false
   @State private var showRefLangPicker = false
   @State private var expandedSection: String? = "languages"
+  @State private var audioStoreDiskSize: Int = 0
+  @State private var isLoadingDiskSize = true
 
   private func toggleSection(_ section: String) {
     if expandedSection == section {
@@ -31,6 +33,13 @@ public struct SettingsView: View {
     } else {
       expandedSection = section
     }
+  }
+
+  private func formatDiskSize(_ bytes: Int) -> String {
+    let formatter = ByteCountFormatter()
+    formatter.allowedUnits = [.useBytes, .useKB, .useMB, .useGB]
+    formatter.countStyle = .file
+    return formatter.string(fromByteCount: Int64(bytes))
   }
 
   public init(controller: SettingsModalController) {
@@ -197,12 +206,42 @@ public struct SettingsView: View {
                 ),
               ) {
                 VStack(alignment: .leading, spacing: 12) {
-                  Button(
-                    "settings.clear.audio.button".localized,
-                    role: .destructive,
-                  ) {
-                    showClearAudioConfirmation = true
+                  // Audio Store Disk Size
+                  HStack {
+                    Image(systemName: "internaldrive")
+                      .foregroundColor(themeProvider.theme.secondaryTextColor
+                        .opacity(themeProvider.theme.iconOpacity))
+                      .frame(minWidth: 44)
+                    VStack(alignment: .leading, spacing: 2) {
+                      Text("Audio Store")
+                        .font(.body)
+                        .foregroundColor(themeProvider.theme.textColor)
+                      if isLoadingDiskSize {
+                        Text("Loading...")
+                          .font(.system(.caption2))
+                          .foregroundColor(themeProvider.theme
+                            .secondaryTextColor)
+                      } else {
+                        Text(formatDiskSize(audioStoreDiskSize))
+                          .font(.system(.caption2))
+                          .foregroundColor(themeProvider.theme
+                            .secondaryTextColor)
+                      }
+                    }
+                    Spacer()
+                    Button(role: .destructive) {
+                      showClearAudioConfirmation = true
+                    } label: {
+                      Label(
+                        "settings.clear.audio.button".localized,
+                        systemImage: "trash.fill",
+                      )
+                    }
+                    .labelStyle(.iconOnly)
                   }
+
+                  Divider()
+                    .padding(.vertical, 4)
 
                   Button(
                     "settings.reset.button".localized,
@@ -260,6 +299,16 @@ public struct SettingsView: View {
         Task {
           _ = await AudioStore.shared.clearAllAudio()
           cc.ok1(#line, "cleared all audio")
+
+          // Refresh disk size after clearing
+          let size = await AudioStore.shared.diskSize()
+          DispatchQueue.main.async {
+            audioStoreDiskSize = size
+            cc.ok2(
+              #line,
+              "Audio store disk size after clear: \(formatDiskSize(size))",
+            )
+          }
         }
       }
       Button(
@@ -272,6 +321,16 @@ public struct SettingsView: View {
     .onAppear {
       isLoading = false
       cc.ok1(#line, #function, "isLoading: \(isLoading)")
+
+      // Load audio store disk size
+      Task {
+        let size = await AudioStore.shared.diskSize()
+        DispatchQueue.main.async {
+          audioStoreDiskSize = size
+          isLoadingDiskSize = false
+          cc.ok2(#line, "Audio store disk size: \(formatDiskSize(size))")
+        }
+      }
     }
   } // View
 } // SettingsView
