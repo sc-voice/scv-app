@@ -91,6 +91,18 @@
 /* Alert button label for canceling action */
 "alert.cancel" = "Cancelar";
 
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Limpiar Almacenamiento de Audio";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "¿Limpiar Almacenamiento de Audio?";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Esto eliminará todo el audio en caché y no se puede deshacer.";
+
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Limpiar";
+
 /* Settings toggle label for playing Pali text during narration */
 "settings.play.pali" = "Pali";
 
@@ -387,3 +399,12 @@
 
 /* Context menu: background playback option */
 "synthesis.background_playback" = "Reproducción en Segundo Plano";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Referencia de Sutta Inválida";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Error en la Búsqueda";

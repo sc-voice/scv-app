@@ -91,6 +91,18 @@
 /* Alert button label for canceling action */
 "alert.cancel" = "Atšaukti";
 
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Išvalyti Garso Saugyklą";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Išvalyti Garso Saugyklą?";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Tai ištins visą talpintą garso atkarpą ir negali būti atšaukta.";
+
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Išvalyti";
+
 /* Settings toggle label for playing Pali text during narration */
 "settings.play.pali" = "Pali";
 
@@ -387,3 +399,12 @@
 
 /* Context menu: background playback option */
 "synthesis.background_playback" = "Foninio atkūrimo režimas";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Neteisinga Sutos Nuoroda";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Paieška Nepavyko";

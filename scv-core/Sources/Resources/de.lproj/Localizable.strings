@@ -91,6 +91,30 @@
 /* Alert button label for canceling action */
 "alert.cancel" = "Abbrechen";
 
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Audio-Store Löschen";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Audio-Store Löschen?";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Dies löscht alle zwischengespeicherten Audiodateien und kann nicht rückgängig gemacht werden.";
+
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Löschen";
+
+/* Settings label for customization options */
+"settings.customize" = "Anpassen";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Dunkler Modus";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Tonhöhe";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Geschwindigkeit";
+
 /* Settings section header for narrator voice settings */
 "settings.narrator" = "Erzähler";
 
@@ -375,3 +399,12 @@
 
 /* Context menu: background playback option */
 "synthesis.background_playback" = "Hintergrund-Wiedergabe";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Ungültige Sutta-Referenz";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Suche Fehlgeschlagen";

@@ -399,3 +399,12 @@
 
 /* Context menu: background playback option */
 "synthesis.background_playback" = "Background Playback";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Invalid Sutta Reference";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Search Failed";
