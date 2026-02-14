@@ -6,6 +6,7 @@ import UUIDV7
 let DBG_TASK = 2
 
 // Global state
+nonisolated(unsafe) var world: TaskWorld! // Global context (initialized in parseArgs)
 nonisolated(unsafe) var commandTask: String? // T_BASE64 format (user-facing)
 nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
 nonisolated(unsafe) var commandTaskPrefix: String? // Task prefix from -t/--task
@@ -21,17 +22,17 @@ do {
   let isInitCommand = args.contains("init")
 
   if !isInitCommand {
-    // var worldPath: String?
+    var worldPath: String?
 
     // Check for --world flag in arguments
     for i in 0 ..< args.count {
       if args[i] == "-w" || args[i] == "--world", i + 1 < args.count {
-        // worldPath = args[i + 1]
+        worldPath = args[i + 1]
         break
       }
     }
 
-    var currentPath = FileManager.default.currentDirectoryPath
+    var currentPath = worldPath ?? FileManager.default.currentDirectoryPath
     let fileManager = FileManager.default
     var found = false
 
@@ -310,6 +311,8 @@ func parseArgs() throws
     }
   }
 
+  world = TaskWorld(basePath: finalRootDirectory)
+
   return (finalRootDirectory, command, commandArgs)
 }
 
@@ -425,8 +428,6 @@ func handleList(args: [String], rootDirectory: URL) throws {
 
     i += 1
   }
-
-  let world = TaskWorld(basePath: rootDirectory)
 
   // Use command-line overrides if specified, otherwise use persistent settings
   let showDone = showDoneOverride ?? world.showDone
@@ -546,7 +547,6 @@ func handleAdd(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-n/--name")
   }
 
-  let world = TaskWorld(basePath: rootDirectory)
   let task = try world.createTaskSync(name: name, summary: summary ?? "")
 
   print("Created task: \(task.idFile) - \(task.name)")
@@ -641,8 +641,6 @@ func handlePop(args _: [String], rootDirectory: URL) throws {
 
 func showActions(title: String, actions: [Action]) {
   if !actions.isEmpty {
-    let world = TaskWorld.shared
-
     print("\n\(title)")
     let effectiveLimit = world.limit > 0 ? world.limit : actions.count
     let displayActions = Array(actions.prefix(effectiveLimit))
@@ -699,7 +697,6 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  let world = TaskWorld.shared
   let allTaskIds = world.allTaskIds(showFileName: true)
   let allTasks = allTaskIds.compactMap { world.taskFrom(anyId: $0) }
   let task = try findTask(

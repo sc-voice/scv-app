@@ -12,8 +12,6 @@ import UUIDV7
 /// state
 /// (taskMap, _taskStack) without changing the public API.
 public class TaskWorld: ITaskWorld, @unchecked Sendable {
-  public static let shared = TaskWorld()
-
   private var taskMap: [String: Task] = [:] // keyed by filename or UUID string
   private var worldModel: WorldModel
   private var basePath: URL
@@ -46,8 +44,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   }
 
   public init(basePath: URL? = nil) {
-    let path = basePath ??
-      URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    let path = basePath ?? Self.findProjectRoot()
     self.basePath = path
     taskManager = TaskManager(basePath: path)
     worldFilePath = path.appendingPathComponent(".task-world.json")
@@ -79,6 +76,31 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     } catch {
       // If loading fails, start with empty map
       print("Warning: Failed to load tasks: \(error)")
+    }
+  }
+
+  /// Search upward from current directory for .task-world.json
+  /// Returns the directory containing .task-world.json, or current directory if not found
+  private static func findProjectRoot() -> URL {
+    var currentPath = FileManager.default.currentDirectoryPath
+    let fileManager = FileManager.default
+
+    // Traverse upwards looking for .task-world.json
+    while true {
+      let worldPath = URL(fileURLWithPath: currentPath)
+        .appendingPathComponent(".task-world.json").path
+      if fileManager.fileExists(atPath: worldPath) {
+        return URL(fileURLWithPath: currentPath, isDirectory: true)
+      }
+
+      let parent = URL(fileURLWithPath: currentPath).deletingLastPathComponent().path
+      if parent == currentPath {
+        // Reached filesystem root without finding .task-world.json
+        // Fall back to current directory
+        return URL(fileURLWithPath: currentPath, isDirectory: true)
+      }
+
+      currentPath = parent
     }
   }
 
