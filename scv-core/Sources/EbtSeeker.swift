@@ -421,7 +421,7 @@ public struct SeekerResult: Sendable, Codable {
   public var error: SearchError?
 
   /// Logging for SeekerResult operations (not encoded)
-  private nonisolated(unsafe) let cc = ColorConsole(
+  private let cc = ColorConsole(
     #file,
     #function,
     dbg.EbtData.other,

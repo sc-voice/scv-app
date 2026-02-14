@@ -98,9 +98,8 @@ public final class AutoComplete: @unchecked Sendable {
   let cc = ColorConsole(#file, #function, dbg.AutoComplete.other)
 
   /// Shared singleton instance
-  /// nonisolated(unsafe): singleton initialized once, safe to access from any
-  /// thread
-  public nonisolated(unsafe) static let shared = AutoComplete()
+  /// singleton initialized once, safe to access from any thread
+  public static let shared = AutoComplete()
 
   /// Phrase data organized by author:lang key
   /// Key format: "author:lang"

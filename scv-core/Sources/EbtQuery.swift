@@ -84,33 +84,30 @@ public class EbtQuery {
       // lang/author combinations
       var allItems: [SeekerResultItem] = []
       var lastError: SearchError?
-      var elapsedTime: TimeInterval = 0
 
       for suttaRef in suttaRefs {
-        if suttaRef != nil {
-          let exists = await EbtData.suttaRefExists(suttaRef: suttaRef)
-          if exists {
-            let item = SeekerResultItem(
-              suttaRef: suttaRef,
-              score: 1.0,
-            )
-            allItems.append(item)
-          } else {
-            let format = NSLocalizedString("translation.not.found", comment: "")
-            let message = String(
-              format: format,
-              suttaRef.lang,
-              suttaRef.author ?? "unknown",
-            )
-            let detail = "\(suttaRef.toString()) not found in \(suttaRef.lang)/\(suttaRef.author ?? "unknown") database"
-            cc.bad1(#line, #function, detail)
-            lastError = SearchError(
-              message: message,
-              detail: detail,
-            )
-            allItems = []
-            break
-          }
+        let exists = await EbtData.suttaRefExists(suttaRef: suttaRef)
+        if exists {
+          let item = SeekerResultItem(
+            suttaRef: suttaRef,
+            score: 1.0,
+          )
+          allItems.append(item)
+        } else {
+          let format = NSLocalizedString("translation.not.found", comment: "")
+          let message = String(
+            format: format,
+            suttaRef.lang,
+            suttaRef.author ?? "unknown",
+          )
+          let detail = "\(suttaRef.toString()) not found in \(suttaRef.lang)/\(suttaRef.author ?? "unknown") database"
+          cc.bad1(#line, #function, detail)
+          lastError = SearchError(
+            message: message,
+            detail: detail,
+          )
+          allItems = []
+          break
         }
       }
 

@@ -29,7 +29,6 @@ let package = Package(
         .process("Resources"),
       ],
       swiftSettings: [
-        .unsafeFlags(["-suppress-warnings"], .when(configuration: .debug)),
       ],
       plugins: [
         .plugin(

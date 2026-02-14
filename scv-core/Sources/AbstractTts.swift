@@ -96,7 +96,7 @@ final class AbstractTts {
 
     // Check customWords first (highest priority)
     if let customWords {
-      if let wordData = customWords[lowerWord] as? [String: Any] {
+      if let wordData = customWords[lowerWord] as [String: Any]? {
         let lang = wordData["language"] as? String ?? language
         let ipa = wordData["ipa"] as? String
         return WordInfo(language: lang, ipa: ipa)

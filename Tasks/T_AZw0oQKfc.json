@@ -45,12 +45,7 @@
       "duration" : 5400,
       "name" : "Lock screen metadata (Now Playing Info)",
       "test" : "make test-ui"
-    }
-  ],
-  "createdAt" : "2026-02-06T20:24:53Z",
-  "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
-  "name" : "Implement BackgroundPlayer",
-  "plannedActions" : [
+    },
     {
       "complexity" : "Moderate",
       "description" : "Implement cancel() for playing audio; validate state; manage AVAudioPlayer playback; update playbackSnapshot with elapsed time; emit appropriate state transitions (.playing -> .cwncelled)",
@@ -107,6 +102,12 @@
       "name" : "Build & verify",
       "test" : "make test-ui"
     }
+  ],
+  "createdAt" : "2026-02-06T20:24:53Z",
+  "id" : "019C34A1-029F-7000-96B4-BFD40E762FEC",
+  "name" : "Implement BackgroundPlayer",
+  "plannedActions" : [
+
   ],
   "references" : [
     {
@@ -182,5 +183,5 @@
 
   ],
   "summary" : "BackgroundPlayer orchestrates passive user listening of the current SuttaCard with minimal UX suitable for background playback.",
-  "updatedAt" : "2026-02-12T02:37:08Z"
+  "updatedAt" : "2026-02-13T20:52:27Z"
 }

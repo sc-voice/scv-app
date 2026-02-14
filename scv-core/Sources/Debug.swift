@@ -20,19 +20,19 @@ public struct dbg: Sendable {
   }
 
   public struct AudioContext: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AudioStore: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AudioSynthesisSession: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct AutoComplete: Sendable {
@@ -40,7 +40,7 @@ public struct dbg: Sendable {
   }
 
   public struct CachedSynthesizer: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct CardManager: Sendable {
@@ -56,7 +56,7 @@ public struct dbg: Sendable {
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = 2
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -109,7 +109,7 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaPlayer: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct SuttaCardView: Sendable {
@@ -129,7 +129,7 @@ public struct dbg: Sendable {
   }
 
   public struct ZStd: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct scvUITests: Sendable {

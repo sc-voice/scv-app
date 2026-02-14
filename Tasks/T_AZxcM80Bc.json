@@ -1,0 +1,111 @@
+{
+  "completedActions" : [
+    {
+      "description" : "Cleaned up 11 warnings in scv-core by fixing nil-coalescing, unused variables, redundant conformances, and downcasts"
+    },
+    {
+      "description" : "Discovered genuine data race: PaliCounter reads mlDoc from background thread while UI mutates currentScid on main thread"
+    },
+    {
+      "description" : "Analyzed actor boundary issue: EbtData (actor) returns MLDocument (non-Sendable) requiring @unchecked Sendable workaround"
+    },
+    {
+      "description" : "Designed solution: Extract segment building to EbtData.segmentsForSuttaRef() returning [Segment]? (already Sendable)"
+    },
+    {
+      "description" : "Made instance method getMLDocument() internal (EbtData.swift:592) - only called by static wrapper, hide non-Sendable return from public API"
+    },
+    {
+      "description" : "Made getDocument() private (EbtData.swift:632) - only called internally by instance getMLDocument()"
+    },
+    {
+      "description" : "Created doc\/MLDocument.md - comprehensive API documentation with trilingual segment overview and all properties"
+    },
+    {
+      "description" : "Encapsulated MLDocument: made all 35 properties private, exposed only 6 fields needed by callers (segMap public var, sutta_uid\/docLang\/docAuthor\/docAuthorName public private(set), currentScid public var)"
+    },
+    {
+      "description" : "Identified unused MLDocument fields through compiler-driven testing - all 29 other fields completely unused and can be removed in future refactor"
+    },
+    {
+      "description" : "Verified build succeeds (scv-core and scv-ui) with encapsulated properties and @Model macro"
+    },
+    {
+      "description" : "Established MLDocument encapsulation pattern: segMap remains public var (needs mutation during segment merge), sutta_uid\/docLang\/docAuthor\/docAuthorName use public private(set) (immutable after init), currentScid remains public var (UI mutates for selection). Pattern enables safe factory method implementation outside actor."
+    },
+    {
+      "complexity" : "medium",
+      "description" : "Create static factory MLDocument.create(suttaRef:docSegments:pliSegments:) in MLDocument.swift. Takes Sendable segment dictionaries and builds enriched MLDocument by merging pli text into doc segments (handles pli\/non-pli logic). Factory runs outside actor, receiving only Sendable data.",
+      "duration" : 1200,
+      "name" : "Create MLDocument.create() static factory"
+    },
+    {
+      "complexity" : "medium",
+      "description" : "Refactor static getMLDocument(suttaRef:) in EbtData.swift to call segmentsOfSuttaRef() twice (doc segments and pli segments), then cross actor boundary with Sendable [Segment], finally call MLDocument.create() outside actor to build enriched document.",
+      "duration" : 1200,
+      "name" : "Refactor static getMLDocument() to use factory"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Remove '@unchecked Sendable' from MLDocument class definition (line 15 of MLDocument.swift) - no longer needed after refactor",
+      "duration" : 300,
+      "name" : "Remove @unchecked Sendable"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Run 'swift build' and 'swift test' to verify no actor boundary crossing errors and all tests pass",
+      "duration" : 900,
+      "name" : "Build and test verification",
+      "test" : "Build succeeds with no errors, swift test passes all tests"
+    }
+  ],
+  "createdAt" : "2026-02-14T12:50:24Z",
+  "id" : "019C5C33-CD01-7000-98F2-9B83AD660BC8",
+  "name" : "Fix MLDocument @unchecked Sendable problem",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "id" : "AZxczCWncACKQ_aElOhBqQ",
+      "relevance" : 0.95,
+      "text" : "EbtData actor definition and getMLDocument() implementation with segment building logic",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/EbtData.swift"
+    },
+    {
+      "id" : "AZxczCWncAGbGvhEZGz25Q",
+      "relevance" : 0.9,
+      "text" : "MLDocument class using @unchecked Sendable - needs removal after refactor",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/MLDocument.swift"
+    },
+    {
+      "id" : "AZxczCWncAWyfUozINaxQg",
+      "relevance" : 0.9,
+      "text" : "MLDocument API documentation - comprehensive guide to properties, methods, and new factory pattern",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/MLDocument.md"
+    },
+    {
+      "id" : "AZxczCWncAKhFF3lSHbWUA",
+      "relevance" : 0.85,
+      "text" : "Segment struct - already Sendable, used as return type for new segmentsForSuttaRef()",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/Segment.swift"
+    },
+    {
+      "id" : "AZxczCWncAO6XBTh7_qsPQ",
+      "relevance" : 0.8,
+      "text" : "PaliCounter.countPaliWordsExhaustive() - background thread caller accessing mlDoc",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/PaliWords.swift"
+    },
+    {
+      "id" : "AZxczCWncASQSn18rV4aTA",
+      "relevance" : 0.75,
+      "text" : "CardManager - stores MLDocument in Card model, needs segment-based construction",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/Card.swift"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Remove @unchecked Sendable by refactoring static getMLDocument() to fetch Sendable segments across actor boundary, then build MLDocument locally (outside actor)",
+  "updatedAt" : "2026-02-14T15:37:09Z"
+}

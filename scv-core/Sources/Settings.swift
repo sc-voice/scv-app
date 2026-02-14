@@ -458,7 +458,7 @@ public class Settings: Codable {
     {
       if let defaultInfo = manifest.defaultAuthorForLanguage(refLang.code) {
         refAuthor = defaultInfo.author
-        cc.ok2(#line, #function, "refAuthor <=", refAuthor)
+        cc.ok2(#line, #function, "refAuthor <=", refAuthor as Any)
       }
     }
 

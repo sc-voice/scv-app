@@ -8,6 +8,8 @@ let DBG_TASK = 2
 // Global state
 nonisolated(unsafe) var commandTask: String? // T_BASE64 format (user-facing)
 nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
+nonisolated(unsafe) var commandTaskPrefix: String? // Task prefix from -t/--task
+// global flag
 nonisolated(unsafe) var commandItem: Int?
 
 // Quick check: ensure task infrastructure exists before proceeding
@@ -126,25 +128,23 @@ func parseArgs() throws
   var showDoneOverride: Bool?
   var showUpdateOverride: Bool?
   let allArgs = Array(CommandLine.arguments.dropFirst())
-  var globalOptionIndices = Set<Int>() // Track which indices are global options
 
-  // First pass: extract global options from anywhere in the args
+  // Single pass: extract all global parameters and collect remaining args
+  var remainingArgs: [String] = []
   var i = 0
+
   while i < allArgs.count {
     let arg = allArgs[i]
 
     if arg == "-w" || arg == "--world" {
-      globalOptionIndices.insert(i)
       i += 1
       guard i < allArgs.count else {
         print("Error: -w/--world requires a directory path argument")
         exit(1)
       }
       rootDirectory = URL(fileURLWithPath: allArgs[i])
-      globalOptionIndices.insert(i)
       i += 1
     } else if arg == "-v" || arg == "--verbosity" {
-      globalOptionIndices.insert(i)
       i += 1
       guard i < allArgs.count else {
         print(
@@ -158,10 +158,8 @@ func parseArgs() throws
         print("Error: -v/--verbosity requires value 0, 1, or 2")
         exit(1)
       }
-      globalOptionIndices.insert(i)
       i += 1
     } else if arg == "-ll" || arg == "--ll" || arg == "--line-length" {
-      globalOptionIndices.insert(i)
       i += 1
       guard i < allArgs.count else {
         print("Error: -ll/--ll/--line-length requires a value")
@@ -172,10 +170,8 @@ func parseArgs() throws
         exit(1)
       }
       lineLengthOverride = lineLength
-      globalOptionIndices.insert(i)
       i += 1
     } else if arg == "-l" || arg == "--limit" {
-      globalOptionIndices.insert(i)
       i += 1
       guard i < allArgs.count else {
         print("Error: -l/--limit requires a value")
@@ -186,10 +182,15 @@ func parseArgs() throws
         exit(1)
       }
       limitOverride = limit
-      globalOptionIndices.insert(i)
+      i += 1
+    } else if arg == "-t" || arg == "--task" {
+      i += 1
+      guard i < allArgs.count else {
+        throw CliError.missingValue(arg)
+      }
+      commandTaskPrefix = allArgs[i]
       i += 1
     } else if arg == "-i" || arg == "--item" {
-      globalOptionIndices.insert(i)
       i += 1
       guard i < allArgs.count else {
         throw CliError.missingValue(arg)
@@ -198,50 +199,35 @@ func parseArgs() throws
         throw CliError.invalidActionNumber(allArgs[i])
       }
       commandItem = num
-      globalOptionIndices.insert(i)
       i += 1
     } else if arg == "--no-show-done" {
-      globalOptionIndices.insert(i)
       showDoneOverride = false
       i += 1
     } else if arg == "--show-done" {
-      globalOptionIndices.insert(i)
       showDoneOverride = true
       i += 1
     } else if arg == "--no-show-update" {
-      globalOptionIndices.insert(i)
       showUpdateOverride = false
       i += 1
     } else if arg == "--show-update" {
-      globalOptionIndices.insert(i)
       showUpdateOverride = true
       i += 1
     } else {
+      // Not a global parameter, keep it
+      remainingArgs.append(arg)
       i += 1
     }
   }
 
-  // Second pass: find command (first non-global-option argument)
-  var commandIndex: Int?
-  for (idx, _) in allArgs.enumerated() {
-    if !globalOptionIndices.contains(idx) {
-      commandIndex = idx
-      break
-    }
-  }
-
-  guard let commandIndex else {
+  // Extract command from remaining args (first argument)
+  guard !remainingArgs.isEmpty else {
     printUsage()
     exit(1)
   }
 
-  let command = allArgs[commandIndex]
-  // Pass only non-global-option args to the command
-  let commandArgs = allArgs.enumerated()
-    .filter { offset, _ in
-      offset > commandIndex && !globalOptionIndices.contains(offset)
-    }
-    .map { _, arg in arg }
+  let command = remainingArgs[0]
+  // Command args are everything after the command
+  let commandArgs = Array(remainingArgs.dropFirst())
 
   // Set rootDirectory if not already specified via --world
   if rootDirectory == nil {
@@ -328,6 +314,22 @@ func parseArgs() throws
 }
 
 // MARK: - Helpers
+
+/// Get task prefix from command-line: prefer global -t flag, fallback to
+/// current task
+func getTaskPrefix(from _: [String]? = nil) throws -> String {
+  // Prefer global commandTaskPrefix if set
+  if let taskPrefix = commandTaskPrefix {
+    return taskPrefix
+  }
+
+  // Fallback to current task from stack
+  if let currentTask = commandTask {
+    return currentTask
+  }
+
+  throw CliError.missingRequired("-t/--task (or set via task stack)")
+}
 
 func formatRelevanceBar(_ relevance: Double) -> String {
   let clamped = max(0, min(1, relevance))
@@ -938,20 +940,13 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
 }
 
 func handleActionAdd(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var description: String?
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg.hasPrefix("-") {
+    if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
       // Positional argument - description
@@ -982,10 +977,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("DESCRIPTION")
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1052,20 +1044,13 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
 }
 
 func handleActionReplace(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var description: String?
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg.hasPrefix("-") {
+    if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
       // Positional argument - description
@@ -1084,10 +1069,7 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("DESCRIPTION")
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1145,19 +1127,12 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
 }
 
 func handleActionDone(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else {
+    if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     }
 
@@ -1166,10 +1141,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
 
   let actionNumber = commandItem ?? 1
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1228,20 +1200,13 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
 }
 
 func handleActionDelete(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var force = false
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg == "--force" {
+    if arg == "--force" {
       force = true
     } else {
       throw CliError.unknownOption(arg)
@@ -1254,10 +1219,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1409,7 +1371,6 @@ func handleReferenceList(args: [String], rootDirectory: URL) throws {
 }
 
 func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var url: URL?
   var text: String?
   var relevance = 0.5
@@ -1419,13 +1380,7 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg == "-u" || arg == "--url" {
+    if arg == "-u" || arg == "--url" {
       i += 1
       guard i < args.count else {
         throw CliError.missingValue(arg)
@@ -1466,10 +1421,7 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
     }
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1520,7 +1472,6 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
 }
 
 func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var url: URL?
   var text: String?
   var relevance: Double?
@@ -1529,13 +1480,7 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg == "-u" || arg == "--url" {
+    if arg == "-u" || arg == "--url" {
       i += 1
       guard i < args.count else {
         throw CliError.missingValue(arg)
@@ -1569,10 +1514,7 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1640,20 +1582,13 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
 }
 
 func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
   var force = false
   var i = 0
 
   while i < args.count {
     let arg = args[i]
 
-    if arg == "-t" || arg == "--task" {
-      i += 1
-      guard i < args.count else {
-        throw CliError.missingValue(arg)
-      }
-      taskPrefix = args[i]
-    } else if arg == "--force" {
+    if arg == "--force" {
       force = true
     } else {
       throw CliError.unknownOption(arg)
@@ -1666,10 +1601,7 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
-  guard let inputPrefix else {
-    throw CliError.missingRequired("-t/--task (or set via task stack)")
-  }
+  let inputPrefix = try getTaskPrefix()
 
   let taskManager = TaskManager(basePath: rootDirectory)
   let tasks = try taskManager.allTasks()
@@ -1921,20 +1853,19 @@ func printHelpForCommand(_ command: String) throws {
       "  task add -n \"Implement feature X\" -s \"Add user authentication\"",
     )
   case "push":
-    print("Usage: task push [PREFIX] [-t|--task PREFIX]")
+    print("Usage: task push [PREFIX]")
     print("")
     print("Push a task to the stack (for prioritization).")
     print("If already stacked, moves to top.")
     print("")
-    print("Options:")
-    print(
-      "  -t, --task PREFIX    Task prefix or full name (default: current task or most recent)",
-    )
+    print("Use global -t/--task option to specify task (can appear anywhere):")
+    print("  task -t T_AZ push")
+    print("  task push -t T_AZ")
     print("")
     print("Example:")
     print("  task push                # Use current task from stack")
     print("  task push T_AZ           # Positional argument")
-    print("  task push -t T_AZ        # Named argument")
+    print("  task -t T_AZ push        # Global option")
   case "pop":
     print("Usage: task pop")
     print("")
@@ -1943,85 +1874,89 @@ func printHelpForCommand(_ command: String) throws {
     print("Example:")
     print("  task pop")
   case "show":
-    print("Usage: task show [-t|--task PREFIX] [-f|--format FORMAT]")
+    print("Usage: task show [-f|--format FORMAT]")
     print("")
     print("Display task details including actions and references.")
     print("")
     print("Options:")
-    print(
-      "  -t, --task PREFIX    Task prefix or full name (default: current task)",
-    )
     print("  -f, --format FORMAT  Output format: json or text (default: text)")
     print("")
+    print("Use global -t/--task option to specify task (can appear anywhere):")
+    print("  task -t T_AZ show")
+    print("  task show -f json -t T_AZ")
+    print("")
     print("Example:")
-    print("  task show -t T_AZ")
-    print("  task show -t T_AZ -f json")
+    print("  task show")
+    print("  task show -f json")
+    print("  task -t T_AZ show -f json")
   case "delete":
-    print("Usage: task delete [-t|--task PREFIX] [--force]")
+    print("Usage: task delete [--force]")
     print("")
     print("Delete a task (prompts for confirmation unless --force).")
     print("")
     print("Options:")
-    print(
-      "  -t, --task PREFIX    Task prefix or full name (default: current task)",
-    )
     print("  --force              Skip confirmation prompt")
     print("")
-    print("Example:")
-    print("  task delete -t T_AZ")
+    print("Use global -t/--task option to specify task (can appear anywhere):")
+    print("  task -t T_AZ delete")
     print("  task delete -t T_AZ --force")
+    print("")
+    print("Example:")
+    print("  task delete")
+    print("  task -t T_AZ delete")
+    print("  task delete --force -t T_AZ")
   case "action":
     print("Usage: task action <subcommand> [OPTIONS]")
     print("")
     print("Manage planned and completed actions for tasks.")
+    print("Global -t/--task and -i/--item options can appear anywhere.")
     print("")
     print("Subcommands:")
-    print("  list [-t|--task PREFIX]")
+    print("  list")
     print("      List actions for task")
-    print("  add [-i NUMBER] [-t|--task PREFIX] DESCRIPTION")
-    print("      Add action (insert at position if -i specified)")
-    print("  replace -i NUMBER [-t|--task PREFIX] DESCRIPTION")
-    print("      Replace action #NUMBER (1-based)")
-    print("  done [-i NUMBER] [-t|--task PREFIX]")
+    print("  add DESCRIPTION")
+    print("      Add action (use global -i to insert at position)")
+    print("  replace DESCRIPTION")
+    print("      Replace action (use global -i to specify action number)")
+    print("  done")
     print(
-      "      Move first planned action to completed (or action #NUMBER if -i specified)",
+      "      Move first planned action to completed (use global -i for specific action)",
     )
-    print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
-    print("      Delete action #NUMBER")
+    print("  delete [--force]")
+    print("      Delete action (use global -i to specify action number)")
     print("")
     print("Example:")
     print("  task action list")
-    print("  task action add -t T_AZ \"New action\"")
-    print("  task action add -i 1 \"Insert at position 1\"")
-    print(
-      "  task action done  # move first planned action to completed actions",
-    )
+    print("  task -t T_AZ action add \"New action\"")
+    print("  task action add -i 1 \"Insert at position 1\" -t T_AZ")
+    print("  task action done -t T_AZ")
+    print("  task action delete -i 1 --force")
   case "ref", "reference":
     print("Usage: task ref <subcommand> [OPTIONS]")
     print("")
     print("Manage references (URLs, text, relevance scores) for tasks.")
     print("Synonyms: ref, reference")
+    print("Global -t/--task and -i/--item options can appear anywhere.")
     print("")
     print("Subcommands:")
-    print("  list [-t|--task PREFIX]")
+    print("  list")
     print("      List references for task")
     print(
-      "  add [URL|TEXT] [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]",
+      "  add [URL|TEXT] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]",
     )
     print("      Add reference (positional: URL or text, or use -u/-x flags)")
-    print(
-      "  replace -i NUMBER [-t|--task PREFIX] [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]",
-    )
-    print("      Replace reference #NUMBER")
-    print("  delete -i NUMBER [-t|--task PREFIX] [--force]")
-    print("      Delete reference #NUMBER")
+    print("  replace [-u|--url URL] [-x|--text TEXT] [-r|--relevance REL]")
+    print("      Replace reference (use global -i to specify reference number)")
+    print("  delete [--force]")
+    print("      Delete reference (use global -i to specify reference number)")
     print("")
     print("Example:")
-    print("  task ref list -t T_AZ")
+    print("  task ref list")
+    print("  task -t T_AZ ref list")
     print("  task ref add https://example.com")
-    print(
-      "  task reference add -t T_AZ https://example.com -x \"Example\" -r 0.8",
-    )
+    print("  task ref add https://example.com -x \"Example\" -r 0.8 -t T_AZ")
+    print("  task ref replace -i 1 -x \"Updated text\"")
+    print("  task ref delete -i 1 --force")
   default:
     throw CliError.unknownSubcommand(command)
   }
@@ -2031,9 +1966,11 @@ func printUsage() {
   let usage = """
   Usage: task [OPTIONS] <command> [ARGS]
 
-  Options:
+  Options (position-independent, can appear anywhere):
     -w, --world DIR     Project root directory (default: current directory)
     -v, --verbosity LVL Set verbosity level (0: terse, 1: normal, 2: verbose)
+    -t, --task PREFIX   Task prefix (can appear anywhere, overrides stack)
+    -i, --item NUMBER   Action/reference item number (1-based)
     -l, --limit ROWS    Limit reference count (default: 20, 0 = unlimited)
     -ll, --ll, --line-length CHARS
                         Set output line length for wrapping (default: 80, min: 20)

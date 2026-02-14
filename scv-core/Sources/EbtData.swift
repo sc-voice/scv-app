@@ -42,7 +42,7 @@ public actor EbtData {
   private nonisolated(unsafe) var lemmatizers: [String: Lemmatizer] = [:]
 
   // Manifest loaded once at app startup
-  private nonisolated(unsafe) static let manifestCache: DatabaseManifest =
+  private static let manifestCache: DatabaseManifest =
     .shared
 
   private nonisolated(unsafe) static var instanceCache: [String: EbtData] = [:]
@@ -53,7 +53,7 @@ public actor EbtData {
                                      .shared) async -> EbtData?
   {
     let cc = ColorConsole(#file, #function, dbg.EbtData.other)
-    let langActual = lang ?? settings.docLang.rawValue ?? "en"
+    let langActual = lang ?? settings.docLang.rawValue
     let authorActual = author ?? manifestCache
       .defaultAuthorForLanguage(langActual)?.author ?? ""
     let cacheKey = "\(langActual)/\(authorActual)"
@@ -100,7 +100,7 @@ public actor EbtData {
                                        .shared) async -> EbtDb?
   {
     let cc = ColorConsole(#file, #function, dbg.EbtData.other)
-    let langActual = lang ?? settings.docLang.rawValue ?? "en"
+    let langActual = lang ?? settings.docLang.rawValue
     let authorActual = author ?? manifestCache
       .defaultAuthorForLanguage(langActual)?.author ?? ""
 
@@ -125,20 +125,60 @@ public actor EbtData {
     return db
   }
 
-  /// Static convenience method to get MLDocument for a SuttaRef
-  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// Returns trilingual MLDocument for a SuttaRef
+  /// with trilingual segments comprising pli, doc, and ref fields
+  /// The doc field text is determined by the suttaRef language and author
   /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
   /// identifier
-  /// - Returns: MLDocument with segments populated, or nil if not found or
-  /// instance creation fails
+  /// - Parameter refLang (Optional) [TODO]
+  /// - Parameter refAuthor (Optional) [TODO]
+  /// - Returns: MLDocument with segments populated, or nil if not found
   public static func getMLDocument(suttaRef: SuttaRef) async -> MLDocument? {
+    let cc = ColorConsole(#file, #function, dbg.EbtData.other)
     guard let ebtData = await forLangAuthor(
       lang: suttaRef.lang,
       author: suttaRef.author,
     ) else {
       return nil
     }
-    return await ebtData.getMLDocument(suttaRef: suttaRef)
+    let docLang = suttaRef.lang
+
+    // Fetch doc segments
+    let docSegments = await segmentsOfSuttaRef(suttaRef)
+    guard !docSegments.isEmpty else {
+      cc.bad1(#line, #function, suttaRef.description)
+      return nil
+    }
+
+    // Fetch pli segments if not already pli
+    let pliSegments: [Segment]
+    if docLang == "pli" {
+      pliSegments = docSegments
+    } else {
+      guard let pliRef = SuttaRef.create(suttaRef.suttaUid) else {
+        cc.bad1(#line, #function, "could not create pli ref")
+        return nil
+      }
+      pliSegments = await segmentsOfSuttaRef(pliRef)
+    }
+
+    // Get author name from metaprops
+    let authorName = await ebtData.getMetaprop(
+      lang: suttaRef.lang,
+      author: suttaRef.author ?? "",
+      key: "author_name",
+    ) ?? (suttaRef.author ?? "")
+
+    // Build and return MLDocument using factory
+    let mlDoc = MLDocument.create(
+      suttaRef: suttaRef,
+      docAuthorName: authorName,
+      pliSegments: pliSegments,
+      docSegments: docSegments,
+    )
+
+    cc.ok1(#line, #function, suttaRef.suttaUid, "OK")
+    return mlDoc
   }
 
   /// Static convenience method to get segments for a SuttaRef
@@ -201,7 +241,7 @@ public actor EbtData {
       author: suttaRef.author,
     ) else {
       throw EbtDataError.cannotOpenDatabase(
-        lang: suttaRef.lang ?? "unknown",
+        lang: suttaRef.lang,
         author: suttaRef.author ?? "unknown",
       )
     }
@@ -580,129 +620,6 @@ public actor EbtData {
   }
 
   // MARK: - MLDocument Retrieval
-
-  /// Returns trilingual MLDocument for a SuttaRef
-  /// with trilingual segments comprising pli, doc, and ref fields
-  /// The doc field text is determined by the suttaRef language and author
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
-  /// identifier
-  /// - Parameter refLang (Optional) [TODO]
-  /// - Parameter refAuthor (Optional) [TODO]
-  /// - Returns: MLDocument with segments populated, or nil if not found
-  public func getMLDocument(suttaRef: SuttaRef) -> MLDocument? {
-    let docLang = suttaRef.lang ?? "pli"
-    guard var mlDoc = getDocument(suttaRef: suttaRef) else {
-      cc.bad1(#line, #function, suttaRef.description)
-      return nil
-    }
-
-    if docLang == "pli" {
-      for (scid, var segment) in mlDoc.segMap {
-        segment.pli = segment.doc
-        mlDoc.segMap[scid] = segment
-      }
-    } else {
-      guard let pliRef = SuttaRef.create(suttaRef.suttaUid) else {
-        cc.bad1(#line, #function, "could not create pli ref")
-        return mlDoc
-      }
-      guard let pliDoc = getDocument(suttaRef: pliRef) else {
-        cc.bad1(#line, #function, pliRef.toString())
-        return mlDoc
-      }
-      for (scid, pliSegment) in pliDoc.segMap {
-        let pliText = pliSegment.doc
-        if var docSegment = mlDoc.segMap[scid] {
-          docSegment.pli = pliText
-          mlDoc.segMap[scid] = docSegment
-        } else {
-          let newSegment = Segment(scid: scid, pli: pliText)
-          mlDoc.segMap[scid] = newSegment
-        }
-      }
-    }
-
-    return mlDoc
-  }
-
-  /// Returns single-language MLDocument for a SuttaRef
-  /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
-  /// identifier
-  /// - Returns: MLDocument with segments populated, or nil if not found
-  public func getDocument(suttaRef: SuttaRef) -> MLDocument? {
-    guard let author = suttaRef.author else {
-      cc.bad1(#line, #function, "missing author")
-      return nil
-    }
-    let lang = suttaRef.lang
-    let suttaId = suttaRef.suttaUid
-
-    do {
-      try ensureDatabase(lang: lang, author: author)
-      let key = "\(lang)/\(author)"
-      guard let db = databases[key] else {
-        cc.bad1(#line, #function, key, "database?")
-        return nil
-      }
-
-      // Get author name from metaprops
-      let authorName = getMetaprop(
-        lang: lang,
-        author: author,
-        key: "author_name",
-      ) ?? author
-
-      // Query segments for this sutta (schema v6: using suttaUid, scid, text)
-      let query = "SELECT scid, text FROM segments WHERE suttaUid = ?"
-      var stmt: OpaquePointer?
-
-      guard sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK else {
-        cc.bad1(#line, #function, "sqlite3_prepare_v2 failed")
-        return nil
-      }
-
-      defer { sqlite3_finalize(stmt) }
-
-      sqlite3_bind_text(stmt, 1, (suttaId as NSString).utf8String, -1, nil)
-
-      var segMap: [String: Segment] = [:]
-      while sqlite3_step(stmt) == SQLITE_ROW {
-        guard let segmentIdC = sqlite3_column_text(stmt, 0),
-              let segmentTextC = sqlite3_column_text(stmt, 1)
-        else {
-          continue
-        }
-
-        let segmentId = String(cString: segmentIdC)
-        let segmentText = String(cString: segmentTextC)
-
-        // Create Segment with scid = segmentId
-        let segment = Segment(scid: segmentId, doc: segmentText, matched: false)
-        segMap[segmentId] = segment
-      }
-
-      guard !segMap.isEmpty else {
-        cc.bad1(#line, #function, suttaId, "segments?")
-        return nil
-      }
-
-      // Construct MLDocument
-      let mlDoc = MLDocument(
-        author: author,
-        segMap: segMap,
-        sutta_uid: suttaId,
-        docLang: lang,
-        docAuthor: author,
-        docAuthorName: authorName,
-      )
-
-      cc.ok1(#line, #function, suttaId, "OK")
-      return mlDoc
-    } catch {
-      cc.bad1(#line, #function, error.localizedDescription)
-      return nil
-    }
-  }
 
   /// Search for a specific sutta by reference (e.g., "mn1", "sn42.11")
   /// Returns SeekerResult with .suttaref method

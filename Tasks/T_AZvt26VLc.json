@@ -1,6 +1,9 @@
 {
   "completedActions" : [
-
+    {
+      "description" : "SQLite is fast enuf",
+      "id" : "ZCnd0cAC"
+    }
   ],
   "createdAt" : "2026-01-24T02:35:53Z",
   "id" : "019BEDDB-A54B-7000-9C73-A7FCD7DCADE2",
@@ -14,7 +17,6 @@
   "requiredTasks" : [
 
   ],
-  "state" : "active",
   "summary" : "Cache recently searched suttas for offline access",
-  "updatedAt" : "2026-01-24T02:35:53Z"
+  "updatedAt" : "2026-02-13T22:06:32Z"
 }

@@ -59,7 +59,7 @@ public class MerkleJson {
       var acc = ""
       for key in sortedKeys {
         if key != hashTag {
-          let val = dict[key]
+          let val = dict[key] as Any?
           acc += key + ":" + hash(val, cached: cached) + ","
         }
       }

@@ -8726,7 +8726,7 @@ public struct Tipitaka {
     }
 
     for path in sortedPaths {
-      guard var ref = refsByPath[path] else { continue }
+      guard let ref = refsByPath[path] else { continue }
       let segments = path.split(separator: "/", omittingEmptySubsequences: true)
 
       // Find all direct children (paths with exactly one more segment)
@@ -8847,7 +8847,7 @@ public struct Tipitaka {
 
     let numericPart = suttaUid[numStart...]
     let numberStr = String(numericPart.prefix { $0.isNumber })
-    guard let number = Int(numberStr) else { return nil }
+    guard !numberStr.isEmpty else { return nil }
 
     // Build key to lookup
     let lookupKey = prefix + numberStr
@@ -8872,7 +8872,7 @@ public struct Tipitaka {
     let cc = ColorConsole(#file, #function, dbg.Tipitaka.other)
 
     do {
-      var suttaUids = await EbtData.suttaUidsForAuthor(
+      let suttaUids = await EbtData.suttaUidsForAuthor(
         lang: lang,
         author: author,
       )
@@ -8969,8 +8969,6 @@ public struct Tipitaka {
 
       cc.ok1(#line, #function, result)
       return result
-    } catch {
-      cc.bad1(#line, #function, error)
     }
   }
 

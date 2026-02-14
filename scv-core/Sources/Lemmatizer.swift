@@ -239,7 +239,7 @@ public struct Lemmatizer: Sendable {
       ) { tag, _ in
         if tag == nil {
           lemma = word
-        } else if tag!.rawValue == nil {
+        } else if tag!.rawValue.isEmpty {
           lemma = word + "2"
         } else {
           lemma = tag!.rawValue

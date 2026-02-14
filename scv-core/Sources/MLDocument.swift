@@ -12,39 +12,82 @@ import SwiftData
 // MARK: - ML Document
 
 @Model
-public final class MLDocument: Codable, @unchecked Sendable {
-  public var author: String
+public final class MLDocument: Codable {
+  var author: String
   public var segMap: [String: Segment]
-  public var blurb: String
-  public var stats: DocumentStats?
+  var blurb: String
+  var stats: DocumentStats?
 
   // Additional fields from MockResponse
-  public var author_uid: String
-  public var bilaraPaths: [String]
-  public var category: String
-  public var footer: String
-  public var hyphen: String
-  public var lang: String
-  public var langSegs: [String: Int]
-  public var maxWord: Int
-  public var minWord: Int
-  public var score: Double
-  public var segsMatched: Int
-  public var sutta_uid: String
-  public var title: String
-  public var type: String
-  public var trilingual: Bool
-  public var docLang: String
-  public var docAuthor: String
-  public var docAuthorName: String
-  public var docFooter: String
-  public var refLang: String
-  public var refAuthor: String
-  public var refAuthorName: String
-  public var refFooter: String
+  private var author_uid: String
+  private var bilaraPaths: [String]
+  private var category: String
+  private var footer: String
+  private var hyphen: String
+  private var lang: String
+  private var langSegs: [String: Int]
+  private var maxWord: Int
+  private var minWord: Int
+  private var score: Double
+  private var segsMatched: Int
+  public private(set) var sutta_uid: String
+  var title: String
+  private var type: String
+  private var trilingual: Bool
+  public private(set) var docLang: String
+  public private(set) var docAuthor: String
+  public private(set) var docAuthorName: String
+  private var docFooter: String
+  private var refLang: String
+  private var refAuthor: String
+  private var refAuthorName: String
+  private var refFooter: String
 
   // Selection tracking
   public var currentScid: String?
+
+  public static func create(
+    suttaRef: SuttaRef,
+    docAuthorName: String,
+    pliSegments: [Segment] = [],
+    docSegments: [Segment] = [],
+    refSegments: [Segment] = [],
+  ) -> MLDocument {
+    var segMap: [String: Segment] = [:]
+
+    for pliSegment in pliSegments {
+      let scid = pliSegment.scid
+      segMap[scid] = Segment(scid: scid, pli: pliSegment.doc)
+    }
+
+    for docSegment in docSegments {
+      let scid = docSegment.scid
+      if var segment = segMap[scid] {
+        segment.doc = docSegment.doc
+        segMap[scid] = segment
+      } else {
+        segMap[scid] = docSegment
+      }
+    }
+
+    for refSegment in refSegments {
+      let scid = refSegment.scid
+      if var segment = segMap[scid] {
+        segment.ref = refSegment.doc
+        segMap[scid] = segment
+      } else {
+        segMap[scid] = refSegment
+      }
+    }
+
+    return MLDocument(
+      segMap: segMap,
+      sutta_uid: suttaRef.suttaUid,
+      docLang: suttaRef.lang,
+      docAuthor: suttaRef.author ?? "",
+      docAuthorName: docAuthorName,
+    )
+  }
 
   public init(
     author: String = "",
@@ -65,7 +108,7 @@ public final class MLDocument: Codable, @unchecked Sendable {
     sutta_uid: String = "",
     title: String = "",
     type: String = "",
-    trilingual: Bool = false,
+    trilingual: Bool = true,
     docLang: String = "",
     docAuthor: String = "",
     docAuthorName: String = "",
@@ -143,7 +186,7 @@ public final class MLDocument: Codable, @unchecked Sendable {
     title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
     type = try container.decodeIfPresent(String.self, forKey: .type) ?? ""
     trilingual = try container
-      .decodeIfPresent(Bool.self, forKey: .trilingual) ?? false
+      .decodeIfPresent(Bool.self, forKey: .trilingual) ?? true
     docLang = try container.decodeIfPresent(String.self, forKey: .docLang) ?? ""
     docAuthor = try container
       .decodeIfPresent(String.self, forKey: .docAuthor) ?? ""

@@ -57,7 +57,7 @@ public final class AudioStore: @unchecked Sendable {
   let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 
   /// Shared singleton instance for production use
-  public nonisolated(unsafe) static let shared = AudioStore.create()
+  public static let shared = AudioStore.create()
 
   /// Private initializer - use create() factory method instead
   private init(
