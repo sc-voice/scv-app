@@ -753,7 +753,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
     }
     showActions(title: "Planned Actions:", actions: task.plannedActions)
     showActions(title: "Completed Actions:", actions: task.completedActions)
-    if !task.references.isEmpty {
+    if !task.references.isEmpty, WorldModel.shared.verbosity > 0 {
       print("\nReferences:")
       let effectiveLimit = WorldModel.shared.limit > 0 ? WorldModel.shared
         .limit : task.references.count
@@ -762,10 +762,8 @@ func handleShow(args: [String], rootDirectory: URL) throws {
 
       for (index, ref) in displayReferences.enumerated() {
         switch WorldModel.shared.verbosity {
-        case 0: // Terse: index only
-          print("  \(index + 1).")
         case 1: // Normal: 2 lines max
-          var firstLine = "  \(index + 1). \(formatRelevanceBar(ref.relevance))"
+          var firstLine = "  \(index + 1). \(ref.id) \(formatRelevanceBar(ref.relevance))"
           if let url = ref.url {
             firstLine += " \(url.absoluteString)"
             print(wrapLine(firstLine, maxLength: WorldModel.shared.lineLength))
@@ -782,11 +780,7 @@ func handleShow(args: [String], rootDirectory: URL) throws {
             print(firstLine)
           }
         case 2: // Verbose: all fields
-          print("  \(index + 1).")
-          print(wrapLine(
-            "    id: \(ref.id)",
-            maxLength: WorldModel.shared.lineLength,
-          ))
+          print("  \(index + 1). \(ref.id)")
           if let text = ref.text {
             print(wrapLine(
               "    text: \(text)",
@@ -925,40 +919,40 @@ func handleActionList(args: [String], rootDirectory: URL) throws {
   } else {
     print("Planned Actions:")
     for (index, action) in task.plannedActions.enumerated() {
-      print("  \(index + 1). \(action.description)")
+      print("  \(index + 1). \(action.name)")
     }
   }
 
   if !task.completedActions.isEmpty {
     print("\nCompleted Actions:")
     for (index, action) in task.completedActions.enumerated() {
-      print("  \(index + 1). \(action.description)")
+      print("  \(index + 1). \(action.name)")
     }
   }
 }
 
 func handleActionAdd(args: [String], rootDirectory: URL) throws {
-  var description: String?
-  var i = 0
+  var name: String?
+  var argIndex = 0
 
-  while i < args.count {
-    let arg = args[i]
+  while argIndex < args.count {
+    let arg = args[argIndex]
 
     if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
-      // Positional argument - description
-      description = arg
-      i += 1
+      // Positional argument - name
+      name = arg
+      argIndex += 1
       break
     }
 
-    i += 1
+    argIndex += 1
   }
 
   // Check for extra positional arguments
-  while i < args.count {
-    let arg = args[i]
+  while argIndex < args.count {
+    let arg = args[argIndex]
     if !arg.hasPrefix("-") {
       let cc = ColorConsole(#file, #function, 1)
       cc.bad1(
@@ -968,11 +962,11 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
       try printHelpForCommand("action")
       throw CliError.invalidArgument("Too many positional arguments")
     }
-    i += 1
+    argIndex += 1
   }
 
-  guard let description else {
-    throw CliError.missingRequired("DESCRIPTION")
+  guard let name else {
+    throw CliError.missingRequired("NAME")
   }
 
   let inputPrefix = try getTaskPrefix()
@@ -1016,7 +1010,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
   }
 
   // Add new action
-  let newAction = Action(description: description)
+  let newAction = Action(name: name)
 
   if let position = commandItem {
     // Convert 1-based position to 0-based index
@@ -1028,7 +1022,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     task.updatedAt = Date()
     try taskManager.save(task)
     print(
-      "Inserted action #\(position) in \(task.idFile): \(description)",
+      "Inserted action #\(position) in \(task.idFile): \(name)",
     )
   } else {
     // Append to end (default behavior)
@@ -1036,35 +1030,30 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     task.updatedAt = Date()
     try taskManager.save(task)
     print(
-      "Added action #\(task.plannedActions.count) to \(task.idFile): \(description)",
+      "Added action #\(task.plannedActions.count) to \(task.idFile): \(name)",
     )
   }
 }
 
 func handleActionReplace(args: [String], rootDirectory: URL) throws {
-  var description: String?
-  var i = 0
+  var name: String?
 
-  while i < args.count {
-    let arg = args[i]
-
+  for arg in args {
     if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
-      // Positional argument - description
-      description = arg
+      // Positional argument - name
+      name = arg
       break
     }
-
-    i += 1
   }
 
   guard let actionNumber = commandItem else {
     throw CliError.missingRequired("-i/--item")
   }
 
-  guard let description else {
-    throw CliError.missingRequired("DESCRIPTION")
+  guard let name else {
+    throw CliError.missingRequired("NAME")
   }
 
   let inputPrefix = try getTaskPrefix()
@@ -1113,15 +1102,15 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
   }
 
-  let oldDescription = task.plannedActions[actionIndex].description
-  task.plannedActions[actionIndex].description = description
+  let oldName = task.plannedActions[actionIndex].name
+  task.plannedActions[actionIndex].name = name
   task.updatedAt = Date()
 
   try taskManager.save(task)
 
   print("Replaced action #\(actionNumber) in \(task.idFile)")
-  print("  Old: \(oldDescription)")
-  print("  New: \(description)")
+  print("  Old: \(oldName)")
+  print("  New: \(name)")
 }
 
 func handleActionDone(args: [String], rootDirectory: URL) throws {
@@ -1185,7 +1174,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
     throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
   }
 
-  let actionDescription = task.plannedActions[actionIndex].description
+  let actionName = task.plannedActions[actionIndex].name
 
   // Move action from planned to completed
   task.moveActionToCompleted(at: actionIndex)
@@ -1194,7 +1183,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
   try world.updateTask(task)
 
   print(
-    "Completed action #\(actionNumber) in \(task.idFile): \(actionDescription)",
+    "Completed action #\(actionNumber) in \(task.idFile): \(actionName)",
   )
 
   // If task is now done and on stack, pop it
@@ -1273,12 +1262,12 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     throw CliError.invalidActionIndex(actionNumber, task.plannedActions.count)
   }
 
-  let actionDescription = task.plannedActions[actionIndex].description
+  let actionName = task.plannedActions[actionIndex].name
 
   // Prompt for confirmation unless --force
   if !force {
     print(
-      "Delete action #\(actionNumber) from \(task.idFile): \(actionDescription)",
+      "Delete action #\(actionNumber) from \(task.idFile): \(actionName)",
     )
     print("Are you sure? (y/n): ", terminator: "")
     fflush(stdout)
@@ -1295,7 +1284,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
   try taskManager.save(task)
 
   print(
-    "Deleted action #\(actionNumber) from \(task.idFile): \(actionDescription)",
+    "Deleted action #\(actionNumber) from \(task.idFile): \(actionName)",
   )
 }
 

@@ -12,6 +12,8 @@ import UUIDV7
 /// state
 /// (taskMap, _taskStack) without changing the public API.
 public class TaskWorld: ITaskWorld, @unchecked Sendable {
+  public static let TEST_DEFAULT = "update unit tests"
+
   private var taskMap: [String: Task] = [:] // keyed by filename or UUID string
   private var worldModel: WorldModel
   private var basePath: URL
@@ -41,6 +43,11 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   public var showUpdate: Bool {
     get { worldModel.showUpdate }
     set { worldModel.showUpdate = newValue }
+  }
+
+  public var testDefault: String {
+    get { worldModel.testDefault }
+    set { worldModel.testDefault = newValue }
   }
 
   public init(basePath: URL? = nil) {

@@ -6,16 +6,18 @@ import UUIDV7
 struct ActionTests {
   @Test
   func actionDefault() throws {
-    let description = "aDescription"
+    let name = "aName"
     let action = Action(
-      description: description,
+      name: name,
     )
-    #expect(action.id != nil)
-    #expect(action.id!.count == 8)
-    #expect(action.name == nil)
-    #expect(action.description == description)
+    // id is computed from name hash, first 4 hex chars
+    #expect(action.id.count == 4)
+    #expect(action.name == name)
+    #expect(action.description == nil)
     #expect(action.complexity == nil)
     #expect(action.duration == nil)
+    // test defaults to TaskWorld.TEST_DEFAULT when no taskWorld provided
+    #expect(action.test == TaskWorld.TEST_DEFAULT)
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(action)
@@ -30,23 +32,23 @@ struct ActionTests {
 
   @Test
   func actionCreation() throws {
-    let id = "aId"
     let name = "aName"
     let description = "aDescription"
     let complexity = "aComplexity"
     let duration = TimeInterval(123)
     let action = Action(
-      description: description,
       name: name,
-      id: id,
+      description: description,
       complexity: complexity,
       duration: duration,
     )
-    #expect(action.id == id)
+    // id is computed from name hash (name is always present)
+    #expect(action.id.count == 4)
     #expect(action.name == name)
     #expect(action.description == description)
     #expect(action.complexity == complexity)
     #expect(action.duration == duration)
+    #expect(action.test == TaskWorld.TEST_DEFAULT)
 
     let encoder = JSONEncoder()
     let data = try encoder.encode(action)

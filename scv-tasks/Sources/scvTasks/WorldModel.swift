@@ -9,6 +9,7 @@ public class WorldModel: @unchecked Sendable, Codable {
   public var lineLength: Int
   public var showDone: Bool
   public var showUpdate: Bool
+  public var testDefault: String
 
   public init(
     taskStack: [TaskId] = [],
@@ -17,6 +18,7 @@ public class WorldModel: @unchecked Sendable, Codable {
     lineLength: Int = 80,
     showDone: Bool = false,
     showUpdate: Bool = false,
+    testDefault: String = TaskWorld.TEST_DEFAULT,
   ) {
     self.taskStack = taskStack
     self.limit = limit
@@ -24,6 +26,7 @@ public class WorldModel: @unchecked Sendable, Codable {
     self.lineLength = max(20, lineLength) // Minimum 20 chars
     self.showDone = showDone
     self.showUpdate = showUpdate
+    self.testDefault = testDefault
   }
 
   public required init(from decoder: Decoder) throws {
@@ -47,6 +50,10 @@ public class WorldModel: @unchecked Sendable, Codable {
       .decodeIfPresent(Bool.self, forKey: .showDone) ?? false
     showUpdate = try container
       .decodeIfPresent(Bool.self, forKey: .showUpdate) ?? false
+    testDefault = try container.decodeIfPresent(
+      String.self,
+      forKey: .testDefault,
+    ) ?? TaskWorld.TEST_DEFAULT
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -57,6 +64,7 @@ public class WorldModel: @unchecked Sendable, Codable {
     try container.encode(lineLength, forKey: .lineLength)
     try container.encode(showDone, forKey: .showDone)
     try container.encode(showUpdate, forKey: .showUpdate)
+    try container.encode(testDefault, forKey: .testDefault)
   }
 
   enum CodingKeys: String, CodingKey {
@@ -66,6 +74,7 @@ public class WorldModel: @unchecked Sendable, Codable {
     case lineLength
     case showDone
     case showUpdate
+    case testDefault
   }
 
   public func pushTask(_ taskId: TaskId) {

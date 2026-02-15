@@ -67,6 +67,6 @@ struct ReferenceTests {
   func referenceIdentifiable() {
     let ref = Reference(text: "Test")
     #expect(!ref.id.isEmpty)
-    #expect(ref.id.count == 22) // Base64 encoded UUID (no padding) is 22 chars
+    #expect(ref.id.count == 4) // First 4 chars of MD5 hash
   }
 }

@@ -31,4 +31,5 @@ public protocol ITaskWorld: AnyObject, Sendable {
   var limit: Int { get set }
   var verbosity: Int { get set }
   var lineLength: Int { get set }
+  var testDefault: String { get set }
 }

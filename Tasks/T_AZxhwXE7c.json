@@ -4,16 +4,43 @@
   ],
   "createdAt" : "2026-02-15T14:43:13Z",
   "id" : "019C61C1-713B-7000-8056-D32844EE5B9F",
-  "name" : "Create TaskCommand.swift to formally represent task_cli commands",
+  "name" : "Refactor task_cli.swift for maintainability",
   "plannedActions" : [
-
+    {
+      "complexity" : null,
+      "description" : "Extract shared task-lookup logic into reusable resolveTask(prefix:from:) helper to eliminate duplication across 6 handlers",
+      "duration" : null,
+      "name" : null,
+      "test" : null
+    },
+    {
+      "complexity" : null,
+      "description" : "Deduplicate action/reference add/replace/delete handlers using shared pattern (parse args → resolve task → mutate → save)",
+      "duration" : null,
+      "name" : null,
+      "test" : null
+    },
+    {
+      "complexity" : null,
+      "description" : "Create TaskCommand enum hierarchy as structured command representation for improved testability and reuse",
+      "duration" : null,
+      "name" : null,
+      "test" : null
+    }
   ],
   "references" : [
-
+    {
+      "relevance" : 0.5,
+      "text" : "doc\/Tasks.md"
+    },
+    {
+      "relevance" : 0.5,
+      "text" : "task_cli.swift"
+    }
   ],
   "requiredTasks" : [
 
   ],
-  "summary" : "",
-  "updatedAt" : "2026-02-15T14:43:13Z"
+  "summary" : "Eliminate ~200 lines of duplicated task-lookup logic and create structured command representation to improve testability and code reuse.",
+  "updatedAt" : "2026-02-15T14:47:00Z"
 }

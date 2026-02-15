@@ -51,8 +51,8 @@ struct TaskTests {
       summary: "Test",
     )
     task.plannedActions = [
-      Action(description: "Action 1"),
-      Action(description: "Action 2"),
+      Action(name: "Action 1"),
+      Action(name: "Action 2"),
     ]
     try world.updateTask(task)
 
@@ -63,7 +63,7 @@ struct TaskTests {
 
     #expect(task.plannedActions.count == 1)
     #expect(task.completedActions.count == 1)
-    #expect(task.completedActions[0].description == "Action 1")
+    #expect(task.completedActions[0].name == "Action 1")
   }
 
   @Test
@@ -77,11 +77,11 @@ struct TaskTests {
       summary: "Test",
     )
 
-    let action = Action(description: "New action")
+    let action = Action(name: "New action")
     task.addPlannedAction(action)
 
     #expect(task.plannedActions.count == 1)
-    #expect(task.plannedActions[0].description == "New action")
+    #expect(task.plannedActions[0].name == "New action")
   }
 
   @Test

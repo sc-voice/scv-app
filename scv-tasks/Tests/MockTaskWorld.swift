@@ -11,6 +11,7 @@ class MockTaskWorld: ITaskWorld, @unchecked Sendable {
   var limit: Int = 20
   var verbosity: Int = 1
   var lineLength: Int = 80
+  var testDefault: String = TaskWorld.TEST_DEFAULT
 
   func createTask(name: String, summary: String) async throws -> Task {
     let maxRetries = 10
