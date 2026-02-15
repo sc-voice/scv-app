@@ -24,6 +24,7 @@ All task operations flow through the ITaskWorld protocol, enabling stable code c
 
 - `taskFrom(anyId: AnyTaskId) -> Task?` - Lookup by filename (T_AZvuCKoac) or UUID string
 - `allTaskIds(showFileName: Bool) -> [AnyTaskId]` - All task IDs in world
+- `resolveTask(id: AnyTaskId?) throws -> Task` - Resolve a task by query or current task (see below)
 
 ### Mutations (Atomic & Durable)
 
@@ -46,6 +47,64 @@ All task operations flow through the ITaskWorld protocol, enabling stable code c
 - `limit: Int` - Display limit for lists (clamped 0+)
 - `verbosity: Int` - Logging level (clamped 0-2)
 - `lineLength: Int` - Text wrapping width (minimum 20)
+
+### Task Resolution
+
+- `resolveTask(id: AnyTaskId?) throws -> Task` - Resolve task by id or current task from stack
+  - If `id == nil`: Returns current task; throws if stack empty
+  - If `id != nil`: Delegates to `resolveTaskLevenstein(_ query: AnyTaskId)`
+  - Throws `TaskResolutionError.notFound` or `.ambiguous` on failure
+
+**Examples:**
+```swift
+let world = TaskWorld()
+
+// Resolve current task from stack
+let current = try world.resolveTask(id: nil)
+
+// Resolve by exact filename
+let task1 = try world.resolveTask(id: "T_AZvuCKoac")
+
+// Resolve by prefix
+let task2 = try world.resolveTask(id: "T_AZv")
+
+// Resolve by typo (Levenshtein fuzzy match)
+let task3 = try world.resolveTask(id: "AZvt220r")  // → T_AZvt220Rc
+
+// Resolve by UUID string
+let task4 = try world.resolveTask(id: "019C61C1-713B-7000-8056-D32844EE5B9F")
+```
+
+### Task Resolution Examples
+
+`resolveTask()` supports multiple query formats with fuzzy matching as fallback:
+
+```swift
+let world = TaskWorld()
+
+// Query by full filename
+try world.resolveTask(id: "T_AZvuCKoac")       // → exact match
+
+// Query by prefix (case-insensitive) - needs at least ~8 chars to stay within distance threshold
+try world.resolveTask(id: "T_AZvuCKo")        // → matches T_AZvuCKoac if unique
+try world.resolveTask(id: "vuckoac")          // → auto-adds T_ prefix, matches T_AZvuCKoac if unique
+
+// Query by typo or partial string (Levenshtein fuzzy match)
+try world.resolveTask(id: "AZvt220r")          // → closest match by edit distance
+try world.resolveTask(id: "T_AZvucKoac")       // → case error, recovers via case-insensitive tiebreaker
+
+// Query by full UUID string
+try world.resolveTask(id: "019C61C1-713B-7000-8056-D32844EE5B9F")  // → exact UUID match
+
+// Query by nil (current task from stack)
+try world.resolveTask(id: nil)                 // → top of stack, throws if empty
+```
+
+**Error cases:**
+- `.notFound` - No task found within fuzzy match distance threshold
+- `.ambiguous` - Multiple tasks equally close (requires longer prefix to disambiguate)
+
+See: `scv-tasks/Sources/scvTasks/TaskWorld.swift` (resolveTask, resolveTaskLevenstein)
 
 ## Implementation Files
 
@@ -298,6 +357,132 @@ task.references.append(Reference(
 ))
 try world.updateTask(task)
 ```
+
+## CLI Design: Resources and Commands
+
+The CLI (`task_cli.swift`) uses a unified architecture with two-level command structure: **nouns** (resources) and **verbs** (command types).
+
+### IResource Protocol
+
+All CLI resources implement a common protocol:
+
+```swift
+protocol IResource {
+  var type: ResourceType { get }
+  var id: String { get }  // Stable identifier (not transient position)
+}
+```
+
+**Why:** Consolidates noun-specific logic (task, action, reference) into uniform handlers.
+
+### ResourceType Enum
+
+```swift
+enum ResourceType {
+  case task           // Primary resource
+  case action         // Sub-resource: step within a task
+  case reference      // Sub-resource: link/doc within a task
+}
+```
+
+### Resource Implementations
+
+**TaskResource:**
+```swift
+struct TaskResource: IResource {
+  let type: ResourceType = .task
+  let id: String  // Task prefix like "T_AZvuCKoac"
+}
+```
+
+**ActionResource:**
+```swift
+struct ActionResource: IResource {
+  let type: ResourceType = .action
+  let taskId: String          // Which task contains this action
+  let id: String              // Action's stable id from Action.id
+}
+```
+
+**ReferenceResource:**
+```swift
+struct ReferenceResource: IResource {
+  let type: ResourceType = .reference
+  let taskId: String          // Which task contains this reference
+  let id: String              // Reference's stable id from Reference.id
+}
+```
+
+**Note:** Item numbers (1-based indices from CLI) are transient presentation artifacts. Reordering destroys correspondence. Handlers use stable `id` property instead.
+
+### CommandType Enum
+
+Unified verbs apply to all resources:
+
+```swift
+enum CommandType {
+  case list       // Show items (tasks, actions, references)
+  case add        // Create new item
+  case replace    // Update existing item
+  case delete     // Remove item
+  case done       // Mark action as completed
+  case push       // Add task to stack (task-specific)
+  case pop        // Remove task from stack (task-specific)
+  case show       // Display full details (task-specific)
+  case initialize // Setup task infrastructure
+}
+```
+
+### CommonOptions Struct
+
+Unified option fields for all commands (eliminates naming inconsistency):
+
+```swift
+struct CommonOptions {
+  let name: String?           // Primary identifier
+  let description: String?    // Longer text content (replaces "summary")
+  let url: URL?              // Reference URL
+  let relevance: Double?     // Scoring (0-1)
+  let format: String?        // Output format (json, text)
+  let force: Bool            // Skip confirmation
+  let showDone: Bool?        // Include done items
+  let showUpdate: Bool?      // Show update timestamps
+}
+```
+
+**Consistency benefit:** Same field names across all commands encourage reusable patterns and simplify future additions.
+
+### Command Struct
+
+Unified representation of any CLI invocation:
+
+```swift
+struct Command {
+  let type: CommandType        // The verb
+  let resource: IResource?     // The noun (nil for initialize)
+  let task: Task?             // Resolved task object (nil if not needed)
+  let options: CommonOptions   // Unified options
+}
+```
+
+**Design:**
+- `parseArgs()` returns a single `Command` instead of tuple `(rootDirectory, command, commandArgs)`
+- Task resolution happens once in `parseArgs()`, result included in `Command`
+- Handlers receive fully validated, structured input
+
+### Handler Pattern
+
+All handlers follow uniform signature:
+
+```swift
+func handleList(command: Command) throws
+func handleAdd(command: Command) throws
+func handleReplace(command: Command) throws
+func handleDelete(command: Command) throws
+func handleDone(command: Command) throws
+```
+
+**Benefit:** 5-6 unified handlers replace 20+ noun-specific handlers; task-lookup duplication eliminated.
 
 ## References
 

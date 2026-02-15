@@ -12,6 +12,7 @@ public protocol ITaskWorld: AnyObject, Sendable {
   // Task queries
   func taskFrom(anyId: AnyTaskId) -> Task?
   func allTaskIds(showFileName: Bool) -> [AnyTaskId]
+  func resolveTask(id: AnyTaskId?) throws -> Task
 
   // Task creation and mutations (atomic and durable)
   func createTask(name: String, summary: String) async throws -> Task

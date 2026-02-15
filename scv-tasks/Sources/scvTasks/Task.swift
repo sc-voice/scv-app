@@ -7,6 +7,24 @@ public enum TaskCreationError: Error {
   case filenameTaken(String)
 }
 
+// MARK: - TaskResolutionError
+
+public enum TaskResolutionError: Error, Equatable {
+  case notFound(String)
+  case ambiguous(String, [String])
+}
+
+extension TaskResolutionError: LocalizedError {
+  public var errorDescription: String? {
+    switch self {
+    case let .notFound(query):
+      "Task not found for query: \(query)"
+    case let .ambiguous(query, matches):
+      "Ambiguous query '\(query)' matches multiple tasks: \(matches.joined(separator: ", "))"
+    }
+  }
+}
+
 // Helper to decode either UUID or String from JSON
 struct AnyCodableTaskId: Codable {
   let uuidV7Value: UUIDV7?

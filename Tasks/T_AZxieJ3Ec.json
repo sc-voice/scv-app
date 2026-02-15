@@ -1,0 +1,19 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-15T18:03:17Z",
+  "id" : "019C6278-9DC4-7000-8C02-5D18CE775C74",
+  "name" : "Background Player on Mac is not modal and allows users to click on other app views, at which point the BPV simply disappears from the foreground as the background audio keeps playing",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-15T18:03:17Z"
+}

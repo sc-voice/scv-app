@@ -1,0 +1,19 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-15T20:22:51Z",
+  "id" : "019C62F8-64BB-7000-AAF8-0A682304B4F5",
+  "name" : "Petra voice no longer speaks in MacOS26.3 when set as system voice even though system itself can use Petra",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-15T20:22:51Z"
+}

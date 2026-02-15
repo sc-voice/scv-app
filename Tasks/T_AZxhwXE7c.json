@@ -1,46 +1,73 @@
 {
   "completedActions" : [
-
+    {
+      "complexity" : "simple",
+      "description" : "Implemented resolveTask(id: AnyTaskId?) throws -> Task as first-class method in ITaskWorld protocol and TaskWorld. Created TaskResolutionError enum (.notFound, .ambiguous). Handles: UUID matching, filename prefix matching (case-insensitive fallback), auto T_ prefix addition, nil → current task from stack. Wrote 8 comprehensive tests covering all code paths. All 42 scv-tasks tests pass.",
+      "duration" : 1200,
+      "name" : "Implement resolveTask() in ITaskWorld",
+      "test" : "All 42 scv-tasks tests pass; prefix matching, UUID matching, case-insensitivity, ambiguity detection verified"
+    }
   ],
   "createdAt" : "2026-02-15T14:43:13Z",
   "id" : "019C61C1-713B-7000-8056-D32844EE5B9F",
   "name" : "Refactor task_cli.swift for maintainability",
   "plannedActions" : [
     {
-      "complexity" : null,
-      "description" : "Extract shared task-lookup logic into reusable resolveTask(prefix:from:) helper to eliminate duplication across 6 handlers",
-      "duration" : null,
-      "name" : null,
-      "test" : null
+      "complexity" : "simple",
+      "description" : "Create IResource protocol (type: ResourceType, id: String) and ResourceType enum (task, action, reference); create TaskResource, ActionResource, ReferenceResource structs implementing IResource",
+      "duration" : 600,
+      "name" : "Resource type hierarchy",
+      "test" : "Verify resource structs compile and have correct properties"
     },
     {
-      "complexity" : null,
-      "description" : "Deduplicate action/reference add/replace/delete handlers using shared pattern (parse args → resolve task → mutate → save)",
-      "duration" : null,
-      "name" : null,
-      "test" : null
+      "complexity" : "simple",
+      "description" : "Create CommandType enum (list, add, replace, delete, done, push, pop, show, initialize); create CommonOptions struct with unified fields (name, description, url, relevance, format, force); create Command struct (type: CommandType, resource: IResource?, task: Task?, options: CommonOptions)",
+      "duration" : 600,
+      "name" : "Command types and unified options",
+      "test" : "Verify Command construction for each CommandType"
     },
     {
-      "complexity" : null,
-      "description" : "Create TaskCommand enum hierarchy as structured command representation for improved testability and reuse",
-      "duration" : null,
-      "name" : null,
-      "test" : null
+      "complexity" : "complex",
+      "description" : "Refactor parseArgs() to return Command instead of (rootDirectory, command, commandArgs) tuple; parse global options into CommonOptions; resolve task prefix early once per invocation",
+      "duration" : 1800,
+      "name" : "Refactor parseArgs() to return Command",
+      "test" : "Verify parseArgs produces correct Command for each CLI invocation pattern"
+    },
+    {
+      "complexity" : "complex",
+      "description" : "Unify command handlers: replace 20+ noun-specific handlers (handleActionAdd, handleReferenceAdd, etc.) with 5-6 unified handlers (handleList, handleAdd, handleReplace, handleDelete, handleDone); each handler: func handle___(command: Command) throws",
+      "duration" : 3600,
+      "name" : "Unify command handlers",
+      "test" : "Verify each handler works for all applicable resource types"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Update main dispatch switch to use command.type instead of noun-based matching; update references in doc\/Tasks.md to document new IResource and Command design",
+      "duration" : 600,
+      "name" : "Update dispatch and docs",
+      "test" : "Compile, run swift build, verify no errors"
+    },
+    {
+      "complexity" : "simple",
+      "description" : "Run task tests; verify all CLI operations (list, add, push, pop, show, delete, action *, ref *) work correctly with refactored code",
+      "duration" : 900,
+      "name" : "Test refactored CLI",
+      "test" : "make test-tools passes; manual CLI testing shows consistent behavior"
     }
   ],
   "references" : [
     {
       "relevance" : 0.5,
-      "text" : "doc\/Tasks.md"
+      "text" : "task_cli.swift"
     },
     {
       "relevance" : 0.5,
-      "text" : "task_cli.swift"
+      "text" : "doc\/Tasks.md"
     }
   ],
   "requiredTasks" : [
 
   ],
   "summary" : "Eliminate ~200 lines of duplicated task-lookup logic and create structured command representation to improve testability and code reuse.",
-  "updatedAt" : "2026-02-15T14:47:00Z"
+  "updatedAt" : "2026-02-15T18:37:30Z"
 }
