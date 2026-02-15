@@ -1,0 +1,19 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-15T14:43:13Z",
+  "id" : "019C61C1-713B-7000-8056-D32844EE5B9F",
+  "name" : "Create TaskCommand.swift to formally represent task_cli commands",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-15T14:43:13Z"
+}

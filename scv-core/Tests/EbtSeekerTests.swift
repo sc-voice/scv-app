@@ -216,6 +216,78 @@ struct EbtSeekerTests {
     cc.ok1(#line, #function, "msElapsed:", msElapsed)
   }
 
+  @Test("queryQuote finds and highlights match in an10.93/de/sabbamitta")
+  func queryQuoteDE() async throws {
+    let seeker = try await EbtData.getSeeker(
+      lang: "de",
+      author: "sabbamitta",
+    )
+
+    let suttaRef = try SuttaRef.createFromString("an10.93/de/sabbamitta")
+    let quote = try await seeker.queryQuote(
+      suttaRef: suttaRef,
+      query: "abhängige entstehen",
+      method: .lemma,
+    )
+
+    // Quote should not be nil for a known sutta with matching lemmas
+    #expect(
+      quote != nil,
+      "queryQuote should return HTML quote for an10.93/de/sabbamitta with 'abhängige entstehen'",
+    )
+
+    // Quote should contain HTML span tag wrapping the matched text
+    if let quote {
+      #expect(
+        quote.contains("<span>"),
+        "Quote should contain <span> tag highlighting matched text",
+      )
+      print("[QUOTE-DE] an10.93/de/sabbamitta:")
+      print(quote)
+    }
+  }
+
+  @Test(
+    "segmentsOfSuttaRef matchLemma finds 9 matches in an10.93/de/sabbamitta",
+  )
+  func segmentsOfSuttaRefMatchLemma() async throws {
+    let seeker = try await EbtData.getSeeker(
+      lang: "de",
+      author: "sabbamitta",
+    )
+
+    let suttaRef = try SuttaRef.createFromString("an10.93/de/sabbamitta")
+
+    // Lemmatize the search query
+    let lemmaWords = await seeker.lemmatize("abhängige entstehen")
+    print("[TEST] lemmatize('abhängige entstehen') → \(lemmaWords)")
+
+    // Build space-padded lemma string for LIKE query
+    let matchLemma = lemmaWords.joined(separator: " ")
+    print("[TEST] matchLemma pattern: '\(matchLemma)'")
+
+    // Get segments with lemma matching
+    let segments = await EbtData.segmentsOfSuttaRef(
+      suttaRef,
+      matchLemma: matchLemma,
+    )
+    print("[TEST] total segments: \(segments.count)")
+
+    // Count how many have matched = true
+    let matchedCount = segments.count(where: { $0.matched })
+    print("[TEST] matched segments: \(matchedCount)")
+
+    // Print first few matched segments
+    for (i, segment) in segments.filter(\.matched).prefix(3).enumerated() {
+      print("[TEST] matched[\(i)]: \(segment.scid) - \(segment.doc ?? "")")
+    }
+
+    #expect(
+      matchedCount == 9,
+      "Should have 9 matched segments, got \(matchedCount)",
+    )
+  }
+
   // TODO: Fix string length assertions - all counts are off by 1
   // See backlog: Fix EbtSeeker LIKE pattern string length assertions
   /*

@@ -187,16 +187,17 @@ public actor EbtData {
   /// identifier
   /// - Returns: Array of Segment objects for the sutta, or empty array if not
   /// found
-  public static func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async
-    -> [Segment]
-  {
+  public static func segmentsOfSuttaRef(
+    _ suttaRef: SuttaRef,
+    matchLemma: String? = nil,
+  ) async -> [Segment] {
     guard let ebtData = await forLangAuthor(
       lang: suttaRef.lang,
       author: suttaRef.author,
     ) else {
       return []
     }
-    return await ebtData.segmentsOfSuttaRef(suttaRef)
+    return await ebtData.segmentsOfSuttaRef(suttaRef, matchLemma: matchLemma)
   }
 
   /// Static convenience method to check if a SuttaRef exists
@@ -926,14 +927,20 @@ public actor EbtData {
   /// suttaUid)
   /// - Returns: Array of Segment objects with scid and doc populated, empty
   /// array on error
-  func segmentsOfSuttaRef(_ suttaRef: SuttaRef) async -> [Segment] {
+  func segmentsOfSuttaRef(
+    _ suttaRef: SuttaRef,
+    matchLemma: String? = nil,
+  ) async -> [Segment] {
     do {
       let db = try getDatabaseForLangAuthor(
         lang: suttaRef.lang,
         author: suttaRef.author ?? "",
       )
 
-      let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ?"
+      let sqlQuery = matchLemma != nil
+        ? "SELECT scid, text, (lemmas LIKE ?) as matched FROM segments WHERE suttaUid = ?"
+        : "SELECT scid, text, 0 as matched FROM segments WHERE suttaUid = ?"
+
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
@@ -941,9 +948,20 @@ public actor EbtData {
       }
       defer { sqlite3_finalize(stmt) }
 
+      if let matchLemma {
+        let likePattern = "% " + matchLemma + " %"
+        sqlite3_bind_text(
+          stmt,
+          1,
+          (likePattern as NSString).utf8String,
+          -1,
+          nil,
+        )
+      }
+
       sqlite3_bind_text(
         stmt,
-        1,
+        matchLemma != nil ? 2 : 1,
         (suttaRef.suttaUid as NSString).utf8String,
         -1,
         nil,
@@ -959,8 +977,9 @@ public actor EbtData {
 
         let scid = String(cString: scidC)
         let text = String(cString: textC)
+        let matched = sqlite3_column_int(stmt, 2) != 0
 
-        let segment = Segment(scid: scid, doc: text)
+        let segment = Segment(scid: scid, doc: text, matched: matched)
         segments.append(segment)
       }
 

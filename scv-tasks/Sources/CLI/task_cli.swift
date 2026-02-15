@@ -6,7 +6,8 @@ import UUIDV7
 let DBG_TASK = 2
 
 // Global state
-nonisolated(unsafe) var world: TaskWorld! // Global context (initialized in parseArgs)
+nonisolated(unsafe) var world: TaskWorld! // Global context (initialized in
+// parseArgs)
 nonisolated(unsafe) var commandTask: String? // T_BASE64 format (user-facing)
 nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
 nonisolated(unsafe) var commandTaskPrefix: String? // Task prefix from -t/--task
@@ -405,7 +406,7 @@ func wrapLine(_ line: String, maxLength: Int,
 
 // MARK: - Command Handlers
 
-func handleList(args: [String], rootDirectory: URL) throws {
+func handleList(args: [String], rootDirectory _: URL) throws {
   // Parse command-line overrides
   var showDoneOverride: Bool?
   var showUpdateOverride: Bool?
@@ -516,7 +517,7 @@ func handleList(args: [String], rootDirectory: URL) throws {
   }
 }
 
-func handleAdd(args: [String], rootDirectory: URL) throws {
+func handleAdd(args: [String], rootDirectory _: URL) throws {
   var name: String?
   var summary: String?
   var i = 0
@@ -1189,11 +1190,21 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
   // Move action from planned to completed
   task.moveActionToCompleted(at: actionIndex)
 
-  try taskManager.save(task)
+  // Use world.updateTask() to save AND update cache
+  try world.updateTask(task)
 
   print(
     "Completed action #\(actionNumber) in \(task.idFile): \(actionDescription)",
   )
+
+  // If task is now done and on stack, pop it
+  if let reloadedTask = world.taskFrom(anyId: task.idFile),
+     reloadedTask.isDone,
+     world.isStackTaskId(task.idFile)
+  {
+    let _ = world.popTaskId()
+    print("Task is now done and has been removed from stack")
+  }
 }
 
 func handleActionDelete(args: [String], rootDirectory: URL) throws {

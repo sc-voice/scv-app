@@ -80,7 +80,8 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   }
 
   /// Search upward from current directory for .task-world.json
-  /// Returns the directory containing .task-world.json, or current directory if not found
+  /// Returns the directory containing .task-world.json, or current directory if
+  /// not found
   private static func findProjectRoot() -> URL {
     var currentPath = FileManager.default.currentDirectoryPath
     let fileManager = FileManager.default
@@ -93,7 +94,8 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
         return URL(fileURLWithPath: currentPath, isDirectory: true)
       }
 
-      let parent = URL(fileURLWithPath: currentPath).deletingLastPathComponent().path
+      let parent = URL(fileURLWithPath: currentPath).deletingLastPathComponent()
+        .path
       if parent == currentPath {
         // Reached filesystem root without finding .task-world.json
         // Fall back to current directory

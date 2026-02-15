@@ -39,22 +39,59 @@ public actor EbtSeeker {
     switch method {
     case .suttaref:
       // No quote for suttaref search (it's just a reference lookup)
-      return nil
+      nil
 
     case .lemma:
-      guard let regex = lemmaRegexp(query) else { return nil }
-      let nsText = text as NSString
-      if let match = regex.firstMatch(
-        in: text,
-        range: NSRange(location: 0, length: nsText.length),
-      ) {
-        let matchRange = match.range
-        let start = text.index(text.startIndex, offsetBy: matchRange.location)
-        let end = text.index(start, offsetBy: matchRange.length)
-        return start ..< end
-      }
+      findLemmaMatch(in: text, query: query)
+    }
+  }
+
+  /// Finds the range of lemmatized query words in raw text
+  /// Lemmatizes both query and text words, then finds first occurrence of query
+  /// lemmas
+  /// in sequence within text lemmas. Returns range from start of first matching
+  /// word
+  /// to end of last matching word.
+  /// - Parameters:
+  ///   - text: Raw segment text to search in
+  ///   - query: Original query string to lemmatize
+  /// - Returns: Range spanning from first to last matched word, or nil if not
+  /// found
+  private func findLemmaMatch(
+    in text: String,
+    query: String,
+  ) -> Range<String.Index>? {
+    let queryLemmas = lemmatize(query)
+    guard !queryLemmas.isEmpty else { return nil }
+
+    let textWords = text.split(separator: " ").map(String.init)
+    guard !textWords.isEmpty else { return nil }
+
+    let textLemmas = textWords.map { lemmatize($0).first ?? $0 }
+
+    // Find first textWord whose textLemma matches first queryLemma
+    guard let firstMatchIndex = textLemmas.firstIndex(of: queryLemmas[0]) else {
       return nil
     }
+
+    // Find last textWord whose textLemma matches last queryLemma
+    guard let lastMatchIndex = textLemmas.lastIndex(of: queryLemmas.last ?? "")
+    else {
+      return nil
+    }
+
+    let startWord = textWords[firstMatchIndex]
+    let endWord = textWords[lastMatchIndex]
+
+    guard let startRange = text.range(of: startWord) else {
+      return nil
+    }
+
+    guard let endRange = text.range(of: endWord, options: .backwards) else {
+      return nil
+    }
+
+    return startRange.lowerBound ..< endRange.upperBound
   }
 
   /// Builds HTML string with matched text in span and ellipsis for context
@@ -206,25 +243,61 @@ public actor EbtSeeker {
     query: String,
     method: SearchMethod,
   ) async throws -> String? {
-    // Get all segments for this sutta from data layer
-    let segments = await EbtData.segmentsOfSuttaRef(suttaRef)
+    // For lemma searches, use matchLemma to find segments
+    var matchLemmaPattern: String? = nil
+    if method == .lemma {
+      let lemmaWords = lemmatize(query)
+      matchLemmaPattern = lemmaWords.joined(separator: " ")
+    }
 
-    // Find first matching segment
+    // Get all segments for this sutta from data layer
+    let segments = await EbtData.segmentsOfSuttaRef(
+      suttaRef,
+      matchLemma: matchLemmaPattern,
+    )
+    cc.ok2(#line, #function, suttaRef)
+
+    // For lemma searches, find first segment with matched=true
+    // For suttaref searches, find first segment with matching text
     for segment in segments {
       guard let segmentText = segment.doc else { continue }
 
-      // Check if segment matches based on search method
-      let matchRange = findMatch(
-        in: segmentText,
-        query: query,
-        method: method,
-      )
-      if let matchRange {
-        // Build HTML with span around matched text
-        return buildQuoteHTML(
-          segmentText: segmentText,
-          matchRange: matchRange,
+      switch method {
+      case .lemma:
+        // For lemma searches, use the matched flag set by segmentsOfSuttaRef
+        if segment.matched {
+          // Find the actual text match to highlight
+          let matchRange = findMatch(
+            in: segmentText,
+            query: query,
+            method: method,
+          )
+          if let matchRange {
+            return buildQuoteHTML(
+              segmentText: segmentText,
+              matchRange: matchRange,
+            )
+          }
+          // If matched flag is true but findMatch returns nil, use full segment
+          return buildQuoteHTML(
+            segmentText: segmentText,
+            matchRange: segmentText.startIndex ..< segmentText.endIndex,
+          )
+        }
+
+      case .suttaref:
+        // For suttaref searches, search for text match
+        let matchRange = findMatch(
+          in: segmentText,
+          query: query,
+          method: method,
         )
+        if let matchRange {
+          return buildQuoteHTML(
+            segmentText: segmentText,
+            matchRange: matchRange,
+          )
+        }
       }
     }
 

@@ -1,0 +1,26 @@
+{
+  "completedActions" : [
+    {
+      "description" : "add optional matchLemma:String to segmentsOfSuttaRef()",
+      "id" : "eH-tdcAC"
+    },
+    {
+      "description" : "EbtSeeker.findLemmaMatch()",
+      "id" : "ecK9ScAC"
+    }
+  ],
+  "createdAt" : "2026-02-14T21:14:15Z",
+  "id" : "019C5E01-1544-7000-BB49-B0B78055F41B",
+  "name" : "EbtSeeker.queryQuote should work on an10.93\/de\/sabbamitta",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "abhängig enstehen should have 9 matches in an10.93\/de\/sabbamitta",
+  "updatedAt" : "2026-02-15T14:30:11Z"
+}

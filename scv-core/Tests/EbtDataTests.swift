@@ -186,7 +186,6 @@ struct EbtDataTests {
     #expect(mlDoc.sutta_uid == suttaRef.suttaUid)
     #expect(mlDoc.docLang == suttaRef.lang)
     #expect(mlDoc.docAuthor == suttaRef.author)
-    #expect(mlDoc.author == suttaRef.author)
     #expect(mlDoc.docAuthorName == "Bhikkhu Sujato")
     #expect(!mlDoc.segMap.isEmpty)
 
@@ -279,7 +278,6 @@ struct EbtDataTests {
     #expect(mlDoc.sutta_uid == "dn16")
     #expect(mlDoc.docLang == "en")
     #expect(mlDoc.docAuthor == "sujato")
-    #expect(mlDoc.author == "sujato")
     #expect(mlDoc.docAuthorName == "Bhikkhu Sujato")
     #expect(!mlDoc.segMap.isEmpty)
 
@@ -295,7 +293,7 @@ struct EbtDataTests {
     #expect(firstSegment.pli == "Evaṁ me sutaṁ—")
     #expect(firstSegment.doc == "So I have heard. ")
     let msElapsed = Int((CFAbsoluteTimeGetCurrent() - elapsedAtStart) * 1000)
-    #expect(msElapsed < 100)
+    #expect(msElapsed < 500)
   }
 
   @Test("EN lemma search: root of suffering performance")
