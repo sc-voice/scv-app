@@ -130,6 +130,9 @@ public class Settings: Codable {
   /// Pause between segments during playback (in seconds)
   public var segmentPause: Double = SEGMENT_PAUSE_DEFAULT
 
+  /// Whether to enable background playback mode (requires pre-synthesis)
+  public var backgroundPlayback: Bool = false
+
   /// Whether to play Pali text during narration
   public var playPali: Bool = false
 
@@ -197,6 +200,7 @@ public class Settings: Codable {
     case paliSettings
     case isDarkModeEnabled
     case segmentPause
+    case backgroundPlayback
     case playPali
     case playDoc
     case showPali
@@ -221,6 +225,7 @@ public class Settings: Codable {
     try container.encode(paliSettings, forKey: .paliSettings)
     try container.encode(isDarkModeEnabled, forKey: .isDarkModeEnabled)
     try container.encode(segmentPause, forKey: .segmentPause)
+    try container.encode(backgroundPlayback, forKey: .backgroundPlayback)
     try container.encode(playPali, forKey: .playPali)
     try container.encode(playDoc, forKey: .playDoc)
     try container.encode(showPali, forKey: .showPali)
@@ -313,6 +318,10 @@ public class Settings: Codable {
         Double.self,
         forKey: .segmentPause,
       ) ?? SEGMENT_PAUSE_DEFAULT
+      backgroundPlayback = try container.decodeIfPresent(
+        Bool.self,
+        forKey: .backgroundPlayback,
+      ) ?? false
       playPali = try container.decodeIfPresent(
         Bool.self,
         forKey: .playPali,
@@ -359,11 +368,17 @@ public class Settings: Codable {
       docLangSettings = [:]
       paliSettings = LangSettings(language: .default)
       isDarkModeEnabled = true
+      segmentPause = SEGMENT_PAUSE_DEFAULT
+      backgroundPlayback = false
+      playPali = false
+      playDoc = true
       showPali = false
       showDoc = true
       showRef = false
+      soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
       lastApplicationVersion = ""
       maxDoc = MAX_DOC_DEFAULT
+      maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
       autoCompleteData = []
     }
 
@@ -498,6 +513,7 @@ public class Settings: Codable {
       paliSettings = decoded.paliSettings
       isDarkModeEnabled = decoded.isDarkModeEnabled
       segmentPause = decoded.segmentPause
+      backgroundPlayback = decoded.backgroundPlayback
       playPali = decoded.playPali
       playDoc = decoded.playDoc
       showPali = decoded.showPali
@@ -521,6 +537,7 @@ public class Settings: Codable {
     paliSettings = LangSettings(language: .default)
     isDarkModeEnabled = true
     segmentPause = SEGMENT_PAUSE_DEFAULT
+    backgroundPlayback = false
     playPali = false
     playDoc = true
     showPali = false

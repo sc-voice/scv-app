@@ -45,13 +45,13 @@ import Testing
     let expectedCodingKeys: [String] = [
       "version", "docLang", "refLang", "refAuthor",
       "docLangSettings", "paliSettings",
-      "isDarkModeEnabled", "segmentPause",
+      "isDarkModeEnabled", "segmentPause", "backgroundPlayback",
       "playPali", "playDoc", "showPali", "showDoc", "showRef",
       "soundEffectVolume", "lastApplicationVersion",
       "maxDoc", "maxColumnWidth", "autoCompleteData",
     ]
     #expect(expectedCodingKeys
-      .count == 18) // Verify count of serializable properties
+      .count == 19) // Verify count of serializable properties
 
     // Create a Settings instance to modify
     let settings = Settings(userDefaults: nil)
@@ -65,6 +65,7 @@ import Testing
     settings.paliSettings = LangSettings(language: .pli)
     settings.isDarkModeEnabled = true
     settings.segmentPause = 1.5
+    settings.backgroundPlayback = true
     settings.playPali = true
     settings.playDoc = false
     settings.showPali = true
@@ -107,6 +108,7 @@ import Testing
     #expect(settings.refAuthor == defaults.refAuthor)
     #expect(settings.isDarkModeEnabled == defaults.isDarkModeEnabled)
     #expect(settings.segmentPause == defaults.segmentPause)
+    #expect(settings.backgroundPlayback == defaults.backgroundPlayback)
     #expect(settings.playPali == defaults.playPali)
     #expect(settings.playDoc == defaults.playDoc)
     #expect(settings.showPali == defaults.showPali)
@@ -246,6 +248,7 @@ import Testing
     settings.docLang = .german
     settings.refLang = .french
     settings.isDarkModeEnabled = true
+    settings.backgroundPlayback = true
     settings.lastApplicationVersion = "2.0.0"
     settings.maxDoc = 75
     settings.showPali = true
@@ -259,6 +262,7 @@ import Testing
     #expect(json?["docLang"] as? String == "de")
     #expect(json?["refLang"] as? String == "fr")
     #expect(json?["isDarkModeEnabled"] as? Bool == true)
+    #expect(json?["backgroundPlayback"] as? Bool == true)
     #expect(json?["lastApplicationVersion"] as? String == "2.0.0")
     #expect(json?["maxDoc"] as? Int == 75)
     #expect(json?["showPali"] as? Bool == true)
@@ -272,6 +276,7 @@ import Testing
       "docLang": "pt",
       "refLang": "es",
       "isDarkModeEnabled": false,
+      "backgroundPlayback": true,
       "lastApplicationVersion": "1.5.0",
       "maxDoc": 25,
       "showPali": true,
@@ -286,6 +291,7 @@ import Testing
     #expect(settings.docLang == .portuguese)
     #expect(settings.refLang == .spanish)
     #expect(settings.isDarkModeEnabled == false)
+    #expect(settings.backgroundPlayback == true)
     #expect(settings.lastApplicationVersion == "1.5.0")
     #expect(settings.maxDoc == 25)
     #expect(settings.showPali == true)
@@ -306,6 +312,7 @@ import Testing
     #expect(settings.docLang == .german)
     #expect(settings.refLang == .english)
     #expect(settings.isDarkModeEnabled == true)
+    #expect(settings.backgroundPlayback == false)
     #expect(settings.lastApplicationVersion == "")
     #expect(settings.maxDoc == MAX_DOC_DEFAULT)
     #expect(settings.showPali == false)
@@ -336,6 +343,7 @@ import Testing
     settings.docLang = .german
     settings.refLang = .french
     settings.isDarkModeEnabled = true
+    settings.backgroundPlayback = true
     settings.lastApplicationVersion = "1.0.0"
     settings.maxDoc = 35
 
@@ -350,6 +358,7 @@ import Testing
     #expect(loadedSettings.docLang == .german)
     #expect(loadedSettings.refLang == .french)
     #expect(loadedSettings.isDarkModeEnabled == true)
+    #expect(loadedSettings.backgroundPlayback == true)
     #expect(loadedSettings.lastApplicationVersion == "1.0.0")
     #expect(loadedSettings.maxDoc == 35)
   }
@@ -683,6 +692,7 @@ import Testing
     settings.refAuthor = "sujato"
     settings.isDarkModeEnabled = true
     settings.segmentPause = 0.5
+    settings.backgroundPlayback = false
     settings.playPali = false
     settings.playDoc = true
     settings.showPali = false
@@ -710,6 +720,7 @@ import Testing
     #expect(decoded.refAuthor == "sujato")
     #expect(decoded.isDarkModeEnabled == true)
     #expect(decoded.segmentPause == 0.5)
+    #expect(decoded.backgroundPlayback == false)
     #expect(decoded.playPali == false)
     #expect(decoded.playDoc == true)
     #expect(decoded.showPali == false)

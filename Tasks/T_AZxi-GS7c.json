@@ -4,17 +4,17 @@
       "description" : "Add ColorConsole instance to performSynthesis() in AudioStore.swift:253",
       "name" : "Complete byte tracking logging",
       "test" : "Update AudioStoreTests.swift to verify silent failure detection works"
+    },
+    {
+      "description" : "Add backgroundPlayback property (default: false)",
+      "name" : "Add backgroundPlayback to Settings",
+      "test" : "Setting persists"
     }
   ],
   "createdAt" : "2026-02-15T20:22:51Z",
   "id" : "019C62F8-64BB-7000-AAF8-0A682304B4F5",
   "name" : "Petra voice no longer speaks in MacOS26.3 when set as system voice even though system itself can use Petra",
   "plannedActions" : [
-    {
-      "description" : "Add backgroundPlayback property (default: false)",
-      "name" : "Add backgroundPlayback to Settings",
-      "test" : "Setting persists"
-    },
     {
       "description" : "Add backgroundPlayback property, include in cache key hash",
       "name" : "Add backgroundPlayback to AudioContext",
@@ -38,7 +38,7 @@
     {
       "description" : "Long-press Play when backgroundPlayback disabled: show confirmation to enable setting",
       "name" : "Add long-press enable confirmation",
-      "test" : "Long-press shows confirm/cancel dialog"
+      "test" : "Long-press shows confirm\/cancel dialog"
     },
     {
       "description" : "CachedSynthesizer: switch between live (speak()) vs cached (AudioStore.synthesize())",
@@ -67,6 +67,10 @@
       "text" : "AudioStore.swift:305 - synthesizer.write() to buffer (cached synthesis)"
     },
     {
+      "relevance" : 1,
+      "text" : "MacOS 26.3 (developed for iPad) does not support premium voices even though MacOS 26.3 tests work fine"
+    },
+    {
       "relevance" : 0.9,
       "text" : "doc\/BackgroundAudio.md"
     },
@@ -87,5 +91,5 @@
 
   ],
   "summary" : "Premium voices (Petra, etc.) fail to speak on MacOS 26.3 when SC-Voice runs as iPad-on-Mac app. iOS devices work fine. System can use premium voices in native MacOS apps, but iPad compatibility mode apps cannot access them. Need to investigate entitlements, voice availability APIs, and potential Apple limitations for premium voice access in iPad-on-Mac mode.",
-  "updatedAt" : "2026-02-16T21:41:58Z"
+  "updatedAt" : "2026-02-16T22:53:45Z"
 }
