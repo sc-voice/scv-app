@@ -268,6 +268,7 @@ public final class AudioStore: @unchecked Sendable {
     let lock = NSLock()
     var isComplete = false
     var synthesisError: Error?
+    var totalBytes = 0
 
     let onBuffer: (AVAudioBuffer) -> Void = { buffer in
       lock.lock()
@@ -296,6 +297,12 @@ public final class AudioStore: @unchecked Sendable {
 
         // Write buffer to file
         try audioFile?.write(from: pcmBuffer)
+
+        // Track total bytes written
+        let format = pcmBuffer.format
+        let bytesPerFrame = format.streamDescription.pointee.mBytesPerFrame
+        let bufferBytes = Int(pcmBuffer.frameLength) * Int(bytesPerFrame)
+        totalBytes += bufferBytes
       } catch {
         synthesisError = error
       }
@@ -324,6 +331,30 @@ public final class AudioStore: @unchecked Sendable {
         userInfo: [
           NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
         ],
+      )
+    }
+
+    // Log successful synthesis with total bytes written
+    cc.ok1(#line, "Synthesis complete: \(outputUrl.lastPathComponent), size: \(totalBytes) bytes")
+
+    // Validate synthesis produced sufficient audio data
+    // Rough estimate: 1 second = ~88KB (22050 Hz * 4 bytes/sample)
+    // Minimum: ~50 bytes/char to detect silent failures
+    let minimumBytes = max(10000, text.count * 50)
+    if totalBytes < minimumBytes {
+      cc.bad1(#line, "Synthesis failed silently: \(totalBytes) bytes for \(text.count) chars - removing corrupt file")
+      do {
+        try fileManager.removeItem(at: outputUrl)
+        cc.ok2(#line, "Corrupt file deleted: \(outputUrl.lastPathComponent)")
+      } catch {
+        cc.bad1(#line, "Failed to delete corrupt file: \(error)")
+      }
+      throw NSError(
+        domain: "AudioStore",
+        code: -2,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Voice synthesis failed (insufficient audio data: \(totalBytes) bytes for \(text.count) chars)"
+        ]
       )
     }
   }

@@ -3,6 +3,9 @@ import Foundation
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
+  static let AUDIO: Int = 0
+  static let SYNTH: Int = 2
+
   public struct AboutCardView: Sendable {
     public static let other: Int = 0
   }
@@ -20,19 +23,19 @@ public struct dbg: Sendable {
   }
 
   public struct AudioContext: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = AUDIO
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = AUDIO
   }
 
   public struct AudioStore: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = max(SYNTH, AUDIO)
   }
 
   public struct AudioSynthesisSession: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = max(SYNTH, AUDIO)
   }
 
   public struct AutoComplete: Sendable {
@@ -40,7 +43,7 @@ public struct dbg: Sendable {
   }
 
   public struct CachedSynthesizer: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = max(SYNTH, AUDIO)
   }
 
   public struct CardManager: Sendable {
@@ -109,7 +112,7 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaPlayer: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = AUDIO
   }
 
   public struct SuttaCardView: Sendable {

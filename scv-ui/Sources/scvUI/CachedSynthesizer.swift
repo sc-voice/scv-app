@@ -31,6 +31,7 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
   private let audioStore: AudioStore
   private var audioPlayer: AVAudioPlayer?
   private var isCurrentlySpeaking = false
+  private var fallbackSynthesizer: AVSpeechSynthesizer?
 
   // Synthesis queue (prioritized: playback:true before playback:false)
   private var synthesisQueue: [SynthesisRequest] = []
@@ -146,6 +147,29 @@ final class CachedSynthesizer: NSObject, ISpeechSynthesizer,
           "error:",
           error,
         )
+
+        // Fallback: use speak() for immediate playback when caching fails
+        if "\(error)".contains("insufficient audio data") && request.playback {
+          cc.ok2(#line, "Falling back to speak() for immediate playback")
+
+          // Create fallback synthesizer if needed
+          if fallbackSynthesizer == nil {
+            fallbackSynthesizer = AVSpeechSynthesizer()
+          }
+
+          // Configure utterance with audioContext settings
+          let utterance = AVSpeechUtterance(string: request.text)
+          utterance.voice = AVSpeechSynthesisVoice(identifier: request.audioContext.voiceId)
+          utterance.rate = AVSpeechUtteranceDefaultSpeechRate * request.audioContext.rate
+          utterance.pitchMultiplier = request.audioContext.pitch
+          utterance.volume = 1.0
+
+          // Play immediately (no caching)
+          fallbackSynthesizer?.speak(utterance)
+          isCurrentlySpeaking = true
+          playbackDelegate?.onPlaybackStarted()
+          cc.ok1(#line, "Fallback playback started with speak()")
+        }
       }
     }
   }

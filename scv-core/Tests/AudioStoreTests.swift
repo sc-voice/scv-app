@@ -436,6 +436,36 @@ struct AudioStoreTests {
     }
   }
 
+  // Test disabled: Premium voices (Petra) work fine in native macOS environment.
+  // The bug only manifests when running as iPad-on-Mac compatibility mode app.
+  // In that mode, premium voices fail silently with 1024 bytes instead of ~100KB+.
+  // Our validation logic correctly detects and throws error in that case.
+  @Test("storeAudio throws on premium voice failure (Petra)", .disabled())
+  func storeAudioPetraFails() async throws {
+    let tempDir =
+      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+    let store = AudioStore.create(path: tempDir)
+
+    // Create settings with Petra voice
+    let settings = Settings()
+    settings.docLangSettings[.german]?.voiceId =
+      "com.apple.voice.premium.de-DE.Petra"
+
+    let context = AudioContext(for: "de", from: settings)
+    let text = "so habe ich gehoert"
+
+    do {
+      _ = try await store.storeAudio(text: text, audioContext: context)
+      #expect(Bool(false), "Should throw error for unavailable premium voice")
+    } catch {
+      cc.ok1(#line, "Expected error caught: \(error)")
+      #expect(
+        "\(error)".contains("insufficient audio data"),
+        "Error should indicate insufficient audio data: \(error)",
+      )
+    }
+  }
+
   @Test("compactContextVolumes with no volumes returns zero status")
   func compactContextVolumesEmptyStore() async {
     let tempDir =
