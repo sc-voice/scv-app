@@ -104,7 +104,7 @@
 "alert.clear" = "Löschen";
 
 /* Settings label for customization options */
-"settings.customize" = "Anpassen";
+"settings.customize" = "Einrichten";
 
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dunkler Modus";
