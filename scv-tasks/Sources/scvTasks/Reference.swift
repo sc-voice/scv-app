@@ -7,7 +7,8 @@ public struct Reference: Codable, Sendable, Identifiable {
   public var url: URL?
   public var relevance: Double
 
-  // Computed id: first 4 chars of MD5 hash of text (if present) or url (if present)
+  // Computed id: first 4 chars of MD5 hash of text (if present) or url (if
+  // present)
   public var id: String {
     let content = text ?? (url?.absoluteString ?? "")
     let data = content.data(using: .utf8) ?? Data()

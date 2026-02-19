@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Pauzė Tarp Segmentų";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Foninio atkūrimo režimas";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Foninio atkūrimo režimas";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Foninis atkūrimas leidžia garsui tęsti grojimą, kai ekranas yra užrakintas. Tam reikalingas viso dokumento sintezavimas prieš atkūrimą pradedant.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Norėdami naudoti foninį atkūrimą, ilgai paspauskite Play mygtuką bet kuriame sutte.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Supratau";
+
 /* Settings view title */
 "settings.title" = "Nustatymai";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Paieška Nepavyko";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "Balsas \"%@\" neatsako. Pabandykite kitą balsą arba įjunkite foninį atkūrimą. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "Balsas \"%@\" turi problemų kalbėdamas. Pasirinkite kitą balsą. [%@]";

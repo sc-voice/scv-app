@@ -380,7 +380,10 @@ struct TaskWorldTests {
     defer { try? FileManager.default.removeItem(at: tempDir) }
 
     let world = TaskWorld(basePath: tempDir)
-    let task = try await world.createTask(name: "Partial Match Task", summary: "")
+    let task = try await world.createTask(
+      name: "Partial Match Task",
+      summary: "",
+    )
 
     // Get first 8 chars of filename (T_AZxjl...)
     let prefix = String(task.idFile.prefix(8))
@@ -435,9 +438,13 @@ struct TaskWorldTests {
     defer { try? FileManager.default.removeItem(at: tempDir) }
 
     let world = TaskWorld(basePath: tempDir)
-    let task = try await world.createTask(name: "Lowercase Prefix Task", summary: "")
+    let task = try await world.createTask(
+      name: "Lowercase Prefix Task",
+      summary: "",
+    )
 
-    // Resolve using lowercase prefix without T_ (e.g., "azxvt220r" for "T_AZXvt220R")
+    // Resolve using lowercase prefix without T_ (e.g., "azxvt220r" for
+    // "T_AZXvt220R")
     let lowercasePrefixWithoutT = String(task.idFile.dropFirst(2)).lowercased()
     let resolved = try world.resolveTask(id: lowercasePrefixWithoutT)
     #expect(resolved.uuid == task.uuid)
@@ -454,7 +461,8 @@ struct TaskWorldTests {
     let task2 = try await world.createTask(name: "Task B", summary: "")
     let task3 = try await world.createTask(name: "Task C", summary: "")
 
-    // Use prefix that matches multiple tasks (first 8 chars should be common to at least 2)
+    // Use prefix that matches multiple tasks (first 8 chars should be common to
+    // at least 2)
     let commonPrefix = String(task1.idFile.prefix(8))
 
     // Should throw ambiguous error

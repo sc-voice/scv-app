@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Segmentpause";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Hintergrund-Wiedergabe";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Hintergrund-Wiedergabe";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Die Hintergrund-Wiedergabe ermöglicht die Fortsetzung der Audiowiedergabe, wenn der Bildschirm gesperrt ist. Dies erfordert, dass das gesamte Dokument vor Beginn der Wiedergabe synthetisiert wird.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Um die Hintergrund-Wiedergabe zu nutzen, halten Sie lange auf die Play-Taste bei einer Sutta.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Verstanden";
+
 /* Settings view title */
 "settings.title" = "Einstellungen";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Suche Fehlgeschlagen";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "Die Stimme \"%@\" antwortet nicht. Versuchen Sie eine andere Stimme oder aktivieren Sie die Hintergrund-Wiedergabe. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "Die Stimme \"%@\" hat Schwierigkeiten zu sprechen. Wählen Sie eine andere Stimme. [%@]";

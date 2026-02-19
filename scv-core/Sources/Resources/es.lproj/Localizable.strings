@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Pausa de Segmento";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Reproducción en Segundo Plano";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Reproducción en Segundo Plano";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "La reproducción en segundo plano permite que el audio siga reproduciéndose cuando la pantalla está bloqueada. Esto requiere que todo el documento sea sintetizado antes de que comience la reproducción.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Para usar la reproducción en segundo plano, presiona prolongadamente el botón Reproducir en cualquier sutta.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Entendido";
+
 /* Settings view title */
 "settings.title" = "Configuración";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Error en la Búsqueda";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "La voz \"%@\" no responde. Intenta con una voz diferente o habilita la reproducción en segundo plano. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "La voz \"%@\" tiene problemas para hablar. Elige una voz diferente. [%@]";

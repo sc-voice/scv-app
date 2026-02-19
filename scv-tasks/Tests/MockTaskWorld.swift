@@ -141,7 +141,7 @@ class MockTaskWorld: ITaskWorld, @unchecked Sendable {
 
   func resolveTask(id: AnyTaskId?) throws -> Task {
     // If id is nil, resolve to current task from stack
-    if let id = id {
+    if let id {
       // Explicit task provided - resolve by id/prefix
       return try resolveTaskByQuery(id)
     } else {

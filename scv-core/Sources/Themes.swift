@@ -167,10 +167,12 @@ private let COLOR_DARK_FOREGROUND1 = Color(red: 0.95, green: 0.95, blue: 0.95)
 private let COLOR_DARK_FOREGROUND2 = Color(red: 0.7, green: 0.7, blue: 0.7)
 
 /// Dark green background for tip modals (theme-independent)
-private let COLOR_TIP_BACKGROUND = Color(red: 0.106, green: 0.302, blue: 0.180) // #1B4D2E
+private let COLOR_TIP_BACKGROUND = Color(red: 0.106, green: 0.302,
+                                         blue: 0.180) // #1B4D2E
 
 /// Bright yellow foreground for tip modals (theme-independent)
-private let COLOR_TIP_FOREGROUND = Color(red: 1.0, green: 1.0, blue: 0.8) // #FFE000
+private let COLOR_TIP_FOREGROUND = Color(red: 1.0, green: 1.0,
+                                         blue: 0.8) // #FFE000
 
 /// Application themes
 public enum AppTheme {

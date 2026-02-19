@@ -10,7 +10,8 @@ nonisolated(unsafe) var world: TaskWorld! // Global context (initialized in
 // parseArgs)
 nonisolated(unsafe) var commandTID: TaskTID? // T_BASE64 format (user-facing)
 nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
-nonisolated(unsafe) var commandAnyTaskId: AnyTaskId? // Task prefix from -t/--task
+nonisolated(unsafe) var commandAnyTaskId: AnyTaskId? // Task prefix from
+// -t/--task
 // global flag
 nonisolated(unsafe) var commandItem: Int?
 
@@ -1036,7 +1037,7 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
   print("  New: \(name)")
 }
 
-func handleActionDone(args: [String], rootDirectory: URL) throws {
+func handleActionDone(args: [String], rootDirectory _: URL) throws {
   var i = 0
 
   while i < args.count {
@@ -1077,7 +1078,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
      reloadedTask.isDone,
      world.isStackTaskId(task.idFile)
   {
-    let _ = world.popTaskId()
+    _ = world.popTaskId()
     print("Task is now done and has been removed from stack")
   }
 }

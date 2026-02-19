@@ -52,13 +52,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       return cachedSynthesizer!
     } else {
       if speakSynthesizer == nil {
-        cc.ok1(#line, #function, "backgroundPlayback=false → SpeechSynthesizerImpl")
+        cc.ok1(
+          #line,
+          #function,
+          "backgroundPlayback=false → SpeechSynthesizerImpl",
+        )
         speakSynthesizer = SpeechSynthesizerImpl()
         speakSynthesizer!.playbackDelegate = self
       }
       return speakSynthesizer!
     }
   }
+
   /// Segments extracted from currentSutta, used for sequential playback
   private var segments: [Segment] = []
   /// Current playback position in segments array
@@ -80,14 +85,15 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   /// Timestamp when playback started (didStart callback); used to detect silent
   /// synthesis failures
   private var playbackStartTime: Date?
-  /// Voice identifier being used for current playback; used to get voice name for
+  /// Voice identifier being used for current playback; used to get voice name
+  /// for
   /// error alerts
   private var currentVoiceId: String?
 
   init(synthesizer: ISpeechSynthesizer? = nil) {
-    self.clientSynthesizer = synthesizer
+    clientSynthesizer = synthesizer
     super.init()
-    self.clientSynthesizer?.playbackDelegate = self
+    clientSynthesizer?.playbackDelegate = self
     configureAudioSession()
     setupAudioInterruptionHandler()
     cc.ok2(#line, "init() complete")
@@ -318,17 +324,18 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   }
 
   @MainActor
-  private func showSpeechErrorAlert(file: String, line: Int) {
+  private func showSpeechErrorAlert(file _: String, line _: Int) {
     cc.bad2(#line, #function, "Synthesizer failed to start after 3 seconds")
     isPlaying = false
 
     // Get voice name for error message
-    let voiceName: String
-    if let voiceId = currentVoiceId,
-       let voice = AVSpeechSynthesisVoice(identifier: voiceId) {
-      voiceName = voice.name
+    let voiceName: String = if let voiceId = currentVoiceId,
+                               let voice =
+                               AVSpeechSynthesisVoice(identifier: voiceId)
+    {
+      voice.name
     } else {
-      voiceName = "current"
+      "current"
     }
 
     let errId = fileLineId(filename: #file, line: #line)
@@ -481,7 +488,8 @@ public final class SuttaPlayer: NSObject, ObservableObject,
           .filter { $0.language == docLangSettings.language.code }
           .sorted { $0.quality.rawValue > $1.quality.rawValue }
         currentVoiceId = voices.first?.identifier
-          ?? AVSpeechSynthesisVoice(language: docLangSettings.language.code)?.identifier
+          ?? AVSpeechSynthesisVoice(language: docLangSettings.language.code)?
+          .identifier
       }
 
       cc.ok2(
@@ -536,13 +544,13 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     // Indicates synthesizer reported success but produced empty audio
     let duration = playbackStartTime.map { Date().timeIntervalSince($0) } ?? 0
     playbackStartTime = nil
-    if duration > 0 && duration < MIN_SPEAK_SECONDS {
+    if duration > 0, duration < MIN_SPEAK_SECONDS {
       cc.bad1(
         #line,
         #function,
         "Silent synthesis failure detected: playback duration",
         String(format: "%.3f", duration),
-        "seconds - voice incompatible, stopping playback and alerting user"
+        "seconds - voice incompatible, stopping playback and alerting user",
       )
 
       // Stop playback - do NOT retry
@@ -550,19 +558,27 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       _ = synthesizer.stopSpeaking(at: .immediate)
 
       // Get voice name for error message
-      let voiceName: String
-      if let voiceId = currentVoiceId,
-         let voice = AVSpeechSynthesisVoice(identifier: voiceId) {
-        voiceName = voice.name
+      let voiceName: String = if let voiceId = currentVoiceId,
+                                 let voice =
+                                 AVSpeechSynthesisVoice(identifier: voiceId)
+      {
+        voice.name
       } else {
-        voiceName = "This voice"
+        "This voice"
       }
 
       // Show alert via SwiftUI state
       let errId = fileLineId(filename: #file, line: #line)
-      voiceErrorMessage = "voice.error.silent_failure".localized(voiceName, errId)
+      voiceErrorMessage = "voice.error.silent_failure".localized(
+        voiceName,
+        errId,
+      )
       showVoiceErrorAlert = true
-      cc.ok1(#line, #function, "Silent failure alert state set - view will display it")
+      cc.ok1(
+        #line,
+        #function,
+        "Silent failure alert state set - view will display it",
+      )
 
       return
     }

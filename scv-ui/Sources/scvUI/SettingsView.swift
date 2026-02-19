@@ -194,7 +194,7 @@ public struct SettingsView: View {
               ) {
                 AudioSectionContent(
                   controller: controller,
-                  showBackgroundPlaybackInfo: $showBackgroundPlaybackInfo
+                  showBackgroundPlaybackInfo: $showBackgroundPlaybackInfo,
                 )
               }
 
@@ -340,7 +340,7 @@ public struct SettingsView: View {
         text: "settings.background.playback.info.message".localized
           + "\n\n"
           + "settings.background.playback.info.trigger".localized,
-        isPresented: $showBackgroundPlaybackInfo
+        isPresented: $showBackgroundPlaybackInfo,
       )
       .environmentObject(themeProvider)
       .presentationDetents([.medium])
@@ -661,7 +661,7 @@ struct AudioSectionContent: View {
           if newValue {
             showBackgroundPlaybackInfo = true
           }
-        }
+        },
       )) {
         HStack(spacing: 12) {
           Image(systemName: "lock.rectangle.on.rectangle")
@@ -773,7 +773,6 @@ struct DisplaySectionContent: View {
     }
   }
 }
-
 
 #Preview {
   SettingsView(controller: SettingsModalController(from: Settings.shared))

@@ -206,7 +206,8 @@ _clean: _clean-core _clean-ui _clean-ios _format
 format: _init _format _end
 
 _format: 
-	@swiftformat . --exclude Pods
+	@echo "=== MAKE clean-content..." 2>&1 | tee -a ${LOG_FILE}
+	@swiftformat . --exclude Pods 2>&1 | tee -a ${LOG_FILE}
 
 clean-core: _init _clean-core _end
 
@@ -251,7 +252,7 @@ version-minor:
 version-patch:
 	@scripts/version patch
 
-commit:
+commit: format
 	@if [ ! -f .commit-msg ]; then \
 		echo "Error: .commit-msg file not found"; \
 		exit 1; \

@@ -240,7 +240,8 @@ struct SuttaPlayerTests {
       let segment0Scid = player.currentSutta?.currentScid
       #expect(segment0Scid == segments[0].scid)
 
-      // Simulate realistic playback duration (300ms) - avoids silent failure detection
+      // Simulate realistic playback duration (300ms) - avoids silent failure
+      // detection
       try? await Task.sleep(nanoseconds: 300_000_000)
 
       // Simulate playback finishing - should auto-advance to segment 1
@@ -500,7 +501,10 @@ struct SuttaPlayerTests {
       // Verify playback stopped
       #expect(player.isPlaying == false)
 
-      cc.ok1(#line, "Silent synthesis failure detected and playback stopped (no retry)")
+      cc.ok1(
+        #line,
+        "Silent synthesis failure detected and playback stopped (no retry)",
+      )
     }
   }
 }

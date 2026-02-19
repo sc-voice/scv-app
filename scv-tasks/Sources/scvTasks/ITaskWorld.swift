@@ -11,7 +11,6 @@ public typealias TaskTID = String
 /// The time-based UUID for a task is unique but too large for humans
 public typealias TaskId = UUIDV7
 
-
 /// ITaskWorld defines the complete API for task management.
 /// All code should interact with tasks through this protocol.
 /// All mutations are atomic and durable - no explicit save() needed.

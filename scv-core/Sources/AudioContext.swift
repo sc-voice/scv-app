@@ -66,7 +66,10 @@ public struct AudioContext: Codable, Hashable, Sendable {
     pitch = try container.decode(Float.self, forKey: .pitch)
     rate = try container.decode(Float.self, forKey: .rate)
     segmentPause = try container.decode(Double.self, forKey: .segmentPause)
-    backgroundPlayback = try container.decode(Bool.self, forKey: .backgroundPlayback)
+    backgroundPlayback = try container.decode(
+      Bool.self,
+      forKey: .backgroundPlayback,
+    )
 
     // Recompute hash from decoded values
     let mj = MerkleJson()

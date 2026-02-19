@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Пауза между сегментами";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Воспроизведение в фоне";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Воспроизведение в фоне";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Воспроизведение в фоне позволяет аудио продолжать воспроизведение при заблокированном экране. Это требует синтеза всего документа перед началом воспроизведения.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Для использования фонового воспроизведения долгое нажмите кнопку воспроизведения на любой сутте.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Понял";
+
 /* Settings view title */
 "settings.title" = "Настройки";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Поиск Не Выполнен";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "Голос \"%@\" не отвечает. Попробуйте другой голос или включите воспроизведение в фоне. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "Голос \"%@\" испытывает проблемы с воспроизведением. Выберите другой голос. [%@]";

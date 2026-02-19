@@ -33,28 +33,41 @@ public struct Action: Codable, Identifiable, Sendable {
     self.complexity = complexity
     self.duration = duration
     self.taskWorld = taskWorld
-    // Use provided test value, or fall back to world.testDefault, or TaskWorld.TEST_DEFAULT
+    // Use provided test value, or fall back to world.testDefault, or
+    // TaskWorld.TEST_DEFAULT
     self.test = test ?? taskWorld?.testDefault ?? TaskWorld.TEST_DEFAULT
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     // Handle migration: if name is missing, try to use description as name
-    if let decodedName = try container.decodeIfPresent(String.self, forKey: .name) {
+    if let decodedName = try container.decodeIfPresent(
+      String.self,
+      forKey: .name,
+    ) {
       name = decodedName
-      description = try container.decodeIfPresent(String.self, forKey: .description)
-    } else if let decodedDescription = try container.decodeIfPresent(String.self, forKey: .description) {
+      description = try container.decodeIfPresent(
+        String.self,
+        forKey: .description,
+      )
+    } else if let decodedDescription = try container.decodeIfPresent(
+      String.self,
+      forKey: .description,
+    ) {
       // Migration: old format had description as primary, now name is primary
       name = decodedDescription
       description = nil
     } else {
       throw DecodingError.keyNotFound(CodingKeys.name, DecodingError.Context(
         codingPath: container.codingPath,
-        debugDescription: "Action requires either 'name' or 'description' field"
+        debugDescription: "Action requires either 'name' or 'description' field",
       ))
     }
     complexity = try container.decodeIfPresent(String.self, forKey: .complexity)
-    duration = try container.decodeIfPresent(TimeInterval.self, forKey: .duration)
+    duration = try container.decodeIfPresent(
+      TimeInterval.self,
+      forKey: .duration,
+    )
     let decodedTest = try container.decodeIfPresent(String.self, forKey: .test)
 
     // Get taskWorld from decoder userInfo
@@ -66,7 +79,8 @@ public struct Action: Codable, Identifiable, Sendable {
       taskWorld = nil
     }
 
-    // Use decoded value, or fall back to world.testDefault, or TaskWorld.TEST_DEFAULT
+    // Use decoded value, or fall back to world.testDefault, or
+    // TaskWorld.TEST_DEFAULT
     test = decodedTest ?? taskWorld?.testDefault ?? TaskWorld.TEST_DEFAULT
   }
 

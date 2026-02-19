@@ -22,7 +22,12 @@ public struct TipView: View {
   @Binding var isPresented: Bool
   let onConfirm: (() -> Void)?
 
-  public init(title: String, text: String, isPresented: Binding<Bool>, onConfirm: (() -> Void)? = nil) {
+  public init(
+    title: String,
+    text: String,
+    isPresented: Binding<Bool>,
+    onConfirm: (() -> Void)? = nil,
+  ) {
     self.title = title
     self.text = text
     _isPresented = isPresented
@@ -37,7 +42,6 @@ public struct TipView: View {
       bg
 
       VStack(spacing: 0) {
-
         // MARK: Header
 
         HStack {
@@ -99,7 +103,7 @@ public struct TipView: View {
   TipView(
     title: "Add a Card",
     text: "Tap the + button to add a search card. You can search for suttas by keyword, sutta ID, or topic.",
-    isPresented: .constant(true)
+    isPresented: .constant(true),
   )
   .environmentObject(ThemeProvider())
   .presentationDetents([.medium])

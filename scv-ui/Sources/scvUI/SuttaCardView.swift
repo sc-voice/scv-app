@@ -171,7 +171,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                   onConfirm: {
                     Settings.shared.backgroundPlayback = true
                     startBackgroundPlayback()
-                  }
+                  },
                 )
                 .environmentObject(themeProvider)
                 .presentationDetents([.medium])
@@ -424,9 +424,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
 
 extension View {
   func voiceErrorAlert(player: SuttaPlayer) -> some View {
-    self.alert("Voice Not Available", isPresented: Binding(
+    alert("Voice Not Available", isPresented: Binding(
       get: { player.showVoiceErrorAlert },
-      set: { player.showVoiceErrorAlert = $0 }
+      set: { player.showVoiceErrorAlert = $0 },
     )) {
       Button("OK") {
         player.resetPlayer()

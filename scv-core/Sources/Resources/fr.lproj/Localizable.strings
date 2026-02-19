@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Pause de segment";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Lecture en arrière-plan";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Lecture en arrière-plan";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "La lecture en arrière-plan permet à l'audio de continuer à jouer lorsque l'écran est verrouillé. Cela nécessite que l'ensemble du document soit synthétisé avant le début de la lecture.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Pour utiliser la lecture en arrière-plan, appuyez longuement sur le bouton Lecture sur n'importe quel sutta.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "D'accord";
+
 /* Settings view title */
 "settings.title" = "Paramètres";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Échec de la Recherche";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "La voix \"%@\" ne répond pas. Essayez une voix différente ou activez la lecture en arrière-plan. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "La voix \"%@\" a du mal à parler. Choisissez une voix différente. [%@]";

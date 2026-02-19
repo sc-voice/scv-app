@@ -1,8 +1,7 @@
 import scvCore
 import SwiftUI
 
-
-/// WARNING: This is a custom notification oddity 
+/// WARNING: This is a custom notification oddity
 /// Should this be a TipView?
 
 // MARK: - TipsAction

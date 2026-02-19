@@ -3,8 +3,8 @@ import Foundation
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
-  static let SYNTH_WRITE: Int = 0  // AVSpeechSynthesizer.write(), AudioStore
-  static let SYNTH_SPEAK: Int = 0  // AVSpeechSynthesizer.speak()
+  static let SYNTH_WRITE: Int = 0 // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = 0
 
@@ -176,7 +176,7 @@ public func fileLineId(filename: String, line: Int) -> String {
     : fileURL.lastPathComponent
   let first = fname.first.map(String.init) ?? "?"
   let last = fname.last.map(String.init) ?? "?"
-  let count2 = "\(fname.count-2)"
+  let count2 = "\(fname.count - 2)"
   let short = first + count2 + last
   return "\(short):\(line)"
 }

@@ -436,9 +436,11 @@ struct AudioStoreTests {
     }
   }
 
-  // Test disabled: Premium voices (Petra) work fine in native macOS environment.
+  // Test disabled: Premium voices (Petra) work fine in native macOS
+  // environment.
   // The bug only manifests when running as iPad-on-Mac compatibility mode app.
-  // In that mode, premium voices fail silently with 1024 bytes instead of ~100KB+.
+  // In that mode, premium voices fail silently with 1024 bytes instead of
+  // ~100KB+.
   // Our validation logic correctly detects and throws error in that case.
   @Test("storeAudio throws on premium voice failure (Petra)", .disabled())
   func storeAudioPetraFails() async throws {

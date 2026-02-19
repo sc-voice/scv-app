@@ -254,15 +254,17 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
   // MARK: - Task Resolution
 
   /// Resolve a task by id (filename or UUID prefix) or current task from stack.
-  /// - Parameter id: Optional task identifier. If nil, returns current task from stack.
+  /// - Parameter id: Optional task identifier. If nil, returns current task
+  /// from stack.
   ///   If provided, can be:
   ///   - UUID string (36 chars with dashes): matches by exact UUID
   ///   - Filename (T_AZvuCKoac): matches by prefix (case-insensitive)
-  /// - Throws: TaskResolutionError.notFound if task not found, or .ambiguous if multiple
+  /// - Throws: TaskResolutionError.notFound if task not found, or .ambiguous if
+  /// multiple
   ///   tasks match the prefix
   public func resolveTask(id: AnyTaskId?) throws -> Task {
     let taskId: AnyTaskId
-    if let id = id {
+    if let id {
       taskId = id
     } else {
       guard let currentId = currentTaskId() else {
@@ -273,20 +275,28 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     return try resolveTaskLevenstein(taskId)
   }
 
-  /// Resolve a task using two-stage Levenshtein fuzzy matching with distance threshold.
+  /// Resolve a task using two-stage Levenshtein fuzzy matching with distance
+  /// threshold.
   ///
   /// **Algorithm:**
-  /// - Distance threshold: `max(1, query.length - 3)` - requires ~3 chars overlap minimum
-  /// - Stage 1 (case-sensitive): Calculate distance to all tasks; if closest distance exceeds threshold, throw notFound
-  /// - Stage 2 (case-insensitive tiebreaker): Among Stage 1 matches, recalculate case-insensitively to break ties
+  /// - Distance threshold: `max(1, query.length - 3)` - requires ~3 chars
+  /// overlap minimum
+  /// - Stage 1 (case-sensitive): Calculate distance to all tasks; if closest
+  /// distance exceeds threshold, throw notFound
+  /// - Stage 2 (case-insensitive tiebreaker): Among Stage 1 matches,
+  /// recalculate case-insensitively to break ties
   ///
   /// **Rationale:**
-  /// - Base64 filenames are case-sensitive, but user typos often involve case errors
+  /// - Base64 filenames are case-sensitive, but user typos often involve case
+  /// errors
   /// - Stage 1 preserves base64 fidelity; Stage 2 handles case typos gracefully
-  /// - Distance threshold prevents accepting terrible matches (e.g., "T_NONEXISTENT" shouldn't match "T_AZxjfXGpc")
-  /// - Deduplication avoids spurious duplicates from taskMap (stores each task by both filename and UUID)
+  /// - Distance threshold prevents accepting terrible matches (e.g.,
+  /// "T_NONEXISTENT" shouldn't match "T_AZxjfXGpc")
+  /// - Deduplication avoids spurious duplicates from taskMap (stores each task
+  /// by both filename and UUID)
   ///
-  /// **Returns:** Unique matched task; throws notFound if too far, ambiguous if tied
+  /// **Returns:** Unique matched task; throws notFound if too far, ambiguous if
+  /// tied
   private func resolveTaskLevenstein(_ query: AnyTaskId) throws -> Task {
     let distanceThreshold = max(1, query.count - 2)
 
@@ -311,14 +321,16 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     }
 
     // Find minimum case-sensitive distance
-    let minCaseSensitiveDistance = stage1Results.min(by: { $0.distance < $1.distance })!
+    let minCaseSensitiveDistance = stage1Results
+      .min(by: { $0.distance < $1.distance })!
       .distance
     if minCaseSensitiveDistance > distanceThreshold {
       let msg = "\(query) distanceThreshold exceeded: \(minCaseSensitiveDistance) > \(distanceThreshold)"
       throw TaskResolutionError.notFound(msg)
     }
 
-    let shortList = stage1Results.filter { $0.distance == minCaseSensitiveDistance }
+    let shortList = stage1Results
+      .filter { $0.distance == minCaseSensitiveDistance }
 
     // If unique at stage 1, return it
     if shortList.count == 1 {
@@ -336,9 +348,11 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     }
 
     // Find minimum case-insensitive distance
-    let minCaseInsensitiveDistance = stage2Results.min(by: { $0.distance < $1.distance })!
+    let minCaseInsensitiveDistance = stage2Results
+      .min(by: { $0.distance < $1.distance })!
       .distance
-    let finalList = stage2Results.filter { $0.distance == minCaseInsensitiveDistance }
+    let finalList = stage2Results
+      .filter { $0.distance == minCaseInsensitiveDistance }
 
     // If unique after tiebreaker, return it
     if finalList.count == 1 {
@@ -346,15 +360,19 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
     }
 
     // Still ambiguous after both stages
-    let matchIds = finalList.map { $0.task.idFile }.sorted()
+    let matchIds = finalList.map(\.task.idFile).sorted()
     print("ambiguous matches for \(query):", matchIds)
     throw TaskResolutionError.ambiguous(query, matchIds)
   }
 
   /// Compute Levenshtein distance (edit distance) between two strings.
-  /// Counts minimum insertions, deletions, and substitutions needed to transform a→b.
-  /// Used in resolveTaskLevenstein for both case-sensitive (stage 1) and case-insensitive (stage 2) matching.
-  public func levenshtein(_ a: String, _ b: String, ignoreCase: Bool = false) -> Int {
+  /// Counts minimum insertions, deletions, and substitutions needed to
+  /// transform a→b.
+  /// Used in resolveTaskLevenstein for both case-sensitive (stage 1) and
+  /// case-insensitive (stage 2) matching.
+  public func levenshtein(_ a: String, _ b: String,
+                          ignoreCase: Bool = false) -> Int
+  {
     let a = ignoreCase ? a.lowercased() : a
     let b = ignoreCase ? b.lowercased() : b
 
@@ -363,7 +381,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
 
     var matrix = Array(
       repeating: Array(repeating: 0, count: bChars.count + 1),
-      count: aChars.count + 1
+      count: aChars.count + 1,
     )
 
     for i in 0 ... aChars.count {
@@ -379,7 +397,7 @@ public class TaskWorld: ITaskWorld, @unchecked Sendable {
         matrix[i][j] = min(
           matrix[i - 1][j] + 1, // deletion
           matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j - 1] + cost // substitution
+          matrix[i - 1][j - 1] + cost, // substitution
         )
       }
     }
