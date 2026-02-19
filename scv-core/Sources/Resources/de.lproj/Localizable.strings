@@ -170,7 +170,7 @@
 "about.section.how_to_use" = "Anleitung";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Erste Schritte mit SC-Voice:";
+"about.how_to_use.intro" = "Erste Schritte mit scVoice:";
 
 /* About card view: step 1 title */
 "about.step.1.title" = "Erstellen Sie eine Suchkarte";
@@ -233,7 +233,7 @@
 "about.section.acknowledgements" = "Danksagungen";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice basiert auf der Arbeit vieler Mitarbeiter:";
+"about.acknowledgements.intro" = "scVoice basiert auf der Arbeit vieler Mitarbeiter:";
 
 /* About card view: translations role */
 "about.ack.translations" = "Übersetzungen";
@@ -257,7 +257,7 @@
 "about.ack.development" = "Entwicklung";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "SC-Voice-Mitwirkende";
+"about.ack.development.names" = "scVoice-Mitwirkende";
 
 /* About card view: graphics & design section title */
 "about.section.graphics_design" = "Grafiken & Design";
@@ -290,7 +290,7 @@
 "about.section.open_source" = "Open-Source-Lizenzen";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Der gesamte SC-Voice-Quellcode ist unter der MIT-Lizenz lizenziert, falls nicht anders angegeben.";
+"about.open_source.intro" = "Der gesamte scVoice-Quellcode ist unter der MIT-Lizenz lizenziert, falls nicht anders angegeben.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Die folgenden Bibliotheken sind ebenfalls enthalten:";
@@ -314,7 +314,7 @@
 "about.section.privacy_policy" = "Datenschutzerklärung";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice respektiert Ihre Privatsphäre:";
+"about.privacy.intro" = "scVoice respektiert Ihre Privatsphäre:";
 
 /* About card view: no analytics privacy item */
 "about.privacy.no_analytics" = "Keine Analytik";
