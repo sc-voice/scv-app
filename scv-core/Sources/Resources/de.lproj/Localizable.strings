@@ -14,19 +14,19 @@
 "settings.show.document" = "Übersetzung";
 
 /* Settings toggle label for displaying reference text in segments */
-"settings.show.reference" = "Referenz";
+"settings.show.reference" = "Vergleichstext";
 
 /* Card type label for search card */
 "card.type.search" = "Suche";
 
 /* Card type label for sutta viewer card */
-"card.type.sutta" = "Sutra";
+"card.type.sutta" = "Sutta";
 
 /* Card type label for about card */
 "card.type.about" = "Über";
 
 /* About card sidebar caption - %@ is replaced with bold plus symbol */
-"card.about.sidebar.caption" = "Klicken Sie auf %@, um zu starten";
+"card.about.sidebar.caption" = "Klicke auf %@, um zu starten";
 
 /* Card title for search card */
 "card.title.search" = "Suche";
@@ -38,7 +38,7 @@
 "search.for.what" = "Was suchst du?";
 
 /* Error message when translation not found for language/author combination */
-"translation.not.found" = "Übersetzung nicht gefunden für %@ / %@";
+"translation.not.found" = "Übersetzung für %@ / %@ nicht gefunden";
 
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Segmentpause";
@@ -71,25 +71,25 @@
 "settings.document.author" = "Autor";
 
 /* Settings label for reference language */
-"settings.reference.language" = "Referenzsprache";
+"settings.reference.language" = "Vergleichssprache";
 
 /* Settings section header for accessibility options */
-"settings.accessibility" = "Barrierefreiheit";
+"settings.accessibility" = "Bedienungshilfen";
 
 /* Settings subsection header for vision/display options */
-"settings.vision" = "Vision";
+"settings.vision" = "Sehen";
 
 /* Settings subsection header for audio options */
-"settings.audio" = "Audio";
+"settings.audio" = "Hören";
 
 /* Settings section header for display options */
 "settings.display" = "Anzeige";
 
 /* Settings label for sound effects volume */
-"settings.sound.effects.volume" = "Lautstärke der Wiedergabetöne";
+"settings.sound.effects.volume" = "Lautstärke der Anzeigetöne";
 
 /* Settings section header for build information */
-"settings.build" = "Build";
+"settings.build" = "Build-Version";
 
 /* Settings button label to reset all settings */
 "settings.reset.button" = "Einstellungen zurücksetzen";
@@ -98,7 +98,7 @@
 "settings.reset.alert.title" = "Alle Einstellungen zurücksetzen?";
 
 /* Settings alert message for reset confirmation */
-"settings.reset.alert.message" = "Dies stellt alle Einstellungen auf ihre Standardwerte zurück.";
+"settings.reset.alert.message" = "Dies setzt alle Einstellungen auf ihre Standardwerte zurück.";
 
 /* Alert button label for confirming reset */
 "alert.reset" = "Zurücksetzen";
@@ -107,10 +107,10 @@
 "alert.cancel" = "Abbrechen";
 
 /* Settings button label to clear audio store */
-"settings.clear.audio.button" = "Audio-Store Löschen";
+"settings.clear.audio.button" = "Audiospeicher löschen";
 
 /* Settings alert title for clear audio confirmation */
-"settings.clear.audio.alert.title" = "Audio-Store Löschen?";
+"settings.clear.audio.alert.title" = "Audiospeicher löschenn?";
 
 /* Settings alert message for clear audio confirmation */
 "settings.clear.audio.alert.message" = "Dies löscht alle zwischengespeicherten Audiodateien und kann nicht rückgängig gemacht werden.";
@@ -119,7 +119,7 @@
 "alert.clear" = "Löschen";
 
 /* Settings label for customization options */
-"settings.customize" = "Anpassen";
+"settings.customize" = "Einrichten";
 
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dunkler Modus";
