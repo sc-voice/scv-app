@@ -60,6 +60,7 @@ protocol ISpeechSynthesizer {
 final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
   AVSpeechSynthesizerDelegate
 {
+  let cc = ColorConsole(#file, #function, dbg.SpeechSynthesizer.other)
   private var innerSynthesizer = AVSpeechSynthesizer()
   @MainActor var playbackDelegate: IPlaybackDelegate?
 

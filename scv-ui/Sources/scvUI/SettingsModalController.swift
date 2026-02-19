@@ -64,6 +64,10 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
+  @Published var backgroundPlayback: Bool {
+    didSet { autosave() }
+  }
+
   @Published var playPali: Bool {
     didSet { autosave() }
   }
@@ -119,6 +123,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     docRate = settings.docLangSettings[settings.docLang]?.rate ?? 1.0
     docAuthor = settings.docLangSettings[settings.docLang]?.author ?? ""
     segmentPause = settings.segmentPause
+    backgroundPlayback = settings.backgroundPlayback
     playPali = settings.playPali
     playDoc = settings.playDoc
     showPali = settings.showPali
@@ -155,6 +160,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.paliSettings.pitch = paliPitch
     Settings.shared.paliSettings.rate = paliRate
     Settings.shared.segmentPause = segmentPause
+    Settings.shared.backgroundPlayback = backgroundPlayback
     Settings.shared.playPali = playPali
     Settings.shared.playDoc = playDoc
     Settings.shared.showPali = showPali
@@ -288,6 +294,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     docPitch = 1.0
     docRate = 1.0
     segmentPause = SEGMENT_PAUSE_DEFAULT
+    backgroundPlayback = false
     playPali = false
     playDoc = true
     showPali = false

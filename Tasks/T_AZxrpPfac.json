@@ -1,0 +1,30 @@
+{
+  "completedActions" : [
+    {
+      "name" : "write doc\/TipView.md",
+      "test" : "dev review"
+    },
+    {
+      "name" : "update Themes.swift",
+      "test" : "compiles"
+    },
+    {
+      "name" : "implement TipView.swift",
+      "test" : "dev test"
+    }
+  ],
+  "createdAt" : "2026-02-17T12:48:19Z",
+  "id" : "019C6BA4-F7DA-7000-B7E1-0F5619039B2C",
+  "name" : "Add a TipView component that can show user tips",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-17T15:01:41Z"
+}

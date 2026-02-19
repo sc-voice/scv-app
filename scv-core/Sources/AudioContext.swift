@@ -36,6 +36,9 @@ public struct AudioContext: Codable, Hashable, Sendable {
   /// Segment pause duration in seconds (pre/post utterance delays)
   public let segmentPause: Double
 
+  /// Whether background playback mode is enabled
+  public let backgroundPlayback: Bool
+
   /// Deterministic 32-character hex MD5 hash of audio context.
   ///
   /// Hash changes when any speech synthesis setting changes, indicating cached
@@ -52,6 +55,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
     case pitch
     case rate
     case segmentPause
+    case backgroundPlayback
     // hash is excluded - computed from other fields
   }
 
@@ -62,6 +66,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
     pitch = try container.decode(Float.self, forKey: .pitch)
     rate = try container.decode(Float.self, forKey: .rate)
     segmentPause = try container.decode(Double.self, forKey: .segmentPause)
+    backgroundPlayback = try container.decode(Bool.self, forKey: .backgroundPlayback)
 
     // Recompute hash from decoded values
     let mj = MerkleJson()
@@ -71,6 +76,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
       "pitch": pitch,
       "rate": rate,
       "segmentPause": segmentPause,
+      "backgroundPlayback": backgroundPlayback,
     ]
     hash = mj.hash(dict)
   }
@@ -82,6 +88,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
     try container.encode(pitch, forKey: .pitch)
     try container.encode(rate, forKey: .rate)
     try container.encode(segmentPause, forKey: .segmentPause)
+    try container.encode(backgroundPlayback, forKey: .backgroundPlayback)
     // hash is not encoded - recomputed on decode
   }
 
@@ -117,6 +124,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
     pitch = langSettings.pitch
     rate = langSettings.rate
     segmentPause = settings.segmentPause
+    backgroundPlayback = settings.backgroundPlayback
 
     // Compute and store hash at initialization
     let mj = MerkleJson()
@@ -126,6 +134,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
       "pitch": pitch,
       "rate": rate,
       "segmentPause": segmentPause,
+      "backgroundPlayback": backgroundPlayback,
     ]
     hash = mj.hash(dict)
     cc.ok1(#line, #function, hash)
@@ -146,6 +155,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
       "pitch": pitch,
       "rate": rate,
       "segmentPause": segmentPause,
+      "backgroundPlayback": backgroundPlayback,
     ]
     return mj.hash(dict)
   }

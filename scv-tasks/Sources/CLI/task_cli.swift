@@ -8,9 +8,9 @@ let DBG_TASK = 2
 // Global state
 nonisolated(unsafe) var world: TaskWorld! // Global context (initialized in
 // parseArgs)
-nonisolated(unsafe) var commandTask: String? // T_BASE64 format (user-facing)
+nonisolated(unsafe) var commandTID: TaskTID? // T_BASE64 format (user-facing)
 nonisolated(unsafe) var currentTaskUUIDV7: UUIDV7? // UUID format (internal)
-nonisolated(unsafe) var commandTaskPrefix: String? // Task prefix from -t/--task
+nonisolated(unsafe) var commandAnyTaskId: AnyTaskId? // Task prefix from -t/--task
 // global flag
 nonisolated(unsafe) var commandItem: Int?
 
@@ -190,7 +190,7 @@ func parseArgs() throws
       guard i < allArgs.count else {
         throw CliError.missingValue(arg)
       }
-      commandTaskPrefix = allArgs[i]
+      commandAnyTaskId = allArgs[i]
       i += 1
     } else if arg == "-i" || arg == "--item" {
       i += 1
@@ -294,19 +294,19 @@ func parseArgs() throws
     }
   }
 
-  // Set commandTask from current top of stack, or newest task if stack empty
+  // Set commandTID from current top of stack, or newest task if stack empty
   // (skip for init)
   if command != "init" {
     if let taskId = WorldModel.shared.currentTask() {
       let base64 = Task.uuidToBase64(taskId)
-      commandTask = "T_\(base64.prefix(9))"
+      commandTID = "T_\(base64.prefix(9))"
       currentTaskUUIDV7 = taskId
     } else {
       // Stack is empty - default to newest task
       let taskManager = TaskManager(basePath: finalRootDirectory)
       let tasks = try taskManager.allTasks()
       if let newestTask = tasks.max(by: { $0.id < $1.id }) {
-        commandTask = newestTask.idFile
+        commandTID = newestTask.idFile
         currentTaskUUIDV7 = newestTask.id
       }
     }
@@ -321,14 +321,14 @@ func parseArgs() throws
 
 /// Get task prefix from command-line: prefer global -t flag, fallback to
 /// current task
-func getTaskPrefix(from _: [String]? = nil) throws -> String {
-  // Prefer global commandTaskPrefix if set
-  if let taskPrefix = commandTaskPrefix {
-    return taskPrefix
+func getAnyTaskId(from _: [String]? = nil) throws -> AnyTaskId {
+  // Prefer global commandAnyTaskId if set
+  if let anyTaskId = commandAnyTaskId {
+    return anyTaskId
   }
 
   // Fallback to current task from stack
-  if let currentTask = commandTask {
+  if let currentTask = commandTID {
     return currentTask
   }
 
@@ -587,7 +587,7 @@ func handleInit(args: [String], rootDirectory: URL) throws {
 }
 
 func handlePush(args: [String], rootDirectory _: URL) throws {
-  var taskPrefix: String?
+  var anyTaskId: AnyTaskId?
   var i = 0
 
   while i < args.count {
@@ -598,10 +598,10 @@ func handlePush(args: [String], rootDirectory _: URL) throws {
       guard i < args.count else {
         throw CliError.missingValue(arg)
       }
-      taskPrefix = args[i]
+      anyTaskId = args[i]
     } else if !arg.hasPrefix("-") {
       // Positional argument: task prefix
-      taskPrefix = arg
+      anyTaskId = arg
     } else {
       throw CliError.unknownOption(arg)
     }
@@ -609,7 +609,7 @@ func handlePush(args: [String], rootDirectory _: URL) throws {
     i += 1
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
+  let inputPrefix = anyTaskId ?? commandAnyTaskId ?? commandTID
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
@@ -665,7 +665,7 @@ func showActions(title: String, actions: [Action]) {
 }
 
 func handleShow(args: [String], rootDirectory _: URL) throws {
-  var taskPrefix: String?
+  var anyTaskId: AnyTaskId?
   var format = "text"
   var i = 0
 
@@ -677,7 +677,7 @@ func handleShow(args: [String], rootDirectory _: URL) throws {
       guard i < args.count else {
         throw CliError.missingValue(arg)
       }
-      taskPrefix = args[i]
+      anyTaskId = args[i]
     } else if arg == "-f" || arg == "--format" {
       i += 1
       guard i < args.count else {
@@ -686,7 +686,7 @@ func handleShow(args: [String], rootDirectory _: URL) throws {
       format = args[i]
     } else if !arg.hasPrefix("-") {
       // Positional argument: task prefix
-      taskPrefix = arg
+      anyTaskId = arg
     } else {
       throw CliError.unknownOption(arg)
     }
@@ -694,7 +694,7 @@ func handleShow(args: [String], rootDirectory _: URL) throws {
     i += 1
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
+  let inputPrefix = anyTaskId ?? commandAnyTaskId ?? commandTID
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
@@ -804,7 +804,7 @@ func handleShow(args: [String], rootDirectory _: URL) throws {
 }
 
 func handleDelete(args: [String], rootDirectory: URL) throws {
-  var taskPrefix: String?
+  var anyTaskId: AnyTaskId?
   var force = false
   var i = 0
 
@@ -816,7 +816,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
       guard i < args.count else {
         throw CliError.missingValue(arg)
       }
-      taskPrefix = args[i]
+      anyTaskId = args[i]
     } else if arg == "--force" {
       force = true
     } else {
@@ -826,7 +826,7 @@ func handleDelete(args: [String], rootDirectory: URL) throws {
     i += 1
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
+  let inputPrefix = anyTaskId ?? commandAnyTaskId ?? commandTID
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
@@ -879,7 +879,7 @@ func handleAction(args: [String], rootDirectory: URL) throws {
 }
 
 func handleActionList(args: [String], rootDirectory _: URL) throws {
-  var taskPrefix: String?
+  var anyTaskId: AnyTaskId?
   var i = 0
 
   while i < args.count {
@@ -890,7 +890,7 @@ func handleActionList(args: [String], rootDirectory _: URL) throws {
       guard i < args.count else {
         throw CliError.missingValue(arg)
       }
-      taskPrefix = args[i]
+      anyTaskId = args[i]
     } else if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
@@ -900,7 +900,7 @@ func handleActionList(args: [String], rootDirectory _: URL) throws {
     i += 1
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
+  let inputPrefix = anyTaskId ?? commandAnyTaskId ?? commandTID
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
@@ -962,7 +962,7 @@ func handleActionAdd(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("NAME")
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -1014,7 +1014,7 @@ func handleActionReplace(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("NAME")
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -1051,7 +1051,7 @@ func handleActionDone(args: [String], rootDirectory: URL) throws {
 
   let actionNumber = commandItem ?? 1
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   // Convert 1-based action number to 0-based index
@@ -1102,7 +1102,7 @@ func handleActionDelete(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -1169,7 +1169,7 @@ func handleReference(args: [String], rootDirectory: URL) throws {
 }
 
 func handleReferenceList(args: [String], rootDirectory _: URL) throws {
-  var taskPrefix: String?
+  var anyTaskId: AnyTaskId?
   var i = 0
 
   while i < args.count {
@@ -1180,7 +1180,7 @@ func handleReferenceList(args: [String], rootDirectory _: URL) throws {
       guard i < args.count else {
         throw CliError.missingValue(arg)
       }
-      taskPrefix = args[i]
+      anyTaskId = args[i]
     } else if arg.hasPrefix("-") {
       throw CliError.unknownOption(arg)
     } else {
@@ -1190,7 +1190,7 @@ func handleReferenceList(args: [String], rootDirectory _: URL) throws {
     i += 1
   }
 
-  let inputPrefix = taskPrefix ?? commandTask
+  let inputPrefix = anyTaskId ?? commandAnyTaskId ?? commandTID
   guard let inputPrefix else {
     throw CliError.missingRequired("-t/--task (or set via task stack)")
   }
@@ -1268,7 +1268,7 @@ func handleReferenceAdd(args: [String], rootDirectory: URL) throws {
     }
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -1326,7 +1326,7 @@ func handleReferenceReplace(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)
@@ -1378,7 +1378,7 @@ func handleReferenceDelete(args: [String], rootDirectory: URL) throws {
     throw CliError.missingRequired("-i/--item")
   }
 
-  let inputPrefix = try getTaskPrefix()
+  let inputPrefix = try getAnyTaskId()
   var task = try world.resolveTask(id: inputPrefix)
 
   let taskManager = TaskManager(basePath: rootDirectory)

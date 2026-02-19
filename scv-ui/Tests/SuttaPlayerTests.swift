@@ -240,6 +240,9 @@ struct SuttaPlayerTests {
       let segment0Scid = player.currentSutta?.currentScid
       #expect(segment0Scid == segments[0].scid)
 
+      // Simulate realistic playback duration (300ms) - avoids silent failure detection
+      try? await Task.sleep(nanoseconds: 300_000_000)
+
       // Simulate playback finishing - should auto-advance to segment 1
       mockSynthesizer.triggerDidFinish()
       try? await Task.sleep(nanoseconds: 10_000_000)
@@ -457,5 +460,47 @@ struct SuttaPlayerTests {
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
+  }
+
+  @Test
+  @MainActor
+  func suttaPlayerDetectsSilentSynthesisFailureAndStops() async {
+    // Test: playback finishes too quickly (< 0.25s) indicates silent synthesis
+    // failure. SuttaPlayer should detect, stop playback, and show alert.
+    // NO automatic retry (that was the infinite loop problem).
+    if let mockResponse = SearchResponse.createMockResponse(),
+       let mlDoc = mockResponse.mlDocs.first
+    {
+      let mockSynthesizer = MockSpeechSynthesizerForSuttaPlayer()
+      let player = SuttaPlayer(synthesizer: mockSynthesizer)
+
+      player.load(mlDoc)
+      player.play()
+
+      // Verify initial playText was called
+      #expect(mockSynthesizer.playTextWasCalled == true)
+      #expect(player.isPlaying == true)
+
+      // Reset the call flag to count subsequent calls
+      mockSynthesizer.playTextWasCalled = false
+
+      // Trigger didStart: sets playbackStartTime
+      mockSynthesizer.triggerDidStart()
+      try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+      #expect(player.isSynthesizerSpeaking == true)
+
+      // Immediately trigger didFinish (simulating < 0.25s playback duration)
+      // This should trigger silent failure detection and STOP playback
+      mockSynthesizer.triggerDidFinish()
+      try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+
+      // Verify NO retry: playText should NOT be called again
+      #expect(mockSynthesizer.playTextWasCalled == false)
+
+      // Verify playback stopped
+      #expect(player.isPlaying == false)
+
+      cc.ok1(#line, "Silent synthesis failure detected and playback stopped (no retry)")
+    }
   }
 }

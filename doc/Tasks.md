@@ -2,6 +2,34 @@
 
 ## Overview
 
+Context management is a critical problem with human/AI interaction. 
+AI contexts are proprietary and opaque.
+Humans cannot directly view or edit AI contexts and are forced
+to rely on the clumsy "prompt engineering" to interact with AI contexts.
+And although Markdown documents can help to some extent, 
+their vague verbosity also proves to be cumbersome for both humans and AI.
+The informality of natural language leads to ambiguity and confusion for both humans and AI.
+What is lacking is a lightweight formal system that can be easily read/written by humans and AI.
+
+AI and humans interact by working on tasks.
+Task management systems are not new--witness Jira and Github issues.
+But existing task management systems do not quite fit the needs of one human working with AI.
+Existing task management systems serve to integrate work at enterprise scales, not at desktop scale.
+One might say that we need a "desktop task system" that can facilitate nimble human/AI interaction locally.
+
+A desktop task system (DTS) should fulfill the following goals:
+
+* A DTS is based on tasks that are locally archivable with formal representation (e.g., JSON)
+* A DTS can be read/written in multiple ways: CLI, editor, library API
+* A DTS maintains a backlog of tasks as well as a stack of active tasks 
+* DTS state can be archived with the parent project in Git
+* A task has individual actions that can be updated dynamically
+* AI/humans can both quickly re-establish context defined by a task
+
+The scv-tasks package documented here is a DTS based on JSON files.
+
+## Framework
+
 scv-tasks provides a task management system for SC-Voice development through the **ITaskWorld protocol** - a stable API abstraction for programmatic task operations. The framework is built on:
 
 - **File-based persistence** - Tasks stored in `Tasks/` directory as pretty-printed JSON
@@ -287,14 +315,6 @@ Example:
 7. **Atomic durable mutations** - No explicit save calls needed
 
 ## Public Module API
-
-### scvTasks.swift - Module Exports
-
-**Purpose:** Defines public type aliases and exports for the scv-tasks module.
-
-**Exports:**
-- `typealias TaskId = UUIDV7` - Core task identifier type
-- `typealias AnyTaskId = String` - Accept both filenames (T_AZvuCKoac) or UUID strings
 
 See: `scv-tasks/Sources/scvTasks/scvTasks.swift`
 

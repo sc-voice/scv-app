@@ -26,6 +26,7 @@ public struct SettingsView: View {
   @State private var expandedSection: String? = "languages"
   @State private var audioStoreDiskSize: Int = 0
   @State private var isLoadingDiskSize = true
+  @State private var showBackgroundPlaybackInfo = false
 
   private func toggleSection(_ section: String) {
     if expandedSection == section {
@@ -193,6 +194,7 @@ public struct SettingsView: View {
               ) {
                 AudioSectionContent(
                   controller: controller,
+                  showBackgroundPlaybackInfo: $showBackgroundPlaybackInfo
                 )
               }
 
@@ -331,6 +333,17 @@ public struct SettingsView: View {
           cc.ok2(#line, "Audio store disk size: \(formatDiskSize(size))")
         }
       }
+    }
+    .sheet(isPresented: $showBackgroundPlaybackInfo) {
+      TipView(
+        title: "settings.background.playback.info.title".localized,
+        text: "settings.background.playback.info.message".localized
+          + "\n\n"
+          + "settings.background.playback.info.trigger".localized,
+        isPresented: $showBackgroundPlaybackInfo
+      )
+      .environmentObject(themeProvider)
+      .presentationDetents([.medium])
     }
   } // View
 } // SettingsView
@@ -507,6 +520,7 @@ struct LanguagesSectionContent: View {
 struct AudioSectionContent: View {
   @EnvironmentObject var themeProvider: ThemeProvider
   @ObservedObject var controller: SettingsModalController
+  @Binding var showBackgroundPlaybackInfo: Bool
 
   static func voiceName(for voiceId: String) -> String {
     let voices = AVFoundation.AVSpeechSynthesisVoice.speechVoices()
@@ -635,6 +649,30 @@ struct AudioSectionContent: View {
         step: 0.1,
         displayFormatter: { String(format: "%.2f", $0) + "s" },
       )
+
+      Divider()
+        .padding(.vertical, 4)
+
+      // Background Playback
+      Toggle(isOn: Binding(
+        get: { controller.backgroundPlayback },
+        set: { newValue in
+          controller.backgroundPlayback = newValue
+          if newValue {
+            showBackgroundPlaybackInfo = true
+          }
+        }
+      )) {
+        HStack(spacing: 12) {
+          Image(systemName: "lock.rectangle.on.rectangle")
+            .foregroundColor(themeProvider.theme.textColor
+              .opacity(themeProvider.theme.iconOpacity))
+            .frame(minWidth: 44)
+          Text("settings.background.playback".localized)
+            .font(.body)
+            .foregroundColor(themeProvider.theme.textColor)
+        }
+      }
     }
   }
 }
@@ -735,6 +773,7 @@ struct DisplaySectionContent: View {
     }
   }
 }
+
 
 #Preview {
   SettingsView(controller: SettingsModalController(from: Settings.shared))

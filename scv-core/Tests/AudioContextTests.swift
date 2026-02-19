@@ -166,6 +166,22 @@ import Testing
     #expect(context1.hash != context2.hash)
   }
 
+  @Test("Hash differs for different backgroundPlayback")
+  func hashChangesWithBackgroundPlayback() {
+    let settings1 = Settings()
+    settings1.docLang = .english
+    settings1.backgroundPlayback = false
+
+    let settings2 = Settings()
+    settings2.docLang = .english
+    settings2.backgroundPlayback = true
+
+    let context1 = AudioContext(for: "en", from: settings1)
+    let context2 = AudioContext(for: "en", from: settings2)
+
+    #expect(context1.hash != context2.hash)
+  }
+
   @Test("Hash is deterministic")
   func hashIsDeterministic() {
     let settings = Settings()
@@ -209,6 +225,7 @@ import Testing
     #expect(decoded.pitch == context.pitch)
     #expect(decoded.rate == context.rate)
     #expect(decoded.segmentPause == context.segmentPause)
+    #expect(decoded.backgroundPlayback == context.backgroundPlayback)
   }
 
   @Test("Encode produces valid JSON")
@@ -225,6 +242,7 @@ import Testing
     #expect(json?["pitch"] as? NSNumber != nil)
     #expect(json?["rate"] as? NSNumber != nil)
     #expect(json?["segmentPause"] as? NSNumber != nil)
+    #expect(json?["backgroundPlayback"] as? Bool != nil)
   }
 
   @Test("Decode from JSON")
@@ -235,7 +253,8 @@ import Testing
       "voiceId": "com.apple.ttsbundle.Anna-compact",
       "pitch": 1.2,
       "rate": 0.95,
-      "segmentPause": 0.3
+      "segmentPause": 0.3,
+      "backgroundPlayback": true
     }
     """.data(using: .utf8)!
 
@@ -247,6 +266,7 @@ import Testing
     #expect(abs(context.pitch - 1.2) < 0.01)
     #expect(abs(context.rate - 0.95) < 0.01)
     #expect(abs(context.segmentPause - 0.3) < 0.01)
+    #expect(context.backgroundPlayback == true)
   }
 
   // MARK: - Hashable Tests

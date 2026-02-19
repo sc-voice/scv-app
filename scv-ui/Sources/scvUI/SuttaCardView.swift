@@ -32,6 +32,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var toolbarTitle: String = ""
   @State private var backgroundPlayer: BackgroundPlayer?
   @State private var showBackgroundPlayerView = false
+  @State private var showBackgroundPlaybackTip = false
   let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -159,6 +160,21 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                     systemImage: "waveform.circle.fill",
                   )
                 }
+              }
+              .sheet(isPresented: $showBackgroundPlaybackTip) {
+                TipView(
+                  title: "settings.background.playback.info.title".localized,
+                  text: "settings.background.playback.info.message".localized
+                    + "\n\n"
+                    + "settings.background.playback.info.trigger".localized,
+                  isPresented: $showBackgroundPlaybackTip,
+                  onConfirm: {
+                    Settings.shared.backgroundPlayback = true
+                    startBackgroundPlayback()
+                  }
+                )
+                .environmentObject(themeProvider)
+                .presentationDetents([.medium])
               }
             } else {
               Image(systemName: "text.page.slash")
@@ -354,11 +370,16 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
       },
     )
+    .voiceErrorAlert(player: player)
   }
 
   // MARK: - Private Methods
 
   private func startBackgroundPlayback() {
+    guard Settings.shared.backgroundPlayback else {
+      showBackgroundPlaybackTip = true
+      return
+    }
     guard let mlDoc = card.mlDoc else {
       cc.bad1(#line, #function, "mlDoc is nil")
       return
@@ -396,6 +417,23 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     )
 
     // BackgroundPlayerView will call player.prepare() in its onAppear handler
+  }
+}
+
+// MARK: - View Extensions
+
+extension View {
+  func voiceErrorAlert(player: SuttaPlayer) -> some View {
+    self.alert("Voice Not Available", isPresented: Binding(
+      get: { player.showVoiceErrorAlert },
+      set: { player.showVoiceErrorAlert = $0 }
+    )) {
+      Button("OK") {
+        player.resetPlayer()
+      }
+    } message: {
+      Text(player.voiceErrorMessage)
+    }
   }
 }
 

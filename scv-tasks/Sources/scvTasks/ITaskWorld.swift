@@ -1,9 +1,16 @@
 import Foundation
 import UUIDV7
 
-/// AnyTaskId can be either a filename string (e.g., "T_AZvuCKoac") or UUID
-/// string
+/// AnyTaskId is a string used to match a unique task using resolveTask()
+/// AnyTaskId can be TaskTID, TaskId, or a resolvable string
 public typealias AnyTaskId = String
+
+/// The URL-save base64 rendition of the UUIDV7
+public typealias TaskTID = String
+
+/// The time-based UUID for a task is unique but too large for humans
+public typealias TaskId = UUIDV7
+
 
 /// ITaskWorld defines the complete API for task management.
 /// All code should interact with tasks through this protocol.

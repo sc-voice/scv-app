@@ -1,6 +1,10 @@
 import scvCore
 import SwiftUI
 
+
+/// WARNING: This is a custom notification oddity 
+/// Should this be a TipView?
+
 // MARK: - TipsAction
 
 /// Identifies which tip/guidance animation to show

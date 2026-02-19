@@ -84,7 +84,7 @@ public class AppController {
       if !success {
         self?
           .showError(
-            "Failed to open SC-Voice. Make sure SC-Voice is installed.",
+            "Failed to open scVoice. Make sure scVoice is installed.",
           )
       }
     }

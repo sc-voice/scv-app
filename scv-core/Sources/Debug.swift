@@ -3,39 +3,41 @@ import Foundation
 // Application-wide singleton that provides verbosity levels for invocation of
 // ColorConsole methods.
 public struct dbg: Sendable {
-  static let AUDIO: Int = 0
-  static let SYNTH: Int = 2
+  static let SYNTH_WRITE: Int = 0  // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = 0  // AVSpeechSynthesizer.speak()
+  static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
+  static let LAUNCH: Int = 0
 
   public struct AboutCardView: Sendable {
     public static let other: Int = 0
   }
 
   public struct App: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = max(2, LAUNCH)
   }
 
   public struct AppController: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = LAUNCH
   }
 
   public struct AppRootView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = LAUNCH
   }
 
   public struct AudioContext: Sendable {
-    public static let other: Int = AUDIO
+    public static let other: Int = SYNTH_WRITE
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = AUDIO
+    public static let other: Int = SYNTH_WRITE
   }
 
   public struct AudioStore: Sendable {
-    public static let other: Int = max(SYNTH, AUDIO)
+    public static let other: Int = max(0, SYNTH)
   }
 
   public struct AudioSynthesisSession: Sendable {
-    public static let other: Int = max(SYNTH, AUDIO)
+    public static let other: Int = max(0, SYNTH)
   }
 
   public struct AutoComplete: Sendable {
@@ -43,7 +45,7 @@ public struct dbg: Sendable {
   }
 
   public struct CachedSynthesizer: Sendable {
-    public static let other: Int = max(SYNTH, AUDIO)
+    public static let other: Int = max(0, SYNTH)
   }
 
   public struct CardManager: Sendable {
@@ -59,7 +61,7 @@ public struct dbg: Sendable {
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -71,7 +73,7 @@ public struct dbg: Sendable {
   }
 
   public struct EbtSeeker: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = 0
     public static let search: Int = 0
   }
 
@@ -111,8 +113,12 @@ public struct dbg: Sendable {
     public static let search: Int = 0
   }
 
+  public struct SpeechSynthesizer: Sendable {
+    public static let other: Int = max(2, SYNTH_SPEAK)
+  }
+
   public struct SuttaPlayer: Sendable {
-    public static let other: Int = AUDIO
+    public static let other: Int = max(2, SYNTH)
   }
 
   public struct SuttaCardView: Sendable {
@@ -161,4 +167,16 @@ public func projectRoot() -> URL {
     current = current.deletingLastPathComponent()
   }
   return current
+}
+
+public func fileLineId(filename: String, line: Int) -> String {
+  let fileURL = URL(fileURLWithPath: filename)
+  let fname = fileURL.lastPathComponent.hasSuffix(".swift")
+    ? String(fileURL.lastPathComponent.dropLast(6))
+    : fileURL.lastPathComponent
+  let first = fname.first.map(String.init) ?? "?"
+  let last = fname.last.map(String.init) ?? "?"
+  let count2 = "\(fname.count-2)"
+  let short = first + count2 + last
+  return "\(short):\(line)"
 }

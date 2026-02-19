@@ -15,6 +15,10 @@ public enum SuttaPlayerError: Error {
   case noValidSegments
 }
 
+// MARK: - Constants
+
+private let MIN_SPEAK_SECONDS = 0.25
+
 @MainActor
 public final class SuttaPlayer: NSObject, ObservableObject,
   IPlaybackDelegate
@@ -27,12 +31,34 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var currentSutta: MLDocument?
   @Published public var audioContext: AudioContext?
   @Published private var _isActive = true
+  @Published public var showVoiceErrorAlert = false
+  @Published public var voiceErrorMessage = ""
 
   public var isActive: Bool {
     _isActive
   }
 
-  private var synthesizer: ISpeechSynthesizer
+  private var clientSynthesizer: ISpeechSynthesizer?
+  private var cachedSynthesizer: CachedSynthesizer?
+  private var speakSynthesizer: SpeechSynthesizerImpl?
+  private var synthesizer: ISpeechSynthesizer {
+    if let s = clientSynthesizer { return s }
+    if Settings.shared.backgroundPlayback {
+      if cachedSynthesizer == nil {
+        cc.ok1(#line, #function, "backgroundPlayback=true → CachedSynthesizer")
+        cachedSynthesizer = CachedSynthesizer()
+        cachedSynthesizer!.playbackDelegate = self
+      }
+      return cachedSynthesizer!
+    } else {
+      if speakSynthesizer == nil {
+        cc.ok1(#line, #function, "backgroundPlayback=false → SpeechSynthesizerImpl")
+        speakSynthesizer = SpeechSynthesizerImpl()
+        speakSynthesizer!.playbackDelegate = self
+      }
+      return speakSynthesizer!
+    }
+  }
   /// Segments extracted from currentSutta, used for sequential playback
   private var segments: [Segment] = []
   /// Current playback position in segments array
@@ -45,19 +71,24 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   private var isTransitioning = false
   /// Timeout check scheduled after togglePlayback(); cancelled when playback
   /// actually starts.
-  /// Used to detect synthesis failures (5 second timeout)
+  /// Used to detect synthesis failures (3 second timeout)
   private var pendingPlaybackCheck: DispatchWorkItem?
   /// Earliest time next segment can start playing, respecting segmentPause
   /// setting
   /// between segments for listener clarity
   private var earliestPlaybackTime: Date = .init()
+  /// Timestamp when playback started (didStart callback); used to detect silent
+  /// synthesis failures
+  private var playbackStartTime: Date?
+  /// Voice identifier being used for current playback; used to get voice name for
+  /// error alerts
+  private var currentVoiceId: String?
 
-  init(synthesizer: ISpeechSynthesizer = CachedSynthesizer()) {
-    self.synthesizer = synthesizer
+  init(synthesizer: ISpeechSynthesizer? = nil) {
+    self.clientSynthesizer = synthesizer
     super.init()
-    cc.ok2(#line, "init() starting")
+    self.clientSynthesizer?.playbackDelegate = self
     configureAudioSession()
-    self.synthesizer.playbackDelegate = self
     setupAudioInterruptionHandler()
     cc.ok2(#line, "init() complete")
   }
@@ -182,10 +213,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         cc.ok1(#line, #function, "synthesizer started!")
       } else if isPlaying {
         // User expects playing audio
-        // Alert user: Synthesizer failed to start after 5s
+        // Alert user: Synthesizer failed to start after 3s
         cc.bad1(#line, #function, "isSpeaking:\(isSpeaking)",
                 "isPlaying:\(isPlaying)")
-        showSpeechErrorAlert()
+        showSpeechErrorAlert(file: #file, line: #line)
       } else {
         // User expects paused audio
         cc.ok1(#line, #function, "paused OK")
@@ -195,7 +226,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
 
     pendingPlaybackCheck = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: workItem)
   }
 
   @MainActor
@@ -287,42 +318,34 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   }
 
   @MainActor
-  private func showSpeechErrorAlert() {
-    cc.bad2(#line, #function, "begin")
-    #if os(iOS)
-      let alert = UIAlertController(
-        title: "Speech problems",
-        message: "Close and reopen scVoice".localized,
-        preferredStyle: .alert,
-      )
-      alert
-        .addAction(UIAlertAction(title: "OK",
-                                 style: .default)
-        { [weak self] _ in
-          self?.cc.bad2(#line, #function, "resetPlayer")
-          self?.resetPlayer()
-          })
+  private func showSpeechErrorAlert(file: String, line: Int) {
+    cc.bad2(#line, #function, "Synthesizer failed to start after 3 seconds")
+    isPlaying = false
 
-      if let windowScene = UIApplication.shared.connectedScenes
-        .first as? UIWindowScene,
-        let window = windowScene.windows.first,
-        let rootViewController = window.rootViewController
-      {
-        rootViewController.present(alert, animated: true)
-      }
-    #endif
-    cc.bad1(#line, #function, "end")
+    // Get voice name for error message
+    let voiceName: String
+    if let voiceId = currentVoiceId,
+       let voice = AVSpeechSynthesisVoice(identifier: voiceId) {
+      voiceName = voice.name
+    } else {
+      voiceName = "current"
+    }
+
+    let errId = fileLineId(filename: #file, line: #line)
+    voiceErrorMessage = "voice.error.not_responding".localized(voiceName, errId)
+    showVoiceErrorAlert = true
+    cc.bad1(#line, #function, voiceErrorMessage)
   }
 
   /// Recovers from synthesis failures by creating a fresh synthesizer instance.
-  /// Called when synthesizer fails to start speaking within 5 seconds
+  /// Called when synthesizer fails to start speaking within 3 seconds
   /// (togglePlayback timeout).
   /// Preserves playback state (wasPlaying, currentSegmentIndex) and resumes
   /// from same position.
   /// Fresh synthesizer instance improves failure recovery (see: ~50-100ms
   /// creation cost for AVFoundation init)
   @MainActor
-  private func resetPlayer() {
+  func resetPlayer() {
     cc.ok2(#line, #function)
 
     // Save state before reset
@@ -332,9 +355,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     _ = synthesizer.stopSpeaking(at: .immediate)
 
-    // Create new synthesizer instance
-    synthesizer = CachedSynthesizer()
-    synthesizer.playbackDelegate = self
+    // Nil out cached synthesizers to force fresh creation on next access
+    cachedSynthesizer = nil
+    speakSynthesizer = nil
 
     // Reconfigure audio session
     configureAudioSession()
@@ -445,6 +468,22 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
 
     do {
+      // Capture voice identifier for error reporting
+      let docLang = ScvLanguage(code: audioContext.docLang) ?? .english
+      let docLangSettings = Settings.shared.docLangSettings[docLang]
+        ?? LangSettings(language: docLang)
+
+      if !docLangSettings.voiceId.isEmpty {
+        currentVoiceId = docLangSettings.voiceId
+      } else {
+        // Find best available voice: enhanced/premium > default
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+          .filter { $0.language == docLangSettings.language.code }
+          .sorted { $0.quality.rawValue > $1.quality.rawValue }
+        currentVoiceId = voices.first?.identifier
+          ?? AVSpeechSynthesisVoice(language: docLangSettings.language.code)?.identifier
+      }
+
       cc.ok2(
         #line,
         #function,
@@ -467,6 +506,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public func onPlaybackStarted() {
     isSynthesizerSpeaking = true
+    playbackStartTime = Date()
     // Cancel pending timeout check - playback actually started
     pendingPlaybackCheck?.cancel()
     pendingPlaybackCheck = nil
@@ -491,6 +531,41 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   public func onPlaybackFinished() {
     isSynthesizerSpeaking = false
+
+    // Detect silent synthesis failures: playback finished too quickly
+    // Indicates synthesizer reported success but produced empty audio
+    let duration = playbackStartTime.map { Date().timeIntervalSince($0) } ?? 0
+    playbackStartTime = nil
+    if duration > 0 && duration < MIN_SPEAK_SECONDS {
+      cc.bad1(
+        #line,
+        #function,
+        "Silent synthesis failure detected: playback duration",
+        String(format: "%.3f", duration),
+        "seconds - voice incompatible, stopping playback and alerting user"
+      )
+
+      // Stop playback - do NOT retry
+      isPlaying = false
+      _ = synthesizer.stopSpeaking(at: .immediate)
+
+      // Get voice name for error message
+      let voiceName: String
+      if let voiceId = currentVoiceId,
+         let voice = AVSpeechSynthesisVoice(identifier: voiceId) {
+        voiceName = voice.name
+      } else {
+        voiceName = "This voice"
+      }
+
+      // Show alert via SwiftUI state
+      let errId = fileLineId(filename: #file, line: #line)
+      voiceErrorMessage = "voice.error.silent_failure".localized(voiceName, errId)
+      showVoiceErrorAlert = true
+      cc.ok1(#line, #function, "Silent failure alert state set - view will display it")
+
+      return
+    }
 
     // Set earliest time next segment can play (respecting segmentPause)
     if let pause = audioContext?.segmentPause {

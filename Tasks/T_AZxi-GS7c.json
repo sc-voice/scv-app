@@ -9,12 +9,7 @@
       "description" : "Add backgroundPlayback property (default: false)",
       "name" : "Add backgroundPlayback to Settings",
       "test" : "Setting persists"
-    }
-  ],
-  "createdAt" : "2026-02-15T20:22:51Z",
-  "id" : "019C62F8-64BB-7000-AAF8-0A682304B4F5",
-  "name" : "Petra voice no longer speaks in MacOS26.3 when set as system voice even though system itself can use Petra",
-  "plannedActions" : [
+    },
     {
       "description" : "Add backgroundPlayback property, include in cache key hash",
       "name" : "Add backgroundPlayback to AudioContext",
@@ -41,10 +36,15 @@
       "test" : "Long-press shows confirm\/cancel dialog"
     },
     {
-      "description" : "CachedSynthesizer: switch between live (speak()) vs cached (AudioStore.synthesize())",
+      "description" : "DESIGN AGREED (Option B): SuttaPlayer-level factory switch. backgroundPlayback=false -> SpeechSynthesizerImpl (speak(), no disk); backgroundPlayback=true -> CachedSynthesizer (write()+cache). Steps: (1) Add synthesizerIsInjected:Bool flag to SuttaPlayer.init() to preserve test mock injection. (2) Add private makeSynthesizer()->ISpeechSynthesizer that checks Settings.shared.backgroundPlayback. (3) In play() and resetPlayer(), call makeSynthesizer() when !synthesizerIsInjected instead of hardcoded CachedSynthesizer(). (4) Remove fallback bandaid at CachedSynthesizer.swift:152-171 (diagnostic artifact; speak() also fails for Petra so bandaid is ineffective and mixes concerns). RATIONALE: Petra fails both write() AND speak() on iPad-on-Mac (Apple limitation). Goal is separation of concerns for independent diagnosability + in-field workaround for future Apple changes affecting one path but not the other.",
       "name" : "Adapt synthesis strategy",
-      "test" : "Synthesis method follows setting"
-    },
+      "test" : "backgroundPlayback=false uses SpeechSynthesizerImpl; backgroundPlayback=true uses CachedSynthesizer; existing SuttaPlayerTests pass unmodified"
+    }
+  ],
+  "createdAt" : "2026-02-15T20:22:51Z",
+  "id" : "019C62F8-64BB-7000-AAF8-0A682304B4F5",
+  "name" : "Petra voice no longer speaks in MacOS26.3 when set as system voice even though system itself can use Petra",
+  "plannedActions" : [
     {
       "description" : "Show warning when speak() or write() synthesis fails for current voice",
       "name" : "Warn on voice synthesis failure",
@@ -59,37 +59,49 @@
       "description" : "Add localization strings to all language files (de, pli, etc.)",
       "name" : "Localize all languages",
       "test" : "All language files have new strings"
+    },
+    {
+      "name" : "Investigate synth failure detection and resetPlayer design: understand timeout mechanism, failure modes, and whether resetPlayer strategy needs updating for SpeechSynthesizerImpl vs CachedSynthesizer paths",
+      "test" : "update unit tests"
     }
   ],
   "references" : [
     {
       "relevance" : 1,
-      "text" : "AudioStore.swift:305 - synthesizer.write() to buffer (cached synthesis)"
+      "text" : "SuttaPlayer.swift:336 - resetPlayer() hardcodes CachedSynthesizer(); must call makeSynthesizer() instead"
     },
     {
       "relevance" : 1,
-      "text" : "MacOS 26.3 (developed for iPad) does not support premium voices even though MacOS 26.3 tests work fine"
+      "text" : "SuttaPlayer.swift:55 - init(synthesizer:) injection point for tests; needs synthesizerIsInjected flag"
+    },
+    {
+      "relevance" : 1,
+      "text" : "CachedSynthesizer.swift:152-171 - fallback bandaid to REMOVE (speak() also fails; bandaid never worked; mixes concerns)"
+    },
+    {
+      "relevance" : 1,
+      "text" : "Petra fails BOTH write() AND speak() on iPad-on-Mac -- Apple limitation, not fixable in app code. Goal is separation of concerns + user workaround."
     },
     {
       "relevance" : 0.9,
-      "text" : "doc\/BackgroundAudio.md"
+      "text" : "ISpeechSynthesizer.swift:60 - SpeechSynthesizerImpl (speak() path); ISpeechSynthesizer.swift:27 - CachedSynthesizer (write() path)"
     },
     {
       "relevance" : 0.9,
-      "text" : "AudioStore.swift:256-261 - Voice selection for cached synthesis via audioContext.voiceId"
+      "text" : "SuttaPlayerTests.swift:88 - tests inject MockSpeechSynthesizerForSuttaPlayer then call play(); synthesizerIsInjected flag preserves this"
     },
     {
-      "relevance" : 0.9,
-      "text" : "ISpeechSynthesizer.swift:104-114 - Voice selection for live playback (voiceId or quality-sorted fallback)"
+      "relevance" : 0.8,
+      "text" : "AudioStore.swift:305 - synthesizer.write() to buffer; fails silently for premium voices on iPad-on-Mac"
     },
     {
       "relevance" : 0.7,
-      "text" : "ISpeechSynthesizer.swift:80-82 - Live synthesis via innerSynthesizer.speak()"
+      "text" : "doc\/BackgroundAudio.md"
     }
   ],
   "requiredTasks" : [
 
   ],
-  "summary" : "Premium voices (Petra, etc.) fail to speak on MacOS 26.3 when SC-Voice runs as iPad-on-Mac app. iOS devices work fine. System can use premium voices in native MacOS apps, but iPad compatibility mode apps cannot access them. Need to investigate entitlements, voice availability APIs, and potential Apple limitations for premium voice access in iPad-on-Mac mode.",
-  "updatedAt" : "2026-02-16T22:53:45Z"
+  "summary" : "Premium voices (Petra, etc.) fail on MacOS 26.3 iPad-on-Mac mode. DIAGNOSED: both write() AND speak() fail -- Apple limitation. System can use Petra in native MacOS apps but not iPad-on-Mac compatibility mode. Fix is NOT to make Petra work but to: (1) separate speak() vs write() paths at SuttaPlayer level for independent diagnosability, (2) give users in-field workaround via backgroundPlayback toggle, (3) alert users when their voice is incompatible with the chosen path.",
+  "updatedAt" : "2026-02-18T12:42:25Z"
 }

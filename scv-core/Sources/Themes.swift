@@ -49,6 +49,12 @@ public struct Theme {
   /// Opacity for annotational (non-interactive) icons
   public let iconOpacity: Double
 
+  /// Background color for tip modals
+  public let tipBackground: Color
+
+  /// Foreground (text/icon) color for tip modals
+  public let tipForeground: Color
+
   /// Focus ring color for keyboard navigation indicators
   public let focusColor: Color
 
@@ -83,6 +89,8 @@ public struct Theme {
     sideItemForeground: Color,
     focusColor: Color = .blue,
     iconOpacity: Double = 0.8,
+    tipBackground: Color,
+    tipForeground: Color,
   ) {
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -102,6 +110,8 @@ public struct Theme {
     self.sideItemActiveBackground = sideItemActiveBackground
     self.focusColor = focusColor
     self.iconOpacity = iconOpacity
+    self.tipBackground = tipBackground
+    self.tipForeground = tipForeground
   }
 }
 
@@ -156,6 +166,12 @@ private let COLOR_DARK_FOREGROUND1 = Color(red: 0.95, green: 0.95, blue: 0.95)
 
 private let COLOR_DARK_FOREGROUND2 = Color(red: 0.7, green: 0.7, blue: 0.7)
 
+/// Dark green background for tip modals (theme-independent)
+private let COLOR_TIP_BACKGROUND = Color(red: 0.106, green: 0.302, blue: 0.180) // #1B4D2E
+
+/// Bright yellow foreground for tip modals (theme-independent)
+private let COLOR_TIP_FOREGROUND = Color(red: 1.0, green: 1.0, blue: 0.8) // #FFE000
+
 /// Application themes
 public enum AppTheme {
   /// Light theme with light backgrounds and dark text
@@ -191,6 +207,8 @@ public enum AppTheme {
         sideItemForeground: COLOR_DARK_FOREGROUND2,
         focusColor: .blue,
         iconOpacity: 0.8,
+        tipBackground: COLOR_TIP_BACKGROUND,
+        tipForeground: COLOR_TIP_FOREGROUND,
       )
     case .dark:
       // Dark theme: dark backgrounds with light text
@@ -214,6 +232,8 @@ public enum AppTheme {
         sideItemForeground: COLOR_DARK_FOREGROUND2,
         focusColor: .blue,
         iconOpacity: 0.8,
+        tipBackground: COLOR_TIP_BACKGROUND,
+        tipForeground: COLOR_TIP_FOREGROUND,
       )
     }
   }

@@ -43,6 +43,21 @@
 /* Settings label for pause between segments during narration */
 "settings.segment.pause" = "Segment Pause";
 
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Background Playback";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Background Playback";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Background playback allows audio to continue playing when the screen is locked. This requires the entire document to be synthesized before playback begins.";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "To use background playback, long-press the Play button on any sutta.";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Got it";
+
 /* Settings view title */
 "settings.title" = "Settings";
 
@@ -408,3 +423,9 @@
 
 /* Search error: search operation failed */
 "search.error.failed" = "Search Failed";
+
+/* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+"voice.error.not_responding" = "The \"%@\" voice is not responding. Try a different voice or enable background playback. [%@]";
+
+/* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
+"voice.error.silent_failure" = "The \"%@\" voice is having trouble speaking. Choose a different voice. [%@]";
