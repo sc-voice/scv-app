@@ -7,6 +7,7 @@ public struct dbg: Sendable {
   static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = 0
+  static let PLAYER: Int = 2
 
   public struct AboutCardView: Sendable {
     public static let other: Int = 0
@@ -42,6 +43,10 @@ public struct dbg: Sendable {
 
   public struct AutoComplete: Sendable {
     public static let other: Int = 0
+  }
+
+  public struct BackgroundPlayerView: Sendable {
+    public static let other: Int = max(0, PLAYER)
   }
 
   public struct CachedSynthesizer: Sendable {
@@ -118,7 +123,7 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaPlayer: Sendable {
-    public static let other: Int = max(2, SYNTH)
+    public static let other: Int = max(SYNTH, PLAYER)
   }
 
   public struct SuttaCardView: Sendable {

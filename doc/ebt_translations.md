@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-02-13
+**Last updated:** 2026-02-19
 
 ## Overview
 
@@ -33,7 +33,7 @@ Run the script with:
 
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
-|     4304 | ✅ | en | ✅ | 1 | sujato |
+|     4306 | ✅ | en | ✅ | 1 | sujato |
 |     4084 | ✅ | de | ✅ | 1 | sabbamitta |
 |      906 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
@@ -73,7 +73,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    13406 files
+**Total:**    13408 files
 
 ## Inclusion Criteria
 

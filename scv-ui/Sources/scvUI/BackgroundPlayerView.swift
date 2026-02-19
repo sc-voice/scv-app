@@ -39,7 +39,7 @@ public struct BackgroundPlayerView: View {
   @State private var isLoading = true
   @State private var errorMessage: String?
 
-  let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
+  let cc = ColorConsole(#file, #function, dbg.BackgroundPlayerView.other)
 
   public init(
     player: BackgroundPlayer,
@@ -68,11 +68,10 @@ public struct BackgroundPlayerView: View {
       startPreparation()
     }
     .onDisappear {
+      cc.ok2(#line, ".onDisappear++")
       stopPolling()
-      // Cancel synthesis if still in progress
-      if case .synthesizing = player.state {
-        player.cancel()
-      }
+      player.cancel()
+      cc.ok1(#line, ".onDisappear--")
     }
   }
 

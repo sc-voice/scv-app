@@ -9,7 +9,7 @@
 public let marketingVersion = "0.26.2"
 
 /// Build version for App Store (software.yearmonth.patch format)
-public let buildVersion = "0.2602.12"
+public let buildVersion = "0.2602.13"
 
 /// Serialization format version (bumped when Settings/Card format changes)
 /// Used to track backward compatibility and fixture versions

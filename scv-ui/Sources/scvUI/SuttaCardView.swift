@@ -350,18 +350,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
       }
       .sheet(isPresented: $showBackgroundPlayerView) {
-        if let bgPlayer = backgroundPlayer {
-          BackgroundPlayerView(
-            player: bgPlayer,
-            isPresented: $showBackgroundPlayerView,
-            themeProvider: themeProvider,
-          )
-          .onDisappear {
-            // Re-enable SuttaPlayer interruption handling when
-            // BackgroundPlayerView closes
-            SuttaPlayer.shared.setActive(true)
-          }
-        }
+        backgroundPlayerSheet
       }
       .onChange(of: backgroundPlayer?.playbackSnapshot) { _, newSnapshot in
         if let mlDoc = card.mlDoc, let segment = newSnapshot?.segment {
@@ -371,6 +360,28 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       },
     )
     .voiceErrorAlert(player: player)
+  }
+
+  // MARK: - BackgroundPlayerSheet
+
+  @ViewBuilder
+  private var backgroundPlayerSheet: some View {
+    if let bgPlayer = backgroundPlayer {
+      BackgroundPlayerView(
+        player: bgPlayer,
+        isPresented: $showBackgroundPlayerView,
+        themeProvider: themeProvider,
+      )
+      .onDisappear {
+        cc.ok1(
+          #line,
+          "BackgroundPlayerView disappeared - sheet closed or user dismissed",
+        )
+        // Re-enable SuttaPlayer interruption handling when
+        // BackgroundPlayerView closes
+        SuttaPlayer.shared.setActive(true)
+      }
+    }
   }
 
   // MARK: - Private Methods
