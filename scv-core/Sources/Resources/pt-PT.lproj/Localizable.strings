@@ -1,266 +1,26 @@
-/* Loading indicator text */
-"loading" = "Carregando...";
+/* Accessibility label for add new card button */
+"a11y.button.add_card" = "Adicionar novo cartão";
 
-/* Settings subsection header for segment display options */
-"settings.show" = "Mostrar";
+/* Accessibility label for delete card button */
+"a11y.button.delete_card" = "Deletar cartão";
 
-/* Settings subsection header for audio playback options */
-"settings.speak" = "Falar";
+/* Accessibility label for external link button in AboutCardView */
+"a11y.button.external_link" = "Link externo";
 
-/* Settings toggle label for displaying Pali text in segments */
-"settings.show.pali" = "Pali";
+/* Accessibility label for pause audio button */
+"a11y.button.pause_audio" = "Pausar áudio";
 
-/* Settings toggle label for displaying document (translation) text in segments */
-"settings.show.document" = "Tradução";
+/* Accessibility label for play audio button */
+"a11y.button.play_audio" = "Reproduzir áudio";
 
-/* Settings toggle label for displaying reference text in segments */
-"settings.show.reference" = "Referência";
+/* Accessibility label for search button in toolbar */
+"a11y.button.search" = "Pesquisar";
 
-/* Card type label for search card */
-"card.type.search" = "Pesquisa";
+/* Accessibility label for settings button */
+"a11y.button.settings" = "Configurações";
 
-/* Card type label for sutta viewer card */
-"card.type.sutta" = "Sutta";
-
-/* Card type label for about card */
-"card.type.about" = "Sobre";
-
-/* About card sidebar caption - %@ is replaced with bold plus symbol */
-"card.about.sidebar.caption" = "Clique %@ para começar";
-
-/* Card title for search card */
-"card.title.search" = "Pesquisa";
-
-/* Placeholder text for empty search query */
-"card.search.placeholder" = "Procurar...?";
-
-/* Prompt text for Siri shortcut search query request */
-"search.for.what" = "O que você está procurando?";
-
-/* Error message when translation not found for language/author combination */
-"translation.not.found" = "Tradução não encontrada para %@ / %@";
-
-/* Settings label for pause between segments during narration */
-"settings.segment.pause" = "Pausa de segmento";
-
-/* Settings toggle label for background playback mode */
-"settings.background.playback" = "Reprodução em Segundo Plano";
-
-/* Background playback info modal title */
-"settings.background.playback.info.title" = "Reprodução em Segundo Plano";
-
-/* Background playback info modal: synthesis requirement explanation */
-"settings.background.playback.info.message" = "A reprodução em segundo plano permite que o áudio continue a tocar quando a tela está bloqueada. Isso requer que todo o documento seja sintetizado antes de iniciar a reprodução.";
-
-/* Background playback info modal: how to trigger explanation */
-"settings.background.playback.info.trigger" = "Para usar a reprodução em segundo plano, pressione longo o botão Reproduzir em qualquer sutta.";
-
-/* Background playback info modal: dismiss button */
-"settings.background.playback.info.button" = "Entendi";
-
-/* Settings view title */
-"settings.title" = "Configurações";
-
-/* Settings section header for language selection */
-"settings.languages" = "Traduções";
-
-/* Settings label for document language */
-"settings.document.language" = "Idioma";
-
-/* Settings label for document author */
-"settings.document.author" = "Autor";
-
-/* Settings label for reference language */
-"settings.reference.language" = "Idioma de referência";
-
-/* Settings section header for accessibility options */
-"settings.accessibility" = "Acessibilidade";
-
-/* Settings subsection header for vision/display options */
-"settings.vision" = "Visão";
-
-/* Settings subsection header for audio options */
-"settings.audio" = "Áudio";
-
-/* Settings section header for display options */
-"settings.display" = "Exibição";
-
-/* Settings label for sound effects volume */
-"settings.sound.effects.volume" = "Volume de Dicas de Reprodução";
-
-/* Settings section header for build information */
-"settings.build" = "Compilação";
-
-/* Settings button label to reset all settings */
-"settings.reset.button" = "Redefinir configurações";
-
-/* Settings alert title for reset confirmation */
-"settings.reset.alert.title" = "Redefinir todas as configurações?";
-
-/* Settings alert message for reset confirmation */
-"settings.reset.alert.message" = "Isso restaurará todas as configurações para seus valores padrão.";
-
-/* Alert button label for confirming reset */
-"alert.reset" = "Redefinir";
-
-/* Alert button label for canceling action */
-"alert.cancel" = "Cancelar";
-
-/* Settings button label to clear audio store */
-"settings.clear.audio.button" = "Limpar Armazenamento de Áudio";
-
-/* Settings alert title for clear audio confirmation */
-"settings.clear.audio.alert.title" = "Limpar Armazenamento de Áudio?";
-
-/* Settings alert message for clear audio confirmation */
-"settings.clear.audio.alert.message" = "Isso excluirá todo o áudio em cache e não pode ser desfeito.";
-
-/* Alert button label for confirming clear audio */
-"alert.clear" = "Limpar";
-
-/* Settings label for customization options */
-"settings.customize" = "Personalizar";
-
-/* Settings label for dark mode toggle */
-"settings.dark.mode" = "Modo Escuro";
-
-/* Settings label for pitch adjustment */
-"settings.pitch" = "Tonalidade";
-
-/* Settings label for playback rate adjustment */
-"settings.rate" = "Velocidade";
-
-/* Settings section header for narrator voice settings */
-"settings.narrator" = "Narrador";
-
-/* Settings section header for narration customization (pitch, rate, cues, pause) */
-"settings.narration" = "Narração";
-
-/* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Pali";
-
-/* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Tradução";
-
-/* Settings section header for search settings */
-"settings.search" = "Pesquisa";
-
-/* Search results header: count of documents found */
-"search.results.found" = "Encontrados %d documento(s)";
-
-/* Search results header: search method used */
-"search.results.method" = "Método: %@";
-
-/* About card view: app title */
-"about.title" = "scVoice";
-
-/* About card view: version label */
-"about.version" = "Versão %@";
-
-/* About card view: overview section title */
-"about.section.overview" = "Visão geral";
-
-/* About card view: overview description */
-"about.overview.description" = "Pesquise, leia e ouça textos budistas antigos (suttas) alinhados com o SuttaCentral offline para autores selecionados em vários idiomas.";
-
-/* About card view: full-text search feature */
-"about.feature.search" = "Busca em Texto Completo";
-
-/* About card view: full-text search description */
-"about.feature.search.desc" = "Pesquise em milhares de suttas";
-
-/* About card view: multiple languages feature */
-"about.feature.languages" = "Vários Idiomas";
-
-/* About card view: multiple languages description */
-"about.feature.languages.desc" = "Inglês, alemão, português e muito mais";
-
-/* About card view: highlighting feature */
-"about.feature.highlighting" = "Destaque";
-
-/* About card view: highlighting description */
-"about.feature.highlighting.desc" = "Veja segmentos e citações correspondentes";
-
-/* About card view: how to use section title */
-"about.section.how_to_use" = "Como usar";
-
-/* About card view: getting started text */
-"about.how_to_use.intro" = "Começar com SC-Voice:";
-
-/* About card view: step 1 title */
-"about.step.1.title" = "Criar um cartão de pesquisa";
-
-/* About card view: step 1 description */
-"about.step.1.desc" = "Toque no botão '+' para criar um novo cartão";
-
-/* About card view: step 2 title */
-"about.step.2.title" = "Insira uma consulta";
-
-/* About card view: step 2 description */
-"about.step.2.desc" = "Pesquise por uma palavra, frase ou UID de sutta";
-
-/* About card view: step 3 title */
-"about.step.3.title" = "Ver resultados";
-
-/* About card view: step 3 description */
-"about.step.3.desc" = "Procure suttas e segmentos correspondentes";
-
-/* About card view: step 4 title */
-"about.step.4.title" = "Abrir Suttas";
-
-/* About card view: step 4 description */
-"about.step.4.desc" = "Toque nos resultados para ler o texto completo";
-
-/* About card view: content sources section title */
-"about.section.content_sources" = "Fontes de conteúdo";
-
-/* About card view: content sources intro */
-"about.content_sources.intro" = "Este aplicativo usa as seguintes fontes de conteúdo:";
-
-/* About card view: SuttaCentral source */
-"about.source.suttacentral" = "SuttaCentral";
-
-/* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato & Equipe";
-
-/* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Mahāsaṅgīti";
-
-/* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
-
-/* About card view: EBT-Data source */
-"about.source.ebt_data" = "EBT-Data";
-
-/* About card view: EBT-Data author */
-"about.source.ebt_data.author" = "Outras traduções de textos budistas antigos alinhadas ao conteúdo do SuttaCentral";
-
-/* About card view: content sources - sources subsection title */
-"about.content_sources.sources" = "Fontes";
-
-/* About card view: content sources - translations subsection title */
-"about.content_sources.translations" = "Traduções";
-
-/* About card view: content sources license notice */
-"about.content_sources.license" = "Todos os textos estão disponíveis sob licenças Creative Commons, permitindo uso e distribuição gratuitos com atribuição apropriada.";
-
-/* About card view: acknowledgements section title */
-"about.section.acknowledgements" = "Agradecimentos";
-
-/* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice baseia-se no trabalho de muitos colaboradores:";
-
-/* About card view: translations role */
-"about.ack.translations" = "Traduções";
-
-/* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), e Sonja Büge (DE)";
-
-/* About card view: root text role */
-"about.ack.root_text" = "Texto raiz";
-
-/* About card view: root text attribution */
-"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
+/* Accessibility label for search result item */
+"a11y.result" = "Resultado %d";
 
 /* About card view: database role */
 "about.ack.database" = "Banco de dados";
@@ -274,23 +34,26 @@
 /* About card view: development attribution */
 "about.ack.development.names" = "Colaboradores SC-Voice";
 
-/* About card view: graphics & design section title */
-"about.section.graphics_design" = "Gráficos e design";
+/* About card view: root text role */
+"about.ack.root_text" = "Texto raiz";
 
-/* About card view: graphics & design intro */
-"about.graphics_design.intro" = "Imagens de fundo e temas:";
+/* About card view: root text attribution */
+"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
-/* About card view: app icon label */
-"about.app_icon.label" = "Ícone do aplicativo";
+/* About card view: translations role */
+"about.ack.translations" = "Traduções";
+
+/* About card view: translations names */
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), e Sonja Büge (DE)";
+
+/* About card view: acknowledgements intro */
+"about.acknowledgements.intro" = "SC-Voice baseia-se no trabalho de muitos colaboradores:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Projetado por Friends of Voice";
 
-/* About card view: license label prefix */
-"about.license.prefix" = "Licença: %@";
-
-/* About card view: audio credits section title */
-"about.section.audio_credits" = "Créditos de áudio";
+/* About card view: app icon label */
+"about.app_icon.label" = "Ícone do aplicativo";
 
 /* About card view: audio credits intro */
 "about.audio_credits.intro" = "Efeitos sonoros e áudio:";
@@ -301,14 +64,47 @@
 /* About card view: view source button */
 "about.button.view_source" = "Ver fonte";
 
-/* About card view: open source licenses section title */
-"about.section.open_source" = "Licenças de código aberto";
+/* About card view: visit GitHub button */
+"about.button.visit_github" = "Visitar GitHub";
 
-/* About card view: open source intro */
-"about.open_source.intro" = "Todo o código-fonte SC-Voice é licenciado sob a Licença MIT, exceto quando indicado de outra forma.";
+/* About card view: content sources intro */
+"about.content_sources.intro" = "Este aplicativo usa as seguintes fontes de conteúdo:";
 
-/* About card view: open source libraries intro */
-"about.open_source.libraries" = "As seguintes bibliotecas também estão incluídas:";
+/* About card view: content sources license notice */
+"about.content_sources.license" = "Todos os textos estão disponíveis sob licenças Creative Commons, permitindo uso e distribuição gratuitos com atribuição apropriada.";
+
+/* About card view: content sources - sources subsection title */
+"about.content_sources.sources" = "Fontes";
+
+/* About card view: content sources - translations subsection title */
+"about.content_sources.translations" = "Traduções";
+
+/* About card view: document count label in translations list */
+"about.documents" = "%@ documentos";
+
+/* About card view: highlighting feature */
+"about.feature.highlighting" = "Destaque";
+
+/* About card view: highlighting description */
+"about.feature.highlighting.desc" = "Veja segmentos e citações correspondentes";
+
+/* About card view: multiple languages feature */
+"about.feature.languages" = "Vários Idiomas";
+
+/* About card view: multiple languages description */
+"about.feature.languages.desc" = "Inglês, alemão, português e muito mais";
+
+/* About card view: full-text search feature */
+"about.feature.search" = "Busca em Texto Completo";
+
+/* About card view: full-text search description */
+"about.feature.search.desc" = "Pesquise em milhares de suttas";
+
+/* About card view: graphics & design intro */
+"about.graphics_design.intro" = "Imagens de fundo e temas:";
+
+/* About card view: getting started text */
+"about.how_to_use.intro" = "Começar com SC-Voice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -322,20 +118,23 @@
 /* About card view: Zstandard license */
 "about.library.zstandard.license" = "Licença BSD";
 
+/* About card view: license label prefix */
+"about.license.prefix" = "Licença: %@";
+
 /* About card view: open source footer */
 "about.open_source.footer" = "Consulte o repositório GitHub para informações completas sobre licenças.";
 
-/* About card view: privacy policy section title */
-"about.section.privacy_policy" = "Política de privacidade";
+/* About card view: open source intro */
+"about.open_source.intro" = "Todo o código-fonte SC-Voice é licenciado sob a Licença MIT, exceto quando indicado de outra forma.";
+
+/* About card view: open source libraries intro */
+"about.open_source.libraries" = "As seguintes bibliotecas também estão incluídas:";
+
+/* About card view: overview description */
+"about.overview.description" = "Pesquise, leia e ouça textos budistas antigos (suttas) alinhados com o SuttaCentral offline para autores selecionados em vários idiomas.";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "SC-Voice respeita sua privacidade:";
-
-/* About card view: no analytics privacy item */
-"about.privacy.no_analytics" = "Sem análise";
-
-/* About card view: no analytics description */
-"about.privacy.no_analytics.desc" = "Não rastreamos suas buscas ou uso";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Armazenamento local";
@@ -343,50 +142,275 @@
 /* About card view: local storage description */
 "about.privacy.local_storage.desc" = "Todos os dados são armazenados localmente no seu dispositivo";
 
+/* About card view: no analytics privacy item */
+"about.privacy.no_analytics" = "Sem análise";
+
+/* About card view: no analytics description */
+"about.privacy.no_analytics.desc" = "Não rastreamos suas buscas ou uso";
+
 /* About card view: open source privacy item */
 "about.privacy.open_source" = "Código aberto";
 
 /* About card view: open source privacy description */
 "about.privacy.open_source.desc" = "Revise o código para verificar nossas práticas de privacidade";
 
+/* About card view: acknowledgements section title */
+"about.section.acknowledgements" = "Agradecimentos";
+
+/* About card view: audio credits section title */
+"about.section.audio_credits" = "Créditos de áudio";
+
+/* About card view: content sources section title */
+"about.section.content_sources" = "Fontes de conteúdo";
+
+/* About card view: graphics & design section title */
+"about.section.graphics_design" = "Gráficos e design";
+
+/* About card view: how to use section title */
+"about.section.how_to_use" = "Como usar";
+
+/* About card view: open source licenses section title */
+"about.section.open_source" = "Licenças de código aberto";
+
+/* About card view: overview section title */
+"about.section.overview" = "Visão geral";
+
+/* About card view: privacy policy section title */
+"about.section.privacy_policy" = "Política de privacidade";
+
 /* About card view: support & feedback section title */
 "about.section.support" = "Suporte e feedback";
+
+/* About card view: EBT-Data source */
+"about.source.ebt_data" = "EBT-Data";
+
+/* About card view: EBT-Data author */
+"about.source.ebt_data.author" = "Outras traduções de textos budistas antigos alinhadas ao conteúdo do SuttaCentral";
+
+/* About card view: Mahasangiti source */
+"about.source.mahasangiti" = "Mahāsaṅgīti";
+
+/* About card view: Mahasangiti author */
+"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+
+/* About card view: SuttaCentral source */
+"about.source.suttacentral" = "SuttaCentral";
+
+/* About card view: SuttaCentral author */
+"about.source.suttacentral.author" = "Bhikkhu Sujato & Equipe";
+
+/* About card view: step 1 description */
+"about.step.1.desc" = "Toque no botão '+' para criar um novo cartão";
+
+/* About card view: step 1 title */
+"about.step.1.title" = "Criar um cartão de pesquisa";
+
+/* About card view: step 2 description */
+"about.step.2.desc" = "Pesquise por uma palavra, frase ou UID de sutta";
+
+/* About card view: step 2 title */
+"about.step.2.title" = "Insira uma consulta";
+
+/* About card view: step 3 description */
+"about.step.3.desc" = "Procure suttas e segmentos correspondentes";
+
+/* About card view: step 3 title */
+"about.step.3.title" = "Ver resultados";
+
+/* About card view: step 4 description */
+"about.step.4.desc" = "Toque nos resultados para ler o texto completo";
+
+/* About card view: step 4 title */
+"about.step.4.title" = "Abrir Suttas";
 
 /* About card view: support intro */
 "about.support.intro" = "Encontrou um bug? Tem uma sugestão? Visite nosso repositório GitHub para relatar problemas ou contribuir.";
 
-/* About card view: visit GitHub button */
-"about.button.visit_github" = "Visitar GitHub";
+/* About card view: app title */
+"about.title" = "scVoice";
 
-/* Accessibility label for search button in toolbar */
-"a11y.button.search" = "Pesquisar";
+/* About card view: version label */
+"about.version" = "Versão %@";
 
-/* Accessibility label for add new card button */
-"a11y.button.add_card" = "Adicionar novo cartão";
+/* Alert button label for canceling action */
+"alert.cancel" = "Cancelar";
 
-/* Accessibility label for settings button */
-"a11y.button.settings" = "Configurações";
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Limpar";
 
-/* Accessibility label for delete card button */
-"a11y.button.delete_card" = "Deletar cartão";
+/* Alert button label for confirming reset */
+"alert.reset" = "Redefinir";
 
-/* Accessibility label for play audio button */
-"a11y.button.play_audio" = "Reproduzir áudio";
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Clique %@ para começar";
 
-/* Accessibility label for pause audio button */
-"a11y.button.pause_audio" = "Pausar áudio";
+/* Placeholder text for empty search query */
+"card.search.placeholder" = "Procurar...?";
 
-/* Accessibility label for external link button in AboutCardView */
-"a11y.button.external_link" = "Link externo";
+/* Card title for search card */
+"card.title.search" = "Pesquisa";
 
-/* Accessibility label for search result item */
-"a11y.result" = "Resultado %d";
+/* Card type label for about card */
+"card.type.about" = "Sobre";
 
-/* About card view: document count label in translations list */
-"about.documents" = "%@ documentos";
+/* Card type label for search card */
+"card.type.search" = "Pesquisa";
 
-/* Synthesis modal: header title */
-"synthesis.title" = "Preparando Áudio";
+/* Card type label for sutta viewer card */
+"card.type.sutta" = "Sutta";
+
+/* Loading indicator text */
+"loading" = "Carregando...";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Busca Falhou";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Referência de Sutta Inválida";
+
+/* Prompt text for Siri shortcut search query request */
+"search.for.what" = "O que você está procurando?";
+
+/* Search results header: count of documents found */
+"search.results.found" = "Encontrados %d documento(s)";
+
+/* Search results header: search method used */
+"search.results.method" = "Método: %@";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Acessibilidade";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Áudio";
+
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Reprodução em Segundo Plano";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Entendi";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "A reprodução em segundo plano permite que o áudio continue a tocar quando a tela está bloqueada. Isso requer que todo o documento seja sintetizado antes de iniciar a reprodução.";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Reprodução em Segundo Plano";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Para usar a reprodução em segundo plano, pressione longo o botão Reproduzir em qualquer sutta.";
+
+/* Settings section header for build information */
+"settings.build" = "Compilação";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Isso excluirá todo o áudio em cache e não pode ser desfeito.";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Limpar Armazenamento de Áudio?";
+
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Limpar Armazenamento de Áudio";
+
+/* Settings label for customization options */
+"settings.customize" = "Personalizar";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Modo Escuro";
+
+/* Settings section header for display options */
+"settings.display" = "Exibição";
+
+/* Settings label for document author */
+"settings.document.author" = "Autor";
+
+/* Settings label for document language */
+"settings.document.language" = "Idioma";
+
+/* Settings section header for language selection */
+"settings.languages" = "Traduções";
+
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Narração";
+
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Narrador";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Tonalidade";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Tradução";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Pali";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Velocidade";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Idioma de referência";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Isso restaurará todas as configurações para seus valores padrão.";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "Redefinir todas as configurações?";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Redefinir configurações";
+
+/* Settings section header for search settings */
+"settings.search" = "Pesquisa";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Pausa de segmento";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Mostrar";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Tradução";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Pali";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Referência";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Volume de Dicas de Reprodução";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Falar";
+
+/* Settings view title */
+"settings.title" = "Configurações";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Visão";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Reprodução em Segundo Plano";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Cancelar";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Cancelado";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Concluído";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Pronto";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Erro";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Iniciando...";
 
 /* Synthesis modal: status label during synthesis */
 "synthesis.synthesizing" = "Sintetizando...";
@@ -394,35 +418,11 @@
 /* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
 "synthesis.time_remaining" = "~%@ restante";
 
-/* Synthesis modal: completion status */
-"synthesis.complete" = "Concluído";
+/* Synthesis modal: header title */
+"synthesis.title" = "Preparando Áudio";
 
-/* Synthesis modal: cancelled status */
-"synthesis.cancelled" = "Cancelado";
-
-/* Synthesis modal: error status */
-"synthesis.error" = "Erro";
-
-/* Synthesis modal: starting status */
-"synthesis.starting" = "Iniciando...";
-
-/* Synthesis modal: cancel button label */
-"synthesis.cancel" = "Cancelar";
-
-/* Synthesis modal: done button label */
-"synthesis.done" = "Pronto";
-
-/* Context menu: background playback option */
-"synthesis.background_playback" = "Reprodução em Segundo Plano";
-
-/* Synthesis modal: segment counter during playback (format: current/total) */
-"synthesis.segment_count" = "%@";
-
-/* Search error: invalid sutta reference */
-"search.error.invalid_suttaref" = "Referência de Sutta Inválida";
-
-/* Search error: search operation failed */
-"search.error.failed" = "Busca Falhou";
+/* Error message when translation not found for language/author combination */
+"translation.not.found" = "Tradução não encontrada para %@ / %@";
 
 /* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
 "voice.error.not_responding" = "A voz \"%@\" não está respondendo. Tente uma voz diferente ou ative a reprodução em segundo plano. [%@]";

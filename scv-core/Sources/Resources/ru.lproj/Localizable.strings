@@ -1,266 +1,26 @@
-/* Loading indicator text */
-"loading" = "Загрузка...";
+/* Accessibility label for add new card button */
+"a11y.button.add_card" = "Добавить новую карту";
 
-/* Settings subsection header for segment display options */
-"settings.show" = "Показать";
+/* Accessibility label for delete card button */
+"a11y.button.delete_card" = "Удалить карту";
 
-/* Settings subsection header for audio playback options */
-"settings.speak" = "Говорить";
+/* Accessibility label for external link button in AboutCardView */
+"a11y.button.external_link" = "Внешняя ссылка";
 
-/* Settings toggle label for displaying Pali text in segments */
-"settings.show.pali" = "Пали";
+/* Accessibility label for pause audio button */
+"a11y.button.pause_audio" = "Приостановить";
 
-/* Settings toggle label for displaying document (translation) text in segments */
-"settings.show.document" = "Перевод";
+/* Accessibility label for play audio button */
+"a11y.button.play_audio" = "Воспроизвести";
 
-/* Settings toggle label for displaying reference text in segments */
-"settings.show.reference" = "Ссылка";
+/* Accessibility label for search button in toolbar */
+"a11y.button.search" = "Поиск";
 
-/* Card type label for search card */
-"card.type.search" = "Поиск";
+/* Accessibility label for settings button */
+"a11y.button.settings" = "Параметры";
 
-/* Card type label for sutta viewer card */
-"card.type.sutta" = "Сутта";
-
-/* Card type label for about card */
-"card.type.about" = "О программе";
-
-/* About card sidebar caption - %@ is replaced with bold plus symbol */
-"card.about.sidebar.caption" = "Нажмите %@ чтобы начать";
-
-/* Card title for search card */
-"card.title.search" = "Поиск";
-
-/* Placeholder text for empty search query */
-"card.search.placeholder" = "Поиск...?"
-
-/* Prompt text for Siri shortcut search query request */
-"search.for.what" = "Что вы ищете?";
-
-/* Error message when translation not found for language/author combination */
-"translation.not.found" = "Перевод не найден для %@ / %@";
-
-/* Settings label for pause between segments during narration */
-"settings.segment.pause" = "Пауза между сегментами";
-
-/* Settings toggle label for background playback mode */
-"settings.background.playback" = "Воспроизведение в фоне";
-
-/* Background playback info modal title */
-"settings.background.playback.info.title" = "Воспроизведение в фоне";
-
-/* Background playback info modal: synthesis requirement explanation */
-"settings.background.playback.info.message" = "Воспроизведение в фоне позволяет аудио продолжать воспроизведение при заблокированном экране. Это требует синтеза всего документа перед началом воспроизведения.";
-
-/* Background playback info modal: how to trigger explanation */
-"settings.background.playback.info.trigger" = "Для использования фонового воспроизведения долгое нажмите кнопку воспроизведения на любой сутте.";
-
-/* Background playback info modal: dismiss button */
-"settings.background.playback.info.button" = "Понял";
-
-/* Settings view title */
-"settings.title" = "Настройки";
-
-/* Settings section header for language selection */
-"settings.languages" = "Переводы";
-
-/* Settings label for document language */
-"settings.document.language" = "Язык";
-
-/* Settings label for document author */
-"settings.document.author" = "Автор";
-
-/* Settings label for reference language */
-"settings.reference.language" = "Справочный язык";
-
-/* Settings section header for accessibility options */
-"settings.accessibility" = "Специальные возможности";
-
-/* Settings subsection header for vision/display options */
-"settings.vision" = "Зрение";
-
-/* Settings subsection header for audio options */
-"settings.audio" = "Аудио";
-
-/* Settings section header for display options */
-"settings.display" = "Дисплей";
-
-/* Settings label for sound effects volume */
-"settings.sound.effects.volume" = "Громкость сигналов воспроизведения";
-
-/* Settings section header for build information */
-"settings.build" = "Сборка";
-
-/* Settings button label to reset all settings */
-"settings.reset.button" = "Сбросить настройки";
-
-/* Settings alert title for reset confirmation */
-"settings.reset.alert.title" = "Сбросить все настройки?";
-
-/* Settings alert message for reset confirmation */
-"settings.reset.alert.message" = "Это восстановит все настройки по умолчанию.";
-
-/* Alert button label for confirming reset */
-"alert.reset" = "Сбросить";
-
-/* Alert button label for canceling action */
-"alert.cancel" = "Отмена";
-
-/* Settings button label to clear audio store */
-"settings.clear.audio.button" = "Очистить Хранилище Аудио";
-
-/* Settings alert title for clear audio confirmation */
-"settings.clear.audio.alert.title" = "Очистить Хранилище Аудио?";
-
-/* Settings alert message for clear audio confirmation */
-"settings.clear.audio.alert.message" = "Это удалит все кэшированное аудио и не может быть отменено.";
-
-/* Alert button label for confirming clear audio */
-"alert.clear" = "Очистить";
-
-/* Settings label for customization options */
-"settings.customize" = "Настроить";
-
-/* Settings label for dark mode toggle */
-"settings.dark.mode" = "Тёмная Тема";
-
-/* Settings label for pitch adjustment */
-"settings.pitch" = "Высота";
-
-/* Settings label for playback rate adjustment */
-"settings.rate" = "Скорость";
-
-/* Settings section header for narrator voice settings */
-"settings.narrator" = "Рассказчик";
-
-/* Settings section header for narration customization (pitch, rate, cues, pause) */
-"settings.narration" = "Повествование";
-
-/* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Пали";
-
-/* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Перевод";
-
-/* Settings section header for search settings */
-"settings.search" = "Поиск";
-
-/* Search results header: count of documents found */
-"search.results.found" = "Найдено %d документ(ов)";
-
-/* Search results header: search method used */
-"search.results.method" = "Метод: %@";
-
-/* About card view: app title */
-"about.title" = "scVoice";
-
-/* About card view: version label */
-"about.version" = "Версия %@";
-
-/* About card view: overview section title */
-"about.section.overview" = "Обзор";
-
-/* About card view: overview description */
-"about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме для выбранных авторов на нескольких языках.";
-
-/* About card view: full-text search feature */
-"about.feature.search" = "Полнотекстовый поиск";
-
-/* About card view: full-text search description */
-"about.feature.search.desc" = "Поиск в тысячах сутт";
-
-/* About card view: multiple languages feature */
-"about.feature.languages" = "Несколько языков";
-
-/* About card view: multiple languages description */
-"about.feature.languages.desc" = "Английский, немецкий, португальский и многое другое";
-
-/* About card view: highlighting feature */
-"about.feature.highlighting" = "Выделение";
-
-/* About card view: highlighting description */
-"about.feature.highlighting.desc" = "Просмотр совпадающих сегментов и цитат";
-
-/* About card view: how to use section title */
-"about.section.how_to_use" = "Как использовать";
-
-/* About card view: getting started text */
-"about.how_to_use.intro" = "Начало работы с SC-Voice:";
-
-/* About card view: step 1 title */
-"about.step.1.title" = "Создать карточку поиска";
-
-/* About card view: step 1 description */
-"about.step.1.desc" = "Нажмите на кнопку '+' для создания новой карточки";
-
-/* About card view: step 2 title */
-"about.step.2.title" = "Введите запрос";
-
-/* About card view: step 2 description */
-"about.step.2.desc" = "Ищите слово, фразу или UID сутты";
-
-/* About card view: step 3 title */
-"about.step.3.title" = "Просмотреть результаты";
-
-/* About card view: step 3 description */
-"about.step.3.desc" = "Просмотрите совпадающие сутты и сегменты";
-
-/* About card view: step 4 title */
-"about.step.4.title" = "Открыть сутты";
-
-/* About card view: step 4 description */
-"about.step.4.desc" = "Нажмите на результаты для чтения полного текста";
-
-/* About card view: content sources section title */
-"about.section.content_sources" = "Источники контента";
-
-/* About card view: content sources intro */
-"about.content_sources.intro" = "Это приложение использует следующие источники контента:";
-
-/* About card view: SuttaCentral source */
-"about.source.suttacentral" = "SuttaCentral";
-
-/* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato & Команда";
-
-/* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Махасангити";
-
-/* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Типитака Буддавассе 2500";
-
-/* About card view: EBT-Data source */
-"about.source.ebt_data" = "EBT-Data";
-
-/* About card view: EBT-Data author */
-"about.source.ebt_data.author" = "Другие переводы ранних буддийских текстов, согласованные с контентом SuttaCentral";
-
-/* About card view: content sources - sources subsection title */
-"about.content_sources.sources" = "Источники";
-
-/* About card view: content sources - translations subsection title */
-"about.content_sources.translations" = "Переводы";
-
-/* About card view: content sources license notice */
-"about.content_sources.license" = "Все тексты доступны под лицензией Creative Commons, что позволяет свободно использовать и распространять их с надлежащим указанием авторства.";
-
-/* About card view: acknowledgements section title */
-"about.section.acknowledgements" = "Благодарности";
-
-/* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice основана на работе многих участников:";
-
-/* About card view: translations role */
-"about.ack.translations" = "Переводы";
-
-/* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), и Sonja Büge (DE)";
-
-/* About card view: root text role */
-"about.ack.root_text" = "Корневой текст";
-
-/* About card view: root text attribution */
-"about.ack.root_text.names" = "Махасангити Типитака Буддавассе 2500";
+/* Accessibility label for search result item */
+"a11y.result" = "Результат %d";
 
 /* About card view: database role */
 "about.ack.database" = "База данных";
@@ -274,23 +34,26 @@
 /* About card view: development attribution */
 "about.ack.development.names" = "Участники SC-Voice";
 
-/* About card view: graphics & design section title */
-"about.section.graphics_design" = "Графика и дизайн";
+/* About card view: root text role */
+"about.ack.root_text" = "Корневой текст";
 
-/* About card view: graphics & design intro */
-"about.graphics_design.intro" = "Фоновые изображения и темы:";
+/* About card view: root text attribution */
+"about.ack.root_text.names" = "Махасангити Типитака Буддавассе 2500";
 
-/* About card view: app icon label */
-"about.app_icon.label" = "Значок приложения";
+/* About card view: translations role */
+"about.ack.translations" = "Переводы";
+
+/* About card view: translations names */
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), и Sonja Büge (DE)";
+
+/* About card view: acknowledgements intro */
+"about.acknowledgements.intro" = "SC-Voice основана на работе многих участников:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Разработано Friends of Voice";
 
-/* About card view: license label prefix */
-"about.license.prefix" = "Лицензия: %@";
-
-/* About card view: audio credits section title */
-"about.section.audio_credits" = "Звуковые эффекты";
+/* About card view: app icon label */
+"about.app_icon.label" = "Значок приложения";
 
 /* About card view: audio credits intro */
 "about.audio_credits.intro" = "Звуковые эффекты и аудио:";
@@ -301,14 +64,47 @@
 /* About card view: view source button */
 "about.button.view_source" = "Просмотреть источник";
 
-/* About card view: open source licenses section title */
-"about.section.open_source" = "Лицензии открытого исходного кода";
+/* About card view: visit GitHub button */
+"about.button.visit_github" = "Посетить GitHub";
 
-/* About card view: open source intro */
-"about.open_source.intro" = "Весь исходный код SC-Voice лицензирован под лицензией MIT, если не указано иное.";
+/* About card view: content sources intro */
+"about.content_sources.intro" = "Это приложение использует следующие источники контента:";
 
-/* About card view: open source libraries intro */
-"about.open_source.libraries" = "Также включены следующие библиотеки:";
+/* About card view: content sources license notice */
+"about.content_sources.license" = "Все тексты доступны под лицензией Creative Commons, что позволяет свободно использовать и распространять их с надлежащим указанием авторства.";
+
+/* About card view: content sources - sources subsection title */
+"about.content_sources.sources" = "Источники";
+
+/* About card view: content sources - translations subsection title */
+"about.content_sources.translations" = "Переводы";
+
+/* About card view: document count label in translations list */
+"about.documents" = "%@ документов";
+
+/* About card view: highlighting feature */
+"about.feature.highlighting" = "Выделение";
+
+/* About card view: highlighting description */
+"about.feature.highlighting.desc" = "Просмотр совпадающих сегментов и цитат";
+
+/* About card view: multiple languages feature */
+"about.feature.languages" = "Несколько языков";
+
+/* About card view: multiple languages description */
+"about.feature.languages.desc" = "Английский, немецкий, португальский и многое другое";
+
+/* About card view: full-text search feature */
+"about.feature.search" = "Полнотекстовый поиск";
+
+/* About card view: full-text search description */
+"about.feature.search.desc" = "Поиск в тысячах сутт";
+
+/* About card view: graphics & design intro */
+"about.graphics_design.intro" = "Фоновые изображения и темы:";
+
+/* About card view: getting started text */
+"about.how_to_use.intro" = "Начало работы с SC-Voice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -322,20 +118,23 @@
 /* About card view: Zstandard license */
 "about.library.zstandard.license" = "Лицензия BSD";
 
+/* About card view: license label prefix */
+"about.license.prefix" = "Лицензия: %@";
+
 /* About card view: open source footer */
 "about.open_source.footer" = "Для полной информации о лицензиях см. репозиторий GitHub.";
 
-/* About card view: privacy policy section title */
-"about.section.privacy_policy" = "Политика конфиденциальности";
+/* About card view: open source intro */
+"about.open_source.intro" = "Весь исходный код SC-Voice лицензирован под лицензией MIT, если не указано иное.";
+
+/* About card view: open source libraries intro */
+"about.open_source.libraries" = "Также включены следующие библиотеки:";
+
+/* About card view: overview description */
+"about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме для выбранных авторов на нескольких языках.";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "SC-Voice уважает вашу конфиденциальность:";
-
-/* About card view: no analytics privacy item */
-"about.privacy.no_analytics" = "Без аналитики";
-
-/* About card view: no analytics description */
-"about.privacy.no_analytics.desc" = "Мы не отслеживаем ваши поиски и использование";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Локальное хранилище";
@@ -343,50 +142,275 @@
 /* About card view: local storage description */
 "about.privacy.local_storage.desc" = "Все данные хранятся локально на вашем устройстве";
 
+/* About card view: no analytics privacy item */
+"about.privacy.no_analytics" = "Без аналитики";
+
+/* About card view: no analytics description */
+"about.privacy.no_analytics.desc" = "Мы не отслеживаем ваши поиски и использование";
+
 /* About card view: open source privacy item */
 "about.privacy.open_source" = "Открытый исходный код";
 
 /* About card view: open source privacy description */
 "about.privacy.open_source.desc" = "Проверьте код, чтобы убедиться в наших практиках конфиденциальности";
 
+/* About card view: acknowledgements section title */
+"about.section.acknowledgements" = "Благодарности";
+
+/* About card view: audio credits section title */
+"about.section.audio_credits" = "Звуковые эффекты";
+
+/* About card view: content sources section title */
+"about.section.content_sources" = "Источники контента";
+
+/* About card view: graphics & design section title */
+"about.section.graphics_design" = "Графика и дизайн";
+
+/* About card view: how to use section title */
+"about.section.how_to_use" = "Как использовать";
+
+/* About card view: open source licenses section title */
+"about.section.open_source" = "Лицензии открытого исходного кода";
+
+/* About card view: overview section title */
+"about.section.overview" = "Обзор";
+
+/* About card view: privacy policy section title */
+"about.section.privacy_policy" = "Политика конфиденциальности";
+
 /* About card view: support & feedback section title */
 "about.section.support" = "Поддержка и отзывы";
+
+/* About card view: EBT-Data source */
+"about.source.ebt_data" = "EBT-Data";
+
+/* About card view: EBT-Data author */
+"about.source.ebt_data.author" = "Другие переводы ранних буддийских текстов, согласованные с контентом SuttaCentral";
+
+/* About card view: Mahasangiti source */
+"about.source.mahasangiti" = "Махасангити";
+
+/* About card view: Mahasangiti author */
+"about.source.mahasangiti.author" = "Типитака Буддавассе 2500";
+
+/* About card view: SuttaCentral source */
+"about.source.suttacentral" = "SuttaCentral";
+
+/* About card view: SuttaCentral author */
+"about.source.suttacentral.author" = "Bhikkhu Sujato & Команда";
+
+/* About card view: step 1 description */
+"about.step.1.desc" = "Нажмите на кнопку '+' для создания новой карточки";
+
+/* About card view: step 1 title */
+"about.step.1.title" = "Создать карточку поиска";
+
+/* About card view: step 2 description */
+"about.step.2.desc" = "Ищите слово, фразу или UID сутты";
+
+/* About card view: step 2 title */
+"about.step.2.title" = "Введите запрос";
+
+/* About card view: step 3 description */
+"about.step.3.desc" = "Просмотрите совпадающие сутты и сегменты";
+
+/* About card view: step 3 title */
+"about.step.3.title" = "Просмотреть результаты";
+
+/* About card view: step 4 description */
+"about.step.4.desc" = "Нажмите на результаты для чтения полного текста";
+
+/* About card view: step 4 title */
+"about.step.4.title" = "Открыть сутты";
 
 /* About card view: support intro */
 "about.support.intro" = "Нашли ошибку? У вас есть предложение? Посетите наш репозиторий GitHub для сообщения об ошибках или участия.";
 
-/* About card view: visit GitHub button */
-"about.button.visit_github" = "Посетить GitHub";
+/* About card view: app title */
+"about.title" = "scVoice";
 
-/* Accessibility label for search button in toolbar */
-"a11y.button.search" = "Поиск";
+/* About card view: version label */
+"about.version" = "Версия %@";
 
-/* Accessibility label for add new card button */
-"a11y.button.add_card" = "Добавить новую карту";
+/* Alert button label for canceling action */
+"alert.cancel" = "Отмена";
 
-/* Accessibility label for settings button */
-"a11y.button.settings" = "Параметры";
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Очистить";
 
-/* Accessibility label for delete card button */
-"a11y.button.delete_card" = "Удалить карту";
+/* Alert button label for confirming reset */
+"alert.reset" = "Сбросить";
 
-/* Accessibility label for play audio button */
-"a11y.button.play_audio" = "Воспроизвести";
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Нажмите %@ чтобы начать";
 
-/* Accessibility label for pause audio button */
-"a11y.button.pause_audio" = "Приостановить";
+/* Placeholder text for empty search query */
+"card.search.placeholder" = "Поиск...?";
 
-/* Accessibility label for external link button in AboutCardView */
-"a11y.button.external_link" = "Внешняя ссылка";
+/* Card title for search card */
+"card.title.search" = "Поиск";
 
-/* Accessibility label for search result item */
-"a11y.result" = "Результат %d";
+/* Card type label for about card */
+"card.type.about" = "О программе";
 
-/* About card view: document count label in translations list */
-"about.documents" = "%@ документов";
+/* Card type label for search card */
+"card.type.search" = "Поиск";
 
-/* Synthesis modal: header title */
-"synthesis.title" = "Подготовка аудио";
+/* Card type label for sutta viewer card */
+"card.type.sutta" = "Сутта";
+
+/* Loading indicator text */
+"loading" = "Загрузка...";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Поиск Не Выполнен";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Неверная Ссылка на Сутту";
+
+/* Prompt text for Siri shortcut search query request */
+"search.for.what" = "Что вы ищете?";
+
+/* Search results header: count of documents found */
+"search.results.found" = "Найдено %d документ(ов)";
+
+/* Search results header: search method used */
+"search.results.method" = "Метод: %@";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Специальные возможности";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Аудио";
+
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Воспроизведение в фоне";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Понял";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Воспроизведение в фоне позволяет аудио продолжать воспроизведение при заблокированном экране. Это требует синтеза всего документа перед началом воспроизведения.";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Воспроизведение в фоне";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Для использования фонового воспроизведения долгое нажмите кнопку воспроизведения на любой сутте.";
+
+/* Settings section header for build information */
+"settings.build" = "Сборка";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Это удалит все кэшированное аудио и не может быть отменено.";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Очистить Хранилище Аудио?";
+
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Очистить Хранилище Аудио";
+
+/* Settings label for customization options */
+"settings.customize" = "Настроить";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Тёмная Тема";
+
+/* Settings section header for display options */
+"settings.display" = "Дисплей";
+
+/* Settings label for document author */
+"settings.document.author" = "Автор";
+
+/* Settings label for document language */
+"settings.document.language" = "Язык";
+
+/* Settings section header for language selection */
+"settings.languages" = "Переводы";
+
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Повествование";
+
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Рассказчик";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Высота";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Перевод";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Пали";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Скорость";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Справочный язык";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Это восстановит все настройки по умолчанию.";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "Сбросить все настройки?";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Сбросить настройки";
+
+/* Settings section header for search settings */
+"settings.search" = "Поиск";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Пауза между сегментами";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Показать";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Перевод";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Пали";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Ссылка";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Громкость сигналов воспроизведения";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Говорить";
+
+/* Settings view title */
+"settings.title" = "Настройки";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Зрение";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Воспроизведение в фоне";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Отмена";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Отменено";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Завершено";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Готово";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Ошибка";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Запуск...";
 
 /* Synthesis modal: status label during synthesis */
 "synthesis.synthesizing" = "Синтезирование...";
@@ -394,35 +418,11 @@
 /* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
 "synthesis.time_remaining" = "~%@ осталось";
 
-/* Synthesis modal: completion status */
-"synthesis.complete" = "Завершено";
+/* Synthesis modal: header title */
+"synthesis.title" = "Подготовка аудио";
 
-/* Synthesis modal: cancelled status */
-"synthesis.cancelled" = "Отменено";
-
-/* Synthesis modal: error status */
-"synthesis.error" = "Ошибка";
-
-/* Synthesis modal: starting status */
-"synthesis.starting" = "Запуск...";
-
-/* Synthesis modal: cancel button label */
-"synthesis.cancel" = "Отмена";
-
-/* Synthesis modal: done button label */
-"synthesis.done" = "Готово";
-
-/* Context menu: background playback option */
-"synthesis.background_playback" = "Воспроизведение в фоне";
-
-/* Synthesis modal: segment counter during playback (format: current/total) */
-"synthesis.segment_count" = "%@";
-
-/* Search error: invalid sutta reference */
-"search.error.invalid_suttaref" = "Неверная Ссылка на Сутту";
-
-/* Search error: search operation failed */
-"search.error.failed" = "Поиск Не Выполнен";
+/* Error message when translation not found for language/author combination */
+"translation.not.found" = "Перевод не найден для %@ / %@";
 
 /* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
 "voice.error.not_responding" = "Голос \"%@\" не отвечает. Попробуйте другой голос или включите воспроизведение в фоне. [%@]";

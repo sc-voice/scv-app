@@ -1,266 +1,26 @@
-/* Loading indicator text */
-"loading" = "Kraunasi...";
+/* Accessibility label for add new card button */
+"a11y.button.add_card" = "Pridėti naują kortelę";
 
-/* Settings subsection header for segment display options */
-"settings.show" = "Rodyti";
+/* Accessibility label for delete card button */
+"a11y.button.delete_card" = "Ištrinti kortelę";
 
-/* Settings subsection header for audio playback options */
-"settings.speak" = "Garsai";
+/* Accessibility label for external link button in AboutCardView */
+"a11y.button.external_link" = "Išorinė nuoroda";
 
-/* Settings toggle label for displaying Pali text in segments */
-"settings.show.pali" = "Pali";
+/* Accessibility label for pause audio button */
+"a11y.button.pause_audio" = "Pauzuoti garsą";
 
-/* Settings toggle label for displaying document (translation) text in segments */
-"settings.show.document" = "Vertimas";
+/* Accessibility label for play audio button */
+"a11y.button.play_audio" = "Leisti garsą";
 
-/* Settings toggle label for displaying reference text in segments */
-"settings.show.reference" = "Nuoroda";
+/* Accessibility label for search button in toolbar */
+"a11y.button.search" = "Paieška";
 
-/* Card type label for search card */
-"card.type.search" = "Paieška";
+/* Accessibility label for settings button */
+"a11y.button.settings" = "Nustatymai";
 
-/* Card type label for sutta viewer card */
-"card.type.sutta" = "Suta";
-
-/* Card type label for about card */
-"card.type.about" = "Apie";
-
-/* About card sidebar caption - %@ is replaced with bold plus symbol */
-"card.about.sidebar.caption" = "Spustelėkite %@, kad pradėtumėte";
-
-/* Card title for search card */
-"card.title.search" = "Paieška";
-
-/* Placeholder text for empty search query */
-"card.search.placeholder" = "Ieškoti...?";
-
-/* Prompt text for Siri shortcut search query request */
-"search.for.what" = "Ieškoti ko?";
-
-/* Error message when translation not found for language/author combination */
-"translation.not.found" = "Vertimas nerastas %@ / %@";
-
-/* Settings label for pause between segments during narration */
-"settings.segment.pause" = "Pauzė Tarp Segmentų";
-
-/* Settings toggle label for background playback mode */
-"settings.background.playback" = "Foninio atkūrimo režimas";
-
-/* Background playback info modal title */
-"settings.background.playback.info.title" = "Foninio atkūrimo režimas";
-
-/* Background playback info modal: synthesis requirement explanation */
-"settings.background.playback.info.message" = "Foninis atkūrimas leidžia garsui tęsti grojimą, kai ekranas yra užrakintas. Tam reikalingas viso dokumento sintezavimas prieš atkūrimą pradedant.";
-
-/* Background playback info modal: how to trigger explanation */
-"settings.background.playback.info.trigger" = "Norėdami naudoti foninį atkūrimą, ilgai paspauskite Play mygtuką bet kuriame sutte.";
-
-/* Background playback info modal: dismiss button */
-"settings.background.playback.info.button" = "Supratau";
-
-/* Settings view title */
-"settings.title" = "Nustatymai";
-
-/* Settings section header for language selection */
-"settings.languages" = "Vertimai";
-
-/* Settings label for document language */
-"settings.document.language" = "Kalba";
-
-/* Settings label for document author */
-"settings.document.author" = "Autorius";
-
-/* Settings label for reference language */
-"settings.reference.language" = "Nuorodos Kalba";
-
-/* Settings section header for accessibility options */
-"settings.accessibility" = "Pritaikymas Negalės Turintiems";
-
-/* Settings subsection header for vision/display options */
-"settings.vision" = "Regėjimas";
-
-/* Settings subsection header for audio options */
-"settings.audio" = "Garsas";
-
-/* Settings section header for display options */
-"settings.display" = "Ekranas";
-
-/* Settings label for sound effects volume */
-"settings.sound.effects.volume" = "Grojimo Signalų Garsumas";
-
-/* Settings section header for build information */
-"settings.build" = "Statyba";
-
-/* Settings button label to reset all settings */
-"settings.reset.button" = "Atstatyti Nustatymus";
-
-/* Settings alert title for reset confirmation */
-"settings.reset.alert.title" = "Atstatyti Visus Nustatymus?";
-
-/* Settings alert message for reset confirmation */
-"settings.reset.alert.message" = "Tai atkurs visus nustatymus į jų numatytąsias reikšmes.";
-
-/* Alert button label for confirming reset */
-"alert.reset" = "Atstatyti";
-
-/* Alert button label for canceling action */
-"alert.cancel" = "Atšaukti";
-
-/* Settings button label to clear audio store */
-"settings.clear.audio.button" = "Išvalyti Garso Saugyklą";
-
-/* Settings alert title for clear audio confirmation */
-"settings.clear.audio.alert.title" = "Išvalyti Garso Saugyklą?";
-
-/* Settings alert message for clear audio confirmation */
-"settings.clear.audio.alert.message" = "Tai ištins visą talpintą garso atkarpą ir negali būti atšaukta.";
-
-/* Alert button label for confirming clear audio */
-"alert.clear" = "Išvalyti";
-
-/* Settings toggle label for playing Pali text during narration */
-"settings.play.pali" = "Pali";
-
-/* Settings toggle label for playing document text during narration */
-"settings.play.document" = "Vertimas";
-
-/* Settings section header for search settings */
-"settings.search" = "Paieška";
-
-/* Settings label for dark mode toggle */
-"settings.dark.mode" = "Tamsi Tema";
-
-/* Settings section header for narrator voice settings */
-"settings.narrator" = "Skaitytojo Balsas";
-
-/* Settings section header for narration customization (pitch, rate, cues, pause) */
-"settings.narration" = "Skaitymas";
-
-/* Settings label for pitch adjustment */
-"settings.pitch" = "Aukštis";
-
-/* Settings label for playback rate adjustment */
-"settings.rate" = "Greitis";
-
-/* Settings label for customization options */
-"settings.customize" = "Tinkinti";
-
-/* Search results header: count of documents found */
-"search.results.found" = "Rasta %d dokumento(-ų)";
-
-/* Search results header: search method used */
-"search.results.method" = "Metodas: %@";
-
-/* About card view: app title */
-"about.title" = "scVoice";
-
-/* About card view: version label */
-"about.version" = "Versija %@";
-
-/* About card view: overview section title */
-"about.section.overview" = "Apžvalga";
-
-/* About card view: overview description */
-"about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
-
-/* About card view: full-text search feature */
-"about.feature.search" = "Pilno Teksto Paieška";
-
-/* About card view: full-text search description */
-"about.feature.search.desc" = "Ieškokite tūkstančiuose sutų";
-
-/* About card view: multiple languages feature */
-"about.feature.languages" = "Kelios Kalbos";
-
-/* About card view: multiple languages description */
-"about.feature.languages.desc" = "Anglų, vokiečių, portugalų ir kitos";
-
-/* About card view: highlighting feature */
-"about.feature.highlighting" = "Paryškinimas";
-
-/* About card view: highlighting description */
-"about.feature.highlighting.desc" = "Žr. suderintus segmentus ir citatas";
-
-/* About card view: how to use section title */
-"about.section.how_to_use" = "Kaip Naudoti";
-
-/* About card view: getting started text */
-"about.how_to_use.intro" = "Pradžia darbui su SC-Voice:";
-
-/* About card view: step 1 title */
-"about.step.1.title" = "Sukurti Paieškos Kortelę";
-
-/* About card view: step 1 description */
-"about.step.1.desc" = "Bakstelėkite '+' mygtuką, kad sukurtumėte naują kortelę";
-
-/* About card view: step 2 title */
-"about.step.2.title" = "Įveskite Užklausą";
-
-/* About card view: step 2 description */
-"about.step.2.desc" = "Ieškokite žodžio, frazės ar sutos ID";
-
-/* About card view: step 3 title */
-"about.step.3.title" = "Peržiūrėti Rezultatus";
-
-/* About card view: step 3 description */
-"about.step.3.desc" = "Skaitykite atitinkančias sutas ir segmentus";
-
-/* About card view: step 4 title */
-"about.step.4.title" = "Atidaryti Sutas";
-
-/* About card view: step 4 description */
-"about.step.4.desc" = "Bakstelėkite rezultatus, kad perskaitytumėte visą tekstą";
-
-/* About card view: content sources section title */
-"about.section.content_sources" = "Turinio Šaltiniai";
-
-/* About card view: content sources intro */
-"about.content_sources.intro" = "Ši programa naudoja šiuos turinio šaltinius:";
-
-/* About card view: SuttaCentral source */
-"about.source.suttacentral" = "SuttaCentral";
-
-/* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato ir Komanda";
-
-/* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Mahāsaṅgīti";
-
-/* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
-
-/* About card view: EBT-Data source */
-"about.source.ebt_data" = "EBT-Data";
-
-/* About card view: EBT-Data author */
-"about.source.ebt_data.author" = "Kiti ankstyvųjų budistų tekstų vertimai, sulygiinti su SuttaCentral turiniu";
-
-/* About card view: content sources - sources subsection title */
-"about.content_sources.sources" = "Šaltiniai";
-
-/* About card view: content sources - translations subsection title */
-"about.content_sources.translations" = "Vertimai";
-
-/* About card view: content sources license notice */
-"about.content_sources.license" = "Visi tekstai prieinami pagal Creative Commons licencijas, leidžiančias nemokamą naudojimą ir skleistį su tinkamai nurodyta autorinė teise.";
-
-/* About card view: acknowledgements section title */
-"about.section.acknowledgements" = "Padėka";
-
-/* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice remiasi daugelio bendradarbių darbais:";
-
-/* About card view: translations role */
-"about.ack.translations" = "Vertimai";
-
-/* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
-
-/* About card view: root text role */
-"about.ack.root_text" = "Šaltinio Tekstas";
-
-/* About card view: root text attribution */
-"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
+/* Accessibility label for search result item */
+"a11y.result" = "Rezultatas %d";
 
 /* About card view: database role */
 "about.ack.database" = "Duomenų Bazė";
@@ -274,23 +34,26 @@
 /* About card view: development attribution */
 "about.ack.development.names" = "SC-Voice bendradarbiai";
 
-/* About card view: graphics & design section title */
-"about.section.graphics_design" = "Grafika ir Dizainas";
+/* About card view: root text role */
+"about.ack.root_text" = "Šaltinio Tekstas";
 
-/* About card view: graphics & design intro */
-"about.graphics_design.intro" = "Foniniai paveikslai ir temos:";
+/* About card view: root text attribution */
+"about.ack.root_text.names" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
-/* About card view: app icon label */
-"about.app_icon.label" = "Programos Piktograma";
+/* About card view: translations role */
+"about.ack.translations" = "Vertimai";
+
+/* About card view: translations names */
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
+
+/* About card view: acknowledgements intro */
+"about.acknowledgements.intro" = "SC-Voice remiasi daugelio bendradarbių darbais:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Sukūrė Friends of Voice";
 
-/* About card view: license label prefix */
-"about.license.prefix" = "Licencija: %@";
-
-/* About card view: audio credits section title */
-"about.section.audio_credits" = "Garso Kredikai";
+/* About card view: app icon label */
+"about.app_icon.label" = "Programos Piktograma";
 
 /* About card view: audio credits intro */
 "about.audio_credits.intro" = "Garso efektai ir garsas:";
@@ -301,14 +64,47 @@
 /* About card view: view source button */
 "about.button.view_source" = "Peržiūrėti šaltinį";
 
-/* About card view: open source licenses section title */
-"about.section.open_source" = "Atvirojo Kodo Licencijos";
+/* About card view: visit GitHub button */
+"about.button.visit_github" = "Apsilankyti GitHub";
 
-/* About card view: open source intro */
-"about.open_source.intro" = "Visas SC-Voice šaltinis licencijuojamas pagal MIT licenciją, jei nenurodyta kitaip.";
+/* About card view: content sources intro */
+"about.content_sources.intro" = "Ši programa naudoja šiuos turinio šaltinius:";
 
-/* About card view: open source libraries intro */
-"about.open_source.libraries" = "Taip pat įtrauktos šios bibliotekos:";
+/* About card view: content sources license notice */
+"about.content_sources.license" = "Visi tekstai prieinami pagal Creative Commons licencijas, leidžiančias nemokamą naudojimą ir skleistį su tinkamai nurodyta autorinė teise.";
+
+/* About card view: content sources - sources subsection title */
+"about.content_sources.sources" = "Šaltiniai";
+
+/* About card view: content sources - translations subsection title */
+"about.content_sources.translations" = "Vertimai";
+
+/* About card view: document count label in translations list */
+"about.documents" = "%@ dokumentai(-ų)";
+
+/* About card view: highlighting feature */
+"about.feature.highlighting" = "Paryškinimas";
+
+/* About card view: highlighting description */
+"about.feature.highlighting.desc" = "Žr. suderintus segmentus ir citatas";
+
+/* About card view: multiple languages feature */
+"about.feature.languages" = "Kelios Kalbos";
+
+/* About card view: multiple languages description */
+"about.feature.languages.desc" = "Anglų, vokiečių, portugalų ir kitos";
+
+/* About card view: full-text search feature */
+"about.feature.search" = "Pilno Teksto Paieška";
+
+/* About card view: full-text search description */
+"about.feature.search.desc" = "Ieškokite tūkstančiuose sutų";
+
+/* About card view: graphics & design intro */
+"about.graphics_design.intro" = "Foniniai paveikslai ir temos:";
+
+/* About card view: getting started text */
+"about.how_to_use.intro" = "Pradžia darbui su SC-Voice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -322,20 +118,23 @@
 /* About card view: Zstandard license */
 "about.library.zstandard.license" = "BSD Licencija";
 
+/* About card view: license label prefix */
+"about.license.prefix" = "Licencija: %@";
+
 /* About card view: open source footer */
 "about.open_source.footer" = "Pilnai informacijai apie licencijas žr. GitHub saugyklą.";
 
-/* About card view: privacy policy section title */
-"about.section.privacy_policy" = "Privatumo Politika";
+/* About card view: open source intro */
+"about.open_source.intro" = "Visas SC-Voice šaltinis licencijuojamas pagal MIT licenciją, jei nenurodyta kitaip.";
+
+/* About card view: open source libraries intro */
+"about.open_source.libraries" = "Taip pat įtrauktos šios bibliotekos:";
+
+/* About card view: overview description */
+"about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "SC-Voice gerbia jūsų privatumą:";
-
-/* About card view: no analytics privacy item */
-"about.privacy.no_analytics" = "Nėra Analitikos";
-
-/* About card view: no analytics description */
-"about.privacy.no_analytics.desc" = "Mes nefiksavome jūsų paieškas ar naudojimą";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Vietos Saugojimas";
@@ -343,50 +142,275 @@
 /* About card view: local storage description */
 "about.privacy.local_storage.desc" = "Visi duomenys saugomi lokaliai jūsų įrenginyje";
 
+/* About card view: no analytics privacy item */
+"about.privacy.no_analytics" = "Nėra Analitikos";
+
+/* About card view: no analytics description */
+"about.privacy.no_analytics.desc" = "Mes nefiksavome jūsų paieškas ar naudojimą";
+
 /* About card view: open source privacy item */
 "about.privacy.open_source" = "Atviras Kodas";
 
 /* About card view: open source privacy description */
 "about.privacy.open_source.desc" = "Peržiūrėkite kodą, kad patvirtintumėte mūsų privatumo praktiką";
 
+/* About card view: acknowledgements section title */
+"about.section.acknowledgements" = "Padėka";
+
+/* About card view: audio credits section title */
+"about.section.audio_credits" = "Garso Kredikai";
+
+/* About card view: content sources section title */
+"about.section.content_sources" = "Turinio Šaltiniai";
+
+/* About card view: graphics & design section title */
+"about.section.graphics_design" = "Grafika ir Dizainas";
+
+/* About card view: how to use section title */
+"about.section.how_to_use" = "Kaip Naudoti";
+
+/* About card view: open source licenses section title */
+"about.section.open_source" = "Atvirojo Kodo Licencijos";
+
+/* About card view: overview section title */
+"about.section.overview" = "Apžvalga";
+
+/* About card view: privacy policy section title */
+"about.section.privacy_policy" = "Privatumo Politika";
+
 /* About card view: support & feedback section title */
 "about.section.support" = "Pagalba ir Atsiliepimai";
+
+/* About card view: EBT-Data source */
+"about.source.ebt_data" = "EBT-Data";
+
+/* About card view: EBT-Data author */
+"about.source.ebt_data.author" = "Kiti ankstyvųjų budistų tekstų vertimai, sulygiinti su SuttaCentral turiniu";
+
+/* About card view: Mahasangiti source */
+"about.source.mahasangiti" = "Mahāsaṅgīti";
+
+/* About card view: Mahasangiti author */
+"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+
+/* About card view: SuttaCentral source */
+"about.source.suttacentral" = "SuttaCentral";
+
+/* About card view: SuttaCentral author */
+"about.source.suttacentral.author" = "Bhikkhu Sujato ir Komanda";
+
+/* About card view: step 1 description */
+"about.step.1.desc" = "Bakstelėkite '+' mygtuką, kad sukurtumėte naują kortelę";
+
+/* About card view: step 1 title */
+"about.step.1.title" = "Sukurti Paieškos Kortelę";
+
+/* About card view: step 2 description */
+"about.step.2.desc" = "Ieškokite žodžio, frazės ar sutos ID";
+
+/* About card view: step 2 title */
+"about.step.2.title" = "Įveskite Užklausą";
+
+/* About card view: step 3 description */
+"about.step.3.desc" = "Skaitykite atitinkančias sutas ir segmentus";
+
+/* About card view: step 3 title */
+"about.step.3.title" = "Peržiūrėti Rezultatus";
+
+/* About card view: step 4 description */
+"about.step.4.desc" = "Bakstelėkite rezultatus, kad perskaitytumėte visą tekstą";
+
+/* About card view: step 4 title */
+"about.step.4.title" = "Atidaryti Sutas";
 
 /* About card view: support intro */
 "about.support.intro" = "Radote klaidą? Turite pasiūlymą? Apsilankykite mūsų GitHub saugykloje, kad pranešumėte apie problemas ar prisidėtumėte.";
 
-/* About card view: visit GitHub button */
-"about.button.visit_github" = "Apsilankyti GitHub";
+/* About card view: app title */
+"about.title" = "scVoice";
 
-/* Accessibility label for search button in toolbar */
-"a11y.button.search" = "Paieška";
+/* About card view: version label */
+"about.version" = "Versija %@";
 
-/* Accessibility label for add new card button */
-"a11y.button.add_card" = "Pridėti naują kortelę";
+/* Alert button label for canceling action */
+"alert.cancel" = "Atšaukti";
 
-/* Accessibility label for settings button */
-"a11y.button.settings" = "Nustatymai";
+/* Alert button label for confirming clear audio */
+"alert.clear" = "Išvalyti";
 
-/* Accessibility label for delete card button */
-"a11y.button.delete_card" = "Ištrinti kortelę";
+/* Alert button label for confirming reset */
+"alert.reset" = "Atstatyti";
 
-/* Accessibility label for play audio button */
-"a11y.button.play_audio" = "Leisti garsą";
+/* About card sidebar caption - %@ is replaced with bold plus symbol */
+"card.about.sidebar.caption" = "Spustelėkite %@, kad pradėtumėte";
 
-/* Accessibility label for pause audio button */
-"a11y.button.pause_audio" = "Pauzuoti garsą";
+/* Placeholder text for empty search query */
+"card.search.placeholder" = "Ieškoti...?";
 
-/* Accessibility label for external link button in AboutCardView */
-"a11y.button.external_link" = "Išorinė nuoroda";
+/* Card title for search card */
+"card.title.search" = "Paieška";
 
-/* Accessibility label for search result item */
-"a11y.result" = "Rezultatas %d";
+/* Card type label for about card */
+"card.type.about" = "Apie";
 
-/* About card view: document count label in translations list */
-"about.documents" = "%@ dokumentai(-ų)";
+/* Card type label for search card */
+"card.type.search" = "Paieška";
 
-/* Synthesis modal: header title */
-"synthesis.title" = "Garso paruošimas";
+/* Card type label for sutta viewer card */
+"card.type.sutta" = "Suta";
+
+/* Loading indicator text */
+"loading" = "Kraunasi...";
+
+/* Search error: search operation failed */
+"search.error.failed" = "Paieška Nepavyko";
+
+/* Search error: invalid sutta reference */
+"search.error.invalid_suttaref" = "Neteisinga Sutos Nuoroda";
+
+/* Prompt text for Siri shortcut search query request */
+"search.for.what" = "Ieškoti ko?";
+
+/* Search results header: count of documents found */
+"search.results.found" = "Rasta %d dokumento(-ų)";
+
+/* Search results header: search method used */
+"search.results.method" = "Metodas: %@";
+
+/* Settings section header for accessibility options */
+"settings.accessibility" = "Pritaikymas Negalės Turintiems";
+
+/* Settings subsection header for audio options */
+"settings.audio" = "Garsas";
+
+/* Settings toggle label for background playback mode */
+"settings.background.playback" = "Foninio atkūrimo režimas";
+
+/* Background playback info modal: dismiss button */
+"settings.background.playback.info.button" = "Supratau";
+
+/* Background playback info modal: synthesis requirement explanation */
+"settings.background.playback.info.message" = "Foninis atkūrimas leidžia garsui tęsti grojimą, kai ekranas yra užrakintas. Tam reikalingas viso dokumento sintezavimas prieš atkūrimą pradedant.";
+
+/* Background playback info modal title */
+"settings.background.playback.info.title" = "Foninio atkūrimo režimas";
+
+/* Background playback info modal: how to trigger explanation */
+"settings.background.playback.info.trigger" = "Norėdami naudoti foninį atkūrimą, ilgai paspauskite Play mygtuką bet kuriame sutte.";
+
+/* Settings section header for build information */
+"settings.build" = "Statyba";
+
+/* Settings alert message for clear audio confirmation */
+"settings.clear.audio.alert.message" = "Tai ištins visą talpintą garso atkarpą ir negali būti atšaukta.";
+
+/* Settings alert title for clear audio confirmation */
+"settings.clear.audio.alert.title" = "Išvalyti Garso Saugyklą?";
+
+/* Settings button label to clear audio store */
+"settings.clear.audio.button" = "Išvalyti Garso Saugyklą";
+
+/* Settings label for customization options */
+"settings.customize" = "Tinkinti";
+
+/* Settings label for dark mode toggle */
+"settings.dark.mode" = "Tamsi Tema";
+
+/* Settings section header for display options */
+"settings.display" = "Ekranas";
+
+/* Settings label for document author */
+"settings.document.author" = "Autorius";
+
+/* Settings label for document language */
+"settings.document.language" = "Kalba";
+
+/* Settings section header for language selection */
+"settings.languages" = "Vertimai";
+
+/* Settings section header for narration customization (pitch, rate, cues, pause) */
+"settings.narration" = "Skaitymas";
+
+/* Settings section header for narrator voice settings */
+"settings.narrator" = "Skaitytojo Balsas";
+
+/* Settings label for pitch adjustment */
+"settings.pitch" = "Aukštis";
+
+/* Settings toggle label for playing document text during narration */
+"settings.play.document" = "Vertimas";
+
+/* Settings toggle label for playing Pali text during narration */
+"settings.play.pali" = "Pali";
+
+/* Settings label for playback rate adjustment */
+"settings.rate" = "Greitis";
+
+/* Settings label for reference language */
+"settings.reference.language" = "Nuorodos Kalba";
+
+/* Settings alert message for reset confirmation */
+"settings.reset.alert.message" = "Tai atkurs visus nustatymus į jų numatytąsias reikšmes.";
+
+/* Settings alert title for reset confirmation */
+"settings.reset.alert.title" = "Atstatyti Visus Nustatymus?";
+
+/* Settings button label to reset all settings */
+"settings.reset.button" = "Atstatyti Nustatymus";
+
+/* Settings section header for search settings */
+"settings.search" = "Paieška";
+
+/* Settings label for pause between segments during narration */
+"settings.segment.pause" = "Pauzė Tarp Segmentų";
+
+/* Settings subsection header for segment display options */
+"settings.show" = "Rodyti";
+
+/* Settings toggle label for displaying document (translation) text in segments */
+"settings.show.document" = "Vertimas";
+
+/* Settings toggle label for displaying Pali text in segments */
+"settings.show.pali" = "Pali";
+
+/* Settings toggle label for displaying reference text in segments */
+"settings.show.reference" = "Nuoroda";
+
+/* Settings label for sound effects volume */
+"settings.sound.effects.volume" = "Grojimo Signalų Garsumas";
+
+/* Settings subsection header for audio playback options */
+"settings.speak" = "Garsai";
+
+/* Settings view title */
+"settings.title" = "Nustatymai";
+
+/* Settings subsection header for vision/display options */
+"settings.vision" = "Regėjimas";
+
+/* Context menu: background playback option */
+"synthesis.background_playback" = "Foninio atkūrimo režimas";
+
+/* Synthesis modal: cancel button label */
+"synthesis.cancel" = "Atšaukti";
+
+/* Synthesis modal: cancelled status */
+"synthesis.cancelled" = "Atšaukta";
+
+/* Synthesis modal: completion status */
+"synthesis.complete" = "Baigta";
+
+/* Synthesis modal: done button label */
+"synthesis.done" = "Atlikta";
+
+/* Synthesis modal: error status */
+"synthesis.error" = "Klaida";
+
+/* Synthesis modal: segment counter during playback (format: current/total) */
+"synthesis.segment_count" = "%@";
+
+/* Synthesis modal: starting status */
+"synthesis.starting" = "Pradedama...";
 
 /* Synthesis modal: status label during synthesis */
 "synthesis.synthesizing" = "Sintetinimas...";
@@ -394,35 +418,11 @@
 /* Synthesis modal: estimated time remaining (format: ~Xm Ys remaining) */
 "synthesis.time_remaining" = "~%@ liko";
 
-/* Synthesis modal: completion status */
-"synthesis.complete" = "Baigta";
+/* Synthesis modal: header title */
+"synthesis.title" = "Garso paruošimas";
 
-/* Synthesis modal: cancelled status */
-"synthesis.cancelled" = "Atšaukta";
-
-/* Synthesis modal: error status */
-"synthesis.error" = "Klaida";
-
-/* Synthesis modal: starting status */
-"synthesis.starting" = "Pradedama...";
-
-/* Synthesis modal: cancel button label */
-"synthesis.cancel" = "Atšaukti";
-
-/* Synthesis modal: done button label */
-"synthesis.done" = "Atlikta";
-
-/* Context menu: background playback option */
-"synthesis.background_playback" = "Foninio atkūrimo režimas";
-
-/* Synthesis modal: segment counter during playback (format: current/total) */
-"synthesis.segment_count" = "%@";
-
-/* Search error: invalid sutta reference */
-"search.error.invalid_suttaref" = "Neteisinga Sutos Nuoroda";
-
-/* Search error: search operation failed */
-"search.error.failed" = "Paieška Nepavyko";
+/* Error message when translation not found for language/author combination */
+"translation.not.found" = "Vertimas nerastas %@ / %@";
 
 /* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
 "voice.error.not_responding" = "Balsas \"%@\" neatsako. Pabandykite kitą balsą arba įjunkite foninį atkūrimą. [%@]";
