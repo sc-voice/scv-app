@@ -2,8 +2,36 @@ import AVFoundation
 import Foundation
 import scvCore
 
+// MARK: - AudioEvent
+
+/// Segment events that trigger audio announcements
+public enum AudioEvent: Sendable {
+  case play
+  case pause
+  case endSutta
+  case noText
+  case section
+  case segment
+}
+
+// MARK: - IAudioEffects
+
+/// Protocol abstracting audio effects for dependency injection and testing.
+/// Enables segment playback to announce events without coupling to AudioEffects
+/// implementation.
 @MainActor
-public final class AudioEffects: ObservableObject {
+public protocol IAudioEffects: Sendable {
+  /// Announce an audio event which triggers appropriate sound effect
+  func announce(_ event: AudioEvent)
+
+  /// Stop any active audio playback and announce pause event
+  func cancel()
+}
+
+// MARK: - AudioEffects
+
+@MainActor
+public final class AudioEffects: ObservableObject, IAudioEffects {
   public static let shared = AudioEffects()
   public enum Sound {
     case silent
@@ -72,8 +100,14 @@ public final class AudioEffects: ObservableObject {
     Settings.shared.soundEffectVolume
   }
 
-  /// Announce an event which triggers appropriate sound
-  public func announce(_ event: Event) {
+  /// IAudioEffects protocol: Announce an audio event
+  public func announce(_ event: AudioEvent) {
+    let internalEvent = audioEventToInternalEvent(event)
+    announce(internalEvent)
+  }
+
+  /// Internal announce - maps internal Event to sound
+  private func announce(_ event: Event) {
     let sound = eventToSound(event)
     playSound(sound: sound, msDelay: 0)
   }
@@ -88,6 +122,14 @@ public final class AudioEffects: ObservableObject {
     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
       self.performPlaySound(sound)
     }
+  }
+
+  /// Stop any active audio playback and announce pause event
+  public func cancel() {
+    audioPlayer?.stop()
+    audioPlayer = nil
+    announce(AudioEvent.pause)
+    cc.ok2(#line, "audio cancelled")
   }
 
   private func performPlaySound(_ sound: Sound) {
@@ -106,6 +148,23 @@ public final class AudioEffects: ObservableObject {
       cc.ok1(#line, #function, sound.filename)
     } catch {
       cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
+    }
+  }
+
+  private func audioEventToInternalEvent(_ event: AudioEvent) -> Event {
+    switch event {
+    case .play:
+      .play
+    case .pause:
+      .pause
+    case .endSutta:
+      .endSutta
+    case .noText:
+      .noText
+    case .section:
+      .section
+    case .segment:
+      .segment
     }
   }
 
