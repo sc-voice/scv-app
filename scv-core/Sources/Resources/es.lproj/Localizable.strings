@@ -32,7 +32,7 @@
 "about.ack.development" = "Desarrollo";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Colaboradores de SC-Voice";
+"about.ack.development.names" = "Colaboradores de scVoice";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Texto Raíz";
@@ -47,7 +47,7 @@
 "about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) y Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice se basa en el trabajo de muchos colaboradores:";
+"about.acknowledgements.intro" = "scVoice se basa en el trabajo de muchos colaboradores:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Diseñado por Friends of Voice";
@@ -104,7 +104,7 @@
 "about.graphics_design.intro" = "Imágenes de fondo y temas:";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Comenzar con SC-Voice:";
+"about.how_to_use.intro" = "Comenzar con scVoice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "Ver repositorio de GitHub para información de licencia completa.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Todo el código fuente de SC-Voice está bajo licencia MIT a menos que se indique lo contrario.";
+"about.open_source.intro" = "Todo el código fuente de scVoice está bajo licencia MIT a menos que se indique lo contrario.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Las siguientes librerías también se incluyen:";
@@ -134,7 +134,7 @@
 "about.overview.description" = "Busca, lee y escucha textos budistas antiguos (suttas) alineados con SuttaCentral sin conexión para autores seleccionados en varios idiomas.";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice respeta tu privacidad:";
+"about.privacy.intro" = "scVoice respeta tu privacidad:";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Almacenamiento Local";
