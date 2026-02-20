@@ -32,7 +32,7 @@
 "about.ack.development" = "Développement";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Contributeurs SC-Voice";
+"about.ack.development.names" = "Contributeurs scVoice";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Texte racine";
@@ -47,7 +47,7 @@
 "about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), et Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice s'appuie sur le travail de nombreux contributeurs :";
+"about.acknowledgements.intro" = "scVoice s'appuie sur le travail de nombreux contributeurs :";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Conçu par Friends of Voice";
@@ -104,7 +104,7 @@
 "about.graphics_design.intro" = "Images de fond et thèmes :";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Premiers pas avec SC-Voice :";
+"about.how_to_use.intro" = "Premiers pas avec scVoice :";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "Voir le référentiel GitHub pour les informations complètes sur les licences.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Tout le code source SC-Voice est sous licence MIT sauf indication contraire.";
+"about.open_source.intro" = "Tout le code source scVoice est sous licence MIT sauf indication contraire.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Les bibliothèques suivantes sont également incluses :";
@@ -134,7 +134,7 @@
 "about.overview.description" = "Recherchez, lisez et écoutez les textes bouddhistes anciens (suttas) alignés avec SuttaCentral hors ligne pour les auteurs sélectionnés dans plusieurs langues.";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice respecte votre confidentialité :";
+"about.privacy.intro" = "scVoice respecte votre confidentialité :";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Stockage local";
