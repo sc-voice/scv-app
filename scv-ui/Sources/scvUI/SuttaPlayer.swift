@@ -454,6 +454,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
     if delay > 0 {
       DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+        guard self.isPlaying else {
+          self.cc.ok1(#line, #function, "cancelled - isPlaying is false")
+          return
+        }
         self.cc.ok1(#line, #function, "isPlaying:", self.isPlaying)
         self.playText(text, langCode: langCode)
       }

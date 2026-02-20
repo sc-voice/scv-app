@@ -614,7 +614,12 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     if delay > 0 {
       cc.ok2(#line, "Delaying playback by \(delay)s to respect segmentPause")
       DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-        self.startPlayback()
+        // Only proceed if user hasn't paused/cancelled
+        if self.state == .playing {
+          self.startPlayback()
+        } else {
+          self.cc.ok1(#line, "Play cancelled")
+        }
       }
     } else {
       startPlayback()

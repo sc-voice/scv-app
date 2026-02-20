@@ -1,0 +1,45 @@
+{
+  "completedActions" : [
+    {
+      "name" : "Add guard check in playSegmentAt() dispatch closure to re-verify isPlaying state before calling playText()",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Verify fix handles pause between segments correctly",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Test pause button mashing doesn't cause chaos",
+      "test" : "update unit tests"
+    }
+  ],
+  "createdAt" : "2026-02-20T13:58:43Z",
+  "id" : "019C7B58-800C-7000-B130-DBDCDC923F6C",
+  "name" : "foreground SuttaPlayer does not pause",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "Race condition occurs at lines 456-459 in SuttaPlayer.swift: DispatchQueue.main.asyncAfter closure needs guard check for isPlaying"
+    },
+    {
+      "relevance" : 1,
+      "text" : "SuttaPlayer.playSegmentAt() has race condition: async dispatch for segmentPause delay doesn't re-check isPlaying before calling playText(). If user pauses during delay, playText() still executes and starts synthesis of next segment."
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "Symptom: User clicks pause between segments, but next segment starts playing after segmentPause delay expires. Repeated button mashes create chaotic state."
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "onPlaybackFinished() at line 540 checks isPlaying at line 595 AFTER queuing async dispatch. Pause command changes isPlaying but dispatch already queued."
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Race condition in SuttaPlayer.playSegmentAt(): when pause is clicked during segmentPause delay between segments, the async-queued playText() call ignores the pause and starts synthesis anyway. User sees next segment play unexpectedly after clicking pause. Button mashing amplifies chaos. Fix: add guard isPlaying check inside the DispatchQueue.main.asyncAfter closure at line 456-459.",
+  "updatedAt" : "2026-02-20T14:18:25Z"
+}
