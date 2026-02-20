@@ -607,6 +607,14 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       return
     }
 
+    // Immediately set state to .playing so pause() can detect and abort delayed
+    // callbacks.
+    // This prevents race condition where pause() is called before delayed
+    // startPlayback() fires,
+    // leaving delayed callbacks unaborted which create duplicate AVAudioPlayer
+    // instances.
+    state = .playing
+
     // Respect segmentPause: delay playback if needed
     let now = Date()
     let delay = max(0, earliestPlaybackTime.timeIntervalSince(now))
@@ -660,6 +668,13 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     }
 
     do {
+      // Stop and clear old audio player before creating new one to prevent
+      // duplicate voices.
+      // This is critical when multiple delayed play() callbacks fire before
+      // pause() can stop them.
+      audioPlayer?.stop()
+      audioPlayer = nil
+
       // Create AVAudioPlayer with cached audio file
       audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
       audioPlayer?.delegate = self

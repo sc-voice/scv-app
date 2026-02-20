@@ -450,4 +450,91 @@ struct BackgroundPlayerLockScreenTests {
       #expect(player.state == .cancelled)
     }
   }
+
+  @Test("Rapid pause after play doesn't crash or create duplicate players")
+  func rapidPauseAfterPlay() async throws {
+    let suttaRef = try SuttaRef(
+      suttaUid: "thig1.1",
+      lang: "de",
+      author: "sabbamitta",
+    )
+    let testAudioStorePath = URL(
+      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+    )
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare player to paused state
+    _ = try await player.prepare()
+
+    // Simulate rapid lock screen pause/play sequence
+    await MainActor.run {
+      // Play
+      player.play()
+      #expect(
+        player.state == .playing,
+        "Should transition to playing after play()",
+      )
+
+      // Immediately pause (before any delayed callbacks fire)
+      player.pause()
+      #expect(
+        player.state == .paused,
+        "Should transition to paused after pause()",
+      )
+
+      // Verify can play again
+      player.play()
+      #expect(player.state == .playing, "Should transition back to playing")
+
+      // Pause again
+      player.pause()
+      #expect(player.state == .paused, "Should transition to paused again")
+    }
+  }
+
+  @Test("Multiple rapid play/pause/play sequences work correctly")
+  func multipleRapidPlayPauseSequences() async throws {
+    let suttaRef = try SuttaRef(
+      suttaUid: "thig1.1",
+      lang: "de",
+      author: "sabbamitta",
+    )
+    let testAudioStorePath = URL(
+      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+    )
+    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+
+    let player = await MainActor.run {
+      BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
+    }
+
+    // Prepare player to paused state
+    _ = try await player.prepare()
+
+    // Simulate multiple rapid lock screen control sequences
+    await MainActor.run {
+      for iteration in 0 ..< 3 {
+        // Play
+        player.play()
+        #expect(
+          player.state == .playing,
+          "Iteration \(iteration): Should be playing after play()",
+        )
+
+        // Immediately pause
+        player.pause()
+        #expect(
+          player.state == .paused,
+          "Iteration \(iteration): Should be paused after pause()",
+        )
+      }
+
+      // Final state should be paused
+      #expect(player.state == .paused, "Final state should be paused")
+    }
+  }
 }

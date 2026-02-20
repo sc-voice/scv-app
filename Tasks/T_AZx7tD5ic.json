@@ -1,0 +1,53 @@
+{
+  "completedActions" : [
+    {
+      "name" : "Analyzed BackgroundPlayer architecture, lock screen controls, and pause\/play flow",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Identified root cause: race condition in delayed play() dispatch combined with missing player cleanup",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Fix play() to immediately set state=.playing so pause() can detect and stop delayed callbacks",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Fix startPlayback() to stop old audio player before creating new one to prevent duplicate voices",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Add test case for rapid lock screen pause\/play sequences to prevent regression",
+      "test" : "update unit tests"
+    }
+  ],
+  "createdAt" : "2026-02-20T15:38:55Z",
+  "id" : "019C7BB4-3E62-7000-84D5-6C398F494827",
+  "name" : "BackgroundPlayer in lockscreen plays with multiple voices after pause\/play",
+  "plannedActions" : [
+
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "Root cause: play() method at line 600-627 schedules delayed startPlayback() without immediately setting state=.playing. When pause() is called before delayed callback, it returns early (line 683) because state is still .paused, leaving delayed callbacks unaborted. Both eventually fire, creating multiple AVAudioPlayer instances."
+    },
+    {
+      "relevance" : 0.95,
+      "text" : "startPlayback() at line 630-676 does not stop old audio player before creating new one. Combined with delayed play() calls, results in multiple concurrent players."
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "File: scv-ui\/Sources\/scvUI\/BackgroundPlayer.swift - Contains play(), pause(), startPlayback(), and audioPlayerDidFinishPlaying() methods"
+    },
+    {
+      "relevance" : 0.85,
+      "text" : "File: scv-ui\/Tests\/BackgroundPlayerLockScreenTests.swift - Tests lock screen pause\/play handlers but doesn't test rapid sequences"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Race condition in delayed play() dispatch: after segment completes, audioPlayerDidFinishPlaying() calls play() with segmentPause delay. User pause on lock screen doesn't abort this because state is still .paused (not yet .playing). When play runs, it creates new AVAudioPlayer without stopping old one, resulting in multiple voices.",
+  "updatedAt" : "2026-02-20T15:53:21Z"
+}
