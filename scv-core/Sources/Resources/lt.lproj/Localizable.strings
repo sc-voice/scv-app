@@ -44,7 +44,7 @@
 "about.ack.translations" = "Vertimai";
 
 /* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Silashin Sabbamitta (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
 "about.acknowledgements.intro" = "scVoice remiasi daugelio bendradarbių darbais:";
