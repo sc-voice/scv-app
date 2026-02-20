@@ -6,6 +6,10 @@
         version-major version-minor version-patch \
 				commit build-zst content build-db clean-db
 
+# Enable pipefail so exit codes are preserved when piping to tee
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
+
 SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(✘|Suite.*after|error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled|=== MAKE)'
@@ -38,7 +42,8 @@ test-core: _init _test-core _end
 
 _test-core: _build-core
 	@echo "=== MAKE test-core..." | tee -a $(LOG_FILE)
-	@cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | tee -a $(LOG_FILE)
+	cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | tee -a $(LOG_FILE); \
+	if [ $${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
 
 test-core-verbose: _init _build-core _end
 	@cd scv-core && swift test --no-parallel --verbose
@@ -47,33 +52,38 @@ test-ui: _init _test-ui _end
 
 _test-ui:
 	@echo "=== MAKE test-ui..." | tee -a $(LOG_FILE)
-	@cd scv-ui && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-ui && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 test-tools: _init _test-tools _end
 
 _test-tools:
 	@echo "=== MAKE test-tools..." | tee -a $(LOG_FILE)
-	@cd scv-build && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-build && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 test-tasks: _init _test-tasks _end
 
 _test-tasks:
 	@echo "=== MAKE test-tasks..." | tee -a $(LOG_FILE)
-	@cd scv-tasks && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-tasks && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
 
 test-nlp: build-nlp
 	@echo "=== MAKE test-nlp..." | tee -a $(LOG_FILE)
-	@cd scv-nlp && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-nlp && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(TEST_ALL_FILTER) $(LOG_FILE) | tail -20 || true
 
 test-content: _init _test-content _end
 
 _test-content:
 	@echo "=== MAKE test-content..." | tee -a $(LOG_FILE)
-	@cd scv-build && PROJECT_ROOT=$(CURDIR) swift run verify-manifest 2>&1 | tee -a $(CURDIR)/local/build/make.log
+	@cd scv-build && PROJECT_ROOT=$(CURDIR) swift run verify-manifest 2>&1 | tee -a $(CURDIR)/local/build/make.log; \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 # build-macros:
 # 	@cd scv-macros && swift build 2>&1 | grep -E $(SWIFT_BUILD_FILTER) || true
@@ -115,44 +125,50 @@ build-tools: _init _build-tools _end
 
 _build-tools: _build-core
 	@echo "=== MAKE build-tools..." | tee -a $(LOG_FILE)
-	@cd scv-build && swift build 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-build && swift build 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
 build-tasks: _init _build-tasks _end
 
 _build-tasks:
 	@echo "=== MAKE build-tasks..." | tee -a $(LOG_FILE)
-	@cd scv-tasks && swift build 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-tasks && swift build 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
 build-core: _init _build-core _end
 
-_build-core: 
+_build-core:
 	@echo "=== MAKE build-core..." | tee -a $(LOG_FILE)
-	@cd scv-core && swift build 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-core && swift build 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 build-ui: _init _build-ui _end
 
 _build-ui: _build-core
 	@echo "=== MAKE build-ui..." | tee -a $(LOG_FILE)
-	@cd scv-ui && swift build 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-ui && swift build 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
-build-nlp: 
+build-nlp:
 	@echo "=== MAKE build-nlp..." | tee -a $(LOG_FILE)
-	@cd scv-nlp && swift build 2>&1 | tee -a $(LOG_FILE)
+	@cd scv-nlp && swift build 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
 
 build-ios: _init _build-ios _end
 
-_build-ios: _build-ui 
+_build-ios: _build-ui
 	@echo "=== MAKE build-ios..." | tee -a $(LOG_FILE)
 	@cd scv-ios && \
 	  xcodebuild build \
 	    -scheme scv-ios \
 	    -configuration Debug \
 	    -destination 'generic/platform=iOS Simulator' \
-	    2>&1 | tee -a $(LOG_FILE)
+	    2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 rebuild: _init _rebuild _end
 
@@ -163,8 +179,9 @@ _rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@echo "Test run started at $$(date '+%Y-%m-%d %H:%M:%S')" | tee -a $(LOG_FILE)
 	@$(MAKE) _test-app 2>&1 | tee -a $(LOG_FILE); \
-	if [ $$? -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
+	if [ $${PIPESTATUS[0]} -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
 
 # clean-macros:
 # 	@cd scv-macros && swift package clean 2>/dev/null || true

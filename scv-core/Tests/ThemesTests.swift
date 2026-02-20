@@ -19,13 +19,13 @@ struct ThemesTests {
   func tipColors_dark() {
     let theme = AppTheme.dark.theme
     #expect(theme.tipBackground == .init(red: 0.106, green: 0.302, blue: 0.180))
-    #expect(theme.tipForeground == .init(red: 1.0, green: 0.878, blue: 0.0))
+    #expect(theme.tipForeground == .init(red: 1.0, green: 1.0, blue: 0.8))
   }
 
   @Test
   func tipColors_light() {
     let theme = AppTheme.light.theme
     #expect(theme.tipBackground == .init(red: 0.106, green: 0.302, blue: 0.180))
-    #expect(theme.tipForeground == .init(red: 1.0, green: 0.878, blue: 0.0))
+    #expect(theme.tipForeground == .init(red: 1.0, green: 1.0, blue: 0.8))
   }
 }
