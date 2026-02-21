@@ -42,6 +42,7 @@ public protocol IAsyncIterator {
 /// ```
 @MainActor
 public struct SegmentPlaybackIterator: IAsyncIterator {
+  let cc = ColorConsole(#file, #function, dbg.SegmentPlaybackIterator.other)
   public typealias Element = Segment
 
   private var segments: [Segment]
@@ -49,11 +50,6 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
   private let audioEffects: IAudioEffects
   private let audioContext: AudioContext
   private var isCancelled: Bool = false
-  private let cc = ColorConsole(
-    #file,
-    #function,
-    dbg.SegmentPlaybackIterator.other,
-  )
 
   /// Initialize iterator with segments and audio settings
   /// - Parameters:
@@ -69,10 +65,7 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
     self.audioEffects = audioEffects
     self.audioContext = audioContext
     index = 0
-    cc.ok2(
-      #line,
-      "SegmentPlaybackIterator init with \(segments.count) segments",
-    )
+    cc.ok1(#line, #function, "\(segments.count) segments")
   }
 
   /// Returns next playable segment, skipping empties with .noText announcement.
@@ -140,10 +133,7 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
     }
 
     index += 1
-    cc.ok2(
-      #line,
-      "returning segment: \(segment.scid) (\(index - 1)/\(segments.count))",
-    )
+    cc.ok2(#line, #function, segment.scid)
     return segment
   }
 
@@ -153,14 +143,6 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
   public mutating func cancel() {
     isCancelled = true
     audioEffects.cancel()
-    cc.ok2(#line, "iterator cancelled")
-  }
-}
-
-// MARK: - Debug Configuration
-
-public extension dbg {
-  struct SegmentPlaybackIterator: Sendable {
-    public static let other: Int = 0
+    cc.ok2(#line, #function)
   }
 }

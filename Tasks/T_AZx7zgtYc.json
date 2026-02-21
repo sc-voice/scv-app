@@ -7,28 +7,56 @@
   "name" : "BackgroundPlayer gets stuck at segments without text (e.g., an9.41:5.2)",
   "plannedActions" : [
     {
-      "name" : "Refactor BackgroundPlayer to use SegmentIterator",
-      "test" : "make test-app - verify BackgroundPlayer playback with empty segments"
-    },
-    {
-      "name" : "Refactor SuttaPlayer to use SegmentIterator",
+      "name" : "Refactor SuttaPlayer to use SegmentPlaybackIterator",
       "test" : "make test-app - verify SuttaPlayer playback with empty segments"
     },
     {
-      "name" : "Add/update test cases for empty-segment handling",
+      "name" : "Refactor BackgroundPlayer to use SegmentPlaybackIterator",
+      "test" : "make test-app - verify BackgroundPlayer playback with empty segments"
+    },
+    {
+      "name" : "Add\/update test cases for empty-segment handling",
       "test" : "make test-app passes"
+    },
+    {
+      "name" : "BackgroundPlayer analysis: Empty segment bug at startPlayback() line 654-656 returns early without advancing index, leaving state=.playing with no audio player running",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "SuttaPlayer analysis: Uses recursive playSegmentAt() with 500ms delay for empty segments (line 431-440). Both players have duplicate segment-chaining logic.",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "SegmentPlaybackIterator (T_AZx8_VcXc) is COMPLETED and ready. Implements: empty detection+.noText announcement, .play\/.endSutta boundaries, segment announcements, segmentPause delays, cancel() method.",
+      "test" : "update unit tests"
     }
   ],
   "references" : [
     {
+      "relevance" : 1,
+      "text" : "SegmentPlaybackIterator COMPLETED (T_AZx8_VcXc). Location: scv-ui\/Sources\/scvUI\/SegmentPlaybackIterator.swift. Handles: empty detection, .noText announcements, .play\/.endSutta boundaries, segmentPause delays, cancel()."
+    },
+    {
+      "relevance" : 1,
+      "text" : "BackgroundPlayer bug at line 654-656: startPlayback() returns early on empty segment WITHOUT advancing currentSegmentIndex, leaving state=.playing with no active audioPlayer. This freezes the UI."
+    },
+    {
       "relevance" : 0.95,
-      "text" : "SegmentIterator design - AsyncIterator for segment traversal, empty detection, audio effects",
-      "url" : "doc\/SegmentIterator.md"
+      "text" : "SegmentPlaybackIterator design - AsyncIterator for segment traversal, empty detection, audio effects",
+      "url" : "doc\/SegmentPlaybackIterator.md"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "SuttaPlayer handles empty segments via recursive playSegmentAt() calls with 500ms delay (line 431-440). Both players have duplicate segment-chaining logic that SegmentPlaybackIterator eliminates."
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "Code locations: BackgroundPlayer.swift line 638-691 (startPlayback), SuttaPlayer.swift line 390-468 (playSegmentAt). Tests: BackgroundPlayerTests.swift, SuttaPlayerTests.swift, SegmentPlaybackIteratorTests.swift"
     }
   ],
   "requiredTasks" : [
     "T_AZx8_VcXc"
   ],
-  "summary" : "BackgroundPlayer freezes on empty segments (bug: startPlayback() line 654-656 returns early leaving state=.playing with no player). Root cause: duplicate segment-chaining logic in both players. Solution: Both players use SegmentIterator (AsyncIterator) that handles empty detection, announcements, segmentPause delays, and cancel().",
-  "updatedAt" : "2026-02-20T17:45:05Z"
+  "summary" : "BackgroundPlayer freezes on empty segments (bug: startPlayback() line 654-656 returns early leaving state=.playing with no player). Root cause: duplicate segment-chaining logic in both players. Solution: Both players use SegmentPlaybackIterator (AsyncIterator) that handles empty detection, announcements, segmentPause delays, and cancel().",
+  "updatedAt" : "2026-02-20T23:03:43Z"
 }

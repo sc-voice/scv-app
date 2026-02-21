@@ -106,6 +106,10 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct SegmentPlaybackIterator: Sendable {
+    public static let other: Int = max(0, PLAYER)
+  }
+
   public struct SegmentView: Sendable {
     public static let other: Int = 0
   }

@@ -1,1 +1,1 @@
-{"showUpdate":true,"verbosity":1,"lineLength":95,"limit":10,"showDone":false,"taskStack":["019C7BCE-0B58-7000-B4B5-67DFE6E97649"],"testDefault":"update unit tests"}
+{"limit":3,"showUpdate":true,"testDefault":"update unit tests","lineLength":95,"taskStack":["019C7BCE-0B58-7000-B4B5-67DFE6E97649"],"verbosity":1,"showDone":false}
