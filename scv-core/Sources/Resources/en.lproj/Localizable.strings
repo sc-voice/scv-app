@@ -71,7 +71,7 @@
 "about.content_sources.intro" = "This app uses the following content sources:";
 
 /* About card view: content sources license notice */
-"about.content_sources.license" = "All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.";
+"about.content_sources.license" = "All translations provided by scVoice are dedicated to the Public Domain by means of Creative Commons Zero (CC0 1.0 Universal). You are invited to copy, alter, redistribute, present, perform, convey, or make use of any or all of this material in any way you wish. If you make use of any of our material, even though you are under no legal obligations, we respectfully request that you provide a notice of attribution and maintain the spirit of the Buddhist tradition.";
 
 /* About card view: content sources - sources subsection title */
 "about.content_sources.sources" = "Sources";
@@ -188,10 +188,10 @@
 "about.source.ebt_data.author" = "Other Early Buddhist Text Translations aligned to SuttaCentral content";
 
 /* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Mahāsaṅgīti";
+"about.source.mahasangiti" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+"about.source.mahasangiti.author" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: SuttaCentral source */
 "about.source.suttacentral" = "SuttaCentral";
