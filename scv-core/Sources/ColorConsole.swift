@@ -5,26 +5,30 @@ import Foundation
 ///
 /// ## Logging Best Practice
 ///
-/// - `ok1(#line, message)`: Exactly once per valid code path. Provides 1-line
-///   summary of successful outcome. Example: `cc.ok1(#line, "Selected card:",
-///   card.name)`
+/// - `ok1(#line, #function, message)`: Final log before normal method return.
+///   Example: `cc.ok1(#line, #function, card.name)`
 ///
-/// - `ok2(#line, message)`: Document entry into code blocks and intermediate
-///   steps. Added as needed for diagnostic debugging. Example:
-///   `cc.ok2(#line, "conditional branch taken:", condition)`
+/// - `ok2(#line, #function, message)`: Intermediate logging on nomral paths.
+///   Example: `cc.ok2(#line, #function, "compare:", compare)`
 ///
-/// - `bad1(#line, message)`: Used prior to exiting any method with unexpected
-///   result (throw error or invalid argument). Shares error message that will
-///   be thrown/returned. Example:
+/// - `bad1(#line, #function, message)`: Final log before unexpected method
+/// return
+///   Example:
 ///   ```
-///   let errorMsg = "Failed to decode results"
-///   cc.bad1(#line, errorMsg)
-///   throw MyError.decodeFailed(errorMsg)
+///     cc.bad1(#line, #function, errorMsg)
+///     throw errorMsg
 ///   ```
 ///
-/// - `bad2(#line, message)`: Reserved for additional diagnostic information
-///   during error diagnosis/handling or non-fatal errors. Example:
-///   `cc.bad2(#line, "Fallback attempted:", fallbackValue)`
+/// - `bad2(#line, #function, message)`: Intermediate log on unexpected path
+///   Example:
+///   ```
+///     cc.bad1(#line, #function, errorMsg)
+///     throw errorMsg
+///   ```
+///
+/// Logging statements should be a single line of <80 characters.
+/// If you need more, use intermediate message declarations to reduce line
+/// length.
 ///
 public final class ColorConsole: Sendable {
   private let sourceFile: String
@@ -88,7 +92,9 @@ public final class ColorConsole: Sendable {
     return String(format: "%0.3fs+%0.3f", sinceLaunch, sinceLastOutput)
   }
 
-  /// Print bright green text
+  /// Log successful completion of method (bright green)
+  /// Caller must call with cc.ok1(#line, #function, ...)
+  /// Returns testable logged output
   @discardableResult
   public func ok1(_ messages: Any...) -> String? {
     if verbosity < 1 {
@@ -101,8 +107,9 @@ public final class ColorConsole: Sendable {
     return result
   }
 
-  /// Print bright red text and return colored string or nil based on verbosity
-  /// - Returns: Colored result string if verbosity >= 1, nil if verbosity < 1
+  /// Log failed completion of method (bright red)
+  /// Caller must call with cc.bad1(#line, #function, ...)
+  /// Returns testable logged output
   @discardableResult
   public func bad1(_ messages: Any...) -> String? {
     if verbosity < 1 {
@@ -115,9 +122,9 @@ public final class ColorConsole: Sendable {
     return result
   }
 
-  /// Print checkmark text indented and return colored string or nil based on
-  /// verbosity
-  /// - Returns: Colored result string if verbosity >= 2, nil if verbosity < 2
+  /// Secondary logging on normal path prior to method return (green)
+  /// Caller must call with cc.ok2(#line, #function, ...)
+  /// Returns testable logged output
   @discardableResult
   public func ok2(_ messages: Any...) -> String? {
     if verbosity < 2 {
@@ -130,9 +137,9 @@ public final class ColorConsole: Sendable {
     return result
   }
 
-  /// Print X mark text indented and return colored string or nil based on
-  /// verbosity
-  /// - Returns: Colored result string if verbosity >= 2, nil if verbosity < 2
+  /// Secondary logging on failure path prior to method return (red)
+  /// Caller must call with cc.bad2(#line, #function, ...)
+  /// Returns testable logged output
   @discardableResult
   public func bad2(_ messages: Any...) -> String? {
     if verbosity < 2 {

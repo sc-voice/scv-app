@@ -30,7 +30,7 @@ public struct dbg: Sendable {
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = SYNTH_WRITE
+    public static let other: Int = max(0, PLAYER)
   }
 
   public struct AudioStore: Sendable {
@@ -43,6 +43,10 @@ public struct dbg: Sendable {
 
   public struct AutoComplete: Sendable {
     public static let other: Int = 0
+  }
+
+  public struct BackgroundPlayer: Sendable {
+    public static let other: Int = max(0, PLAYER)
   }
 
   public struct BackgroundPlayerView: Sendable {

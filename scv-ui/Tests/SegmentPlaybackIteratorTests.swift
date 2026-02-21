@@ -23,6 +23,10 @@ final class MockAudioEffects: IAudioEffects {
     announcedEvents.append(event)
   }
 
+  func announceAsync(_ event: AudioEvent) async {
+    announcedEvents.append(event)
+  }
+
   func cancel() {
     cancelCalled = true
     announcedEvents.append(.pause)
@@ -65,9 +69,12 @@ struct SegmentPlaybackIteratorTests {
 
     // Then
     #expect(result.count == 4)
-    #expect(result[0]?.scid == "mn1:0.1")
-    #expect(result[1]?.scid == "mn1:0.2")
-    #expect(result[2]?.scid == "mn1:0.3")
+    #expect(result[0]?.segment.scid == "mn1:0.1")
+    #expect(result[0]?.index == 0)
+    #expect(result[1]?.segment.scid == "mn1:0.2")
+    #expect(result[1]?.index == 1)
+    #expect(result[2]?.segment.scid == "mn1:0.3")
+    #expect(result[2]?.index == 2)
     #expect(result[3] == nil)
   }
 
@@ -95,8 +102,10 @@ struct SegmentPlaybackIteratorTests {
     let result3 = await iterator.next()
 
     // Then
-    #expect(result1?.scid == "mn1:0.1")
-    #expect(result2?.scid == "mn1:0.4")
+    #expect(result1?.segment.scid == "mn1:0.1")
+    #expect(result1?.index == 0)
+    #expect(result2?.segment.scid == "mn1:0.4")
+    #expect(result2?.index == 3)
     #expect(result3 == nil)
 
     // Verify .noText was announced for skipped empty segments
@@ -227,7 +236,8 @@ struct SegmentPlaybackIteratorTests {
     let result2 = await iterator.next()
 
     // Then
-    #expect(result1?.scid == "mn1:0.1")
+    #expect(result1?.segment.scid == "mn1:0.1")
+    #expect(result1?.index == 0)
     #expect(result2 == nil)
   }
 
@@ -276,7 +286,8 @@ struct SegmentPlaybackIteratorTests {
     let result = await iterator.next()
 
     // Then
-    #expect(result?.displayText == "Pali text")
+    #expect(result?.segment.displayText == "Pali text")
+    #expect(result?.index == 0)
   }
 
   @MainActor

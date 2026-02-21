@@ -20,17 +20,17 @@ private final class SegmentPlaybackIteratorWrapper {
     self.iterator = iterator
   }
 
-  func next() async -> Segment? {
+  func next() async -> (index: Int, segment: Segment)? {
     let result = await callNext()
     return result
   }
 
-  private func callNext() async -> Segment? {
+  private func callNext() async -> (index: Int, segment: Segment)? {
     // Create a mutable copy, call next(), and store updated copy
     var iter = iterator
-    let segment = await iter.next()
+    let result = await iter.next()
     iterator = iter
-    return segment
+    return result
   }
 
   func cancel() {
@@ -100,9 +100,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   private var currentSegmentIndex = 0
   /// Iterator for segment playback traversal (must be class to maintain state)
   private var playbackIterator: SegmentPlaybackIteratorWrapper?
-  /// Offset of iterator's starting segment in segments array (for tracking
-  /// currentSegmentIndex)
-  private var iteratorSegmentOffset = 0
+  /// Task running the async iterator loop for segment playback
+  private var playbackIteratorTask: Task<Void, Never>?
+  /// Continuation for awaiting synthesizer playback completion
+  private var playbackContinuation: CheckedContinuation<Void, Never>?
   /// Prevents rapid play/pause toggling from button mashing
   private var isTransitioning = false
   /// Timeout check scheduled after togglePlayback(); cancelled when playback
@@ -264,9 +265,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
 
   @MainActor
   public func play() {
-    cc.ok1(#line, #function, "play() called")
+    cc.ok2(#line, #function)
     guard currentSutta != nil else {
-      cc.ok1(#line, #function, "play() aborted - currentSutta is nil")
+      cc.ok1(#line, #function, "currentSutta is nil")
       return
     }
 
@@ -292,16 +293,25 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     synthesizer.resetSynthesizer()
     configureAudioSession()
 
+    // Cancel old iterator and task if playing
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
+    playbackIterator = nil
+    playbackIteratorTask = nil
+
+    // Immediately set state to playing
     isPlaying = true
+
+    // Determine starting index
     var startIndex = 0
     if let currentScid = currentSutta?.currentScid,
        let index = segments.firstIndex(where: { $0.scid == currentScid })
     {
       startIndex = index
-      cc.ok2(#line, #function, "startIndex:\(startIndex)")
+      cc.ok2(#line, #function, "startIndex:", startIndex)
     } else {
       startIndex = currentSegmentIndex
-      cc.ok2(#line, #function, "startIndex:\(startIndex)")
+      cc.ok2(#line, #function, "startIndex:", startIndex)
     }
 
     #if os(iOS)
@@ -310,26 +320,46 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       // macOS: no idle timer to disable
     #endif
 
-    // Play first segment synchronously (without iterator)
-    // Find first non-empty segment and play it immediately
-    let firstSegmentIdx = findFirstNonEmptySegment(startingFrom: startIndex)
-    playFirstNonEmptySegment(
-      startingFrom: startIndex,
-      actualIndex: firstSegmentIdx,
-    )
-
-    // Create iterator starting AFTER the first played segment
-    // Iterator will be used for subsequent segments via onPlaybackFinished
-    // callback
-    let segmentsToPlay = Array(segments.dropFirst(firstSegmentIdx + 1))
+    // Create iterator starting at startIndex
     let iterator = SegmentPlaybackIterator(
-      segments: segmentsToPlay,
+      segments: segments,
+      index: startIndex,
       audioEffects: AudioEffects.shared,
       audioContext: audioContext!,
     )
     playbackIterator = SegmentPlaybackIteratorWrapper(iterator: iterator)
-    iteratorSegmentOffset = firstSegmentIdx +
-      1 // First segment from iterator corresponds to this index
+
+    // Spawn async loop task for all segments starting at startIndex
+    playbackIteratorTask = Task {
+      while !Task.isCancelled, isPlaying {
+        guard let (idx, segment) = await playbackIterator?.next() else {
+          self.cc.ok2(#line, #function, "iterator->nil")
+          break
+        }
+
+        // Update segment index BEFORE playback so UI has correct index
+        currentSegmentIndex = idx
+        currentSutta?.currentScid = segment.scid
+
+        // Play segment
+        await playSegment(segment)
+
+        // Stop if cancelled or paused
+        if Task.isCancelled || !isPlaying {
+          break
+        }
+      }
+
+      // Playback completed
+      isPlaying = false
+      currentSegmentIndex = 0
+      #if os(iOS)
+        UIApplication.shared.isIdleTimerDisabled = false
+      #else
+        // macOS: no idle timer to restore
+      #endif
+      cc.ok1(#line, #function, "Playback completed via iterator")
+    }
 
     cc.ok1(#line, #function, "play() complete - isPlaying:", isPlaying)
   }
@@ -358,9 +388,16 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     pendingPlaybackCheck?.cancel()
     pendingPlaybackCheck = nil
     isTransitioning = false
-    // Cancel playback iterator to stop async loop
+    // Cancel iterator and task to stop async loop
+    playbackIteratorTask?.cancel()
     playbackIterator?.cancel()
     playbackIterator = nil
+    playbackIteratorTask = nil
+    // Signal continuation if waiting
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
+    }
     AudioEffects.shared.announce(.pause)
     #if os(iOS)
       UIApplication.shared.isIdleTimerDisabled = false
@@ -432,129 +469,6 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     cc.ok1(#line, #function)
   }
 
-  /// Find first non-empty segment starting from given index
-  /// Returns the actual index of the first playable segment, or segments.count
-  /// if none
-  private func findFirstNonEmptySegment(startingFrom index: Int) -> Int {
-    var idx = index
-    while idx < segments.count {
-      let segment = segments[idx]
-      let isEmpty = (segment.doc == nil || segment.doc?.isEmpty ?? true)
-        && (segment.pli == nil || segment.pli?.isEmpty ?? true)
-        && (segment.ref == nil || segment.ref?.isEmpty ?? true)
-
-      guard isEmpty else { return idx }
-      AudioEffects.shared.announce(.noText)
-      idx += 1
-    }
-    return idx // segments.count if none found
-  }
-
-  /// Play first non-empty segment synchronously
-  /// Subsequent segments use iterator via onPlaybackFinished callback
-  private func playFirstNonEmptySegment(
-    startingFrom _: Int,
-    actualIndex idx: Int,
-  ) {
-    guard isPlaying else { return }
-
-    // Ensure we found a segment
-    guard idx < segments.count else {
-      isPlaying = false
-      currentSegmentIndex = 0
-      #if os(iOS)
-        UIApplication.shared.isIdleTimerDisabled = false
-      #else
-        // macOS: no idle timer to restore
-      #endif
-      cc.ok1(#line, #function, "no playable segments found")
-      return
-    }
-
-    let segment = segments[idx]
-    currentSegmentIndex = idx
-    currentSutta?.currentScid = segment.scid
-
-    // Announce playback start and boundaries
-    AudioEffects.shared.announce(.play)
-    if segment.scid.hasSuffix(".0") {
-      AudioEffects.shared.announce(.section)
-    } else if segment.scid.hasSuffix(".1") {
-      AudioEffects.shared.announce(.segment)
-    }
-
-    if !Settings.shared.playDoc {
-      cc.ok1(#line, #function, "!playDoc, skipping playText")
-      // Still continue to next segment even if not playing
-      advanceToNextSegmentAsync(startIndex: idx + 1)
-      return
-    }
-
-    // Play the first segment
-    playText(segment.doc ?? "")
-  }
-
-  /// Advance to next segment via iterator (async because of delays)
-  /// Called from onPlaybackFinished() to queue next segment
-  private func advanceToNextSegmentAsync(startIndex: Int) {
-    Task {
-      await playNextSegment(startIndex: startIndex)
-    }
-  }
-
-  /// Get next segment from iterator and play it via onPlaybackFinished callback
-  @MainActor
-  private func playNextSegment(startIndex: Int) async {
-    guard isPlaying else {
-      cc.ok1(#line, #function, "playback stopped")
-      return
-    }
-
-    guard let iterator = playbackIterator else {
-      cc.ok1(#line, #function, "no iterator")
-      return
-    }
-
-    guard let segment = await iterator.next() else {
-      // Iterator exhausted or cancelled
-      isPlaying = false
-      currentSegmentIndex = 0
-      #if os(iOS)
-        UIApplication.shared.isIdleTimerDisabled = false
-      #else
-        // macOS: no idle timer to restore
-      #endif
-      cc.ok1(#line, #function, "playback finished - all segments exhausted")
-      return
-    }
-
-    guard isPlaying else {
-      cc.ok1(#line, #function, "playback cancelled")
-      return
-    }
-
-    // Update position and scid
-    // Note: iterator.next() already handles .noText announcements and delays
-    // Each segment returned is at iteratorSegmentOffset +
-    // (number_returned_so_far)
-    // We can't directly track this, so use the segment's scid to find it in
-    // segments array
-    if let idx = segments.firstIndex(where: { $0.scid == segment.scid }) {
-      currentSegmentIndex = idx
-    }
-    currentSutta?.currentScid = segment.scid
-
-    if !Settings.shared.playDoc {
-      cc.ok1(#line, #function, "!playDoc, skipping playText")
-      // Recursively get next segment without playing
-      await playNextSegment(startIndex: startIndex)
-      return
-    }
-
-    // Play the text via synthesizer (will trigger onPlaybackFinished callback)
-    playText(segment.doc ?? "")
-  }
-
   /// Delegate to synthesizer to play text segment using current audioContext.
   /// - audioContext contains voice, rate, pitch settings from Settings.shared
   /// - Synthesis happens inline (no prefetch strategy)
@@ -600,6 +514,38 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     } catch {
       cc.bad1(#line, #function, error)
     }
+  }
+
+  /// Play segment asynchronously, awaiting completion via continuation
+  /// - Parameter segment: Segment to play
+  private func playSegment(_ segment: Segment) async {
+    cc.ok2(#line, #function, segment.scid)
+
+    // Skip if playDoc is disabled
+    guard Settings.shared.playDoc else {
+      cc.ok1(#line, #function, "!playDoc, skipping segment")
+      return
+    }
+
+    // Get segment text
+    let segmentText = segment.doc ?? ""
+
+    // Skip empty text segments
+    guard !segmentText.trimmingCharacters(in: .whitespaces).isEmpty else {
+      cc.ok1(#line, #function, "empty text, skipping segment")
+      return
+    }
+
+    // Play the text via synthesizer
+    playText(segmentText)
+
+    // Wait for playback to complete via continuation
+    // onPlaybackFinished() will signal completion
+    await withCheckedContinuation { continuation in
+      playbackContinuation = continuation
+    }
+
+    cc.ok1(#line, #function, "playback completed for", segment.scid)
   }
 
   // MARK: - IPlaybackDelegate
@@ -672,15 +618,23 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         "Silent failure alert state set - view will display it",
       )
 
+      // Signal continuation to break iterator loop
+      if let continuation = playbackContinuation {
+        playbackContinuation = nil
+        continuation.resume()
+      }
+
       return
     }
 
-    // Get next segment from iterator when current segment finishes
-    if isPlaying {
-      cc.ok1(#line, #function, "isPlaying:\(isPlaying) - fetching next segment")
-      advanceToNextSegmentAsync(startIndex: currentSegmentIndex)
-    } else {
-      cc.ok1(#line, #function, "isPlaying=false")
+    // Segment playback completed successfully
+    cc.ok1(#line, #function, "currentSegmentIndex:", currentSegmentIndex)
+
+    // Signal completion to iterator loop via continuation
+    // Iterator loop will call next() to get next segment
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
     }
   }
 } // SuttaPlayer

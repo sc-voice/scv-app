@@ -1,22 +1,22 @@
-# SegmentIterator
+# SegmentPlaybackIterator
 
 ## Overview
 
-`SegmentIterator` implements `AsyncIterator` for segment traversal with built-in handling of empty segments, audio announcements, and segmentPause delays.
+`SegmentPlaybackIterator` implements `AsyncIterator` for segment traversal with built-in handling of empty segments, audio announcements, and segmentPause delays.
 
 ## Interface
 
 ```swift
-class SegmentIterator: AsyncIterator {
+struct SegmentPlaybackIterator: IAsyncIterator {
   var segments: [Segment]
   var index: Int
   let audioEffects: IAudioEffects
   let audioContext: AudioContext
 
-  /// Required by AsyncIterator. Returns next playable segment, skipping empties with .noText announcement.
+  /// Required by AsyncIterator. Returns next playable segment with its index, skipping empties with .noText announcement.
   /// Returns nil when all segments exhausted or iterator cancelled.
-  /// Announces .play on first segment, .endSutta on last, .section/.segment for boundaries.
-  mutating func next() async -> Segment?
+  /// Announces .play on first segment, .endSutta on last, .segment for boundaries.
+  mutating func next() async -> (index: Int, segment: Segment)?
 
   /// Cancels iteration immediately, stops any active AudioEffect playback, and announces .pause.
   /// After cancel(), next() always returns nil.
@@ -34,15 +34,16 @@ class SegmentIterator: AsyncIterator {
 ## Usage
 
 ```swift
-var iterator = SegmentIterator(
+var iterator = SegmentPlaybackIterator(
   segments: segments,
+  index: 0,
   audioEffects: audioEffects,
   audioContext: audioContext
 )
 
-for await segment in iterator {
-  // segment is next playable segment
-  playSegment(segment)
+while let (index, segment) = await iterator.next() {
+  // index and segment are next playable segment
+  playSegment(segment, at: index)
 }
 ```
 

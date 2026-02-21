@@ -293,6 +293,30 @@ public struct AboutCardView: View {
               Text("about.content_sources.license".localized)
                 .font(.caption)
                 .foregroundStyle(themeProvider.theme.secondaryTextColor)
+
+              // CC0 Public Domain Link
+              Button(action: {
+                if let url =
+                  URL(
+                    string: "https://creativecommons.org/publicdomain/zero/1.0/",
+                  )
+                {
+                  openURL(url)
+                }
+              }) {
+                VStack(spacing: 8) {
+                  Image("cc-zero", bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 60)
+
+                  Text("CC0")
+                    .font(.caption2)
+                    .foregroundStyle(themeProvider.theme.secondaryTextColor)
+                }
+              }
+              .frame(maxWidth: .infinity)
+              .padding(.top, 8)
             }
           }
 

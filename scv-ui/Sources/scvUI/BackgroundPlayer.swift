@@ -7,6 +7,36 @@ import scvCore
   import UIKit
 #endif
 
+// MARK: - SegmentPlaybackIteratorWrapper
+
+/// Class wrapper around SegmentPlaybackIterator to maintain mutable state
+/// across async calls (structs are value types, so mutations don't persist)
+@MainActor
+private final class SegmentPlaybackIteratorWrapper {
+  private var iterator: SegmentPlaybackIterator
+
+  init(iterator: SegmentPlaybackIterator) {
+    self.iterator = iterator
+  }
+
+  func next() async -> (index: Int, segment: Segment)? {
+    let result = await callNext()
+    return result
+  }
+
+  private func callNext() async -> (index: Int, segment: Segment)? {
+    // Create a mutable copy, call next(), and store updated copy
+    var iter = iterator
+    let result = await iter.next()
+    iterator = iter
+    return result
+  }
+
+  func cancel() {
+    iterator.cancel()
+  }
+}
+
 // MARK: - Bundle Extension
 
 #if os(iOS)
@@ -156,7 +186,7 @@ public struct PlaybackSnapshot: Sendable, Equatable {
 /// - Remote command handling (MPRemoteCommandCenter)
 @MainActor
 public final class BackgroundPlayer: NSObject, ObservableObject {
-  let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
+  let cc = ColorConsole(#file, #function, dbg.BackgroundPlayer.other)
 
   // MARK: - Observable Properties
 
@@ -173,9 +203,11 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   private var segments: [Segment] = []
   private var currentSegmentIndex: Int = 0
   var synthesisSession: AudioSynthesisSession?
-  private var audioPlayer: AVAudioPlayer? // FIXME: Stop in cancel() when AVAudioPlayer implementation complete
+  private var audioPlayer: AVAudioPlayer?
+  private var playbackIterator: SegmentPlaybackIteratorWrapper?
+  private var playbackIteratorTask: Task<Void, Never>?
   private var artistName: String = ""
-  private var earliestPlaybackTime: Date = .init()
+  private var playbackContinuation: CheckedContinuation<Void, Never>?
 
   #if os(iOS)
     private var backgroundTaskId: UIBackgroundTaskIdentifier = .invalid
@@ -220,13 +252,13 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       // Create artwork from app icon (nonisolated, thread-safe via CGImage)
       artWork = createAppIconArtwork()
       if artWork != nil {
-        cc.ok1(#line, "Loaded app icon artwork for lock screen")
+        cc.ok1(#line, #function, "Loaded app icon artwork for lock screen")
       } else {
-        cc.bad1(#line, "Failed to load app icon artwork")
+        cc.bad1(#line, #function, "Failed to load app icon artwork")
       }
     #endif
 
-    cc.ok1(#line, "init() complete")
+    cc.ok1(#line, #function, "init() complete")
   }
 
   /// Configure AVAudioSession for background playback.
@@ -248,9 +280,11 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
         // Activate the session
         try session.setActive(true)
 
-        cc.ok2(#line, "AVAudioSession configured for background playback")
+        let msg = "AVAudioSession configured for background playback"
+        cc.ok2(#line, #function, msg)
       } catch {
-        cc.bad1(#line, "Failed to configure audio session: \(error)")
+        let msg = "Failed to configure audio session: \(error)"
+        cc.bad1(#line, #function, msg)
       }
     #endif
   }
@@ -267,7 +301,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
         object: AVAudioSession.sharedInstance(),
         queue: .main,
       ) { [weak self] notification in
-        let cc = ColorConsole(#file, #function, dbg.SuttaPlayer.other)
+        let cc = ColorConsole(#file, #function, dbg.BackgroundPlayer.other)
         cc.ok2(#line, #function, "Interruption notification received!")
         guard let self else { return }
         guard let userInfo = notification.userInfo as? [String: Any],
@@ -286,11 +320,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
           if state == .playing {
             // During playback: continue through lock screen (background
             // playback mode)
-            cc.ok2(
-              #line,
-              #function,
-              "Lock screen activated but continuing playback",
-            )
+            cc.ok2(#line, #function, "Lock screen: continuing playback")
           } else {
             // During synthesis or other states: allow normal interruption
             cc.ok2(#line, #function, "Audio interrupted during \(state)")
@@ -307,20 +337,12 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
           // iOS 14+
           // (See: https://github.com/liorazi/AVAudioSessionWorkaround)
           if state == .playing {
-            cc.ok1(
-              #line,
-              #function,
-              "Resuming playback after lock screen (delayed)",
-            )
+            cc.ok1(#line, #function, "Resuming playback after delay")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
               self.play()
             }
           } else {
-            cc.ok2(
-              #line,
-              #function,
-              "Interruption ended but not resuming - state: \(state)",
-            )
+            cc.ok1(#line, #function, "not resuming: \(state)")
           }
         }
       }
@@ -364,7 +386,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       }
 
       remoteCommandsSetup = true
-      cc.ok2(#line, "Remote commands registered with MPRemoteCommandCenter")
+      let msg = "Remote commands registered with MPRemoteCommandCenter"
+      cc.ok2(#line, #function, msg)
     #endif
   }
 
@@ -375,7 +398,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   private func updateNowPlayingInfo() {
     #if os(iOS)
       guard let snapshot = playbackSnapshot else {
-        cc.ok2(#line, "No snapshot available, skipping metadata update")
+        let msg = "No snapshot available, skipping metadata update"
+        cc.ok2(#line, #function, msg)
         return
       }
 
@@ -414,10 +438,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
       MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
 
-      cc.ok2(
-        #line,
-        "Updated now playing info: \(snapshot.trackTitle)",
-      )
+      let msg = "Updated now playing: \(snapshot.trackTitle)"
+      cc.ok2(#line, #function, msg)
     #endif
   }
 
@@ -433,7 +455,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
         nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
       }
       MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-      cc.ok1(#line, "Reset now playing info")
+      cc.ok1(#line, #function, "Reset now playing info")
     #endif
   }
 
@@ -481,17 +503,17 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   /// - Returns: PlaybackSnapshot when synthesis completes and playback is ready
   /// - Throws: BackgroundPlayerError if segment loading or synthesis fails
   public func prepare() async throws -> PlaybackSnapshot {
-    cc.ok2(#line, "prepare() starting")
+    cc.ok2(#line, #function, "prepare() starting")
 
     // Load segments
     segments = await EbtData.segmentsOfSuttaRef(suttaRef)
     guard !segments.isEmpty else {
       state = .failed("No segments found")
       resetNowPlayingInfo()
-      cc.bad1(#line, "No segments found for \(suttaRef)")
+      cc.bad1(#line, #function, "No segments found for \(suttaRef)")
       throw BackgroundPlayerError.noSegments
     }
-    cc.ok2(#line, "Loaded \(segments.count) segments")
+    cc.ok2(#line, #function, "Loaded \(segments.count) segments")
 
     // Find starting segment index from suttaRef.scid
     if let startIndex = segments
@@ -501,13 +523,14 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     } else {
       currentSegmentIndex = 0
     }
-    cc.ok2(#line, "Starting at segment index \(currentSegmentIndex)")
+    let msg = "Starting at segment index \(currentSegmentIndex)"
+    cc.ok2(#line, #function, msg)
 
     // Get translator name
     // TODO: Get full translator name from EbtData.getMetaprop (requires nonisolated access)
     // For now, use author ID (e.g., "sujato" instead of "Bhikkhu Sujato")
     artistName = suttaRef.author ?? "Unknown"
-    cc.ok2(#line, "Artist: \(artistName)")
+    cc.ok2(#line, #function, "Artist: \(artistName)")
 
     // Transition to synthesizing
     state = .synthesizing
@@ -531,7 +554,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Execute synthesis
     let finalSnapshot = await synthesisSession!.execute()
-    cc.ok2(#line, "Synthesis complete: \(finalSnapshot.state)")
+    cc.ok2(#line, #function, "Synthesis complete: \(finalSnapshot.state)")
 
     // Stop polling
     pollingTask.cancel()
@@ -543,26 +566,26 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       state = .paused
     case .cancelled:
       // User cancelled synthesis - preserve the cancelled state
-      cc.ok1(#line, "Synthesis cancelled by user")
+      cc.ok1(#line, #function, "Synthesis cancelled by user")
     case let .failed(errorMsg):
       // Synthesis failed - transition to failed state
       state = .failed(errorMsg)
       resetNowPlayingInfo()
-      cc.bad1(#line, errorMsg)
+      cc.bad1(#line, #function, errorMsg)
       throw BackgroundPlayerError.synthesisFailure(errorMsg)
     default:
       // Unexpected state (shouldn't occur in normal flow)
       let errorMsg = "Unexpected synthesis state: \(finalSnapshot.state)"
       state = .failed(errorMsg)
       resetNowPlayingInfo()
-      cc.bad1(#line, errorMsg)
+      cc.bad1(#line, #function, errorMsg)
       throw BackgroundPlayerError.synthesisFailure(errorMsg)
     }
 
     // Update observable and return snapshot
     updateSnapshot()
 
-    cc.ok1(#line, "prepare() complete - ready for playback")
+    cc.ok1(#line, #function, "prepare() complete - ready for playback")
     return playbackSnapshot!
   }
 
@@ -570,7 +593,17 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
   /// Cancel synthesis and playback immediately
   public func cancel() {
-    cc.ok2(#line, "cancel()")
+    cc.ok2(#line, #function, "cancel()")
+
+    // Cancel iterator and task
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
+
+    // Signal continuation if waiting
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
+    }
 
     // Halt synthesis if in progress
     if let session = synthesisSession, state == .synthesizing {
@@ -591,87 +624,99 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Transition to cancelled
     state = .cancelled
     resetNowPlayingInfo()
-    cc.ok1(#line, "cancel() complete")
+    cc.ok1(#line, #function, "cancel() complete")
   }
 
   // MARK: - Playback Control
 
   /// Start playback from current segment
   public func play() {
-    cc.ok2(#line, "play()")
+    cc.ok2(#line, #function, "play()")
 
     // Guard: have valid segments and current index
     guard !segments.isEmpty, currentSegmentIndex < segments.count else {
-      cc.bad1(#line, "No segments or invalid index")
+      cc.bad1(#line, #function, "No segments or invalid index")
       state = .failed("No segments available")
       return
     }
 
-    // Immediately set state to .playing so pause() can detect and abort delayed
-    // callbacks.
-    // This prevents race condition where pause() is called before delayed
-    // startPlayback() fires,
-    // leaving delayed callbacks unaborted which create duplicate AVAudioPlayer
-    // instances.
+    // Cancel old iterator and task if playing
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
+    playbackIterator = nil
+    playbackIteratorTask = nil
+
+    // Immediately set state to .playing
     state = .playing
 
-    // Respect segmentPause: delay playback if needed
-    let now = Date()
-    let delay = max(0, earliestPlaybackTime.timeIntervalSince(now))
+    // Create iterator starting at currentSegmentIndex
+    let iterator = SegmentPlaybackIterator(
+      segments: segments,
+      index: currentSegmentIndex,
+      audioEffects: AudioEffects.shared,
+      audioContext: audioContext,
+    )
+    playbackIterator = SegmentPlaybackIteratorWrapper(iterator: iterator)
 
-    if delay > 0 {
-      cc.ok2(#line, "Delaying playback by \(delay)s to respect segmentPause")
-      DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-        // Only proceed if user hasn't paused/cancelled
-        if self.state == .playing {
-          self.startPlayback()
-        } else {
-          self.cc.ok1(#line, "Play cancelled")
+    // Spawn async loop task for all segments starting at currentSegmentIndex
+    playbackIteratorTask = Task {
+      while !Task.isCancelled {
+        guard let (idx, segment) = await playbackIterator?.next() else {
+          self.cc.ok2(#line, #function, "iterator->nil")
+          break
+        }
+
+        // Update segment index BEFORE playback so updateSnapshot() has correct
+        // index
+        currentSegmentIndex = idx
+
+        // Play segment
+        await playSegment(segment)
+
+        // Stop if cancelled
+        if Task.isCancelled {
+          break
         }
       }
-    } else {
-      startPlayback()
+
+      // Playback completed
+      state = .done
+      resetNowPlayingInfo()
+      updateSnapshot()
+      cc.ok2(#line, #function, "Playback completed via iterator")
     }
+
+    cc.ok1(#line, #function, "Playback started")
   }
 
-  /// Internal method to start playback of current segment
-  private func startPlayback() {
-    cc.ok2(#line, "startPlayback()")
-
-    // Guard: still have valid segments and current index
-    guard !segments.isEmpty, currentSegmentIndex < segments.count else {
-      cc.bad1(#line, "No segments or invalid index")
-      state = .failed("No segments available")
-      return
-    }
-
-    let segment = segments[currentSegmentIndex]
+  /// - Parameter segment: Segment to play
+  private func playSegment(_ segment: Segment) async {
+    cc.ok2(#line, #function, segment.scid)
 
     // Get segment text using segmentKey
     let segmentText = segment.textOf(segmentKey)
 
-    // Guard: segment has text to synthesize
+    // Guard: segment has text to play
     guard !segmentText.trimmingCharacters(in: .whitespaces).isEmpty else {
-      cc.ok2(#line, #function, "Segment \(segment.scid) has no text, skipping")
+      let msg = "Segment \(segment.scid) has no text"
+      cc.ok2(#line, #function, msg)
       return
     }
 
-    // Get audio URL from cache (forceUrl=false only returns if cached)
+    // Get audio URL from cache
     guard let audioUrl = audioStore.audioUrl(
       text: segmentText,
       audioContext: audioContext,
       forceUrl: false,
     ) else {
-      cc.bad1(#line, "Audio file not synthesized for segment")
+      let msg = "Audio file not available for segment \(segment.scid)"
+      cc.bad1(#line, #function, msg)
       state = .failed("Audio not available for segment")
       return
     }
 
     do {
-      // Stop and clear old audio player before creating new one to prevent
-      // duplicate voices.
-      // This is critical when multiple delayed play() callbacks fire before
-      // pause() can stop them.
+      // Stop and clear old audio player
       audioPlayer?.stop()
       audioPlayer = nil
 
@@ -680,63 +725,90 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       audioPlayer?.delegate = self
       audioPlayer?.play()
 
-      // Transition to playing and update observable
+      // Update observable immediately so snapshot has duration/elapsed time
       state = .playing
       updateSnapshot()
-      cc.ok1(#line, "Playback started for segment \(segment.scid)")
+      cc.ok1(#line, #function, "Playback started for segment \(segment.scid)")
+
+      // Wait for playback to complete via continuation
+      // audioPlayerDidFinishPlaying() will signal completion
+      await withCheckedContinuation { continuation in
+        playbackContinuation = continuation
+      }
+
+      // Update snapshot again at completion
+      updateSnapshot()
+
+      cc.ok2(#line, #function, "Playback completed for segment \(segment.scid)")
     } catch {
-      cc.bad1(#line, "Failed to create player: \(error)")
+      let msg = "Failed to create player: \(error)"
+      cc.bad1(#line, #function, msg)
       state = .failed("Playback failed: \(error.localizedDescription)")
     }
   }
 
   /// Pause playback
   public func pause() {
-    cc.ok2(#line, "pause()")
+    cc.ok2(#line, #function, "pause()")
 
     // Guard: currently playing
     guard state == .playing else {
-      cc.ok2(#line, "Not playing")
+      cc.ok2(#line, #function, "Not playing")
       return
     }
+
+    // Cancel iterator and task to stop chaining
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
 
     // Stop player
     audioPlayer?.pause()
 
+    // Signal continuation if waiting
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
+    }
+
     // Transition to paused and update observable
     state = .paused
     updateSnapshot()
-    cc.ok1(#line, "Playback paused")
+    cc.ok1(#line, #function, "Playback paused")
   }
 
   /// Advance to next segment and start playback
-  /// Pauses current playback, increments segment index, plays new segment
+  /// Cancels current playback, increments segment index, plays new segment
   public func playNext() {
-    cc.ok2(#line, "playNext()")
+    cc.ok2(#line, #function, "playNext()")
 
     // Guard: have valid segments
     guard !segments.isEmpty, currentSegmentIndex < segments.count else {
-      cc.bad1(#line, "No segments available")
+      cc.bad1(#line, #function, "No segments available")
       return
     }
 
-    // Pause current playback
-    if state == .playing {
-      audioPlayer?.pause()
+    // Cancel current iterator and task
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
+
+    // Signal continuation if waiting
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
     }
 
     // Advance to next segment
     if currentSegmentIndex < segments.count - 1 {
       currentSegmentIndex += 1
-      cc.ok2(#line, "Advanced to segment \(currentSegmentIndex)")
+      cc.ok2(#line, #function, "Advanced to segment \(currentSegmentIndex)")
     } else {
-      cc.ok2(#line, "Already at last segment")
+      cc.ok2(#line, #function, "Already at last segment")
       state = .paused
       updateSnapshot()
       return
     }
 
-    // Start playback from new segment
+    // Start playback from new segment with new iterator
     play()
   }
 
@@ -744,17 +816,22 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   /// - If paused or elapsed time < 1s: move to previous segment and play
   /// - Otherwise: restart playback of current segment
   public func playPrevious() {
-    cc.ok2(#line, "playPrevious()")
+    cc.ok2(#line, #function, "playPrevious()")
 
     // Guard: have valid segments
     guard !segments.isEmpty, currentSegmentIndex < segments.count else {
-      cc.bad1(#line, "No segments available")
+      cc.bad1(#line, #function, "No segments available")
       return
     }
 
-    // Pause current playback
-    if state == .playing {
-      audioPlayer?.pause()
+    // Cancel current iterator and task
+    playbackIteratorTask?.cancel()
+    playbackIterator?.cancel()
+
+    // Signal continuation if waiting
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
     }
 
     // Get elapsed time from player (or 0 if not playing)
@@ -765,22 +842,21 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       // Go to previous segment
       if currentSegmentIndex > 0 {
         currentSegmentIndex -= 1
-        cc.ok2(#line, "Moved to previous segment \(currentSegmentIndex)")
+        let msg = "Moved to previous: \(currentSegmentIndex)"
+        cc.ok2(#line, #function, msg)
       } else {
-        cc.ok2(#line, "Already at first segment")
+        cc.ok2(#line, #function, "Already at first segment")
         state = .paused
         updateSnapshot()
         return
       }
     } else {
       // Restart current segment (elapsed time >= 1s)
-      cc.ok2(
-        #line,
-        "Elapsed time \(elapsedTime)s >= 1s, restarting current segment",
-      )
+      let msg = "Elapsed time \(elapsedTime)s >= 1s, restarting segment"
+      cc.ok2(#line, #function, msg)
     }
 
-    // Start playback from target segment
+    // Start playback from target segment with new iterator
     play()
   }
 }
@@ -790,63 +866,53 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 @MainActor
 extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
   /// Called when AVAudioPlayer finishes playing
-  /// Implements segment chaining: automatically plays next segment if available
+  /// Signals completion to resume iterator loop (which handles chaining)
   public func audioPlayerDidFinishPlaying(
     _: AVAudioPlayer,
     successfully flag: Bool,
   ) {
-    cc.ok2(
-      #line,
-      "audioPlayerDidFinishPlaying(successfully: \(flag)) for segment \(currentSegmentIndex)",
-    )
+    let msg = "audioPlayerDidFinishPlaying(flag: \(flag)) segment: \(currentSegmentIndex)"
+    cc.ok2(#line, #function, msg)
 
     guard flag else {
       // Playback interrupted
       state = .failed("Playback interrupted")
       resetNowPlayingInfo()
-      cc.bad1(
-        #line,
-        "Playback failed or interrupted for segment \(currentSegmentIndex)",
-      )
+      let msg = "Playback failed segment: \(currentSegmentIndex)"
+      cc.bad1(#line, #function, msg)
       updateSnapshot()
+
+      // Signal continuation to break iterator loop
+      if let continuation = playbackContinuation {
+        playbackContinuation = nil
+        continuation.resume()
+      }
       return
     }
 
     // Segment playback completed successfully
-    cc.ok2(#line, "Segment \(currentSegmentIndex) playback completed")
+    cc.ok1(#line, #function, "currentSegmentIndex:\(currentSegmentIndex)")
 
-    // Check if there are more segments to play
-    if currentSegmentIndex < segments.count - 1 {
-      // Stop and clear current player before advancing to next segment
-      audioPlayer?.stop()
-      audioPlayer = nil
-
-      // Set earliest time next segment can play (respecting segmentPause)
-      earliestPlaybackTime = Date()
-        .addingTimeInterval(audioContext.segmentPause)
-
-      // Chain to next segment: advance index and play
-      currentSegmentIndex += 1
-      cc.ok2(#line, "Chaining to next segment: \(currentSegmentIndex)")
-      play() // Automatically start next segment with segmentPause delay
-    } else {
-      // Reached last segment, transition to done
-      state = .done
-      resetNowPlayingInfo()
-      updateSnapshot()
-      cc.ok1(#line, "Playback completed - reached end of sutta")
+    // Signal completion to iterator loop via continuation
+    // Iterator loop will call next() to get next segment
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
     }
   }
 
   /// Called when audio decoding error occurs
   public func audioPlayerDecodeErrorDidOccur(_: AVAudioPlayer, error: Error?) {
-    cc.bad1(
-      #line,
-      "Audio decode error: \(error?.localizedDescription ?? "unknown")",
-    )
-    state =
-      .failed("Audio decode error: \(error?.localizedDescription ?? "unknown")")
+    let errorMsg = error?.localizedDescription ?? "unknown"
+    cc.bad1(#line, #function, "Audio decode error: \(errorMsg)")
+    state = .failed("Audio decode error: \(errorMsg)")
     resetNowPlayingInfo()
     updateSnapshot()
+
+    // Signal continuation to break iterator loop
+    if let continuation = playbackContinuation {
+      playbackContinuation = nil
+      continuation.resume()
+    }
   }
 }
