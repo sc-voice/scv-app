@@ -71,7 +71,7 @@
 "about.content_sources.intro" = "Diese App nutzt die folgenden Textquellen:";
 
 /* About card view: content sources license notice */
-"about.content_sources.license" = "Alle Texte sind unter Creative Commons-Lizenzen verfügbar, die die freie Nutzung und Verbreitung mit ordnungsgemäßer Namensnennung erlauben.";
+"about.content_sources.license" = "Alle von scVoice gezeigten Texte sind im öffentlichen Besitz unter Creative Commons Zero (CC0 1.0 Universal). Es steht Ihnen frei, beliebige Teile oder all dieses Material zu kopieren, zu verändern, weiter zu verteilen, vorzuführen, vorzutragen, zu übermitteln oder auf jegliche gewünschte Weise zu verwenden. Wenn Sie etwas von unserem Material verwenden, bitten wir höflich darum, auch wenn dazu keine rechtliche Verpflichtung besteht, dass Sie die Quelle kenntlich machen und den Geist der buddhistischen Überlieferung beibehalten. Ursprünglich von Australien aus publiziert.";
 
 /* About card view: content sources - sources subsection title */
 "about.content_sources.sources" = "Quellen";
@@ -110,7 +110,7 @@
 "about.library.sqlite" = "SQLite";
 
 /* About card view: SQLite license */
-"about.library.sqlite.license" = "Gemeinfrei";
+"about.library.sqlite.license" = "Öffentliches Eigentum";
 
 /* About card view: Zstandard library */
 "about.library.zstandard" = "Zstandard";
@@ -146,7 +146,7 @@
 "about.privacy.no_analytics" = "Keine Analyse-Tools";
 
 /* About card view: no analytics description */
-"about.privacy.no_analytics.desc" = "Wir verfolgen dein Suchverhalten und deine Nutzung nicht";
+"about.privacy.no_analytics.desc" = "Wir verfolgen dein Such- und Nutzungsverhalten nicht";
 
 /* About card view: open source privacy item */
 "about.privacy.open_source" = "Open-Source";
@@ -188,10 +188,10 @@
 "about.source.ebt_data.author" = "Andere Übersetzungen früher buddhistischer Texte, an SuttaCentral-Texte angepasst";
 
 /* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Mahāsaṅgīti";
+"about.source.mahasangiti" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+"about.source.mahasangiti.author" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: SuttaCentral source */
 "about.source.suttacentral" = "SuttaCentral";
@@ -206,7 +206,7 @@
 "about.step.1.title" = "Erstelle eine Suchkarte";
 
 /* About card view: step 2 description */
-"about.step.2.desc" = "Suche nach einem Wort, einer Phrase oder einer Sutta-UID";
+"about.step.2.desc" = "Suche nach einem Wort, einer Wendung oder einer Sutta-UID";
 
 /* About card view: step 2 title */
 "about.step.2.title" = "Suchanfrage eingeben";
@@ -296,7 +296,7 @@
 "settings.background.playback.info.title" = "Hintergrund-Wiedergabe";
 
 /* Background playback info modal: how to trigger explanation */
-"settings.background.playback.info.trigger" = "Um die Hintergrund-Wiedergabe zu nutzen, die Wiedergabetaste eines Sutta lange gedrückt halten.";
+"settings.background.playback.info.trigger" = "Halte die Wiedergabetaste eines Sutta lange gedrückt, um die Hintergrund-Wiedergabe zu starten.";
 
 /* Settings section header for build information */
 "settings.build" = "Build-Version";
@@ -362,7 +362,7 @@
 "settings.search" = "Suche";
 
 /* Settings label for pause between segments during narration */
-"settings.segment.pause" = "Pausenlänge";
+"settings.segment.pause" = "Pause zwischen Segmenten";
 
 /* Settings subsection header for segment display options */
 "settings.show" = "Anzeigen";
