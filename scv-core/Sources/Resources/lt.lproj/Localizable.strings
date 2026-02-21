@@ -32,7 +32,7 @@
 "about.ack.development" = "Kūrimas";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "SC-Voice bendradarbiai";
+"about.ack.development.names" = "scVoice bendradarbiai";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Šaltinio Tekstas";
@@ -44,10 +44,10 @@
 "about.ack.translations" = "Vertimai";
 
 /* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Silashin Sabbamitta (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR) ir Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice remiasi daugelio bendradarbių darbais:";
+"about.acknowledgements.intro" = "scVoice remiasi daugelio bendradarbių darbais:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Sukūrė Friends of Voice";
@@ -104,7 +104,7 @@
 "about.graphics_design.intro" = "Foniniai paveikslai ir temos:";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Pradžia darbui su SC-Voice:";
+"about.how_to_use.intro" = "Pradžia darbui su scVoice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "Pilnai informacijai apie licencijas žr. GitHub saugyklą.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Visas SC-Voice šaltinis licencijuojamas pagal MIT licenciją, jei nenurodyta kitaip.";
+"about.open_source.intro" = "Visas scVoice šaltinis licencijuojamas pagal MIT licenciją, jei nenurodyta kitaip.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Taip pat įtrauktos šios bibliotekos:";
@@ -134,7 +134,7 @@
 "about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice gerbia jūsų privatumą:";
+"about.privacy.intro" = "scVoice gerbia jūsų privatumą:";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Vietos Saugojimas";

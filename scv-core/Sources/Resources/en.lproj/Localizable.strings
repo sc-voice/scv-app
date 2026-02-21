@@ -32,7 +32,7 @@
 "about.ack.development" = "Development";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "SC-Voice contributors";
+"about.ack.development.names" = "scVoice contributors";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Root Text";
@@ -44,10 +44,10 @@
 "about.ack.translations" = "Translations";
 
 /* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), and Sonja Büge (DE)";
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Silashin Sabbamitta (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), and Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice builds on the work of many contributors:";
+"about.acknowledgements.intro" = "scVoice builds on the work of many contributors:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Designed by Friends of Voice";
@@ -71,7 +71,7 @@
 "about.content_sources.intro" = "This app uses the following content sources:";
 
 /* About card view: content sources license notice */
-"about.content_sources.license" = "All texts are available under Creative Commons licenses, allowing free use and distribution with proper attribution.";
+"about.content_sources.license" = "All texts provided by scVoice are dedicated to the Public Domain by means of Creative Commons Zero (CC0 1.0 Universal). You are invited to copy, alter, redistribute, present, perform, convey, or make use of any or all of this material in any way you wish. If you make use of any of our material, even though you are under no legal obligations, we respectfully request that you provide a notice of attribution and maintain the spirit of the Buddhist tradition. Originally published from Australia.";
 
 /* About card view: content sources - sources subsection title */
 "about.content_sources.sources" = "Sources";
@@ -104,7 +104,7 @@
 "about.graphics_design.intro" = "Background images and themes:";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Getting started with SC-Voice:";
+"about.how_to_use.intro" = "Getting started with scVoice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "See GitHub repository for full license information.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "All SC-Voice source code is licensed under the MIT License unless otherwise noted.";
+"about.open_source.intro" = "All scVoice source code is licensed under the MIT License unless otherwise noted.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "The following libraries are also included:";
@@ -134,7 +134,7 @@
 "about.overview.description" = "Search, read, and hear SuttaCentral-aligned Early Buddhist Text (EBT) scriptures (suttas) offline for selected authors in multiple languages.";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice respects your privacy:";
+"about.privacy.intro" = "scVoice respects your privacy:";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Local Storage";
@@ -188,10 +188,10 @@
 "about.source.ebt_data.author" = "Other Early Buddhist Text Translations aligned to SuttaCentral content";
 
 /* About card view: Mahasangiti source */
-"about.source.mahasangiti" = "Mahāsaṅgīti";
+"about.source.mahasangiti" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: Mahasangiti author */
-"about.source.mahasangiti.author" = "Tipiṭaka Buddhavasse 2500";
+"about.source.mahasangiti.author" = "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500";
 
 /* About card view: SuttaCentral source */
 "about.source.suttacentral" = "SuttaCentral";

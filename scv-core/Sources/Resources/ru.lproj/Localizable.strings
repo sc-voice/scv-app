@@ -32,7 +32,7 @@
 "about.ack.development" = "Разработка";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Участники SC-Voice";
+"about.ack.development.names" = "Участники scVoice";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Корневой текст";
@@ -44,10 +44,10 @@
 "about.ack.translations" = "Переводы";
 
 /* About card view: translations names */
-"about.ack.translations.names" = "Bhikkhu Sujato (EN), Sabbamitta Silashin (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), и Sonja Büge (DE)";
+"about.ack.translations.names" = "Bhikkhu Sujato (EN), Silashin Sabbamitta (DE), SV theravada.ru (RU), Bhikkhu Brahmali (EN), John Kelly (EN), Ayya Soma (EN), Noé Ismet (FR), и Sonja Büge (DE)";
 
 /* About card view: acknowledgements intro */
-"about.acknowledgements.intro" = "SC-Voice основана на работе многих участников:";
+"about.acknowledgements.intro" = "scVoice основана на работе многих участников:";
 
 /* About card view: app icon credit */
 "about.app_icon.credit" = "Разработано Friends of Voice";
@@ -104,7 +104,7 @@
 "about.graphics_design.intro" = "Фоновые изображения и темы:";
 
 /* About card view: getting started text */
-"about.how_to_use.intro" = "Начало работы с SC-Voice:";
+"about.how_to_use.intro" = "Начало работы с scVoice:";
 
 /* About card view: SQLite library */
 "about.library.sqlite" = "SQLite";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "Для полной информации о лицензиях см. репозиторий GitHub.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Весь исходный код SC-Voice лицензирован под лицензией MIT, если не указано иное.";
+"about.open_source.intro" = "Весь исходный код scVoice лицензирован под лицензией MIT, если не указано иное.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Также включены следующие библиотеки:";
@@ -134,7 +134,7 @@
 "about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме для выбранных авторов на нескольких языках.";
 
 /* About card view: privacy intro */
-"about.privacy.intro" = "SC-Voice уважает вашу конфиденциальность:";
+"about.privacy.intro" = "scVoice уважает вашу конфиденциальность:";
 
 /* About card view: local storage privacy item */
 "about.privacy.local_storage" = "Локальное хранилище";
