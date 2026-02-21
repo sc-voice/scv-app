@@ -71,7 +71,7 @@
 "about.content_sources.intro" = "This app uses the following content sources:";
 
 /* About card view: content sources license notice */
-"about.content_sources.license" = "All translations provided by scVoice are dedicated to the Public Domain by means of Creative Commons Zero (CC0 1.0 Universal). You are invited to copy, alter, redistribute, present, perform, convey, or make use of any or all of this material in any way you wish. If you make use of any of our material, even though you are under no legal obligations, we respectfully request that you provide a notice of attribution and maintain the spirit of the Buddhist tradition.";
+"about.content_sources.license" = "All texts provided by scVoice are dedicated to the Public Domain by means of Creative Commons Zero (CC0 1.0 Universal). You are invited to copy, alter, redistribute, present, perform, convey, or make use of any or all of this material in any way you wish. If you make use of any of our material, even though you are under no legal obligations, we respectfully request that you provide a notice of attribution and maintain the spirit of the Buddhist tradition.";
 
 /* About card view: content sources - sources subsection title */
 "about.content_sources.sources" = "Sources";
