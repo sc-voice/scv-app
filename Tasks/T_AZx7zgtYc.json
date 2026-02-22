@@ -3,12 +3,7 @@
     {
       "name" : "Refactor SuttaPlayer to use SegmentPlaybackIterator",
       "test" : "make test-app - verify SuttaPlayer playback with empty segments"
-    }
-  ],
-  "createdAt" : "2026-02-20T16:07:06Z",
-  "id" : "019C7BCE-0B58-7000-B4B5-67DFE6E97649",
-  "name" : "BackgroundPlayer gets stuck at segments without text (e.g., an9.41:5.2)",
-  "plannedActions" : [
+    },
     {
       "name" : "Refactor BackgroundPlayer to use SegmentPlaybackIterator",
       "test" : "make test-app - verify BackgroundPlayer playback with empty segments"
@@ -29,6 +24,12 @@
       "name" : "SegmentPlaybackIterator (T_AZx8_VcXc) is COMPLETED and ready. Implements: empty detection+.noText announcement, .play\/.endSutta boundaries, segment announcements, segmentPause delays, cancel() method.",
       "test" : "update unit tests"
     }
+  ],
+  "createdAt" : "2026-02-20T16:07:06Z",
+  "id" : "019C7BCE-0B58-7000-B4B5-67DFE6E97649",
+  "name" : "BackgroundPlayer gets stuck at segments without text (e.g., an9.41:5.2)",
+  "plannedActions" : [
+
   ],
   "references" : [
     {
@@ -57,5 +58,5 @@
     "T_AZx8_VcXc"
   ],
   "summary" : "BackgroundPlayer freezes on empty segments (bug: startPlayback() line 654-656 returns early leaving state=.playing with no player). Root cause: duplicate segment-chaining logic in both players. Solution: Both players use SegmentPlaybackIterator (AsyncIterator) that handles empty detection, announcements, segmentPause delays, and cancel().",
-  "updatedAt" : "2026-02-21T00:03:37Z"
+  "updatedAt" : "2026-02-22T12:27:32Z"
 }

@@ -8,10 +8,12 @@ import scvCore
 public enum AudioEvent: Sendable {
   case play
   case pause
-  case endSutta
-  case noText
+  case header
   case section
+  case paragraph
   case segment
+  case noText
+  case endSutta
 }
 
 // MARK: - IAudioEffects
@@ -38,6 +40,7 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
   public static let shared = AudioEffects()
   public enum Sound {
     case silent
+    case noAudio
     case click
     case bell
     case block
@@ -48,6 +51,8 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
     var filename: String {
       switch self {
       case .silent:
+        "SILENT"
+      case .noAudio:
         "scv-no-audio"
       case .click:
         "513481__budek__click"
@@ -77,15 +82,16 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
         1.0
       }
     }
-  }
+  } // Sound
 
   public enum Event {
-    case play
+    case silent
     case pause
-    case endSutta
-    case noText
+    case header
     case section
-    case segment
+    case paragraph
+    case noText
+    case endSutta
   }
 
   private var audioPlayer: AVAudioPlayer?
@@ -96,6 +102,7 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
     super.init()
     cc.ok2(
       #line,
+      #function,
       "AudioEffects initialized with volume: \(Settings.shared.soundEffectVolume)",
     )
   }
@@ -127,8 +134,7 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
 
   /// Play a specific sound with optional delay
   public func playSound(sound: Sound, msDelay: Int = 0) {
-    // Muted when volume is 0
-    guard soundEffectVolume > 0 else { return }
+    if soundEffectVolume <= 0 { return }
 
     let delay = Double(msDelay) / 1000.0
 
@@ -142,15 +148,37 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
     audioPlayer?.stop()
     audioPlayer = nil
     announce(AudioEvent.pause)
-    cc.ok2(#line, "audio cancelled")
+    cc.ok2(#line, #function, "audio cancelled")
   }
 
-  private func performPlaySound(_ sound: Sound) {
+  private func soundUrl(_ sound: Sound) -> URL? {
+    if sound == .silent {
+      cc.ok1(#line, #function, sound)
+      return nil
+    }
+    if soundEffectVolume <= 0 {
+      cc.ok1(#line, #function, sound, "muted")
+      return nil
+    }
     guard let url = Bundle.module.url(
       forResource: sound.filename,
       withExtension: "mp3",
     ) else {
-      cc.bad1(#line, "Could not find audio file: \(sound.filename).mp3")
+      cc.bad1(
+        #line,
+        #function,
+        "Could not find audio file: \(sound.filename).mp3",
+      )
+      return nil
+    }
+
+    cc.ok1(#line, #function, url)
+    return url
+  }
+
+  private func performPlaySound(_ sound: Sound) {
+    guard let url = soundUrl(sound) else {
+      cc.ok1(#line, #function, sound)
       return
     }
 
@@ -160,20 +188,14 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
       audioPlayer?.play()
       cc.ok1(#line, #function, sound.filename)
     } catch {
-      cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
+      cc.bad1(#line, #function, error)
     }
   }
 
   /// Play a sound asynchronously and wait for completion
   private func performPlaySoundAsync(_ sound: Sound) async {
-    // Skip if muted
-    guard soundEffectVolume > 0 else { return }
-
-    guard let url = Bundle.module.url(
-      forResource: sound.filename,
-      withExtension: "mp3",
-    ) else {
-      cc.bad1(#line, "Could not find audio file: \(sound.filename).mp3")
+    guard let url = soundUrl(sound) else {
+      cc.ok1(#line, #function, sound)
       return
     }
 
@@ -182,7 +204,7 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
       audioPlayer?.volume = sound.bias * soundEffectVolume
       audioPlayer?.delegate = self
       audioPlayer?.play()
-      cc.ok1(#line, #function, sound.filename)
+      cc.ok2(#line, #function, sound.filename)
 
       // Wait for playback to complete via delegate callback
       // Use short timeout (100ms) to prevent continuation leak if delegate
@@ -201,42 +223,46 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
         }
       }
 
-      cc.ok2(#line, "Sound playback completed: \(sound.filename)")
+      cc.ok1(#line, #function, sound.filename)
     } catch {
-      cc.bad1(#line, "Failed to play audio \(sound.filename): \(error)")
+      cc.bad1(#line, #function, error)
     }
   }
 
   private func audioEventToInternalEvent(_ event: AudioEvent) -> Event {
     switch event {
-    case .play:
-      .play
+    case .play, .segment:
+      .silent
     case .pause:
       .pause
     case .endSutta:
       .endSutta
     case .noText:
       .noText
+    case .header:
+      .header
     case .section:
       .section
-    case .segment:
-      .segment
+    case .paragraph:
+      .paragraph
     }
   }
 
   private func eventToSound(_ event: Event) -> Sound {
     switch event {
-    case .play:
-      .block
+    case .silent:
+      .silent
     case .pause:
       .chirp
     case .endSutta:
       .bell
     case .noText:
       .chirp
+    case .header:
+      .block
     case .section:
       .pageTurn
-    case .segment:
+    case .paragraph:
       .click
     }
   }
@@ -267,10 +293,11 @@ extension AudioEffects: @preconcurrency AVAudioPlayerDelegate {
   ) {
     MainActor.assumeIsolated {
       let cc = ColorConsole(#file, #function, dbg.AudioEffects.other)
-      cc.bad1(
-        #line,
-        "Audio decode error: \(error?.localizedDescription ?? "unknown")",
-      )
+      if let error {
+        cc.bad1(#line, #function, error)
+      } else {
+        cc.bad1(#line, #function, "Audio decode error: unknown")
+      }
       // Signal continuation anyway so caller isn't stuck waiting
       if let continuation = soundContinuation {
         soundContinuation = nil

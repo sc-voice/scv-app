@@ -209,14 +209,14 @@ public struct SearchCardView<Card: ICard, Manager: ICardManager>: View
           text: $searchQuery,
           isPresented: $isSearchPresented,
           placement: .navigationBarDrawer(displayMode: .always),
-          prompt: "Search",
+          prompt: "search.prompt".localized,
         )
     #else
       let searchView = step2
         .searchable(
           text: $searchQuery,
           isPresented: $isSearchPresented,
-          prompt: "Search",
+          prompt: "search.prompt".localized,
         )
     #endif
 

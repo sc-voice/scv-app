@@ -47,9 +47,9 @@ struct SegmentPlaybackIteratorTests {
   func basicIteration() async {
     // Given
     let segments = [
-      Segment(scid: "mn1:0.1", doc: "First segment"),
-      Segment(scid: "mn1:0.2", doc: "Second segment"),
-      Segment(scid: "mn1:0.3", doc: "Third segment"),
+      Segment(scid: "mn1:1.2", doc: "First segment"),
+      Segment(scid: "mn1:1.3", doc: "Second segment"),
+      Segment(scid: "mn1:1.4", doc: "Third segment"),
     ]
     let mockAudioEffects = MockAudioEffects()
     let audioContext = AudioContext(for: "en")
@@ -57,6 +57,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
@@ -69,11 +70,11 @@ struct SegmentPlaybackIteratorTests {
 
     // Then
     #expect(result.count == 4)
-    #expect(result[0]?.segment.scid == "mn1:0.1")
+    #expect(result[0]?.segment.scid == "mn1:1.2")
     #expect(result[0]?.index == 0)
-    #expect(result[1]?.segment.scid == "mn1:0.2")
+    #expect(result[1]?.segment.scid == "mn1:1.3")
     #expect(result[1]?.index == 1)
-    #expect(result[2]?.segment.scid == "mn1:0.3")
+    #expect(result[2]?.segment.scid == "mn1:1.4")
     #expect(result[2]?.index == 2)
     #expect(result[3] == nil)
   }
@@ -94,6 +95,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
@@ -115,8 +117,8 @@ struct SegmentPlaybackIteratorTests {
   }
 
   @MainActor
-  @Test("Announces .play on first segment")
-  func playAnnouncementOnFirst() async {
+  @Test("Announces .header on 0.1 segment")
+  func headerAnnouncementOn01() async {
     // Given
     let segments = [
       Segment(scid: "mn1:0.1", doc: "First"),
@@ -127,17 +129,18 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
     _ = await iterator.next()
 
     // Then
-    #expect(mockAudioEffects.announcedEvents.contains(.play))
+    #expect(mockAudioEffects.announcedEvents.contains(.header))
   }
 
   @MainActor
-  @Test("Announces .endSutta on last segment")
+  @Test("Announces .endSutta after exhausting segments")
   func endSuttaAnnouncementOnLast() async {
     // Given
     let segments = [
@@ -149,18 +152,20 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
-    _ = await iterator.next()
+    _ = await iterator.next() // Get segment
+    _ = await iterator.next() // Triggers .endSutta
 
     // Then
     #expect(mockAudioEffects.announcedEvents.contains(.endSutta))
   }
 
   @MainActor
-  @Test("Announces .segment on subsequent segments")
-  func segmentAnnouncementOnSubsequent() async {
+  @Test("Non-0.1 headers announce nothing")
+  func noAnnouncementForOtherHeaders() async {
     // Given
     let segments = [
       Segment(scid: "mn1:0.1", doc: "First"),
@@ -173,18 +178,17 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
+    _ = await iterator.next() // First (0.1)
     mockAudioEffects.reset()
-    _ = await iterator.next() // First
-    mockAudioEffects.reset()
-    _ = await iterator.next() // Second
+    _ = await iterator.next() // Second (0.2)
     let eventsAfterSecond = mockAudioEffects.announcedEvents
 
-    // Then - Second segment should have .segment announcement (not .play)
-    #expect(eventsAfterSecond.contains(.segment))
-    #expect(!eventsAfterSecond.contains(.play))
+    // Then - Second segment (0.2) should have no announcement
+    #expect(eventsAfterSecond.isEmpty)
   }
 
   @MainActor
@@ -202,6 +206,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
@@ -229,6 +234,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
@@ -255,6 +261,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
@@ -268,8 +275,8 @@ struct SegmentPlaybackIteratorTests {
   }
 
   @MainActor
-  @Test("Segment with no doc but has pli displays pli via displayText")
-  func displayTextFallback() async {
+  @Test("Segment without textKey property is skipped")
+  func skipSegmentWithoutTextKey() async {
     // Given
     let segments = [
       Segment(scid: "mn1:0.1", doc: nil, ref: nil, pli: "Pali text"),
@@ -280,19 +287,20 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
     let result = await iterator.next()
 
-    // Then
-    #expect(result?.segment.displayText == "Pali text")
-    #expect(result?.index == 0)
+    // Then - segment skipped because doc is nil/empty
+    #expect(result == nil)
+    #expect(mockAudioEffects.announcedEvents.contains(.noText))
   }
 
   @MainActor
-  @Test("Single segment announces both .play and .endSutta")
-  func singleSegmentAnnouncesPlayAndEnd() async {
+  @Test("Single segment announces .header and .endSutta")
+  func singleSegmentAnnouncesHeaderAndEnd() async {
     // Given
     let segments = [
       Segment(scid: "mn1:0.1", doc: "Only segment"),
@@ -303,13 +311,15 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When
-    _ = await iterator.next()
+    _ = await iterator.next() // Get segment
+    _ = await iterator.next() // Triggers .endSutta
 
     // Then
-    #expect(mockAudioEffects.announcedEvents.contains(.play))
+    #expect(mockAudioEffects.announcedEvents.contains(.header))
     #expect(mockAudioEffects.announcedEvents.contains(.endSutta))
   }
 
@@ -326,6 +336,7 @@ struct SegmentPlaybackIteratorTests {
       segments: segments,
       audioEffects: mockAudioEffects,
       audioContext: audioContext,
+      textKey: "doc",
     )
 
     // When

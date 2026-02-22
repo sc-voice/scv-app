@@ -1,14 +1,17 @@
 import Foundation
 
-/// ColorConsole produces colored messages to Xcode console using ANSI escape
-/// codes
+/// ColorConsole produces colored messages to Xcode console
 ///
 /// ## Logging Best Practice
 ///
 /// - `ok1(#line, #function, message)`: Final log before normal method return.
-///   Example: `cc.ok1(#line, #function, card.name)`
+///   Example:
+///   ```
+///     cc.ok1(#line, #function, card.name)
+///   }
+///   ```
 ///
-/// - `ok2(#line, #function, message)`: Intermediate logging on nomral paths.
+/// - `ok2(#line, #function, message)`: Intermediate logging on normal paths.
 ///   Example: `cc.ok2(#line, #function, "compare:", compare)`
 ///
 /// - `bad1(#line, #function, message)`: Final log before unexpected method
@@ -20,11 +23,7 @@ import Foundation
 ///   ```
 ///
 /// - `bad2(#line, #function, message)`: Intermediate log on unexpected path
-///   Example:
-///   ```
-///     cc.bad1(#line, #function, errorMsg)
-///     throw errorMsg
-///   ```
+///   Example: `cc.bad2(#line, #function, "handle unexpected case")`
 ///
 /// Logging statements should be a single line of <80 characters.
 /// If you need more, use intermediate message declarations to reduce line

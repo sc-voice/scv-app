@@ -535,6 +535,10 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Transition to synthesizing
     state = .synthesizing
 
+    // Disable idle timer during synthesis to prevent screen lock
+    IdleTimerManager.disableIdleTimer()
+    cc.ok2(#line, #function, "Disabled idle timer for synthesis")
+
     // Create synthesis session
     synthesisSession = AudioSynthesisSession(
       suttaRef,
@@ -558,6 +562,10 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Stop polling
     pollingTask.cancel()
+
+    // Re-enable idle timer after synthesis completes
+    IdleTimerManager.enableIdleTimer()
+    cc.ok2(#line, #function, "Re-enabled idle timer after synthesis")
 
     // Check synthesis result - handle all terminal states
     switch finalSnapshot.state {
@@ -610,6 +618,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       Task {
         _ = await session.cancel()
       }
+      // Re-enable idle timer if synthesis was cancelled
+      IdleTimerManager.enableIdleTimer()
+      cc.ok2(#line, #function, "Re-enabled idle timer after synthesis cancel")
     }
 
     // Stop AVAudioPlayer if playing
@@ -655,6 +666,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       index: currentSegmentIndex,
       audioEffects: AudioEffects.shared,
       audioContext: audioContext,
+      textKey: "doc",
     )
     playbackIterator = SegmentPlaybackIteratorWrapper(iterator: iterator)
 
@@ -772,6 +784,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Transition to paused and update observable
     state = .paused
+    AudioEffects.shared.announce(.pause)
     updateSnapshot()
     cc.ok1(#line, #function, "Playback paused")
   }

@@ -32,7 +32,8 @@ public protocol IAsyncIterator {
 /// var iterator = SegmentPlaybackIterator(
 ///   segments: segments,
 ///   audioEffects: audioEffects,
-///   audioContext: audioContext
+///   audioContext: audioContext,
+///   textKey: "doc"
 /// )
 ///
 /// while let (index, segment) = await iterator.next() {
@@ -49,23 +50,27 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
   private var index: Int
   private let audioEffects: IAudioEffects
   private let audioContext: AudioContext
-  private var isCancelled: Bool = false
+  private let textKey: String
+  public private(set) var isPlaying: Bool = true
 
   /// Initialize iterator with segments and audio settings
   /// - Parameters:
   ///   - segments: Array of segments to iterate through
   ///   - audioEffects: Audio effects handler for announcements and cancellation
   ///   - audioContext: Audio settings including segment pause duration
+  ///   - textKey: Segment property to test for emptiness (e.g., "doc")
   public init(
     segments: [Segment],
     index: Int = 0,
     audioEffects: IAudioEffects,
     audioContext: AudioContext,
+    textKey: String,
   ) {
     self.segments = segments
     self.index = index
     self.audioEffects = audioEffects
     self.audioContext = audioContext
+    self.textKey = textKey
     cc.ok1(#line, #function, "\(segments.count) segments")
   }
 
@@ -75,15 +80,15 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
   /// Announces .play on first segment, .endSutta on last, .section/.segment for
   /// boundaries.
   public mutating func next() async -> (index: Int, segment: Segment)? {
-    // Return nil if cancelled
-    guard !isCancelled else {
+    if !isPlaying {
       cc.ok1(#line, #function, "iteration cancelled")
       return nil
     }
 
-    // Return nil if we've exhausted all segments
-    guard index < segments.count else {
-      cc.ok1(#line, #function, "all segments exhausted at index \(index)")
+    if index >= segments.count {
+      await audioEffects.announceAsync(.endSutta)
+      isPlaying = false
+      cc.ok1(#line, #function, "announced .endSutta for last segment")
       return nil
     }
 
@@ -94,12 +99,17 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
         .sleep(nanoseconds: UInt64(audioContext.segmentPause * 1_000_000_000))
     }
 
-    // Skip empty segments (no doc, pli, or ref) and announce .noText for each
+    // Skip empty segments (test property specified by textKey) and announce
+    // .noText for each
     while index < segments.count {
       let segment = segments[index]
-      let isEmpty = (segment.doc == nil || segment.doc?.isEmpty ?? true)
-        && (segment.pli == nil || segment.pli?.isEmpty ?? true)
-        && (segment.ref == nil || segment.ref?.isEmpty ?? true)
+      let text: String? = switch textKey {
+      case "doc": segment.doc
+      case "pli": segment.pli
+      case "ref": segment.ref
+      default: segment.doc
+      }
+      let isEmpty = text == nil || text?.isEmpty ?? true
 
       guard isEmpty else { break }
 
@@ -115,25 +125,28 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
     }
 
     let segment = segments[index]
+    let scid = segment.scid
 
-    if index == 0 {
-      // Announce .play on first segment of document
-      audioEffects.announce(.play)
-      cc.ok2(#line, #function, "announced .play for first segment")
-    } else {
-      // Announce segment boundary for non-first segments
-      audioEffects.announce(.segment)
-      cc.ok2(#line, #function, "announced .segment boundary")
+    switch segment.type {
+    case .header:
+      if scid.hasSuffix(":0.1") {
+        await audioEffects.announceAsync(.header)
+        cc.ok2(#line, #function, ".header", scid)
+      }
+    case .section:
+      await audioEffects.announceAsync(.section)
+      cc.ok2(#line, #function, ".section", scid)
+    case .paragraph:
+      await audioEffects.announceAsync(.paragraph)
+      cc.ok2(#line, #function, ".paragraph", scid)
+    case .text:
+      await audioEffects.announceAsync(.segment)
+      cc.ok2(#line, #function, ".segment", scid)
     }
 
     let segmentIndex = index
     index += 1
 
-    // Announce .endSutta on last segment
-    if index == segments.count {
-      audioEffects.announce(.endSutta)
-      cc.ok2(#line, #function, "announced .endSutta for last segment")
-    }
     cc.ok1(#line, #function, segment.scid)
     return (index: segmentIndex, segment: segment)
   }
@@ -142,8 +155,9 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
   /// announces .pause.
   /// After cancel(), next() always returns nil.
   public mutating func cancel() {
-    isCancelled = true
+    isPlaying = false
     audioEffects.cancel()
+    audioEffects.announce(.pause)
     cc.ok1(#line, #function)
   }
 }

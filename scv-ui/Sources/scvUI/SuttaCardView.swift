@@ -135,47 +135,44 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
             .foregroundColor(themeProvider.theme.toolbarForeground)
             Spacer()
             if let mlDoc = card.mlDoc {
-              Button(action: {
-                if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
-                  player.load(mlDoc)
+              Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                .font(.title2)
+                .foregroundColor(player
+                  .isSynthesizerSpeaking ? .green : themeProvider.theme
+                  .toolbarForeground)
+                .frame(minWidth: 44, minHeight: 44)
+                .padding(.leading, 20)
+                .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
+                  .localized : "a11y.button.play_audio".localized)
+                .onTapGesture {
+                  if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
+                    player.load(mlDoc)
+                  }
+                  player.togglePlayback()
                 }
-                player.togglePlayback()
-              }) {
-                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                  .font(.title2)
-                  .foregroundColor(player
-                    .isSynthesizerSpeaking ? .green : themeProvider.theme
-                    .toolbarForeground)
-                  .frame(minWidth: 44, minHeight: 44)
-                  .padding(.leading, 20)
-              }
-              .buttonStyle(.plain)
-              .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
-                .localized : "a11y.button.play_audio".localized)
-              .foregroundColor(themeProvider.theme.toolbarForeground)
-              .contextMenu {
-                Button(action: startBackgroundPlayback) {
-                  Label(
-                    "synthesis.background_playback".localized,
-                    systemImage: "waveform.circle.fill",
+                .contextMenu {
+                  Button(action: startBackgroundPlayback) {
+                    Label(
+                      "synthesis.background_playback".localized,
+                      systemImage: "waveform.circle.fill",
+                    )
+                  }
+                }
+                .sheet(isPresented: $showBackgroundPlaybackTip) {
+                  TipView(
+                    title: "settings.background.playback.info.title".localized,
+                    text: "settings.background.playback.info.message".localized
+                      + "\n\n"
+                      + "settings.background.playback.info.trigger".localized,
+                    isPresented: $showBackgroundPlaybackTip,
+                    onConfirm: {
+                      Settings.shared.backgroundPlayback = true
+                      startBackgroundPlayback()
+                    },
                   )
+                  .environmentObject(themeProvider)
+                  .presentationDetents([.medium])
                 }
-              }
-              .sheet(isPresented: $showBackgroundPlaybackTip) {
-                TipView(
-                  title: "settings.background.playback.info.title".localized,
-                  text: "settings.background.playback.info.message".localized
-                    + "\n\n"
-                    + "settings.background.playback.info.trigger".localized,
-                  isPresented: $showBackgroundPlaybackTip,
-                  onConfirm: {
-                    Settings.shared.backgroundPlayback = true
-                    startBackgroundPlayback()
-                  },
-                )
-                .environmentObject(themeProvider)
-                .presentationDetents([.medium])
-              }
             } else {
               Image(systemName: "text.page.slash")
                 .font(.title2)

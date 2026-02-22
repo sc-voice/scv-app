@@ -136,6 +136,7 @@ public struct dbg: Sendable {
 
   public struct SuttaCardView: Sendable {
     public static let other: Int = 0
+    public static let player: Int = PLAYER
   }
 
   public struct SuttaRef: Sendable {

@@ -313,7 +313,7 @@ public struct AboutCardView: View {
                       Image("cc-zero", bundle: .module)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 80)
+                        .frame(height: 80),
                     )
 
                   Text("CC0")

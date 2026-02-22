@@ -7,6 +7,13 @@
 
 import Foundation
 
+public enum SegmentType {
+  case header // segnum starts with 0
+  case section // segnum ends with .0
+  case paragraph // segnum ends with .1
+  case text // normal segment
+}
+
 // MARK: - Segment
 
 /// Represents a single segment (verse) within a Buddhist scripture
@@ -93,6 +100,24 @@ public extension Segment {
       return ref
     }
     return scid
+  }
+
+  /// Determines the segment type based on segnum portion of scid
+  var type: SegmentType {
+    guard let colonIndex = scid.firstIndex(of: ":") else {
+      return .text
+    }
+    let segnum = String(scid[scid.index(after: colonIndex)...])
+
+    if segnum.starts(with: "0") {
+      return .header
+    } else if segnum.hasSuffix(".0") {
+      return .section
+    } else if segnum.hasSuffix(".1") {
+      return .paragraph
+    } else {
+      return .text
+    }
   }
 
   /// Returns true if this segment contains the search match

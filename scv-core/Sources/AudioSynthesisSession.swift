@@ -61,7 +61,7 @@ public actor AudioSynthesisSession {
   var currentStep: Int = 0
 
   /// Exponential moving average of synthesis time per segment (in seconds)
-  var segmentSynthesisTime: Double = 0.1
+  var segmentSynthesisTime: Double = 1
 
   /// Timestamp when current segment synthesis started
   private var segmentStartTime: Date?

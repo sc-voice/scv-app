@@ -969,14 +969,16 @@ public actor EbtData {
 
       var segments: [Segment] = []
       while sqlite3_step(stmt) == SQLITE_ROW {
-        guard let scidC = sqlite3_column_text(stmt, 0),
-              let textC = sqlite3_column_text(stmt, 1)
-        else {
+        guard let scidC = sqlite3_column_text(stmt, 0) else {
           continue
         }
 
         let scid = String(cString: scidC)
-        let text = String(cString: textC)
+        let text = if let textC = sqlite3_column_text(stmt, 1) {
+          String(cString: textC)
+        } else {
+          ""
+        }
         let matched = sqlite3_column_int(stmt, 2) != 0
 
         let segment = Segment(scid: scid, doc: text, matched: matched)

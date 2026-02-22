@@ -326,6 +326,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       index: startIndex,
       audioEffects: AudioEffects.shared,
       audioContext: audioContext!,
+      textKey: "doc",
     )
     playbackIterator = SegmentPlaybackIteratorWrapper(iterator: iterator)
 

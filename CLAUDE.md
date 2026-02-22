@@ -23,36 +23,9 @@ and provides a card-based interface where users can create multiple search and s
 
 ## Code Best Practice
 
-### ColorConsole Logging
+Production swift files should abide by doc/ColorConsole.md
 
-ColorConsole (See: scv-core/Sources/ColorConsole.swift) handles output filtering internally via verbosity levels. Do NOT use conditional checks.
-
-**Initialization:**
-- Pass verbosity level at init: `let cc = ColorConsole(#file, #function, dbg.Module.level)`
-- Use `dbg` constants from codebase (e.g., `dbg.SuttaPlayer.other`)
-- Each module/class can have its own verbosity level
-
-**Usage patterns:**
-- `ok1()`: End of happy path, just before leaving method. Output if verbosity >= 1
-- `bad1()`: End of sad path (error/exception), just before leaving method. Output if verbosity >= 1
-- `ok2()`: Anywhere else on happy path (entry, intermediate steps, branches). Output if verbosity >= 2
-- `bad2()`: Anywhere else on sad path (non-fatal errors, error diagnostics). Output if verbosity >= 2
-
-**Pattern to AVOID:**
-```swift
-if dbgSearch > 1 {
-  cc.ok2(#line, "message")  // Wrong - redundant conditional
-}
-```
-
-**Pattern to USE:**
-```swift
-cc.ok2(#line, "message")  // Correct - ColorConsole checks verbosity internally
-```
-
-ColorConsole returns nil if output is filtered, allowing `@discardableResult` to silence unused value warnings.
-
-### Protocol Naming Convention
+## Protocol Naming Convention
 
 Protocols use the "I" prefix (Microsoft convention) to make intent explicit at first glance.
 
@@ -62,11 +35,10 @@ Protocols use the "I" prefix (Microsoft convention) to make intent explicit at f
 
 This convention applies to all new protocols in the codebase.
 
-## Claude commands
+## Abbreviations
 
-Always read user Claude.md at beginning of chat or whenever existing chat is cleared.
-
-- rtf means READ THE FILE
+- `RTC` means Read The Code file that we are working with
+- `RTD` means Read The Markdown file that we are working with
 
 ## Directory Context (CRITICAL)
 
@@ -99,7 +71,3 @@ To run a specific test:
 ```bash
 cd scv-core && swift test --filter CardTests
 ```
-
-## Backlog
-
-See `doc/Backlog.md` for project backlog items.
