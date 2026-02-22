@@ -32,7 +32,7 @@
 "about.ack.development" = "Entwicklung";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Mitwirkende bei scVoice";
+"about.ack.development.names" = "Mitwirkende von scVoice";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Quelltext";
@@ -71,7 +71,7 @@
 "about.content_sources.intro" = "Diese App nutzt die folgenden Textquellen:";
 
 /* About card view: content sources license notice */
-"about.content_sources.license" = "Alle von scVoice gezeigten Texte sind im öffentlichen Besitz unter Creative Commons Zero (CC0 1.0 Universal). Es steht Ihnen frei, beliebige Teile oder all dieses Material zu kopieren, zu verändern, weiter zu verteilen, vorzuführen, vorzutragen, zu übermitteln oder auf jegliche gewünschte Weise zu verwenden. Wenn Sie etwas von unserem Material verwenden, bitten wir höflich darum, auch wenn dazu keine rechtliche Verpflichtung besteht, dass Sie die Quelle kenntlich machen und den Geist der buddhistischen Überlieferung beibehalten. Ursprünglich von Australien aus publiziert.";
+"about.content_sources.license" = "Alle von scVoice gezeigten Texte sind im öffentlichen Besitz unter Creative Commons Zero (CC0 1.0 Universal). Es steht dir frei, beliebige Teile oder all dieses Material zu kopieren, zu verändern, weiter zu verteilen, vorzuführen, vorzutragen, zu übermitteln oder auf jegliche gewünschte Weise zu verwenden. Wenn du etwas von unserem Material verwendest, bitten wir höflich darum, auch wenn dazu keine rechtliche Verpflichtung besteht, dass du die Quelle kenntlich machst und den Geist der buddhistischen Überlieferung beibehältst. Ursprünglich von Australien aus publiziert.";
 
 /* About card view: content sources - sources subsection title */
 "about.content_sources.sources" = "Quellen";
@@ -110,7 +110,7 @@
 "about.library.sqlite" = "SQLite";
 
 /* About card view: SQLite license */
-"about.library.sqlite.license" = "Öffentliches Eigentum";
+"about.library.sqlite.license" = "Öffentlicher Besitz";
 
 /* About card view: Zstandard library */
 "about.library.zstandard" = "Zstandard";
@@ -125,7 +125,7 @@
 "about.open_source.footer" = "Siehe GitHub-Repository für vollständige Lizenzinformationen.";
 
 /* About card view: open source intro */
-"about.open_source.intro" = "Der gesamte scVoice-Quellcode ist unter der MIT-Lizenz lizenziert, falls nicht anders angegeben.";
+"about.open_source.intro" = "Der gesamte scVoice-Quellcode ist unter der MIT-Lizenz freigegeben, falls nicht anders angegeben.";
 
 /* About card view: open source libraries intro */
 "about.open_source.libraries" = "Die folgenden Bibliotheken sind ebenfalls enthalten:";
