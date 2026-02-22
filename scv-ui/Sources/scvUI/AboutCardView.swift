@@ -305,10 +305,16 @@ public struct AboutCardView: View {
                 }
               }) {
                 VStack(spacing: 8) {
-                  Image("cc-zero", bundle: .module)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 60)
+                  // Fallback circle if image fails to load
+                  Circle()
+                    .fill(themeProvider.theme.secondaryTextColor.opacity(0.3))
+                    .frame(height: 80)
+                    .overlay(
+                      Image("cc-zero", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 80)
+                    )
 
                   Text("CC0")
                     .font(.caption2)
@@ -316,7 +322,7 @@ public struct AboutCardView: View {
                 }
               }
               .frame(maxWidth: .infinity)
-              .padding(.top, 8)
+              .padding(.top, 12)
             }
           }
 
