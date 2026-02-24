@@ -8,7 +8,7 @@ public struct AudioPlayerID: Hashable, Sendable {
   private let id: UUID
 
   public init() {
-    self.id = UUID()
+    id = UUID()
   }
 }
 
@@ -43,7 +43,7 @@ public protocol IAVAdapter {
   func synthesizeToFile(
     text: String,
     audioContext: AudioContext,
-    outputURL: URL
+    outputURL: URL,
   ) async throws
 
   // MARK: - AVAudioPlayer Operations
@@ -103,7 +103,7 @@ public class AVAdapter: NSObject, IAVAdapter {
   private var delegateBridges: [AVAudioPlayer: AudioPlayerID] = [:]
   private let cc = ColorConsole(#file, "AVAdapter", dbg.AudioStore.other)
 
-  public override init() {
+  override public init() {
     super.init()
   }
 
@@ -112,7 +112,7 @@ public class AVAdapter: NSObject, IAVAdapter {
   public func synthesizeToFile(
     text: String,
     audioContext: AudioContext,
-    outputURL: URL
+    outputURL: URL,
   ) async throws {
     let fileManager = FileManager.default
     let timeout: TimeInterval = 5.0
@@ -154,7 +154,7 @@ public class AVAdapter: NSObject, IAVAdapter {
             forWriting: outputURL,
             settings: pcmBuffer.format.settings,
             commonFormat: .pcmFormatFloat32,
-            interleaved: false
+            interleaved: false,
           )
         }
 
@@ -192,15 +192,15 @@ public class AVAdapter: NSObject, IAVAdapter {
         domain: "AVAdapter",
         code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s"
-        ]
+          NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
+        ],
       )
     }
 
     // Log successful synthesis with total bytes written
     cc.ok1(
       #line,
-      "Synthesis complete: \(outputURL.lastPathComponent), size: \(totalBytes) bytes"
+      "Synthesis complete: \(outputURL.lastPathComponent), size: \(totalBytes) bytes",
     )
 
     // Validate synthesis produced sufficient audio data
@@ -210,7 +210,7 @@ public class AVAdapter: NSObject, IAVAdapter {
     if totalBytes < minimumBytes {
       cc.bad1(
         #line,
-        "Synthesis failed silently: \(totalBytes) bytes for \(text.count) chars - removing corrupt file"
+        "Synthesis failed silently: \(totalBytes) bytes for \(text.count) chars - removing corrupt file",
       )
       do {
         try fileManager.removeItem(at: outputURL)
@@ -222,8 +222,8 @@ public class AVAdapter: NSObject, IAVAdapter {
         domain: "AVAdapter",
         code: -2,
         userInfo: [
-          NSLocalizedDescriptionKey: "Voice synthesis failed (insufficient audio data: \(totalBytes) bytes for \(text.count) chars)"
-        ]
+          NSLocalizedDescriptionKey: "Voice synthesis failed (insufficient audio data: \(totalBytes) bytes for \(text.count) chars)",
+        ],
       )
     }
   }
@@ -278,36 +278,36 @@ public class AVAdapter: NSObject, IAVAdapter {
 extension AVAdapter: @preconcurrency AVAudioPlayerDelegate {
   public func audioPlayerDidFinishPlaying(
     _ player: AVAudioPlayer,
-    successfully flag: Bool
+    successfully flag: Bool,
   ) {
     guard let id = delegateBridges[player],
-      let delegate = delegates[id] as? IAVAudioPlayerDelegate
+          let delegate = delegates[id] as? IAVAudioPlayerDelegate
     else { return }
     delegate.audioPlayerDidFinishPlaying(successfully: flag)
   }
 
   public func audioPlayerBeginInterruption(_ player: AVAudioPlayer) {
     guard let id = delegateBridges[player],
-      let delegate = delegates[id] as? IAVAudioPlayerDelegate
+          let delegate = delegates[id] as? IAVAudioPlayerDelegate
     else { return }
     delegate.audioPlayerBeginInterruption()
   }
 
   public func audioPlayerEndInterruption(
     _ player: AVAudioPlayer,
-    withOptions flags: Int
+    withOptions flags: Int,
   ) {
     guard let id = delegateBridges[player],
-      let delegate = delegates[id] as? IAVAudioPlayerDelegate
+          let delegate = delegates[id] as? IAVAudioPlayerDelegate
     else { return }
     #if os(iOS) || os(tvOS) || os(watchOS)
-    let shouldResume = (UInt(flags) & AVAudioSession.InterruptionOptions.shouldResume
-      .rawValue) != 0
+      let shouldResume = (UInt(flags) & AVAudioSession.InterruptionOptions
+        .shouldResume
+        .rawValue) != 0
     #else
-    // macOS doesn't have AVAudioSession
-    let shouldResume = false
+      // macOS doesn't have AVAudioSession
+      let shouldResume = false
     #endif
     delegate.audioPlayerEndInterruption(shouldResume: shouldResume)
   }
 }
-

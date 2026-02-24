@@ -3,13 +3,24 @@ import Foundation
 @testable import scvCore
 import Testing
 
+// Note: MockAVAdapter is now in scvCore (Sources/MockAVAdapter.swift)
+// and can be imported via scvCore
+
+// Flag to control adapter type: false=real AVAdapter, true=MockAVAdapter
+let MOCK_AV = true
+
 @Suite("Audio Store")
 struct AudioStoreTests {
-  @Test("A13s: audioUrl with forceUrl=true returns URL with exact path structure")
+  @Test(
+    "A13s: audioUrl with forceUrl=true returns URL with exact path structure",
+  )
   func audioUrlForceUrl() {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
     let text = "test text"
 
@@ -31,7 +42,8 @@ struct AudioStoreTests {
 
   @Test("A13s: create() with default path")
   func createDefault() {
-    let store = AudioStore.create()
+    let store = AudioStore
+      .create(adapter: MOCK_AV ? MockAVAdapter() : AVAdapter())
     let context = AudioContext(for: "en")
     let url = store.audioUrl(
       text: "test",
@@ -45,7 +57,10 @@ struct AudioStoreTests {
   func createCustomPath() async {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
     let url = store.audioUrl(
       text: "test",
@@ -72,20 +87,30 @@ struct AudioStoreTests {
   func createSeparateInstances() {
     let path1 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
     let path2 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
-    let store1 = AudioStore.create(path: path1)
-    let store2 = AudioStore.create(path: path2)
+    let store1 = AudioStore.create(
+      path: path1,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
+    let store2 = AudioStore.create(
+      path: path2,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     #expect(store1 !== store2, "create() should return separate instances")
   }
 
   @Test("A13s: timeout property has correct default")
   func timeoutDefault() {
-    let store = AudioStore.create()
+    let store = AudioStore
+      .create(adapter: MOCK_AV ? MockAVAdapter() : AVAdapter())
     #expect(store.timeout == 5, "Default timeout should be 5s")
   }
 
   @Test("A13s: timeout can be customized")
   func timeoutCustom() {
-    let store = AudioStore.create(timeout: 2)
+    let store = AudioStore.create(
+      timeout: 2,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     #expect(store.timeout == 2, "Timeout should be customizable via create()")
   }
 
@@ -93,13 +118,16 @@ struct AudioStoreTests {
   func storeAudioCachesFile() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
     let text = "So I have heard."
 
     // Initial cache size
     let sizeStart = await store.diskSize()
-    #expect( sizeStart == 0, "expected 0 cache size")
+    #expect(sizeStart == 0, "expected 0 cache size")
 
     // First synthesis
     let startTime1 = Date()
@@ -140,7 +168,10 @@ struct AudioStoreTests {
   func storeAudioEmptyText() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
 
     do {
@@ -164,7 +195,10 @@ struct AudioStoreTests {
   func storeAudioPetraFails() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
 
     // Create settings with Petra voice
     let settings = Settings()
@@ -186,179 +220,208 @@ struct AudioStoreTests {
     }
   }
 
-#if COMPACT_CONTEXT_VOLUMES
-  @Test("A13s: compactContextVolumes with no volumes returns zero status")
-  func compactContextVolumesEmptyStore() async {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
+  #if COMPACT_CONTEXT_VOLUMES
+    @Test("A13s: compactContextVolumes with no volumes returns zero status")
+    func compactContextVolumesEmptyStore() async {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let context = AudioContext(for: "en")
 
-    let status = await store.compactContextVolumes(context: context)
+      let status = await store.compactContextVolumes(context: context)
 
-    #expect(status.volumesScanned == 0, "Should scan zero volumes")
-    #expect(status.volumesDeleted == 0, "Should delete zero volumes")
-    #expect(status.volumesKept == 0, "Should keep zero volumes")
-    #expect(status.elapsedSeconds >= 0, "Elapsed time should be non-negative")
-  }
+      #expect(status.volumesScanned == 0, "Should scan zero volumes")
+      #expect(status.volumesDeleted == 0, "Should delete zero volumes")
+      #expect(status.volumesKept == 0, "Should keep zero volumes")
+      #expect(status.elapsedSeconds >= 0, "Elapsed time should be non-negative")
+    }
 
-  @Test("A13s: compactContextVolumes keeps current context volume")
-  func compactContextVolumesKeepsCurrentVolume() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-    let text = "So I have heard."
+    @Test("A13s: compactContextVolumes keeps current context volume")
+    func compactContextVolumesKeepsCurrentVolume() async throws {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let context = AudioContext(for: "en")
+      let text = "So I have heard."
 
-    // Create audio file (builds current context volume)
-    _ = try await store.storeAudio(text: text, audioContext: context)
+      // Create audio file (builds current context volume)
+      _ = try await store.storeAudio(text: text, audioContext: context)
 
-    // Compact with same context
-    let status = await store.compactContextVolumes(context: context)
+      // Compact with same context
+      let status = await store.compactContextVolumes(context: context)
 
-    #expect(status.volumesScanned == 1, "Should scan one volume")
-    #expect(
-      status.volumesDeleted == 0,
-      "Should delete zero volumes (current context)",
+      #expect(status.volumesScanned == 1, "Should scan one volume")
+      #expect(
+        status.volumesDeleted == 0,
+        "Should delete zero volumes (current context)",
+      )
+      #expect(
+        status.volumesKept == 1,
+        "Should keep one volume (current context)",
+      )
+    }
+
+    @Test(
+      "A13s: compactContextVolumes deletes orphaned volumes with different hash",
     )
-    #expect(status.volumesKept == 1, "Should keep one volume (current context)")
-  }
+    func compactContextVolumesDeletesOrphaned() async throws {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let text = "So I have heard."
 
-  @Test("A13s: compactContextVolumes deletes orphaned volumes with different hash")
-  func compactContextVolumesDeletesOrphaned() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let text = "So I have heard."
+      // Create single Settings instance for this test
+      let settings = Settings()
 
-    // Create single Settings instance for this test
-    let settings = Settings()
+      // Create audio with first context
+      let contextV1 = AudioContext(for: "en", from: settings)
+      _ = try await store.storeAudio(text: text, audioContext: contextV1)
 
-    // Create audio with first context
-    let contextV1 = AudioContext(for: "en", from: settings)
-    _ = try await store.storeAudio(text: text, audioContext: contextV1)
+      // Modify settings and create audio with different context (simulating
+      // user
+      // changing pitch)
+      settings.docLangSettings[.english]?.pitch = 1.5
+      let contextV2 = AudioContext(for: "en", from: settings)
 
-    // Modify settings and create audio with different context (simulating user
-    // changing pitch)
-    settings.docLangSettings[.english]?.pitch = 1.5
-    let contextV2 = AudioContext(for: "en", from: settings)
+      _ = try await store.storeAudio(text: text, audioContext: contextV2)
 
-    _ = try await store.storeAudio(text: text, audioContext: contextV2)
+      // Verify both volumes exist before compaction
+      let volumesBefore = try await store.listVolumes()
+      let enVolumes = volumesBefore.filter { $0.hasPrefix("en-") }
+      #expect(
+        enVolumes.count == 2,
+        "Should have two volumes for en (different contexts)",
+      )
 
-    // Verify both volumes exist before compaction
-    let volumesBefore = try await store.listVolumes()
-    let enVolumes = volumesBefore.filter { $0.hasPrefix("en-") }
-    #expect(
-      enVolumes.count == 2,
-      "Should have two volumes for en (different contexts)",
+      // Compact with contextV2 - should delete contextV1 volume
+      let status = await store.compactContextVolumes(context: contextV2)
+
+      #expect(status.volumesScanned == 2, "Should scan two volumes")
+      #expect(status.volumesDeleted == 1, "Should delete one orphaned volume")
+      #expect(
+        status.volumesKept == 1,
+        "Should keep one volume (current context)",
+      )
+
+      // Verify orphaned volume was deleted
+      let volumesAfter = try await store.listVolumes()
+      let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
+      #expect(
+        enVolumesAfter.count == 1,
+        "Should have one volume after compaction",
+      )
+    }
+
+    @Test("A13s: compactContextVolumes ignores other languages")
+    func compactContextVolumesIgnoresOtherLanguages() async throws {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let text = "test"
+
+      // Create single Settings instance for this test
+      let settings = Settings()
+
+      // Create audio for English
+      let contextEn = AudioContext(for: "en", from: settings)
+      _ = try await store.storeAudio(text: text, audioContext: contextEn)
+
+      // Create audio for German
+      let contextDe = AudioContext(for: "de", from: settings)
+      _ = try await store.storeAudio(text: text, audioContext: contextDe)
+
+      // Modify settings and create new English context with different settings
+      // (simulating user
+      // changing pitch)
+      settings.docLangSettings[.english]?.pitch = 1.5
+      let contextEnV2 = AudioContext(for: "en", from: settings)
+      _ = try await store.storeAudio(text: text, audioContext: contextEnV2)
+
+      // Compact with contextEnV2 - should delete contextEn volume and keep
+      // contextEnV2
+      let status = await store.compactContextVolumes(context: contextEnV2)
+
+      // Should only scan/process English volumes (2 total: old en and new en)
+      #expect(status.volumesScanned == 2, "Should scan both English volumes")
+      #expect(status.volumesDeleted == 1, "Should delete old English volume")
+      #expect(status.volumesKept == 1, "Should keep new English volume")
+
+      // Verify German volume still exists
+      let volumesAfter = try await store.listVolumes()
+      let deVolumesAfter = volumesAfter.filter { $0.hasPrefix("de-") }
+      #expect(deVolumesAfter.count == 1, "German volume should not be affected")
+
+      // Verify retained English volume is for current context (contextEnV2)
+      let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
+      let currentHashPrefix = String(contextEnV2.hash.prefix(7))
+      let retainedEnVolume = enVolumesAfter
+        .first { $0.contains(currentHashPrefix) }
+      #expect(
+        retainedEnVolume != nil,
+        "Retained English volume should match current context hash: en-\(currentHashPrefix)",
+      )
+    }
+
+    @Test("A13s: compactContextVolumes measures elapsed time")
+    func compactContextVolumesMeasuresElapsed() async throws {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let context = AudioContext(for: "en")
+      let text = "So I have heard."
+
+      // Create audio
+      _ = try await store.storeAudio(text: text, audioContext: context)
+
+      // Compact and verify elapsed time is recorded
+      let status = await store.compactContextVolumes(context: context)
+
+      #expect(
+        status.elapsedSeconds >= 0,
+        "Elapsed time must be non-negative",
+      )
+      #expect(
+        status.elapsedSeconds < 10,
+        "Compaction should complete within 10 seconds (BUG if exceeded)",
+      )
+    }
+
+    @Test(
+      "A13s: compactContextVolumes returns consistent results on empty store",
     )
+    func compactContextVolumesEmptyStoreConsistent() async {
+      let tempDir =
+        URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
+      let store = AudioStore.create(
+        path: tempDir,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let context = AudioContext(for: "en")
 
-    // Compact with contextV2 - should delete contextV1 volume
-    let status = await store.compactContextVolumes(context: contextV2)
+      // Run twice on empty store
+      let status1 = await store.compactContextVolumes(context: context)
+      let status2 = await store.compactContextVolumes(context: context)
 
-    #expect(status.volumesScanned == 2, "Should scan two volumes")
-    #expect(status.volumesDeleted == 1, "Should delete one orphaned volume")
-    #expect(status.volumesKept == 1, "Should keep one volume (current context)")
-
-    // Verify orphaned volume was deleted
-    let volumesAfter = try await store.listVolumes()
-    let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
-    #expect(
-      enVolumesAfter.count == 1,
-      "Should have one volume after compaction",
-    )
-  }
-
-  @Test("A13s: compactContextVolumes ignores other languages")
-  func compactContextVolumesIgnoresOtherLanguages() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let text = "test"
-
-    // Create single Settings instance for this test
-    let settings = Settings()
-
-    // Create audio for English
-    let contextEn = AudioContext(for: "en", from: settings)
-    _ = try await store.storeAudio(text: text, audioContext: contextEn)
-
-    // Create audio for German
-    let contextDe = AudioContext(for: "de", from: settings)
-    _ = try await store.storeAudio(text: text, audioContext: contextDe)
-
-    // Modify settings and create new English context with different settings
-    // (simulating user
-    // changing pitch)
-    settings.docLangSettings[.english]?.pitch = 1.5
-    let contextEnV2 = AudioContext(for: "en", from: settings)
-    _ = try await store.storeAudio(text: text, audioContext: contextEnV2)
-
-    // Compact with contextEnV2 - should delete contextEn volume and keep
-    // contextEnV2
-    let status = await store.compactContextVolumes(context: contextEnV2)
-
-    // Should only scan/process English volumes (2 total: old en and new en)
-    #expect(status.volumesScanned == 2, "Should scan both English volumes")
-    #expect(status.volumesDeleted == 1, "Should delete old English volume")
-    #expect(status.volumesKept == 1, "Should keep new English volume")
-
-    // Verify German volume still exists
-    let volumesAfter = try await store.listVolumes()
-    let deVolumesAfter = volumesAfter.filter { $0.hasPrefix("de-") }
-    #expect(deVolumesAfter.count == 1, "German volume should not be affected")
-
-    // Verify retained English volume is for current context (contextEnV2)
-    let enVolumesAfter = volumesAfter.filter { $0.hasPrefix("en-") }
-    let currentHashPrefix = String(contextEnV2.hash.prefix(7))
-    let retainedEnVolume = enVolumesAfter
-      .first { $0.contains(currentHashPrefix) }
-    #expect(
-      retainedEnVolume != nil,
-      "Retained English volume should match current context hash: en-\(currentHashPrefix)",
-    )
-  }
-
-  @Test("A13s: compactContextVolumes measures elapsed time")
-  func compactContextVolumesMeasuresElapsed() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-    let text = "So I have heard."
-
-    // Create audio
-    _ = try await store.storeAudio(text: text, audioContext: context)
-
-    // Compact and verify elapsed time is recorded
-    let status = await store.compactContextVolumes(context: context)
-
-    #expect(
-      status.elapsedSeconds >= 0,
-      "Elapsed time must be non-negative",
-    )
-    #expect(
-      status.elapsedSeconds < 10,
-      "Compaction should complete within 10 seconds (BUG if exceeded)",
-    )
-  }
-
-  @Test("A13s: compactContextVolumes returns consistent results on empty store")
-  func compactContextVolumesEmptyStoreConsistent() async {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-
-    // Run twice on empty store
-    let status1 = await store.compactContextVolumes(context: context)
-    let status2 = await store.compactContextVolumes(context: context)
-
-    #expect(status1.volumesScanned == status2.volumesScanned)
-    #expect(status1.volumesDeleted == status2.volumesDeleted)
-    #expect(status1.volumesKept == status2.volumesKept)
-  }
-#endif // COMPACT_CONTEXT_VOLUMES
+      #expect(status1.volumesScanned == status2.volumesScanned)
+      #expect(status1.volumesDeleted == status2.volumesDeleted)
+      #expect(status1.volumesKept == status2.volumesKept)
+    }
+  #endif // COMPACT_CONTEXT_VOLUMES
 
   @Test("A13s: BENCHMARK: dn10:2.32.2 CAF synthesis performance")
   func benchmarkDN10CAFSynthesis() async throws {
@@ -370,7 +433,11 @@ struct AudioStoreTests {
       withIntermediateDirectories: true,
     )
 
-    let store = AudioStore.create(path: outputDir, type: .caf)
+    let store = AudioStore.create(
+      path: outputDir,
+      type: .caf,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
 
     print("\n=== dn10:2.32.2 CAF SYNTHESIS BENCHMARK ===")
@@ -410,6 +477,7 @@ struct AudioStoreTests {
     let cafStore = AudioStore.create(
       path: outputDir,
       type: .caf,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
     )
     let context = AudioContext(for: "en")
 
@@ -668,7 +736,11 @@ struct AudioStoreTests {
     let fileManager = FileManager.default
     let root = projectRoot()
     let outputDir = root.appendingPathComponent("local/audio")
-    let cafStore = AudioStore.create(path: outputDir, type: .caf)
+    let cafStore = AudioStore.create(
+      path: outputDir,
+      type: .caf,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
 
     print("Text: \(dn10_2_32_2_text.prefix(100))...")
@@ -780,31 +852,35 @@ struct AudioStoreTests {
     )
   }
 
-#if TEST_PLAYBACK
-  @Test("A13s: PLAYBACK: Play 'So I have heard.' from AudioStore")
-  func playbackStoreAudioCAF() async throws {
-    let root = projectRoot()
-    let testDir = root.appendingPathComponent("local/test-audio")
-    let store = AudioStore.create(path: testDir, type: .caf)
-    let context = AudioContext(for: "en")
+  #if TEST_PLAYBACK
+    @Test("A13s: PLAYBACK: Play 'So I have heard.' from AudioStore")
+    func playbackStoreAudioCAF() async throws {
+      let root = projectRoot()
+      let testDir = root.appendingPathComponent("local/test-audio")
+      let store = AudioStore.create(
+        path: testDir,
+        type: .caf,
+        adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+      )
+      let context = AudioContext(for: "en")
 
-    let text = "playback ok"
-    let url = try await store.storeAudio( text: text, audioContext: context)
+      let text = "playback ok"
+      let url = try await store.storeAudio(text: text, audioContext: context)
 
-    #expect(url.pathExtension == "caf", "Should return CAF file")
+      #expect(url.pathExtension == "caf", "Should return CAF file")
 
-    let player = try AVAudioPlayer(contentsOf: url)
-    #expect(player.prepareToPlay(), "Player should prepare successfully")
-    #expect(player.duration > 0, "Audio duration should be positive")
+      let player = try AVAudioPlayer(contentsOf: url)
+      #expect(player.prepareToPlay(), "Player should prepare successfully")
+      #expect(player.duration > 0, "Audio duration should be positive")
 
-    print(#file, #line, "You should hear \"\(text)\"")
-    player.play()
+      print(#file, #line, "You should hear \"\(text)\"")
+      player.play()
 
-    // Wait for playback to complete
-    try await Task.sleep(for: .seconds(player.duration + 0.05))
-    print(#file, #line, "You should have heard \"\(text)\"")
-  }
-#endif
+      // Wait for playback to complete
+      try await Task.sleep(for: .seconds(player.duration + 0.05))
+      print(#file, #line, "You should have heard \"\(text)\"")
+    }
+  #endif
 
   @Test("A13s: diskSize() returns 0 for non-existent store")
   func diskSizeNonExistentStore() async {
@@ -812,7 +888,10 @@ struct AudioStoreTests {
       URL(
         fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)/non-existent",
       )
-    let store = AudioStore.create(path: tempDir)
+    let store = AudioStore.create(
+      path: tempDir,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
 
     let size = await store.diskSize()
 
@@ -830,7 +909,11 @@ struct AudioStoreTests {
     // Clean up test directory to ensure fresh test
     try? FileManager.default.removeItem(at: testDir)
 
-    let store = AudioStore.create(path: testDir, type: .m4a)
+    let store = AudioStore.create(
+      path: testDir,
+      type: .m4a,
+      adapter: MOCK_AV ? MockAVAdapter() : AVAdapter(),
+    )
     let context = AudioContext(for: "en")
 
     print("\n=== ASYNC M4A CONVERSION TEST ===")

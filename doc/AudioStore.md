@@ -15,7 +15,11 @@ See: `doc/BackgroundAudio.md`, `doc/GuidStore.md`
 
 **Initialization**:
 - `AudioStore.shared` — Production singleton (Library/Application Support/audio-store)
-- `AudioStore.create(path: URL?, type: AudioType = .caf)` — Test factory with isolated paths
+- `AudioStore.create(path: URL?, type: AudioType = .caf, timeout: TimeInterval = 5, adapter: IAVAdapter? = nil) -> AudioStore`
+  - `path`: Custom storage directory (defaults to Library/Application Support/audio-store)
+  - `type`: Audio format (.caf or .m4a), defaults to .caf
+  - `timeout`: Synthesis timeout in seconds (default 5s), raises error if exceeded
+  - `adapter`: Dependency injection for AVFoundation adapter (defaults to AVAdapter()); used for testing with MockAVAdapter
 
 **Core methods**:
 
@@ -24,13 +28,25 @@ See: `doc/BackgroundAudio.md`, `doc/GuidStore.md`
    - `forceUrl=true`: Return URL even if file doesn't exist
    - `forceUrl=false`: Return URL only if cached, nil otherwise
 
-2. **`storeAudio(text: String, audioContext: AudioContext, timeout: TimeInterval?) async throws -> URL`**
-   - Synthesizes text via AVSpeechSynthesizer (0.23s–0.82s per segment)
+2. **`storeAudio(text: String, audioContext: AudioContext, timeout: TimeInterval? = nil) async throws -> URL`**
+   - Synthesizes text via adapter (AVSpeechSynthesizer or MockAVAdapter)
    - Stores CAF file atomically via GuidStore
    - Returns immediately if file already cached
+   - For `.m4a` type: Returns CAF URL immediately, starts background M4A conversion
    - Throws on synthesis timeout or write failure
+   - Rejects empty text with error
 
-3. **`compactContextVolumes(context: AudioContext) async -> CompactionStatus`**
+3. **`diskSize() async -> Int`**
+   - Calculates total disk size of all audio volumes in bytes
+   - Returns 0 if store doesn't exist or calculation fails
+
+4. **`clearAllAudio() async -> Int`**
+   - Deletes all volumes and audio files
+   - Returns count of volumes deleted
+   - Used for disk space reclamation or cache reset
+
+5. **`compactContextVolumes(context: AudioContext) async -> CompactionStatus`** ⚠️ *Conditional feature*
+   - **Note:** Only available when compiled with `COMPACT_CONTEXT_VOLUMES` flag (currently disabled)
    - Deletes volumes from previous audio contexts
    - Filters by language + hash prefix
    - Call after voice/rate/pitch changes
@@ -49,7 +65,19 @@ if let url = audioStore.audioUrl(text, audioContext) {
 
 // Synthesize + store
 let url = await audioStore.storeAudio(text, audioContext)
+// For .m4a type: url is CAF (playable immediately)
+// Background conversion to M4A starts automatically
 play(url)
+```
+
+**Testing with mock adapter**:
+
+```swift
+// Production: uses real AVSpeechSynthesizer
+let store = AudioStore.shared
+
+// Testing: uses fast MockAVAdapter (copies test audio file)
+let mockStore = AudioStore.create(adapter: MockAVAdapter())
 ```
 
 **Batch synthesis** (background playback):
@@ -58,19 +86,54 @@ For pre-synthesizing entire suttas, use **AudioSynthesisSession** to queue all s
 
 ## Performance
 
-| Operation | Time |
-|-----------|------|
-| AVSpeechSynthesizer synthesis | ~50ms |
-| Write to cache | ~10ms |
-| Read from cache | ~5-10ms |
-| File size (CAF, single segment) | 70-114KB |
+| Operation | Time | Notes |
+|-----------|------|-------|
+| AVSpeechSynthesizer synthesis | Varies | Depends on text length and voice |
+| Write to cache (GuidStore) | ~10ms | Atomic, includes directory creation |
+| Read from cache | ~5-10ms | File exists check + filesystem lookup |
+| MockAVAdapter (test) | <1ms | Copies pre-recorded test audio |
+| File size (CAF, short segment) | 85-114KB | Varies by voice and text length |
+| File size (CAF, long segment) | ~5.4MB | Example: dn10:2.32.2 (1058 chars) |
+| M4A conversion | ~0.3s | AVAudioConverter, ~7x compression ratio |
 
 **Disk scaling** (M4A with AAC, 7x compression):
-- Single segment: ~15KB per voice
-- Full EN corpus (148,496 segments) × 1 voice: ~2.2GB (M4A) vs ~44GB (uncompressed)
+- Single short segment: ~12-16KB per voice (compressed)
+- Single long segment (1000+ chars): ~700KB per voice (compressed)
+- Full EN corpus (148,496 segments) × 1 voice: ~2.2GB (M4A) vs ~44GB (CAF uncompressed)
 - Typical cache: 10–50 suttas with 2–3 voices = 150MB–2GB
 
+**M4A Pipeline**:
+- `storeAudio()` returns CAF URL immediately (playable)
+- Background task converts CAF→M4A asynchronously (non-blocking)
+- CAF is deleted when next `storeAudio()` call returns M4A
+- Users can play audio while conversion happens in background
+
 ## Testing
+
+**Using MockAVAdapter**:
+
+MockAVAdapter is a public testing utility in scvCore that enables fast unit tests without real audio synthesis:
+- Copies pre-recorded test audio (`scv-core/Tests/Data/test-audio.caf`) instead of synthesizing
+- Simulates playback state in memory (no real AVAudioPlayer)
+- Allows manual delegate triggering for testing event sequences
+- Test synthesis: <1ms (vs ~50-200ms real synthesis)
+- Available to all packages (scv-core, scv-ui, etc.)
+
+Enable in tests:
+```swift
+import scvCore
+
+// In scv-core tests
+let MOCK_AV = true  // or false for real AVAdapter
+let store = AudioStore.create(
+  adapter: MOCK_AV ? MockAVAdapter() : AVAdapter()
+)
+
+// In scv-ui tests (similar approach)
+let audioStore = AudioStore.create(adapter: MockAVAdapter())
+```
+
+All 540 tests in scv-core pass with MockAVAdapter enabled.
 
 **Cache key determinism**:
 ```swift
@@ -92,9 +155,10 @@ let newKey = cacheKey(for: segment, audioContext: newContext)
 XCTAssertNotEqual(oldKey, newKey)  // Different settings → different key
 ```
 
-**Lifecycle verification** (cleanup on settings change):
+**Lifecycle verification** (cleanup on settings change) ⚠️ *Conditional feature*:
 - User changes voice/rate/pitch → AudioContext hash changes → new volume
-- Old volume becomes orphaned (can call `compactContextVolumes()` to delete)
+- Old volume becomes orphaned
+- `compactContextVolumes()` can delete orphaned volumes (if `COMPACT_CONTEXT_VOLUMES` flag enabled)
 - No LRU or size limits needed; self-cleaning strategy sufficient for typical usage
 
 ## Integration Points
@@ -104,6 +168,9 @@ XCTAssertNotEqual(oldKey, newKey)  // Different settings → different key
 - **Settings** — Voice/rate/pitch changes invalidate audioContextHash
 - **MerkleJson** — Provides deterministic hashing for cache keys
 - **GuidStore** — File organization and storage management
+- **IAVAdapter** — Protocol for audio synthesis/playback (enables AVAdapter or MockAVAdapter)
+  - **AVAdapter** — Production: wraps AVSpeechSynthesizer and AVAudioPlayer
+  - **MockAVAdapter** — Testing: copies test audio file for fast unit tests
 
 ## Related Docs
 
@@ -112,6 +179,8 @@ XCTAssertNotEqual(oldKey, newKey)  // Different settings → different key
 - `doc/GuidStore.md` — File storage architecture
 - `doc/MerkleJson.md` — Hash algorithm and cache key generation
 - `scv-core/Sources/AudioContext.swift` — AudioContext implementation
+- `scv-core/Sources/AVAdapter.swift` — Production audio adapter
+- `scv-core/Sources/MockAVAdapter.swift` — Public testing audio adapter (copies test audio, available to all packages)
 
 ## Storage Design (Internal)
 

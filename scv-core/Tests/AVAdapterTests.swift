@@ -19,7 +19,8 @@ import Testing
   @Test("createPlayer fails with non-existent file")
   func createPlayerFailsWithInvalidFile() {
     let adapter = AVAdapter()
-    let invalidURL = URL(fileURLWithPath: "/tmp/nonexistent-audio-file-\(UUID()).caf")
+    let invalidURL =
+      URL(fileURLWithPath: "/tmp/nonexistent-audio-file-\(UUID()).caf")
 
     #expect(throws: Error.self) {
       try adapter.createPlayer(contentsOf: invalidURL)
@@ -28,12 +29,16 @@ import Testing
 
   @Test("synthesizeToFile")
   func synthesizeToFile() async throws {
-    let adapter:IAVAdapter = AVAdapter()
+    let adapter: IAVAdapter = AVAdapter()
 
     // Create audio file in local/build
     let outDir = URL(fileURLWithPath: "../local/audio", isDirectory: true)
-    try? FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)
-    let audioURL = outDir.appendingPathComponent("test-core-synthesizeToFile.caf")
+    try? FileManager.default.createDirectory(
+      at: outDir,
+      withIntermediateDirectories: true,
+    )
+    let audioURL = outDir
+      .appendingPathComponent("test-core-synthesizeToFile.caf")
 
     // Create minimal audio file using AudioContext
     let audioContext = AudioContext(for: "en")
@@ -43,7 +48,7 @@ import Testing
     try await adapter.synthesizeToFile(
       text: text,
       audioContext: audioContext,
-      outputURL: audioURL
+      outputURL: audioURL,
     )
 
     // Create two players from same file
@@ -62,7 +67,8 @@ import Testing
     #expect(currentTime == 0)
 
     // File should have non-zero size
-    let attributes = try FileManager.default.attributesOfItem(atPath: audioURL.path)
+    let attributes = try FileManager.default
+      .attributesOfItem(atPath: audioURL.path)
     let fileSize = attributes[.size] as? Int ?? 0
     #expect(fileSize > 0)
   }
@@ -85,7 +91,8 @@ import Testing
 
     let audioContext = AudioContext(for: "en", from: settings)
 
-    let audioURL = tempDir.appendingPathComponent("test-synthesis-custom-\(UUID()).caf")
+    let audioURL = tempDir
+      .appendingPathComponent("test-synthesis-custom-\(UUID()).caf")
 
     defer {
       try? FileManager.default.removeItem(at: audioURL)
@@ -95,10 +102,9 @@ import Testing
     try await adapter.synthesizeToFile(
       text: "Test with custom settings",
       audioContext: audioContext,
-      outputURL: audioURL
+      outputURL: audioURL,
     )
 
     #expect(FileManager.default.fileExists(atPath: audioURL.path))
   }
-
 }
