@@ -1,5 +1,5 @@
 .PHONY: _init test test-app test-core test-core-verbose test-ui test-build test-tasks\
-				test-zstd-integration test-nlp test-content\
+				test-zstd-integration test-nlp test-content test-research\
 				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before build-tasks\
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw \
@@ -14,6 +14,7 @@ SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(✘|Suite.*after|error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled|=== MAKE)'
 LOG_FILE = $(CURDIR)/local/build/make.log
+RESEARCH_TESTS = AVFoundationTests
 
 # Initialize make.log at start of top-level invocation
 _init:
@@ -42,7 +43,7 @@ test-core: _init _test-core _end
 
 _test-core: _build-core
 	@echo "=== MAKE test-core..." | tee -a $(LOG_FILE)
-	cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests 2>&1 | tee -a $(LOG_FILE); \
+	cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests --skip $(RESEARCH_TESTS) 2>&1 | tee -a $(LOG_FILE); \
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
 
 test-core-verbose: _init _build-core _end
@@ -71,6 +72,13 @@ _test-tasks:
 
 test-zstd-integration:
 	@cd scv-core && swift test --no-parallel --filter ZstdIntegrationTests 2>&1 | grep -v "started\."
+
+test-research: _init _test-research _end
+
+_test-research: _build-core
+	@echo "=== MAKE test-research..." | tee -a $(LOG_FILE)
+	@cd scv-core && swift test --no-parallel --filter $(RESEARCH_TESTS) 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
 
 test-nlp: build-nlp
 	@echo "=== MAKE test-nlp..." | tee -a $(LOG_FILE)
@@ -304,6 +312,7 @@ help:
 	@echo "  make test-tasks        Run scv-tasks tests serially"
 	@echo "  make test-ui           Run scv-ui tests serially"
 	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
+	@echo "  make test-research     Run research tests (platform API exploration)"
 	@echo "  make test-content      Verify all manifest databases are present in build"
 	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"

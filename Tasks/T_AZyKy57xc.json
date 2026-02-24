@@ -1,0 +1,74 @@
+{
+  "completedActions" : [
+    {
+      "name" : "Create IAVAdapter protocol and AVAdapter implementation in scv-core\/Sources\/AVAdapter.swift with ID-based API",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Implement MockAVAdapter (testing) in scv-core\/Tests\/MockAVAdapter.swift with instant synthesis",
+      "test" : "update unit tests"
+    }
+  ],
+  "createdAt" : "2026-02-23T13:58:46Z",
+  "id" : "019C8ACB-9EF1-7000-8D64-565D1EB36A3F",
+  "name" : "Create AVAdapter protocol and implementation",
+  "plannedActions" : [
+    {
+      "name" : "Inject adapter into AudioStore.create() with default AVAdapter(), replace direct AVSpeechSynthesizer calls",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Inject adapter into CachedSynthesizer.init(), replace direct AVAudioPlayer usage with ID-based API",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update CachedSynthesizerTests to use MockAVAdapter, remove temp dirs and sleep\/polling",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update BackgroundPlayerViewTests to use MockAVAdapter",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Verify test speedup: 29s → <1s",
+      "test" : "update unit tests"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "API specification and design",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/AVAdapter.md"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "CachedSynthesizer - primary playback client, playAudio method",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/CachedSynthesizer.swift"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "AudioStore - primary synthesis client, storeAudio method",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/AudioStore.swift"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "BackgroundPlayerViewTests - target test suite (7.7s)",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/BackgroundPlayerViewTests.swift"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "CachedSynthesizerTests - target test suite (8.3s)",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/CachedSynthesizerTests.swift"
+    },
+    {
+      "relevance" : 0.7,
+      "text" : "ISpeechSynthesizer - existing synthesis protocol (partial overlap)",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/ISpeechSynthesizer.swift"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Create IAVAdapter protocol wrapping AVFoundation classes (AVSpeechSynthesizer, AVAudioPlayer) for dependency injection. Implement AVAdapter (production) and MockAVAdapter (testing) to enable fast unit tests without real audio synthesis.",
+  "updatedAt" : "2026-02-24T13:55:15Z"
+}

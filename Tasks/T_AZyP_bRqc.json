@@ -1,0 +1,51 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-24T14:11:34Z",
+  "id" : "019C8FFD-B46A-7000-BC47-E4F63F6878AA",
+  "name" : "Inject IAVAdapter into AudioStore",
+  "plannedActions" : [
+    {
+      "name" : "Add totalBytes tracking and validation to AVAdapter.synthesizeToFile",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Add adapter property to AudioStore private initializer",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update AudioStore.create() with optional adapter parameter and default AVAdapter()",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Replace performSynthesis call with adapter.synthesizeToFile in storeAudio method",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Remove performSynthesis method from AudioStore",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Compile and verify build passes",
+      "test" : "update unit tests"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "AVAdapter implementation - add totalBytes validation",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/AVAdapter.swift"
+    },
+    {
+      "relevance" : 1,
+      "text" : "AudioStore - inject adapter parameter",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/AudioStore.swift"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Add adapter parameter to AudioStore.create() with default AVAdapter(). Replace performSynthesis with adapter.synthesizeToFile() call. Move totalBytes validation into AVAdapter for production safety.",
+  "updatedAt" : "2026-02-24T14:14:32Z"
+}

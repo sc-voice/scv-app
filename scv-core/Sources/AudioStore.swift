@@ -53,6 +53,7 @@ public struct CompactionStatus: Sendable {
 public final class AudioStore: @unchecked Sendable {
   private let guidStore: GuidStore
   private let audioType: AudioType
+  private let adapter: IAVAdapter
   private let cc = ColorConsole(#file, "AudioStore", dbg.AudioStore.other)
   let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 
@@ -63,10 +64,12 @@ public final class AudioStore: @unchecked Sendable {
   private init(
     guidStore: GuidStore,
     audioType: AudioType,
-    timeout: TimeInterval = 5,
+    adapter: IAVAdapter,
+    timeout: TimeInterval = 5
   ) {
     self.guidStore = guidStore
     self.audioType = audioType
+    self.adapter = adapter
     self.timeout = timeout
   }
 
@@ -79,11 +82,13 @@ public final class AudioStore: @unchecked Sendable {
   ///     Useful for testing with isolated directories.
   ///   - type: Audio format type (.caf or .m4a), defaults to .caf
   ///   - timeout: Synthesis timeout in seconds (default 5s)
+  ///   - adapter: AVFoundation adapter for synthesis/playback (defaults to AVAdapter())
   /// - Returns: New AudioStore instance
   public static func create(
     path: URL? = nil,
     type: AudioType = .caf,
     timeout: TimeInterval = 5,
+    adapter: IAVAdapter? = nil
   ) -> AudioStore {
     let suffix = type == .caf ? ".caf" : ".m4a"
 
@@ -104,7 +109,8 @@ public final class AudioStore: @unchecked Sendable {
     }
 
     let guidStore = GuidStore(config: config)
-    return AudioStore(guidStore: guidStore, audioType: type, timeout: timeout)
+    let actualAdapter = adapter ?? AVAdapter()
+    return AudioStore(guidStore: guidStore, audioType: type, adapter: actualAdapter, timeout: timeout)
   }
 
   /// Get audio URL for text and context.
@@ -215,12 +221,10 @@ public final class AudioStore: @unchecked Sendable {
     )
 
     // Perform synthesis to CAF
-    let effectiveTimeout = timeout ?? self.timeout
-    try await performSynthesis(
+    try await adapter.synthesizeToFile(
       text: text,
       audioContext: audioContext,
-      to: cafUrl,
-      timeout: effectiveTimeout,
+      outputURL: cafUrl
     )
 
     // If M4A requested, start background conversion task (don't await)
@@ -241,128 +245,6 @@ public final class AudioStore: @unchecked Sendable {
     }
 
     return cafUrl
-  }
-
-  /// Perform synthesis and write to CAF audio file.
-  private func performSynthesis(
-    text: String,
-    audioContext: AudioContext,
-    to cafUrl: URL,
-    timeout: TimeInterval,
-  ) async throws {
-    let fileManager = FileManager.default
-
-    // Create utterance with audio context voice settings
-    let utterance = AVSpeechUtterance(string: text)
-    utterance.voice = AVSpeechSynthesisVoice(identifier: audioContext.voiceId)
-    utterance.rate = AVSpeechUtteranceDefaultSpeechRate
-    utterance.pitchMultiplier = audioContext.pitch
-    utterance.volume = 1.0
-
-    // Synthesize directly to CAF file
-    let outputUrl = cafUrl
-
-    // Setup synthesis with file writing
-    let synthesizer = AVSpeechSynthesizer()
-    var audioFile: AVAudioFile?
-    let lock = NSLock()
-    var isComplete = false
-    var synthesisError: Error?
-    var totalBytes = 0
-
-    let onBuffer: (AVAudioBuffer) -> Void = { buffer in
-      lock.lock()
-      defer { lock.unlock() }
-
-      guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-        return
-      }
-
-      // Empty buffer signals completion
-      if pcmBuffer.frameLength == 0 {
-        isComplete = true
-        return
-      }
-
-      do {
-        // First buffer: create file
-        if audioFile == nil {
-          audioFile = try AVAudioFile(
-            forWriting: outputUrl,
-            settings: pcmBuffer.format.settings,
-            commonFormat: .pcmFormatFloat32,
-            interleaved: false,
-          )
-        }
-
-        // Write buffer to file
-        try audioFile?.write(from: pcmBuffer)
-
-        // Track total bytes written
-        let format = pcmBuffer.format
-        let bytesPerFrame = format.streamDescription.pointee.mBytesPerFrame
-        let bufferBytes = Int(pcmBuffer.frameLength) * Int(bytesPerFrame)
-        totalBytes += bufferBytes
-      } catch {
-        synthesisError = error
-      }
-    }
-
-    // Start synthesis
-    synthesizer.write(utterance, toBufferCallback: onBuffer)
-
-    // Wait for completion (with configurable timeout)
-    let timeoutDate = Date().addingTimeInterval(timeout)
-    while !isComplete, synthesisError == nil, Date() < timeoutDate {
-      usleep(50000) // 50ms sleep
-    }
-
-    // If synthesis failed, clean up partial file and throw
-    if let error = synthesisError {
-      try? fileManager.removeItem(at: outputUrl)
-      throw error
-    }
-
-    if Date() >= timeoutDate {
-      try? fileManager.removeItem(at: outputUrl)
-      throw NSError(
-        domain: "AudioStore",
-        code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Synthesis timeout after \(timeout)s",
-        ],
-      )
-    }
-
-    // Log successful synthesis with total bytes written
-    cc.ok1(
-      #line,
-      "Synthesis complete: \(outputUrl.lastPathComponent), size: \(totalBytes) bytes",
-    )
-
-    // Validate synthesis produced sufficient audio data
-    // Rough estimate: 1 second = ~88KB (22050 Hz * 4 bytes/sample)
-    // Minimum: ~50 bytes/char to detect silent failures
-    let minimumBytes = max(10000, text.count * 50)
-    if totalBytes < minimumBytes {
-      cc.bad1(
-        #line,
-        "Synthesis failed silently: \(totalBytes) bytes for \(text.count) chars - removing corrupt file",
-      )
-      do {
-        try fileManager.removeItem(at: outputUrl)
-        cc.ok2(#line, "Corrupt file deleted: \(outputUrl.lastPathComponent)")
-      } catch {
-        cc.bad1(#line, "Failed to delete corrupt file: \(error)")
-      }
-      throw NSError(
-        domain: "AudioStore",
-        code: -2,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Voice synthesis failed (insufficient audio data: \(totalBytes) bytes for \(text.count) chars)",
-        ],
-      )
-    }
   }
 
   /// Convert CAF file to M4A (AAC codec) format using AVAudioConverter.
@@ -470,6 +352,9 @@ public final class AudioStore: @unchecked Sendable {
     try await guidStore.listVolumes()
   }
 
+
+// We do not use compactContextVolumes yet
+#if COMPACT_CONTEXT_VOLUMES
   /// Compact audio volumes by removing orphaned contexts.
   ///
   /// When user changes voice/pitch/rate, a new AudioContext hash is created.
@@ -571,6 +456,7 @@ public final class AudioStore: @unchecked Sendable {
       )
     }
   }
+#endif // COMPACT_CONTEXT_VOLUMES
 
   /// Clear all audio files from the AudioStore.
   ///

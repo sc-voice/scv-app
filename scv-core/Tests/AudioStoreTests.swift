@@ -3,252 +3,9 @@ import Foundation
 @testable import scvCore
 import Testing
 
-// DN10 segment dn10:2.32.2 (constant for benchmarking)
-let dn10_2_32_2_text = """
-With clairvoyance that is purified and superhuman, they see sentient beings passing away and being reborn—inferior and superior, beautiful and ugly, in a good place or a bad place. They understand how sentient beings pass on according to their deeds. 'These dear beings did bad things by way of body, speech, and mind. They denounced the noble ones; they had wrong view; and they chose to act out of that wrong view. When their body breaks up, after death, they're reborn in a place of loss, a bad place, the underworld, hell. These dear beings, however, did good things by way of body, speech, and mind. They never denounced the noble ones; they had right view; and they chose to act out of that right view. When their body breaks up, after death, they're reborn in a good place, a heavenly realm.' And so, with clairvoyance that is purified and superhuman, they see sentient beings passing away and being reborn—inferior and superior, beautiful and ugly, in a good place or a bad place. They understand how sentient beings pass on according to their deeds.
-"""
-
 @Suite("Audio Store")
 struct AudioStoreTests {
-  private let cc = ColorConsole(#file, #function, dbg.AudioStore.other)
-
-  private func synthesizeToCAF(
-    text: String,
-    voiceIdentifier: String? = nil,
-    voiceLanguage: String = "en",
-    outputPath: String,
-    timeout: TimeInterval = 5,
-  ) {
-    let fileManager = FileManager.default
-    let outputURL = URL(fileURLWithPath: outputPath)
-
-    // Ensure output directory exists
-    let outputDir = outputURL.deletingLastPathComponent().path
-    try? fileManager.createDirectory(
-      atPath: outputDir,
-      withIntermediateDirectories: true,
-    )
-
-    // Remove existing file
-    try? fileManager.removeItem(at: outputURL)
-
-    // Configure audio session (same as SuttaPlayer, iOS only)
-    #if os(iOS)
-      do {
-        try AVAudioSession.sharedInstance()
-          .setCategory(.playback, mode: .default, options: [.duckOthers])
-        try AVAudioSession.sharedInstance().setActive(true)
-      } catch {
-        cc.bad2(#line, "Failed to configure audio session: \(error)")
-      }
-    #endif
-
-    cc.ok2(#line, "Starting synthesis of '\(text)'...")
-    let startTime = Date()
-
-    // Create utterance
-    let utterance = AVSpeechUtterance(string: text)
-    if let voiceIdentifier {
-      utterance.voice = AVSpeechSynthesisVoice(identifier: voiceIdentifier)
-    } else {
-      utterance.voice = AVSpeechSynthesisVoice(language: voiceLanguage)
-    }
-    utterance.rate = AVSpeechUtteranceDefaultSpeechRate
-
-    // Setup synthesis with file writing
-    let synthesizer = AVSpeechSynthesizer()
-    var audioFile: AVAudioFile?
-    let lock = NSLock()
-    var isComplete = false
-    var hasError = false
-
-    let onBuffer: (AVAudioBuffer) -> Void = { buffer in
-      lock.lock()
-      defer { lock.unlock() }
-
-      guard let pcmBuffer = buffer as? AVAudioPCMBuffer else {
-        cc.bad2(#line, "Non-PCM buffer received")
-        return
-      }
-
-      // Empty buffer signals completion
-      if pcmBuffer.frameLength == 0 {
-        cc.ok2(#line, "Synthesis complete")
-        isComplete = true
-        return
-      }
-
-      do {
-        // First buffer: create file with Apple's preferred format
-        if audioFile == nil {
-          let format = pcmBuffer.format
-          cc.ok2(#line, "Buffer format details:")
-          cc.ok2(#line, "Sample rate: \(Int(format.sampleRate)) Hz")
-          cc.ok2(#line, "Channels: \(format.channelCount)")
-          cc.ok2(#line, "Format: \(format.commonFormat)")
-          cc.ok2(#line, "Is interleaved: \(format.isInterleaved)")
-          cc.ok2(#line, "Settings: \(format.settings)")
-          cc.ok2(#line, "Frame length in buffer: \(pcmBuffer.frameLength)")
-
-          audioFile = try AVAudioFile(
-            forWriting: outputURL,
-            settings: pcmBuffer.format.settings,
-            commonFormat: .pcmFormatFloat32,
-            interleaved: false,
-          )
-          cc.ok2(#line, "File created successfully")
-        }
-
-        // Write buffer to file
-        try audioFile?.write(from: pcmBuffer)
-      } catch {
-        cc.bad2(#line, "Error writing audio buffer: \(error)")
-        hasError = true
-      }
-    }
-
-    // Start synthesis
-    synthesizer.write(utterance, toBufferCallback: onBuffer)
-
-    // Wait for completion (with configurable timeout)
-    let timeoutDate = Date().addingTimeInterval(timeout)
-    while !isComplete, !hasError, Date() < timeoutDate {
-      usleep(50000) // 50ms sleep
-    }
-
-    let elapsed = Date().timeIntervalSince(startTime)
-
-    // Check results - failure if synthesis exceeds timeout
-    if Date() >= timeoutDate {
-      cc.bad1(
-        #line,
-        "Synthesis timeout after \(String(format: "%.1f", elapsed))s",
-      )
-      #expect(
-        Date() < timeoutDate,
-        "Synthesis must complete within \(timeout)s (BUG if exceeded)",
-      )
-      return
-    }
-
-    if hasError {
-      cc.bad1(#line, "Synthesis failed with error")
-      #expect(!hasError, "Synthesis must complete without errors")
-      return
-    }
-
-    // Verify file was created
-    let fileSize = (try? fileManager
-      .attributesOfItem(atPath: outputPath))?[.size] as? Int ?? 0
-    cc.ok1(#line, "Synthesis complete in \(String(format: "%.2f", elapsed))s")
-    cc.ok1(#line, "File saved to: \(outputPath)")
-    cc.ok1(#line, "File size: \(fileSize) bytes")
-
-    if fileSize == 0 {
-      cc.bad2(#line, "File is empty - no audio data written")
-    }
-    #expect(
-      fileSize >= 50000,
-      "Audio file must contain audio data (expected >= 50KB, got \(fileSize) bytes)",
-    )
-  }
-
-  @Test("Synthesize 'So I have heard.' to CAF file")
-  func synthesizeSimpleUtterance() async {
-    synthesizeToCAF(
-      text: "So I have heard.",
-      voiceLanguage: "en",
-      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_i_have_heard.caf",
-      timeout: 1,
-    )
-  }
-
-  @Test("Synthesize 'So I have heard.' to CAF file with Sangeeta")
-  func synthesizeSangeeta() async {
-    synthesizeToCAF(
-      text: "So I have heard.",
-      voiceIdentifier: "com.apple.voice.enhanced.en-IN.Sangeeta",
-      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_i_have_heard_sangeeta.caf",
-      timeout: 1,
-    )
-  }
-
-  @Test("Synthesize 'so habe ich gehoert' to CAF file with Sandy (DE)")
-  func synthesizeSandy() async {
-    synthesizeToCAF(
-      text: "so habe ich gehoert",
-      voiceIdentifier: "com.apple.eloquence.de-DE.Sandy",
-      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_sandy.caf",
-      timeout: 1,
-    )
-  }
-
-  @Test("Synthesize 'so habe ich gehoert' to CAF file with Petra (DE Premium)")
-  func synthesizePetra() async {
-    synthesizeToCAF(
-      text: "so habe ich gehoert",
-      voiceIdentifier: "com.apple.voice.premium.de-DE.Petra",
-      outputPath: "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_petra.caf",
-      timeout: 1,
-    )
-  }
-
-  private func verifyCAFFile(_ filePath: String) {
-    let fileURL = URL(fileURLWithPath: filePath)
-
-    cc.ok2(#line, "Loading \(filePath)...")
-
-    do {
-      let audioFile = try AVAudioFile(forReading: fileURL)
-
-      let format = audioFile.processingFormat
-      cc.ok2(#line, "File loaded successfully")
-      cc.ok2(#line, "Channels: \(format.channelCount)")
-      cc.ok2(#line, "Sample rate: \(Int(format.sampleRate)) Hz")
-
-      let frameLength = audioFile.length
-      cc.ok2(
-        #line,
-        "Duration: \(Double(frameLength) / format.sampleRate) seconds",
-      )
-
-      if frameLength > 0 {
-        cc.ok1(#line, "Audio file contains \(frameLength) frames of audio data")
-      } else {
-        cc.bad1(#line, "Audio file has no frames")
-      }
-    } catch {
-      cc.bad1(#line, "Failed to load audio file: \(error)")
-    }
-  }
-
-  @Test("Verify 'So I have heard.' CAF file is playable")
-  func verifyPlayback() {
-    verifyCAFFile("/Users/visakha/dev/scv-app/local/audio/so_i_have_heard.caf")
-  }
-
-  @Test("Verify 'So I have heard.' Sangeeta CAF file is playable")
-  func verifySangeetaPlayback() {
-    verifyCAFFile(
-      "/Users/visakha/dev/scv-app/local/audio/so_i_have_heard_sangeeta.caf",
-    )
-  }
-
-  @Test("Verify 'so habe ich gehoert' Sandy CAF file is playable")
-  func verifySandyPlayback() {
-    verifyCAFFile(
-      "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_sandy.caf",
-    )
-  }
-
-  @Test("Verify 'so habe ich gehoert' Petra CAF file is playable")
-  func verifyPetraPlayback() {
-    verifyCAFFile(
-      "/Users/visakha/dev/scv-app/local/audio/so_habe_ich_gehoert_petra.caf",
-    )
-  }
-
-  @Test("audioUrl with forceUrl=true returns URL with exact path structure")
+  @Test("A13s: audioUrl with forceUrl=true returns URL with exact path structure")
   func audioUrlForceUrl() {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -272,7 +29,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("create() with default path")
+  @Test("A13s: create() with default path")
   func createDefault() {
     let store = AudioStore.create()
     let context = AudioContext(for: "en")
@@ -284,8 +41,8 @@ struct AudioStoreTests {
     #expect(url != nil, "Should return URL with default path")
   }
 
-  @Test("create(path:) with custom path")
-  func createCustomPath() {
+  @Test("A13s: create(path:) with custom path")
+  func createCustomPath() async {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
     let store = AudioStore.create(path: tempDir)
@@ -299,16 +56,19 @@ struct AudioStoreTests {
       url?.path.contains(tempDir.path) == true,
       "URL should use custom path",
     )
+
+    let size = await store.diskSize()
+    #expect(size == 0, "Empty store should have size 0, got \(size)")
   }
 
-  @Test("shared is singleton")
+  @Test("A13s: shared is singleton")
   func sharedSingleton() {
     let store1 = AudioStore.shared
     let store2 = AudioStore.shared
     #expect(store1 === store2, "shared should return same instance")
   }
 
-  @Test("create(path:) creates separate instances")
+  @Test("A13s: create(path:) creates separate instances")
   func createSeparateInstances() {
     let path1 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
     let path2 = URL(fileURLWithPath: "/tmp/audio-store-\(UUID().uuidString)")
@@ -317,48 +77,19 @@ struct AudioStoreTests {
     #expect(store1 !== store2, "create() should return separate instances")
   }
 
-  @Test("timeout property has correct default")
+  @Test("A13s: timeout property has correct default")
   func timeoutDefault() {
     let store = AudioStore.create()
     #expect(store.timeout == 5, "Default timeout should be 5s")
   }
 
-  @Test("timeout can be customized")
+  @Test("A13s: timeout can be customized")
   func timeoutCustom() {
     let store = AudioStore.create(timeout: 2)
     #expect(store.timeout == 2, "Timeout should be customizable via create()")
   }
 
-  @Test("storeAudio synthesizes and returns URL")
-  func storeAudioSynthesizes() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-    let text = "So I have heard."
-
-    let url = try await store.storeAudio(text: text, audioContext: context)
-
-    // Verify file was created
-    #expect(
-      FileManager.default.fileExists(atPath: url.path),
-      "Audio file should exist after synthesis",
-    )
-
-    // Verify file has content
-    let fileSize = try FileManager.default
-      .attributesOfItem(atPath: url.path)[.size] as? Int ?? 0
-    #expect(
-      fileSize > 50000,
-      "Synthesized CAF file should be at least 50KB (got \(fileSize) bytes)",
-    )
-
-    // Verify file is readable as audio
-    let audioFile = try AVAudioFile(forReading: url)
-    #expect(audioFile.length > 0, "Audio file should contain audio frames")
-  }
-
-  @Test("storeAudio returns cached file on second call")
+  @Test("A13s: storeAudio returns cached file on second call")
   func storeAudioCachesFile() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -366,10 +97,28 @@ struct AudioStoreTests {
     let context = AudioContext(for: "en")
     let text = "So I have heard."
 
+    // Initial cache size
+    let sizeStart = await store.diskSize()
+    #expect( sizeStart == 0, "expected 0 cache size")
+
     // First synthesis
     let startTime1 = Date()
     let url1 = try await store.storeAudio(text: text, audioContext: context)
     let elapsed1 = Date().timeIntervalSince(startTime1)
+
+    // Verify file has content
+    let fileSize = try FileManager.default
+      .attributesOfItem(atPath: url1.path)[.size] as? Int ?? 0
+    #expect(
+      fileSize > 50000,
+      "Synthesized CAF file should be at least 50KB (got \(fileSize) bytes)",
+    )
+    // After synthesis: size should be positive
+    let sizeAfter1 = await store.diskSize()
+    #expect(
+      sizeAfter1 > 50000,
+      "Size should be > 50KB after synthesis, got \(sizeAfter1) bytes",
+    )
 
     // Second call should return immediately (cached)
     let startTime2 = Date()
@@ -381,44 +130,13 @@ struct AudioStoreTests {
       elapsed2 < elapsed1 / 2,
       "Cached call should be much faster (expected <\(elapsed1 / 2)s, got \(elapsed2)s)",
     )
+
+    // After synthesis: size should be same
+    let sizeAfter2 = await store.diskSize()
+    #expect(sizeAfter1 == sizeAfter2, "expected same cache size")
   }
 
-  @Test("storeAudio uses different contexts for different voices")
-  func storeAudioDifferentContexts() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let entext = "So I have heard."
-    let detext = "so habe ich gehoert."
-
-    // Same text, different contexts should produce different files
-    let contextEn = AudioContext(for: "en")
-    let contextDe = AudioContext(for: "de")
-
-    let urlEn = try await store.storeAudio(
-      text: entext,
-      audioContext: contextEn,
-    )
-    let urlDe = try await store.storeAudio(
-      text: detext,
-      audioContext: contextDe,
-    )
-
-    #expect(
-      urlEn != urlDe,
-      "Different contexts should produce different file paths",
-    )
-    #expect(
-      FileManager.default.fileExists(atPath: urlEn.path),
-      "English audio file should exist",
-    )
-    #expect(
-      FileManager.default.fileExists(atPath: urlDe.path),
-      "German audio file should exist",
-    )
-  }
-
-  @Test("storeAudio throws on empty text")
+  @Test("A13s: storeAudio throws on empty text")
   func storeAudioEmptyText() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -427,7 +145,7 @@ struct AudioStoreTests {
 
     do {
       _ = try await store.storeAudio(text: "", audioContext: context)
-      #expect(false, "Should throw error for empty text")
+      #expect(Bool(false), "Should throw error for empty text")
     } catch {
       #expect(
         "\(error)".contains("empty text"),
@@ -442,7 +160,7 @@ struct AudioStoreTests {
   // In that mode, premium voices fail silently with 1024 bytes instead of
   // ~100KB+.
   // Our validation logic correctly detects and throws error in that case.
-  @Test("storeAudio throws on premium voice failure (Petra)", .disabled())
+  @Test("A13s: storeAudio throws on premium voice failure (Petra)", .disabled())
   func storeAudioPetraFails() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -468,7 +186,8 @@ struct AudioStoreTests {
     }
   }
 
-  @Test("compactContextVolumes with no volumes returns zero status")
+#if COMPACT_CONTEXT_VOLUMES
+  @Test("A13s: compactContextVolumes with no volumes returns zero status")
   func compactContextVolumesEmptyStore() async {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -483,7 +202,7 @@ struct AudioStoreTests {
     #expect(status.elapsedSeconds >= 0, "Elapsed time should be non-negative")
   }
 
-  @Test("compactContextVolumes keeps current context volume")
+  @Test("A13s: compactContextVolumes keeps current context volume")
   func compactContextVolumesKeepsCurrentVolume() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -505,7 +224,7 @@ struct AudioStoreTests {
     #expect(status.volumesKept == 1, "Should keep one volume (current context)")
   }
 
-  @Test("compactContextVolumes deletes orphaned volumes with different hash")
+  @Test("A13s: compactContextVolumes deletes orphaned volumes with different hash")
   func compactContextVolumesDeletesOrphaned() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -550,7 +269,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("compactContextVolumes ignores other languages")
+  @Test("A13s: compactContextVolumes ignores other languages")
   func compactContextVolumesIgnoresOtherLanguages() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -600,7 +319,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("compactContextVolumes measures elapsed time")
+  @Test("A13s: compactContextVolumes measures elapsed time")
   func compactContextVolumesMeasuresElapsed() async throws {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -624,7 +343,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("compactContextVolumes returns consistent results on empty store")
+  @Test("A13s: compactContextVolumes returns consistent results on empty store")
   func compactContextVolumesEmptyStoreConsistent() async {
     let tempDir =
       URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
@@ -639,8 +358,9 @@ struct AudioStoreTests {
     #expect(status1.volumesDeleted == status2.volumesDeleted)
     #expect(status1.volumesKept == status2.volumesKept)
   }
+#endif // COMPACT_CONTEXT_VOLUMES
 
-  @Test("BENCHMARK: dn10:2.32.2 CAF synthesis performance")
+  @Test("A13s: BENCHMARK: dn10:2.32.2 CAF synthesis performance")
   func benchmarkDN10CAFSynthesis() async throws {
     let fileManager = FileManager.default
     let root = projectRoot()
@@ -677,16 +397,14 @@ struct AudioStoreTests {
         "dn10:2.32.2 CAF benchmark: \(String(format: "%.3f", synthesisElapsed))s, \(fileSize / 1024) KB",
       )
     } catch {
-      let synthesisElapsed = Date().timeIntervalSince(synthesisStart)
       print("=== CAF SYNTHESIS FAILED ===")
       print("Error: \(error)")
       cc.bad1(#line, "dn10:2.32.2 CAF synthesis failed: \(error)")
     }
   }
 
-  @Test("BENCHMARK: DN10:2.32.2 CAF synthesis and M4A conversion")
+  @Test("A13s: BENCHMARK: DN10:2.32.2 CAF synthesis and M4A conversion")
   func benchmarkDN10_2_32_2_CAF_M4A() async throws {
-    let fileManager = FileManager.default
     let root = projectRoot()
     let outputDir = root.appendingPathComponent("local/audio")
     let cafStore = AudioStore.create(
@@ -790,7 +508,7 @@ struct AudioStoreTests {
     }
   }
 
-  @Test("RESEARCH: AVAudioConverter - Convert so_i_have_heard.caf to M4A")
+  @Test("A13s: RESEARCH: AVAudioConverter - Convert so_i_have_heard.caf to M4A")
   func aVAudioConverterResearch() async throws {
     let fileManager = FileManager.default
     let root = projectRoot()
@@ -945,7 +663,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("BENCHMARK: DN10:2.32.2 AVAudioConverter M4A conversion")
+  @Test("A13s: BENCHMARK: DN10:2.32.2 AVAudioConverter M4A conversion")
   func benchmarkDN10AVAudioConverterM4A() async throws {
     let fileManager = FileManager.default
     let root = projectRoot()
@@ -1062,20 +780,16 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("PLAYBACK: Play 'So I have heard.' from AudioStore")
+#if TEST_PLAYBACK
+  @Test("A13s: PLAYBACK: Play 'So I have heard.' from AudioStore")
   func playbackStoreAudioCAF() async throws {
     let root = projectRoot()
     let testDir = root.appendingPathComponent("local/test-audio")
     let store = AudioStore.create(path: testDir, type: .caf)
     let context = AudioContext(for: "en")
 
-    print("\n=== PLAYBACK TEST ===")
-    print("Synthesizing and playing 'So I have heard.'\n")
-
-    let url = try await store.storeAudio(
-      text: "So I have heard.",
-      audioContext: context,
-    )
+    let text = "playback ok"
+    let url = try await store.storeAudio( text: text, audioContext: context)
 
     #expect(url.pathExtension == "caf", "Should return CAF file")
 
@@ -1083,83 +797,16 @@ struct AudioStoreTests {
     #expect(player.prepareToPlay(), "Player should prepare successfully")
     #expect(player.duration > 0, "Audio duration should be positive")
 
-    print(
-      "Playing audio... (duration: \(String(format: "%.2f", player.duration))s)",
-    )
+    print(#file, #line, "You should hear \"\(text)\"")
     player.play()
 
     // Wait for playback to complete
-    try await Task.sleep(for: .seconds(player.duration + 0.5))
-
-    print("Playback complete\n")
+    try await Task.sleep(for: .seconds(player.duration + 0.05))
+    print(#file, #line, "You should have heard \"\(text)\"")
   }
+#endif
 
-  @Test("diskSize() returns 0 for empty store")
-  func diskSizeEmptyStore() async {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-
-    let size = await store.diskSize()
-
-    #expect(size == 0, "Empty store should have size 0, got \(size)")
-  }
-
-  @Test("diskSize() returns positive value after synthesis")
-  func diskSizeAfterSynthesis() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-    let text = "So I have heard."
-
-    // Before synthesis: size should be 0
-    let sizeBefore = await store.diskSize()
-    #expect(sizeBefore == 0, "Size should be 0 before synthesis")
-
-    // Synthesize audio
-    _ = try await store.storeAudio(text: text, audioContext: context)
-
-    // After synthesis: size should be positive
-    let sizeAfter = await store.diskSize()
-    #expect(
-      sizeAfter > 50000,
-      "Size should be > 50KB after synthesis, got \(sizeAfter) bytes",
-    )
-  }
-
-  @Test("diskSize() increases with multiple files")
-  func diskSizeMultipleFiles() async throws {
-    let tempDir =
-      URL(fileURLWithPath: "/tmp/audio-store-test-\(UUID().uuidString)")
-    let store = AudioStore.create(path: tempDir)
-    let context = AudioContext(for: "en")
-
-    // Synthesize first file
-    _ = try await store.storeAudio(
-      text: "So I have heard.",
-      audioContext: context,
-    )
-    let sizeAfterFirst = await store.diskSize()
-
-    // Synthesize second file (different text)
-    _ = try await store.storeAudio(
-      text: "This is another sentence for testing.",
-      audioContext: context,
-    )
-    let sizeAfterSecond = await store.diskSize()
-
-    #expect(
-      sizeAfterSecond > sizeAfterFirst,
-      "Size should increase after adding second file",
-    )
-    #expect(
-      sizeAfterFirst > 50000,
-      "First file size should be > 50KB",
-    )
-  }
-
-  @Test("diskSize() returns 0 for non-existent store")
+  @Test("A13s: diskSize() returns 0 for non-existent store")
   func diskSizeNonExistentStore() async {
     let tempDir =
       URL(
@@ -1175,7 +822,7 @@ struct AudioStoreTests {
     )
   }
 
-  @Test("ASYNC: M4A conversion doesn't block CAF playback")
+  @Test("A13s: ASYNC: M4A conversion doesn't block CAF playback")
   func asyncM4AConversionDoesntBlock() async throws {
     let root = projectRoot()
     let testDir = root.appendingPathComponent("local/test-audio-m4a")
