@@ -2,6 +2,30 @@ import Foundation
 
 /// ColorConsole produces colored messages to Xcode console
 ///
+/// ## Initialization
+///
+/// ```swift
+/// let cc = ColorConsole(#file, #function, dbg.MyModule.other)
+/// ```
+///
+/// Parameters: file path, method name, verbosity level (0=silent, 1=minimal,
+/// 2=verbose).
+///
+/// ## Module Verbosity Constants
+///
+/// All module verbosity levels are defined in `scv-core/Sources/Debug.swift`:
+///
+/// ```swift
+/// public struct dbg: Sendable {
+///   public struct MyModule: Sendable {
+///     public static let other: Int = max(1, MODULE_GROUP_VERBOSITY)
+///   }
+/// }
+/// ```
+///
+/// To add new module: add nested struct to `dbg` with name matching module,
+/// define `public static let other: Int = <0|1|2>`, use in ColorConsole init.
+///
 /// ## Logging Best Practice
 ///
 /// - `ok1(#line, #function, message)`: Final log before normal method return.
@@ -28,6 +52,11 @@ import Foundation
 /// Logging statements should be a single line of <80 characters.
 /// If you need more, use intermediate message declarations to reduce line
 /// length.
+///
+/// Always pass `#line` and `#function` as first two arguments.
+/// Omit labels when values are obvious: `cc.ok1(#line, #function, filepath)`.
+/// Prefer one-word labels: `cc.ok1(#line, #function, count, "segments")`.
+/// Pass error objects directly to bad1/bad2 — they're self-descriptive.
 ///
 public final class ColorConsole: Sendable {
   private let sourceFile: String

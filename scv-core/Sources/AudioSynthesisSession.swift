@@ -1,5 +1,205 @@
 import Foundation
 
+//
+//  AudioSynthesisSession
+//
+//  Single-use session for background audio synthesis of one sutta.
+//  Each synthesis job creates a new session that orchestrates segment-by-segment
+//  synthesis via producer-consumer pipeline pattern.
+//
+//  ## Design Rationale
+//
+//  ### Separation of Concerns
+//
+//  - AudioSynthesisSession: Orchestrates synthesis work, manages queues, handles
+//    cancellation
+//  - AudioStore: Handles file persistence (CAF/M4A storage and retrieval)
+//  - Session does NOT synthesize audio directly — it delegates to AudioStore
+//
+//  Session queues segments and calls AudioStore.storeAudio() for each. AudioStore
+//  handles actual synthesis via AVSpeechSynthesizer and file I/O.
+//
+//  ### Threading Model
+//
+//  - End User (main thread): Calls execute() and cancel()
+//  - AudioSynthesisSession (background thread via actor): Runs synthesis loop,
+//    updates progress
+//  - Thread safety: Swift actor provides automatic isolation
+//  - Progress callbacks: Posted back to caller from background work
+//
+//  ### Pipeline Pattern
+//
+//  ```
+//  User calls execute() → Session queues segments → AudioStore synthesizes →
+//  caches files
+//                                                                        ↓
+//                                                              Progress callbacks →
+//                                                              UI
+//  ```
+//
+//  Key characteristics:
+//  - Single-use: Each session tied to one sutta ref; create new session for
+//    different sutta
+//  - Immutable: Session state initialized on creation, only updated during
+//    execute()
+//  - Persistence: Audio files survive app restarts
+//  - Cancellation: User can cancel mid-batch via cancel()
+//  - Sequential: Session processes one segment at a time via AudioStore
+//  - Progress: Callback informs UI of progress (currentStep, totalSteps, ETA,
+//    completion state)
+//
+//  ## Error Handling Strategy
+//
+//  Decision: Halt on first error, skip blank segments gracefully
+//
+//  Rationale: AudioSynthesisSession is called from Background Playback menu to
+//  synthesize partial suttas. Some segments may have no text in the selected
+//  language. These should be skipped silently to allow synthesis to proceed with
+//  available content.
+//
+//  Behavior:
+//  - Blank segments (selected property nil or empty): skip synthesis, increment
+//    progress, continue
+//  - If AudioStore.storeAudio() throws for non-blank segment: session catches
+//    error and transitions to .failed(error)
+//  - Pending segments discarded on error
+//  - Final callback sent with state = .failed(error) on error or state =
+//    .completed if all available segments synthesized
+//  - Partial playback supported: synthesized segments playable even if some
+//    segments were blank or synthesis was cancelled
+//
+//  ## Resume Capability (Implicit via Idempotent Caching)
+//
+//  AudioSynthesisSession does not provide explicit pause/resume API.
+//
+//  Resume is implicitly supported through idempotent caching:
+//  1. User initiates synthesis (long-press, menu item, or API call)
+//  2. Session synthesizes segments and caches audio via AudioStore.storeAudio()
+//  3. User backgrounds app mid-synthesis → cancellation via dismissal or app
+//     background
+//  4. Later, user re-triggers synthesis for same sutta
+//  5. New session loads segments again, calls AudioStore.storeAudio() for each
+//  6. AudioStore returns cached files for already-synthesized segments (no
+//     re-synthesis cost)
+//  7. Session only synthesizes remaining uncached segments
+//  8. User perceives seamless "resume"
+//
+//  Design advantage: No session state persistence needed. Caching layer handles
+//  resume transparently. Sessions remain single-use and immutable.
+//
+//  ## SwiftUI Integration
+//
+//  Actor references in @State: AudioSynthesisSession is a reference type (actor).
+//  It is Sendable and can be held safely in SwiftUI @State:
+//
+//  ```swift
+//  struct SuttaCardView: View {
+//    @State var backgroundSession: AudioSynthesisSession?
+//    @State var showSynthesisModal = false
+//    @State var currentSnapshot: SessionSnapshot?
+//
+//    var body: some View {
+//      Button(action: { startSynthesis() }) { ... }
+//        .onLongPressGesture { startSynthesis() }
+//    }
+//
+//    private func startSynthesis() {
+//      guard let suttaRef = suttaRef else { return }
+//
+//      // Create session with callback for progress updates
+//      backgroundSession = AudioSynthesisSession(
+//        suttaRef,
+//        progressCallback: { snapshot in
+//          // Thread safety: callback fires on background actor thread
+//          // Marshal UI updates to main thread via DispatchQueue.main.async
+//          DispatchQueue.main.async {
+//            self.currentSnapshot = snapshot
+//          }
+//        }
+//      )
+//
+//      showSynthesisModal = true
+//
+//      // Execute synthesis on background thread via Task/await
+//      Task {
+//        let finalSnapshot = await backgroundSession?.execute()
+//        // Synthesis complete; finalSnapshot contains final state
+//      }
+//    }
+//
+//    private func cancelSynthesis() {
+//      Task {
+//        await backgroundSession?.cancel()
+//      }
+//    }
+//
+//    // Clean up on view dismissal to prevent orphaned synthesis
+//    .onDisappear {
+//      Task {
+//        await backgroundSession?.cancel()
+//      }
+//    }
+//  }
+//  ```
+//
+//  Key patterns:
+//  1. Hold actor in @State: Actors are reference types and Sendable, safe for
+//     @State
+//  2. Call async methods via Task/await: All actor methods (execute(), cancel())
+//     require await
+//  3. Thread marshaling in callback: progressCallback fires on background actor
+//     thread. Use DispatchQueue.main.async { self.property = value } to update
+//     @State
+//  4. Cleanup on view dismissal: Call await backgroundSession?.cancel() in
+//     .onDisappear to prevent orphaned synthesis tasks
+//
+//  ## Progress Monitoring Patterns
+//
+//  ### Callbacks (State Changes)
+//
+//  progressCallback fires when session state changes:
+//  - .idle → .synthesizing (synthesis starts)
+//  - .synthesizing → .completed (all segments processed)
+//  - .synthesizing → .cancelled (user cancelled)
+//  - .synthesizing → .failed(String) (error halts synthesis)
+//
+//  This is sparse: ~2 callbacks per session. Useful for UI state transitions
+//  (show/hide modal, enable/disable buttons).
+//
+//  ### Polling (On-Demand Progress)
+//
+//  For high-frequency progress tracking (UI wanting per-segment granularity),
+//  query session.value directly:
+//
+//  ```swift
+//  Task {
+//    while !Task.isCancelled {
+//      let snapshot = await session.value
+//      print("Step \(snapshot.currentStep)/\(snapshot.totalSteps)")
+//      try? await Task.sleep(nanoseconds: 500_000_000)  // ~0.5s
+//    }
+//  }
+//  ```
+//
+//  Polling always sees fresh snapshot—no throttling, no stale data. Consumers
+//  control update frequency on their schedule.
+//
+//  Consumer Patterns:
+//  - SuttaCardView (UI): Subscribe to callbacks for state changes; optionally
+//    poll for smooth progress indication
+//  - Tests: Poll session.value for deterministic progress verification; no timing
+//    sleeps needed
+//  - Background tasks: Poll on custom schedule; no callbacks required
+//  - CLI tools: Poll with custom interval (0.1s, 1s, etc.) per requirements
+//
+//  ## Performance
+//
+//  Real-world: thig1.1/en/soma: 9 segments synthesized in 1.79s (200ms avg per
+//  segment)
+//
+//  See: doc/BackgroundAudio.md, doc/AudioStore.md, doc/SuttaPlayer.md
+//
+
 // State tracking
 public enum SynthesisState: Sendable, Equatable {
   case idle // awaiting request

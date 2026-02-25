@@ -1,0 +1,60 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-25T14:32:20Z",
+  "id" : "019C9537-13BA-7000-AD29-5BE6ECD65275",
+  "name" : "Define task MCP server",
+  "plannedActions" : [
+    {
+      "name" : "Research MCP protocol specification and architecture",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Study existing MCP server implementations for reference patterns",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Map ITaskWorld protocol operations to MCP tools (createTask, updateTask, pushTaskId, etc.)",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Define MCP resources schema for tasks (enable AI to read task list as context)",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Design tool schemas for all task operations with parameter types and validation",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Document server initialization, configuration (basePath), and lifecycle",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Write specification document: doc\/TaskMCPServer.md",
+      "test" : "update unit tests"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "MCP official documentation",
+      "url" : "https:\/\/modelcontextprotocol.io\/introduction"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "Primary API to wrap with MCP",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-tasks\/Sources\/scvTasks\/ITaskWorld.swift"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "Task system overview and architecture",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/Tasks.md"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Design and specify an MCP (Model Context Protocol) server for scv-tasks to enable AI assistants to interact with tasks through structured protocol calls instead of CLI commands.",
+  "updatedAt" : "2026-02-25T14:32:41Z"
+}

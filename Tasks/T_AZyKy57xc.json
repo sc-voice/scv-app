@@ -7,16 +7,16 @@
     {
       "name" : "Implement MockAVAdapter (testing) in scv-core\/Tests\/MockAVAdapter.swift with instant synthesis",
       "test" : "update unit tests"
+    },
+    {
+      "name" : "Inject adapter into AudioStore.create() with default AVAdapter(), replace direct AVSpeechSynthesizer calls",
+      "test" : "update unit tests"
     }
   ],
   "createdAt" : "2026-02-23T13:58:46Z",
   "id" : "019C8ACB-9EF1-7000-8D64-565D1EB36A3F",
   "name" : "Create AVAdapter protocol and implementation",
   "plannedActions" : [
-    {
-      "name" : "Inject adapter into AudioStore.create() with default AVAdapter(), replace direct AVSpeechSynthesizer calls",
-      "test" : "update unit tests"
-    },
     {
       "name" : "Inject adapter into CachedSynthesizer.init(), replace direct AVAudioPlayer usage with ID-based API",
       "test" : "update unit tests"
@@ -70,5 +70,5 @@
 
   ],
   "summary" : "Create IAVAdapter protocol wrapping AVFoundation classes (AVSpeechSynthesizer, AVAudioPlayer) for dependency injection. Implement AVAdapter (production) and MockAVAdapter (testing) to enable fast unit tests without real audio synthesis.",
-  "updatedAt" : "2026-02-24T13:55:15Z"
+  "updatedAt" : "2026-02-25T14:12:28Z"
 }

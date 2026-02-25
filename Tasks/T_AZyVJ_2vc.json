@@ -1,0 +1,66 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-02-25T14:15:51Z",
+  "id" : "019C9527-FDAF-7000-B044-217D3DD614B8",
+  "name" : "Inject IAVAdapter into CachedSynthesizer",
+  "plannedActions" : [
+    {
+      "description" : "Current state: CachedSynthesizer.swift:32 has 'private var audioPlayer: AVAudioPlayer?', line 163 creates AVAudioPlayer directly. Line 48 checks isPlaying, lines 158,195 call stop(). Implements AVAudioPlayerDelegate (lines 234-277) and translates to IPlaybackDelegate. @MainActor isolation. Key changes needed: (1) Add adapter parameter to init() with default AVAdapter(), (2) Replace audioPlayer with audioPlayerId: AudioPlayerID?, (3) Update playAudio() to use adapter.createPlayer/play/setDelegate, (4) Switch from AVAudioPlayerDelegate to IAVAudioPlayerDelegate, (5) Update delegate method signatures, (6) Replace direct player calls with adapter ID-based calls.",
+      "name" : "Read CachedSynthesizer.swift to understand current AVAudioPlayer usage patterns",
+      "test" : "Code analysis complete - ready for implementation"
+    },
+    {
+      "name" : "Add IAVAdapter parameter to CachedSynthesizer.init() with default AVAdapter()",
+      "test" : "Compilation succeeds, backward compatible"
+    },
+    {
+      "name" : "Store adapter as instance variable and replace AVAudioPlayer creation with adapter.createPlayer()",
+      "test" : "Compilation succeeds"
+    },
+    {
+      "name" : "Replace all AVAudioPlayer method calls with adapter ID-based API calls (play, stop, pause, isPlaying, duration, currentTime, setDelegate)",
+      "test" : "Compilation succeeds"
+    },
+    {
+      "name" : "Build scv-ui to verify compilation: make -C \/Users\/visakha\/dev\/scv-app build-ui",
+      "test" : "Build succeeds with no errors"
+    },
+    {
+      "name" : "Run CachedSynthesizerTests with production AVAdapter to verify behavior unchanged",
+      "test" : "All 8 tests pass, behavior matches previous implementation"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "Primary file to modify. Current AVAudioPlayer usage: line 32 var audioPlayer, line 163 creates player, line 48 checks isPlaying, lines 158+195 call stop(). Implements AVAudioPlayerDelegate (234-277) translating to IPlaybackDelegate. @MainActor isolated for AudioStore coordination.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Sources\/scvUI\/CachedSynthesizer.swift"
+    },
+    {
+      "relevance" : 1,
+      "text" : "IAVAdapter protocol (lines 34-95) with ID-based player API. AVAdapter production implementation (lines 100-313) with delegate bridge pattern. IAVAudioPlayerDelegate protocol (lines 18-29) for playback callbacks.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/AVAdapter.swift"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "8 tests currently using real AVAudioPlayer causing 8.3s execution time. Tests verify: onPlaybackStarted, onPlaybackFinished, onPlaybackPaused, onPlaybackContinued, queueing, deduplication, stopSpeaking disarm, serial playback. All must pass after IAVAdapter injection.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/CachedSynthesizerTests.swift"
+    },
+    {
+      "relevance" : 0.6,
+      "text" : "scv-core module documentation with concise AVAdapter API summary.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/doc\/ScvCore.md"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "PLANNING SESSION STATE: Analyzed current implementation. Agreed approach: (1) Add adapter:IAVAdapter param with default AVAdapter() to init, (2) Replace audioPlayer:AVAudioPlayer? with audioPlayerId:AudioPlayerID?, (3) Switch delegate conformance from AVAudioPlayerDelegate to IAVAudioPlayerDelegate, (4) Update playAudio() to use adapter.createPlayer/setDelegate/play, (5) Replace all direct player calls with adapter ID-based API. No outstanding design questions - ready to implement."
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Replace direct AVAudioPlayer usage in CachedSynthesizer with IAVAdapter protocol for dependency injection. This enables fast unit tests using MockAVAdapter.",
+  "updatedAt" : "2026-02-25T14:27:48Z"
+}
