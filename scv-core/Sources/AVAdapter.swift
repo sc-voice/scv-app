@@ -26,6 +26,10 @@ public protocol IAVAudioPlayerDelegate: AnyObject {
   /// Called when interruption ends
   /// - Parameter shouldResume: True if system suggests resuming playback
   func audioPlayerEndInterruption(shouldResume: Bool)
+
+  /// Called when audio decode error occurs
+  /// - Parameter error: The error that occurred during decoding
+  func audioPlayerDecodeErrorDidOccur(error: Error?)
 }
 
 // MARK: - IAVAdapter
@@ -309,5 +313,15 @@ extension AVAdapter: @preconcurrency AVAudioPlayerDelegate {
       let shouldResume = false
     #endif
     delegate.audioPlayerEndInterruption(shouldResume: shouldResume)
+  }
+
+  public func audioPlayerDecodeErrorDidOccur(
+    _ player: AVAudioPlayer,
+    error: Error?
+  ) {
+    guard let id = delegateBridges[player],
+          let delegate = delegates[id] as? IAVAudioPlayerDelegate
+    else { return }
+    delegate.audioPlayerDecodeErrorDidOccur(error: error)
   }
 }

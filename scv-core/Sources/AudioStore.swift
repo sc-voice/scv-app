@@ -123,7 +123,7 @@ public struct CompactionStatus: Sendable {
 public final class AudioStore: @unchecked Sendable {
   private let guidStore: GuidStore
   private let audioType: AudioType
-  private let adapter: IAVAdapter
+  public let adapter: IAVAdapter
   private let cc = ColorConsole(#file, "AudioStore", dbg.AudioStore.other)
   let timeout: TimeInterval // Configurable synthesis timeout (default 5s)
 

@@ -199,11 +199,12 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   private let suttaRef: SuttaRef
   private let audioContext: AudioContext
   private let audioStore: AudioStore
+  private let adapter: IAVAdapter
 
   private var segments: [Segment] = []
   private var currentSegmentIndex: Int = 0
   var synthesisSession: AudioSynthesisSession?
-  private var audioPlayer: AVAudioPlayer?
+  private var audioPlayerId: AudioPlayerID?
   private var playbackIterator: SegmentPlaybackIteratorWrapper?
   private var playbackIteratorTask: Task<Void, Never>?
   private var artistName: String = ""
@@ -235,6 +236,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       for: suttaRef.lang,
     )
     self.audioStore = audioStore
+    self.adapter = audioStore.adapter
     super.init()
 
     // Configure audio session for background playback
@@ -477,9 +479,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     let segment = segments[currentSegmentIndex]
     let docPreview = (segment.doc ?? "").prefix(20)
 
-    // Get playback timing from AVAudioPlayer if available
-    let duration = audioPlayer?.duration ?? 0
-    let elapsedTime = audioPlayer?.currentTime ?? 0
+    // Get playback timing from adapter if available
+    let duration = audioPlayerId.map { adapter.duration(id: $0) } ?? 0
+    let elapsedTime = audioPlayerId.map { adapter.currentTime(id: $0) } ?? 0
 
     playbackSnapshot = PlaybackSnapshot(
       suttaRef: suttaRef,
@@ -623,11 +625,11 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       cc.ok2(#line, #function, "Re-enabled idle timer after synthesis cancel")
     }
 
-    // Stop AVAudioPlayer if playing
-    if audioPlayer?.isPlaying == true {
-      audioPlayer?.stop()
+    // Stop audio player if playing
+    if let id = audioPlayerId, adapter.isPlaying(id: id) {
+      adapter.stop(id: id)
     }
-    audioPlayer = nil
+    audioPlayerId = nil
 
     // Capture final elapsed time before cancellation
     updateSnapshot()
@@ -659,6 +661,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     // Immediately set state to .playing
     state = .playing
+
+    // Update snapshot immediately so tests can see current state
+    updateSnapshot()
 
     // Create iterator starting at currentSegmentIndex
     let iterator = SegmentPlaybackIterator(
@@ -729,13 +734,16 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
     do {
       // Stop and clear old audio player
-      audioPlayer?.stop()
-      audioPlayer = nil
+      if let id = audioPlayerId {
+        adapter.stop(id: id)
+      }
+      audioPlayerId = nil
 
-      // Create AVAudioPlayer with cached audio file
-      audioPlayer = try AVAudioPlayer(contentsOf: audioUrl)
-      audioPlayer?.delegate = self
-      audioPlayer?.play()
+      // Create audio player with cached audio file using adapter
+      let playerId = try adapter.createPlayer(contentsOf: audioUrl)
+      audioPlayerId = playerId
+      adapter.setDelegate(id: playerId, delegate: self)
+      adapter.play(id: playerId)
 
       // Update observable immediately so snapshot has duration/elapsed time
       state = .playing
@@ -774,7 +782,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     playbackIterator?.cancel()
 
     // Stop player
-    audioPlayer?.pause()
+    if let id = audioPlayerId {
+      adapter.pause(id: id)
+    }
 
     // Signal continuation if waiting
     if let continuation = playbackContinuation {
@@ -814,6 +824,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     if currentSegmentIndex < segments.count - 1 {
       currentSegmentIndex += 1
       cc.ok2(#line, #function, "Advanced to segment \(currentSegmentIndex)")
+      // Update snapshot with new index before play() spawns async task
+      updateSnapshot()
     } else {
       cc.ok2(#line, #function, "Already at last segment")
       state = .paused
@@ -848,7 +860,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     }
 
     // Get elapsed time from player (or 0 if not playing)
-    let elapsedTime = audioPlayer?.currentTime ?? 0
+    let elapsedTime = audioPlayerId.map { adapter.currentTime(id: $0) } ?? 0
 
     // Determine which segment to play
     if state == .paused || elapsedTime < 1.0 {
@@ -857,6 +869,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
         currentSegmentIndex -= 1
         let msg = "Moved to previous: \(currentSegmentIndex)"
         cc.ok2(#line, #function, msg)
+        // Update snapshot with new index before play() spawns async task
+        updateSnapshot()
       } else {
         cc.ok2(#line, #function, "Already at first segment")
         state = .paused
@@ -867,6 +881,8 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       // Restart current segment (elapsed time >= 1s)
       let msg = "Elapsed time \(elapsedTime)s >= 1s, restarting segment"
       cc.ok2(#line, #function, msg)
+      // Update snapshot before restarting current segment
+      updateSnapshot()
     }
 
     // Start playback from target segment with new iterator
@@ -874,15 +890,13 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   }
 }
 
-// MARK: - AVAudioPlayerDelegate
+// MARK: - IAVAudioPlayerDelegate
 
-@MainActor
-extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
-  /// Called when AVAudioPlayer finishes playing
+extension BackgroundPlayer: @preconcurrency IAVAudioPlayerDelegate {
+  /// Called when audio player finishes playing
   /// Signals completion to resume iterator loop (which handles chaining)
   public func audioPlayerDidFinishPlaying(
-    _: AVAudioPlayer,
-    successfully flag: Bool,
+    successfully flag: Bool
   ) {
     let msg = "audioPlayerDidFinishPlaying(flag: \(flag)) segment: \(currentSegmentIndex)"
     cc.ok2(#line, #function, msg)
@@ -915,7 +929,7 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
   }
 
   /// Called when audio decoding error occurs
-  public func audioPlayerDecodeErrorDidOccur(_: AVAudioPlayer, error: Error?) {
+  public func audioPlayerDecodeErrorDidOccur(error: Error?) {
     let errorMsg = error?.localizedDescription ?? "unknown"
     cc.bad1(#line, #function, "Audio decode error: \(errorMsg)")
     state = .failed("Audio decode error: \(errorMsg)")
@@ -926,6 +940,20 @@ extension BackgroundPlayer: @preconcurrency AVAudioPlayerDelegate {
     if let continuation = playbackContinuation {
       playbackContinuation = nil
       continuation.resume()
+    }
+  }
+
+  /// Called when audio playback is interrupted
+  public func audioPlayerBeginInterruption() {
+    cc.ok2(#line, #function, "Audio interruption began")
+    pause()
+  }
+
+  /// Called when interruption ends
+  public func audioPlayerEndInterruption(shouldResume: Bool) {
+    cc.ok2(#line, #function, "Audio interruption ended, shouldResume: \(shouldResume)")
+    if shouldResume && state == .paused {
+      play()
     }
   }
 }

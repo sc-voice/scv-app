@@ -4,6 +4,39 @@ import Foundation
 @testable import scvUI
 import Testing
 
+// MARK: - Test Configuration
+let MOCK_AV = true
+
+@MainActor
+func testInit(timeout: TimeInterval = 5, synthTime: TimeInterval = 0) -> (
+  tempDir: URL,
+  testStore: AudioStore,
+  testDelegate: TestPlaybackDelegate
+) {
+  let tempDir = FileManager.default.temporaryDirectory
+    .appendingPathComponent(UUID().uuidString)
+  let testAdapter: IAVAdapter? = {
+    if MOCK_AV {
+      // Calculate path to test-audio.caf from this file's location
+      let thisFile = #filePath  // Absolute path (not relative like #file)
+      let fileURL = URL(fileURLWithPath: thisFile)
+      let testsDir = fileURL.deletingLastPathComponent().path  // .../scv-ui/Tests
+      let testAudioPath = (testsDir as NSString)
+        .appendingPathComponent("Data/test-audio.caf")
+      return MockAVAdapter(testAudioPath: testAudioPath, synthTime: synthTime)
+    }
+    return nil
+  }()
+  let testStore = AudioStore.create(
+    path: tempDir,
+    type: .caf,
+    timeout: timeout,
+    adapter: testAdapter
+  )
+  let testDelegate = TestPlaybackDelegate()
+  return (tempDir, testStore, testDelegate)
+}
+
 // MARK: - Test delegate to capture playback events
 
 @MainActor
@@ -38,10 +71,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerEmitsOnPlaybackStartedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit()
 
     // Synthesize short test audio
     let testText = "test"
@@ -70,10 +100,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerEmitsOnPlaybackFinishedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit()
 
     // Synthesize short test audio
     let testText = "test"
@@ -110,10 +137,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerEmitsOnPlaybackPausedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit()
 
     // Synthesize longer test audio (so we have time to pause)
     let testText = "testng one two three"
@@ -151,10 +175,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerEmitsOnPlaybackContinuedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit()
 
     // Synthesize longer test audio (so we have time for pause/continue)
     let testText = "hello world this is a test"
@@ -190,10 +211,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerQueuesUncachedAudio() async throws {
     // Setup: create temp AudioStore with nothing cached
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf, timeout: 2.0)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
 
     let testText = "synthesize this"
     let audioContext = AudioContext(for: "en")
@@ -225,10 +243,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerDeduplicatesConcurrentSameTextRequests() async throws {
     // Setup: create temp AudioStore with nothing cached
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf, timeout: 2.0)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
 
     let testText = "deduplicate me"
     let audioContext = AudioContext(for: "en")
@@ -262,10 +277,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerStopSpeakingDisarmsPlayback() async throws {
     // Setup: create temp AudioStore
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf, timeout: 2.0)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
 
     let testText = "this will be stopped"
     let audioContext = AudioContext(for: "en")
@@ -299,10 +311,7 @@ struct CachedSynthesizerTests {
   @MainActor
   func cachedSynthesizerPlaysTextSerially() async throws {
     // Setup: create temp AudioStore
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf, timeout: 2.0)
-    let testDelegate = TestPlaybackDelegate()
+    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
     let audioContext = AudioContext(for: "en")
 
     // Create CachedSynthesizer with test store

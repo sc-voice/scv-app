@@ -45,6 +45,10 @@ public struct dbg: Sendable {
     public static let other: Int = 0
   }
 
+  public struct AVAdapter: Sendable {
+    public static let other: Int = 0
+  }
+
   public struct BackgroundPlayer: Sendable {
     public static let other: Int = max(0, PLAYER)
   }

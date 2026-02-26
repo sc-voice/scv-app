@@ -1,0 +1,74 @@
+{
+  "completedActions" : [
+    {
+      "name" : "Analyzed make test-ui failures: 19 test failures. Root cause: Commit 6286aa5 AudioStore needs MockAVAdapter. Solution: Pass MockAVAdapter() to AudioStore.create() in test files",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Add MOCK_AV:Bool=false declaration to specify which AVAdapter to pass to AudioStore",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update CachedSynthesizerTests.swift: Add adapter: MockAVAdapter() to 8 AudioStore.create() calls",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update BackgroundPlayerTests.swift: Add adapter: MockAVAdapter() to 14 AudioStore.create() calls",
+      "test" : "update unit tests"
+    }
+  ],
+  "createdAt" : "2026-02-25T15:59:45Z",
+  "id" : "019C9587-1AE2-7000-9BAA-5D711B84BCBF",
+  "name" : "Fix test errors in scv-ui",
+  "plannedActions" : [
+    {
+      "name" : "Fix BackgroundPlayerTests: play() from paused state - playbackDuration = 0",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Fix BackgroundPlayerTests: playbackSnapshot updates - playbackDuration = 0",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Fix BackgroundPlayerTests: playNext() - segment index not advancing",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Fix BackgroundPlayerTests: playPrevious() - segment index issues",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update BackgroundPlayerLockScreenTests.swift: Add adapter: MockAVAdapter() to 15 AudioStore.create() calls",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update BackgroundPlayerViewTests.swift: Add adapter: MockAVAdapter() to 11 AudioStore.create() calls",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Update SuttaPlayerTests.swift: Add adapter: MockAVAdapter() to 5 AudioStore.create() calls",
+      "test" : "update unit tests"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 1,
+      "text" : "Test failures in BackgroundPlayerTests.swift lines 448, 514; BackgroundPlayerLockScreenTests.swift lines 143, 169; BackgroundPlayerViewTests.swift lines 295, 323; SuttaPlayerTests.swift lines 98, 125, 241, 280, 386, 482. All show segment index not advancing or currentScid remaining nil."
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "MockAVAdapter provides fast test doubles for IAVAdapter. Used to replace real AVFoundation in tests. See lines 1-100 for API and constructor.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/MockAVAdapter.swift"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "AudioStore.create() signature changed in commit 6286aa5 to accept optional adapter:IAVAdapter parameter (line 82-90). Defaults to AVAdapter() if nil.",
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-core\/Sources\/AudioStore.swift"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "",
+  "updatedAt" : "2026-02-25T20:38:00Z"
+}
