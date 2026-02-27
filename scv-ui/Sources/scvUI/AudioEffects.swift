@@ -204,7 +204,6 @@ public final class AudioEffects: NSObject, ObservableObject, IAudioEffects {
       audioPlayer?.volume = sound.bias * soundEffectVolume
       audioPlayer?.delegate = self
       audioPlayer?.play()
-      cc.ok2(#line, #function, sound.filename)
 
       // Wait for playback to complete via delegate callback
       // Use short timeout (100ms) to prevent continuation leak if delegate

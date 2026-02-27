@@ -1,61 +1,57 @@
 {
   "completedActions" : [
-
+    {
+      "name" : "Profile CachedSynthesizerTests to identify which specific operations take longest",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Profile BackgroundPlayerViewTests to identify synthesis vs playback time",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Evaluate mock strategy: separate unit tests (fast) from integration tests (slow)",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Investigate shared test fixture cache for synthesized audio across tests",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Measure impact of parallel test execution where safe",
+      "test" : "update unit tests"
+    }
   ],
   "createdAt" : "2026-02-22T23:10:31Z",
   "id" : "019C879E-67DD-7000-80E4-53B51FC52476",
   "name" : "Investigate slow scv-ui tests",
   "plannedActions" : [
-    {
-      "description" : "Profile CachedSynthesizerTests to identify which specific operations take longest",
-      "id" : "AZyHnmfd1"
-    },
-    {
-      "description" : "Profile BackgroundPlayerViewTests to identify synthesis vs playback time",
-      "id" : "AZyHnmfd2"
-    },
-    {
-      "description" : "Evaluate mock strategy: separate unit tests (fast) from integration tests (slow)",
-      "id" : "AZyHnmfd3"
-    },
-    {
-      "description" : "Investigate shared test fixture cache for synthesized audio across tests",
-      "id" : "AZyHnmfd4"
-    },
-    {
-      "description" : "Measure impact of parallel test execution where safe",
-      "id" : "AZyHnmfd5"
-    }
+
   ],
   "references" : [
     {
-      "id" : "ref1",
       "relevance" : 0.9,
       "text" : "CachedSynthesizerTests.swift - 8.3s suite with 8 tests doing real audio synthesis",
-      "url" : "file:///Users/visakha/dev/scv-app/scv-ui/Tests/CachedSynthesizerTests.swift"
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/CachedSynthesizerTests.swift"
     },
     {
-      "id" : "ref2",
       "relevance" : 0.9,
       "text" : "BackgroundPlayerViewTests.swift - 7.7s suite, tests use temp dirs to force synthesis",
-      "url" : "file:///Users/visakha/dev/scv-app/scv-ui/Tests/BackgroundPlayerViewTests.swift"
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/BackgroundPlayerViewTests.swift"
     },
     {
-      "id" : "ref3",
       "relevance" : 0.8,
       "text" : "SynthesizerPerformanceTests.swift - 3.9s suite, performance benchmarks",
-      "url" : "file:///Users/visakha/dev/scv-app/scv-ui/Tests/SynthesizerPerformanceTests.swift"
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/scv-ui\/Tests\/SynthesizerPerformanceTests.swift"
     },
     {
-      "id" : "ref4",
       "relevance" : 0.7,
       "text" : "Makefile _test-ui target - changed to use PIPESTATUS[0] for correct exit codes",
-      "url" : "file:///Users/visakha/dev/scv-app/Makefile#L53-L56"
+      "url" : "file:\/\/\/Users\/visakha\/dev\/scv-app\/Makefile#L53-L56"
     }
   ],
   "requiredTasks" : [
     "T_AZyKy57xc"
   ],
   "summary" : "scv-ui tests take 29s due to actual audio synthesis and playback. Main slow tests: CachedSynthesizerTests (8.3s), BackgroundPlayerView Tests (7.7s), SynthesizerPerformanceTests (3.9s). Tests use temporary directories to force synthesis with no cache hits. Each test synthesizes 9 segments. Consider: 1) Use mocks for unit tests, 2) Keep integration tests but optimize, 3) Cache synthesis results across tests, 4) Parallelize where safe.",
-  "updatedAt" : "2026-02-22T23:10:31Z"
+  "updatedAt" : "2026-02-27T21:08:34Z"
 }

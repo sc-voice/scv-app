@@ -115,12 +115,22 @@ public struct SegmentPlaybackIterator: IAsyncIterator {
 
       cc.ok2(#line, #function, "skipping empty:\(segment.scid)")
       await audioEffects.announceAsync(.noText)
+      // Half-pause between consecutive empty segments
+      let halfPause = audioContext.segmentPause * 0.5
+      try? await Task.sleep(nanoseconds: UInt64(halfPause * 1_000_000_000))
       index += 1
     }
 
-    // If we've exhausted all segments after skipping empties, return nil
+    // If we've exhausted all segments after skipping empties, announce endSutta
+    // and return nil
     guard index < segments.count else {
-      cc.ok1(#line, #function, "all segments exhausted after skipping empties")
+      await audioEffects.announceAsync(.endSutta)
+      isPlaying = false
+      cc.ok1(
+        #line,
+        #function,
+        "all segments exhausted after skipping empties, announced .endSutta",
+      )
       return nil
     }
 
