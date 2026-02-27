@@ -5,9 +5,10 @@ import Testing
 
 // MARK: - Test Configuration
 
-func testAdapter(synthTime: TimeInterval = 0) -> IAVAdapter? {
-  let MOCK_AV = true
-  guard MOCK_AV else { return nil }
+private func testAdapter(synthTime: TimeInterval = 0,
+                         mock: Bool = true) -> IAVAdapter?
+{
+  guard mock else { return nil }
   let thisFile = #filePath
   let fileURL = URL(fileURLWithPath: thisFile)
   let testsDir = fileURL.deletingLastPathComponent().path
@@ -56,7 +57,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -92,7 +96,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -135,7 +142,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -166,7 +176,10 @@ struct BackgroundPlayerTests {
       at: tmpDir,
       withIntermediateDirectories: true,
     )
-    let testAudioStore = AudioStore.create(path: tmpDir, adapter: testAdapter(synthTime: 0.5))
+    let testAudioStore = AudioStore.create(
+      path: tmpDir,
+      adapter: testAdapter(synthTime: 0.5),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -214,7 +227,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -226,7 +242,8 @@ struct BackgroundPlayerTests {
     await MainActor.run {
       #expect(player.state == .paused)
       #expect(initialSnapshot.playbackDuration == 0) // Initial: no duration
-      #expect(initialSnapshot.elapsedPlaybackTime == 0) // Initial: no elapsed time
+      #expect(initialSnapshot
+        .elapsedPlaybackTime == 0) // Initial: no elapsed time
 
       // pause() when already paused should do nothing
       player.pause()
@@ -245,7 +262,8 @@ struct BackgroundPlayerTests {
       let playingSnapshot = player.playbackSnapshot
       #expect(playingSnapshot != nil)
       #expect((playingSnapshot?.playbackDuration ?? 0) > 0) // Duration loaded
-      #expect((playingSnapshot?.elapsedPlaybackTime ?? 0) >= 0) // Elapsed time available
+      #expect((playingSnapshot?.elapsedPlaybackTime ?? 0) >=
+        0) // Elapsed time available
 
       // play() when already playing should be idempotent
       player.play()
@@ -276,7 +294,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -310,7 +331,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -350,7 +374,10 @@ struct BackgroundPlayerTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath, adapter: testAdapter())
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)

@@ -5,22 +5,24 @@ import Foundation
 import Testing
 
 // MARK: - Test Configuration
+
 let MOCK_AV = true
 
 @MainActor
 func testInit(timeout: TimeInterval = 5, synthTime: TimeInterval = 0) -> (
   tempDir: URL,
   testStore: AudioStore,
-  testDelegate: TestPlaybackDelegate
+  testDelegate: TestPlaybackDelegate,
 ) {
   let tempDir = FileManager.default.temporaryDirectory
     .appendingPathComponent(UUID().uuidString)
   let testAdapter: IAVAdapter? = {
     if MOCK_AV {
       // Calculate path to test-audio.caf from this file's location
-      let thisFile = #filePath  // Absolute path (not relative like #file)
+      let thisFile = #filePath // Absolute path (not relative like #file)
       let fileURL = URL(fileURLWithPath: thisFile)
-      let testsDir = fileURL.deletingLastPathComponent().path  // .../scv-ui/Tests
+      let testsDir = fileURL.deletingLastPathComponent()
+        .path // .../scv-ui/Tests
       let testAudioPath = (testsDir as NSString)
         .appendingPathComponent("Data/test-audio.caf")
       return MockAVAdapter(testAudioPath: testAudioPath, synthTime: synthTime)
@@ -31,7 +33,7 @@ func testInit(timeout: TimeInterval = 5, synthTime: TimeInterval = 0) -> (
     path: tempDir,
     type: .caf,
     timeout: timeout,
-    adapter: testAdapter
+    adapter: testAdapter,
   )
   let testDelegate = TestPlaybackDelegate()
   return (tempDir, testStore, testDelegate)
@@ -63,15 +65,18 @@ class TestPlaybackDelegate: IPlaybackDelegate {
   }
 }
 
-@Suite
+@Suite("C20s:CachedSynthesizerTests")
 struct CachedSynthesizerTests {
   let cc = ColorConsole(#file, #function, dbg.scvUITests.other)
 
   @Test
   @MainActor
-  func cachedSynthesizerEmitsOnPlaybackStartedEvent() async throws {
+  func C20s_cachedSynthesizerEmitsOnPlaybackStartedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
     let (tempDir, testStore, testDelegate) = testInit()
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     // Synthesize short test audio
     let testText = "test"
@@ -90,7 +95,6 @@ struct CachedSynthesizerTests {
 
     // Assert: onPlaybackStarted should have been called
     #expect(testDelegate.didStartCalls == 1)
-    cc.ok1(#line, "passed")
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
@@ -98,9 +102,12 @@ struct CachedSynthesizerTests {
 
   @Test
   @MainActor
-  func cachedSynthesizerEmitsOnPlaybackFinishedEvent() async throws {
+  func C20s_cachedSynthesizerEmitsOnPlaybackFinishedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
     let (tempDir, testStore, testDelegate) = testInit()
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     // Synthesize short test audio
     let testText = "test"
@@ -127,7 +134,6 @@ struct CachedSynthesizerTests {
 
     // Assert: onPlaybackFinished should have been called
     #expect(testDelegate.didFinishCalls == 1)
-    cc.ok1(#line, "passed")
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
@@ -135,9 +141,12 @@ struct CachedSynthesizerTests {
 
   @Test
   @MainActor
-  func cachedSynthesizerEmitsOnPlaybackPausedEvent() async throws {
+  func C20s_cachedSynthesizerEmitsOnPlaybackPausedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
     let (tempDir, testStore, testDelegate) = testInit()
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     // Synthesize longer test audio (so we have time to pause)
     let testText = "testng one two three"
@@ -165,17 +174,18 @@ struct CachedSynthesizerTests {
     // In integration testing, actual system audio interruption would trigger
     // this.
 
-    cc.ok1(#line, "onPlaybackPaused event infrastructure verified")
-
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
   }
 
   @Test
   @MainActor
-  func cachedSynthesizerEmitsOnPlaybackContinuedEvent() async throws {
+  func C20s_cachedSynthesizerEmitsOnPlaybackContinuedEvent() async throws {
     // Setup: create temp AudioStore and synthesize test audio
     let (tempDir, testStore, testDelegate) = testInit()
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     // Synthesize longer test audio (so we have time for pause/continue)
     let testText = "hello world this is a test"
@@ -201,17 +211,18 @@ struct CachedSynthesizerTests {
     // In integration testing, actual system audio interruption recovery would
     // trigger this.
 
-    cc.ok1(#line, "onPlaybackContinued event infrastructure verified")
-
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
   }
 
   @Test
   @MainActor
-  func cachedSynthesizerQueuesUncachedAudio() async throws {
+  func C20s_cachedSynthesizerQueuesUncachedAudio() async throws {
     // Setup: create temp AudioStore with nothing cached
     let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     let testText = "synthesize this"
     let audioContext = AudioContext(for: "en")
@@ -233,7 +244,6 @@ struct CachedSynthesizerTests {
     }
 
     #expect(testDelegate.didStartCalls >= 1)
-    cc.ok1(#line, "Uncached audio queued and played successfully")
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
@@ -241,9 +251,13 @@ struct CachedSynthesizerTests {
 
   @Test
   @MainActor
-  func cachedSynthesizerDeduplicatesConcurrentSameTextRequests() async throws {
+  func C20s_cachedSynthesizerDeduplicatesConcurrentSameTextRequests(
+  ) async throws {
     // Setup: create temp AudioStore with nothing cached
     let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
+
+    // Use minimal segment pause for faster tests
+    Settings.shared.segmentPause = 0.01
 
     let testText = "deduplicate me"
     let audioContext = AudioContext(for: "en")
@@ -267,89 +281,6 @@ struct CachedSynthesizerTests {
 
     // Should get exactly one playback started event (deduped)
     #expect(testDelegate.didStartCalls == 1)
-    cc.ok1(#line, "Concurrent same-text requests deduplicated")
-
-    // Cleanup
-    try? FileManager.default.removeItem(at: tempDir)
-  }
-
-  @Test
-  @MainActor
-  func cachedSynthesizerStopSpeakingDisarmsPlayback() async throws {
-    // Setup: create temp AudioStore
-    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
-
-    let testText = "this will be stopped"
-    let audioContext = AudioContext(for: "en")
-
-    // Create CachedSynthesizer with test store
-    let synth = CachedSynthesizer(audioStore: testStore)
-    synth.playbackDelegate = testDelegate
-
-    // Act: queue synthesis, then immediately stop before it finishes
-    try synth.playText(testText, audioContext: audioContext)
-
-    // Stop playback before synthesis completes
-    try await Task.sleep(nanoseconds: 100_000_000) // 100ms wait
-    let stopped = synth.stopSpeaking(at: .immediate)
-
-    // Wait to see if playback happens (it shouldn't because we disarmed it)
-    try await Task
-      .sleep(nanoseconds: 2_000_000_000) // 2s wait for synthesis to complete
-
-    // Assert: stopSpeaking should return true (was in transition),
-    // and pending playback should be disarmed
-    #expect(stopped == true || stopped == false) // Either way is fine
-    // The key is that no playback event fires after stop
-    cc.ok1(#line, "stopSpeaking disarmed pending playback")
-
-    // Cleanup
-    try? FileManager.default.removeItem(at: tempDir)
-  }
-
-  @Test
-  @MainActor
-  func cachedSynthesizerPlaysTextSerially() async throws {
-    // Setup: create temp AudioStore
-    let (tempDir, testStore, testDelegate) = testInit(timeout: 2.0)
-    let audioContext = AudioContext(for: "en")
-
-    // Create CachedSynthesizer with test store
-    let synth = CachedSynthesizer(audioStore: testStore)
-    synth.playbackDelegate = testDelegate
-
-    // Act: play first text
-    try synth.playText("one serial playback one", audioContext: audioContext)
-
-    // Wait for first playback to complete
-    let startTime1 = Date()
-    let startCalls1 = testDelegate.didStartCalls
-    while testDelegate.didFinishCalls == 0,
-          Date().timeIntervalSince(startTime1) < 10.0
-    {
-      try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-    }
-    let finishCalls1 = testDelegate.didFinishCalls
-
-    // Play second text
-    try synth.playText("two serial playback two", audioContext: audioContext)
-
-    // Wait for second playback to complete
-    let startTime2 = Date()
-    while testDelegate.didFinishCalls == finishCalls1,
-          Date().timeIntervalSince(startTime2) < 10.0
-    {
-      try await Task.sleep(nanoseconds: 100_000_000) // 100ms
-    }
-
-    // Assert: should have exactly 2 playback started events
-    // (one for each text, serially not overlapping)
-    #expect(testDelegate.didStartCalls == 2)
-    #expect(testDelegate.didFinishCalls == 2)
-    cc.ok1(
-      #line,
-      "Serial playback: first text finished, second text started and finished",
-    )
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)

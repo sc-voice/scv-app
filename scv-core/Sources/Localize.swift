@@ -4,16 +4,19 @@
 //
 //  ## Localization Resources
 //
-//  Localization files stored in scv-core/Sources/Resources/{lang}.lproj/Localizable.strings
+//  Localization files stored in
+//  scv-core/Sources/Resources/{lang}.lproj/Localizable.strings
 //
 //  Primary language: EN
-//  All EN localization keys must have corresponding translations in all supported language folders.
+//  All EN localization keys must have corresponding translations in all
+//  supported language folders.
 //
 //  ## Localizable.strings Format
 //
 //  Keys must be sorted alphabetically.
 //  Each key must be preceded by a comment explaining user context.
-//  If parameters are used, an additional comment must specify what the values represent.
+//  If parameters are used, an additional comment must specify what the values
+//  represent.
 //
 //  Examples:
 //
@@ -25,15 +28,18 @@
 //
 //  Formatted string with parameters:
 //  ```
-//  /* Error message when translation not found for language/author combination */
+//  /* Error message when translation not found for language/author combination
+//  /*/
 //  "translation.not.found" = "Translation not found for %@ / %@";
 //  ```
 //
 //  Multi-parameter format requiring separate parameter comment:
 //  ```
-//  /* Voice synthesis error: voice not responding after timeout (format: voice name, file:line debug info) */
+//  /* Voice synthesis error: voice not responding after timeout (format: voice
+//  /name, file:line debug info) */
 //  /* Parameters: 1) voice name, 2) error identifier */
-//  "voice.error.not_responding" = "The \"%@\" voice is not responding. Try a different voice or enable background playback. [%@]";
+//  "voice.error.not_responding" = "The \"%@\" voice is not responding. Try a
+//  different voice or enable background playback. [%@]";
 //  ```
 //
 

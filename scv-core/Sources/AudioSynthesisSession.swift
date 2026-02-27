@@ -4,19 +4,22 @@ import Foundation
 //  AudioSynthesisSession
 //
 //  Single-use session for background audio synthesis of one sutta.
-//  Each synthesis job creates a new session that orchestrates segment-by-segment
+//  Each synthesis job creates a new session that orchestrates
+//  segment-by-segment
 //  synthesis via producer-consumer pipeline pattern.
 //
 //  ## Design Rationale
 //
 //  ### Separation of Concerns
 //
-//  - AudioSynthesisSession: Orchestrates synthesis work, manages queues, handles
+//  - AudioSynthesisSession: Orchestrates synthesis work, manages queues,
+//  handles
 //    cancellation
 //  - AudioStore: Handles file persistence (CAF/M4A storage and retrieval)
 //  - Session does NOT synthesize audio directly — it delegates to AudioStore
 //
-//  Session queues segments and calls AudioStore.storeAudio() for each. AudioStore
+//  Session queues segments and calls AudioStore.storeAudio() for each.
+//  AudioStore
 //  handles actual synthesis via AVSpeechSynthesizer and file I/O.
 //
 //  ### Threading Model
@@ -33,7 +36,8 @@ import Foundation
 //  User calls execute() → Session queues segments → AudioStore synthesizes →
 //  caches files
 //                                                                        ↓
-//                                                              Progress callbacks →
+//                                                              Progress
+//                                                              callbacks →
 //                                                              UI
 //  ```
 //
@@ -54,7 +58,8 @@ import Foundation
 //
 //  Rationale: AudioSynthesisSession is called from Background Playback menu to
 //  synthesize partial suttas. Some segments may have no text in the selected
-//  language. These should be skipped silently to allow synthesis to proceed with
+//  language. These should be skipped silently to allow synthesis to proceed
+//  with
 //  available content.
 //
 //  Behavior:
@@ -89,7 +94,8 @@ import Foundation
 //
 //  ## SwiftUI Integration
 //
-//  Actor references in @State: AudioSynthesisSession is a reference type (actor).
+//  Actor references in @State: AudioSynthesisSession is a reference type
+//  (actor).
 //  It is Sendable and can be held safely in SwiftUI @State:
 //
 //  ```swift
@@ -145,7 +151,8 @@ import Foundation
 //  Key patterns:
 //  1. Hold actor in @State: Actors are reference types and Sendable, safe for
 //     @State
-//  2. Call async methods via Task/await: All actor methods (execute(), cancel())
+//  2. Call async methods via Task/await: All actor methods (execute(),
+//  cancel())
 //     require await
 //  3. Thread marshaling in callback: progressCallback fires on background actor
 //     thread. Use DispatchQueue.main.async { self.property = value } to update
@@ -187,7 +194,8 @@ import Foundation
 //  Consumer Patterns:
 //  - SuttaCardView (UI): Subscribe to callbacks for state changes; optionally
 //    poll for smooth progress indication
-//  - Tests: Poll session.value for deterministic progress verification; no timing
+//  - Tests: Poll session.value for deterministic progress verification; no
+//  timing
 //    sleeps needed
 //  - Background tasks: Poll on custom schedule; no callbacks required
 //  - CLI tools: Poll with custom interval (0.1s, 1s, etc.) per requirements

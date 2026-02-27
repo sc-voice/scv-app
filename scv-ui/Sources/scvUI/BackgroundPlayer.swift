@@ -236,7 +236,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       for: suttaRef.lang,
     )
     self.audioStore = audioStore
-    self.adapter = audioStore.adapter
+    adapter = audioStore.adapter
     super.init()
 
     // Configure audio session for background playback
@@ -896,7 +896,7 @@ extension BackgroundPlayer: @preconcurrency IAVAudioPlayerDelegate {
   /// Called when audio player finishes playing
   /// Signals completion to resume iterator loop (which handles chaining)
   public func audioPlayerDidFinishPlaying(
-    successfully flag: Bool
+    successfully flag: Bool,
   ) {
     let msg = "audioPlayerDidFinishPlaying(flag: \(flag)) segment: \(currentSegmentIndex)"
     cc.ok2(#line, #function, msg)
@@ -951,8 +951,12 @@ extension BackgroundPlayer: @preconcurrency IAVAudioPlayerDelegate {
 
   /// Called when interruption ends
   public func audioPlayerEndInterruption(shouldResume: Bool) {
-    cc.ok2(#line, #function, "Audio interruption ended, shouldResume: \(shouldResume)")
-    if shouldResume && state == .paused {
+    cc.ok2(
+      #line,
+      #function,
+      "Audio interruption ended, shouldResume: \(shouldResume)",
+    )
+    if shouldResume, state == .paused {
       play()
     }
   }

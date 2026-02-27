@@ -5,6 +5,20 @@ import Foundation
 import SwiftData
 import Testing
 
+// MARK: - Test Configuration
+
+private func testAdapter(synthTime: TimeInterval = 0,
+                         mock: Bool = false) -> IAVAdapter?
+{
+  guard mock else { return nil }
+  let thisFile = #filePath
+  let fileURL = URL(fileURLWithPath: thisFile)
+  let testsDir = fileURL.deletingLastPathComponent().path
+  let testAudioPath = (testsDir as NSString)
+    .appendingPathComponent("Data/test-audio.caf")
+  return MockAVAdapter(testAudioPath: testAudioPath, synthTime: synthTime)
+}
+
 // MARK: - MockSpeechSynthesizer for SuttaPlayer testing
 
 // Test-only class: mark as @MainActor to match ISpeechSynthesizer protocol
@@ -73,13 +87,11 @@ class MockSpeechSynthesizerForSuttaPlayer: ISpeechSynthesizer,
   }
 }
 
-@Suite
+@Suite("S15s:SuttaPlayerTests")
 struct SuttaPlayerTests {
-  let cc = ColorConsole(#file, #function, dbg.scvUITests.other)
-
   @Test
   @MainActor
-  func suttaPlayerUpdatesCurrentScidWhenPlayingSegment() async {
+  func S15s_suttaPlayerUpdatesCurrentScidWhenPlayingSegment() async {
     // Create a mock MLDocument with segments
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
@@ -91,21 +103,29 @@ struct SuttaPlayerTests {
       // Load the document
       player.load(mlDoc)
 
-      // Play first segment
+      // Set starting position to segment 1 (skips audio effects on first
+      // segment)
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
+      // Play from segment 1
       player.play()
 
-      // Verify playText was called and currentScid is set
+      // Wait for async Task to start and execute playText (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
+
+      // Verify playText was called and currentScid is set to segment 1
       #expect(mockSynthesizer.playTextWasCalled == true)
-      let firstSegmentScid = segments[0].scid
       let currentScid = player.currentSutta?.currentScid
-      #expect(currentScid == firstSegmentScid)
-      cc.ok1(#line, "passed")
+      #expect(currentScid == segments[1].scid)
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerJumpToSegmentWhilePlaying() async {
+  func S15s_suttaPlayerJumpToSegmentWhilePlaying() async {
     // Create a mock MLDocument with segments
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
@@ -117,14 +137,23 @@ struct SuttaPlayerTests {
       // Load the document
       player.load(mlDoc)
 
-      // Start playing segment 0
+      // Start at segment 1 to skip audio effects on first segment
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
+      // Start playing from segment 1
       player.play()
 
-      // Verify playing segment 0
-      let currentScid0 = player.currentSutta?.currentScid
-      #expect(currentScid0 == segments[0].scid)
+      // Wait for async Task to start and execute (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
 
-      // User jumps to segment 3 while segment 0 is still playing
+      // Verify playing segment 1
+      let currentScid1 = player.currentSutta?.currentScid
+      #expect(currentScid1 == segments[1].scid)
+
+      // User jumps to segment 3 while segment 1 is still playing
       // This should pause playback and update to segment 3
       player.jumpToSegment(scid: segments[3].scid)
 
@@ -134,13 +163,12 @@ struct SuttaPlayerTests {
 
       // Verify that playback stopped
       #expect(player.isPlaying == false)
-      cc.ok1(#line, "passed")
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerDidStartCallbackUpdatesSynthesizerSpeakingState() async {
+  func S15s_suttaPlayerDidStartCallbackUpdatesSynthesizerSpeakingState() async {
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
     {
@@ -161,13 +189,12 @@ struct SuttaPlayerTests {
 
       // Verify isSynthesizerSpeaking updates to true
       #expect(player.isSynthesizerSpeaking == true)
-      cc.ok1(#line, "passed")
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerDidPauseCallbackUpdatesSynthesizerSpeakingState() async {
+  func S15s_suttaPlayerDidPauseCallbackUpdatesSynthesizerSpeakingState() async {
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
     {
@@ -188,13 +215,13 @@ struct SuttaPlayerTests {
 
       // Verify isSynthesizerSpeaking updates to false
       #expect(player.isSynthesizerSpeaking == false)
-      cc.ok1(#line, "passed")
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerDidContinueCallbackUpdatesSynthesizerSpeakingState() async {
+  func S15s_suttaPlayerDidContinueCallbackUpdatesSynthesizerSpeakingState(
+  ) async {
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
     {
@@ -217,13 +244,12 @@ struct SuttaPlayerTests {
 
       // Verify isSynthesizerSpeaking updates back to true
       #expect(player.isSynthesizerSpeaking == true)
-      cc.ok1(#line, "passed")
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerDidFinishCallbackAutoAdvancesToNextSegment() async {
+  func S15s_suttaPlayerDidFinishCallbackAutoAdvancesToNextSegment() async {
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
     {
@@ -232,37 +258,45 @@ struct SuttaPlayerTests {
       let segments = mlDoc.segments()
 
       player.load(mlDoc)
+
+      // Start at segment 1 to skip audio effects on first segment
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
       player.play()
 
-      // Start playback of segment 0
+      // Wait for async Task to start and set currentScid (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
+
+      // Start playback of segment 1
       mockSynthesizer.triggerDidStart()
       try? await Task.sleep(nanoseconds: 10_000_000)
-      let segment0Scid = player.currentSutta?.currentScid
-      #expect(segment0Scid == segments[0].scid)
+      let segment1Scid = player.currentSutta?.currentScid
+      #expect(segment1Scid == segments[1].scid)
 
-      // Simulate realistic playback duration (300ms) - avoids silent failure
-      // detection
-      try? await Task.sleep(nanoseconds: 300_000_000)
+      // Simulate realistic playback duration (255ms) - avoids silent failure
+      // detection (MIN_SPEAK_SECONDS = 0.25s)
+      try? await Task.sleep(nanoseconds: 255_000_000)
 
-      // Simulate playback finishing - should auto-advance to segment 1
+      // Simulate playback finishing - should auto-advance to segment 2
       mockSynthesizer.triggerDidFinish()
-      try? await Task.sleep(nanoseconds: 10_000_000)
+      // Wait for iterator loop to advance to next segment (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
 
       // Verify isSynthesizerSpeaking is false
       #expect(player.isSynthesizerSpeaking == false)
 
-      // Verify auto-advance: playSegmentAt was called with nextIndexToPlay
-      // (which is 1)
-      // currentScid should now be segment 1's scid
+      // Verify auto-advance: should advance from segment 1 to segment 2
       let currentScid = player.currentSutta?.currentScid
-      #expect(currentScid == segments[1].scid)
-      cc.ok1(#line, "passed")
+      #expect(currentScid == segments[2].scid)
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerDidFinishCallbackStopsWhenNotPlaying() async {
+  func S15s_suttaPlayerDidFinishCallbackStopsWhenNotPlaying() async {
     if let mockResponse = SearchResponse.createMockResponse(),
        let mlDoc = mockResponse.mlDocs.first
     {
@@ -271,13 +305,23 @@ struct SuttaPlayerTests {
       let segments = mlDoc.segments()
 
       player.load(mlDoc)
+
+      // Start at segment 1 to skip audio effects on first segment
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
       player.play()
 
-      // Start playback of segment 0
+      // Wait for async Task to start and set currentScid (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
+
+      // Start playback of segment 1
       mockSynthesizer.triggerDidStart()
       try? await Task.sleep(nanoseconds: 10_000_000)
-      let segment0Scid = player.currentSutta?.currentScid
-      #expect(segment0Scid == segments[0].scid)
+      let segment1Scid = player.currentSutta?.currentScid
+      #expect(segment1Scid == segments[1].scid)
 
       // User pauses playback
       player.pause()
@@ -288,20 +332,23 @@ struct SuttaPlayerTests {
       mockSynthesizer.triggerDidFinish()
       try? await Task.sleep(nanoseconds: 10_000_000)
 
-      // Verify still at segment 0 (didn't advance)
+      // Verify still at segment 1 (didn't advance)
       let currentScid = player.currentSutta?.currentScid
-      #expect(currentScid == segments[0].scid)
-      cc.ok1(#line, "passed")
+      #expect(currentScid == segments[1].scid)
     }
   }
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerInitializes() async throws {
+  func S15s_suttaPlayerIntegrationWithC16s() async throws {
     // Create temp AudioStore for CachedSynthesizer
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let testStore = AudioStore.create(
+      path: tempDir,
+      type: .caf,
+      adapter: testAdapter(),
+    )
 
     // Create CachedSynthesizer with test store
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -312,7 +359,6 @@ struct SuttaPlayerTests {
     // Verify SuttaPlayer initialized successfully
     #expect(player.currentSutta == nil)
     #expect(player.isPlaying == false)
-    cc.ok1(#line, "passed")
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
@@ -320,11 +366,15 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerLoadsDocument() async throws {
+  func S15s_suttaPlayerIntegrationWithC15rLoadsDocument() async throws {
     // Create temp AudioStore
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let testStore = AudioStore.create(
+      path: tempDir,
+      type: .caf,
+      adapter: testAdapter(),
+    )
 
     // Create SuttaPlayer with CachedSynthesizer
     let synth = CachedSynthesizer(audioStore: testStore)
@@ -339,7 +389,6 @@ struct SuttaPlayerTests {
       // Verify document loaded and not playing yet
       #expect(player.currentSutta != nil)
       #expect(player.isPlaying == false)
-      cc.ok1(#line, "passed")
     }
 
     // Cleanup
@@ -348,14 +397,15 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackWithPrecachedAudio(
-  )
-    async throws
-  {
+  func S15s_suttaPlayerPrecachedAudio() async throws {
     // Create temp AudioStore and pre-cache audio for first segment
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let testStore = AudioStore.create(
+      path: tempDir,
+      type: .caf,
+      adapter: testAdapter(),
+    )
 
     let audioContext = AudioContext(for: "en")
 
@@ -364,11 +414,11 @@ struct SuttaPlayerTests {
        let mlDoc = mockResponse.mlDocs.first
     {
       let segments = mlDoc.segments()
-      let firstSegmentText = segments[0].doc ?? "test"
+      let segment1Text = segments[1].doc ?? "test"
 
-      // Pre-cache audio for first segment
+      // Pre-cache audio for segment 1
       _ = try await testStore.storeAudio(
-        text: firstSegmentText,
+        text: segment1Text,
         audioContext: audioContext,
       )
 
@@ -378,13 +428,21 @@ struct SuttaPlayerTests {
 
       player.load(mlDoc)
 
-      // Play first segment (should work because audio is cached)
+      // Start at segment 1 to skip audio effects on first segment
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
+      // Play segment 1 (should work because audio is cached)
       player.play()
+
+      // Wait for async Task to start and set currentScid (20ms minimum)
+      try? await Task.sleep(nanoseconds: 20_000_000)
 
       // Verify playback started (CachedSynthesizer will have called playText)
       #expect(player.isPlaying == true)
-      #expect(player.currentSutta?.currentScid == segments[0].scid)
-      cc.ok1(#line, "passed")
+      #expect(player.currentSutta?.currentScid == segments[1].scid)
 
       // Pause to stop playback
       player.pause()
@@ -396,12 +454,15 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIntegrationWithCachedSynthesizerHandlesPlaybackError(
-  ) async throws {
+  func S15s_suttaPlayerIntegrationWithC15rHandlesPlaybackError() async throws {
     // Create temp AudioStore with NO pre-cached audio
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let testStore = AudioStore.create(
+      path: tempDir,
+      type: .caf,
+      adapter: testAdapter(),
+    )
 
     // Load mock document
     if let mockResponse = SearchResponse.createMockResponse(),
@@ -428,7 +489,6 @@ struct SuttaPlayerTests {
       // Pause to stop playback
       player.pause()
       #expect(player.isPlaying == false)
-      cc.ok1(#line, "passed")
     }
 
     // Cleanup
@@ -437,27 +497,28 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerIsActivePropertyDefaultsTrueAndCanBeToggled() async {
+  func S15s_suttaPlayerIsActivePropertyDefaultsTrueAndCanBeToggled() async {
     // Create a fresh instance (doesn't use .shared to avoid state pollution)
     let tempDir = FileManager.default.temporaryDirectory
       .appendingPathComponent(UUID().uuidString)
-    let testStore = AudioStore.create(path: tempDir, type: .caf)
+    let testStore = AudioStore.create(
+      path: tempDir,
+      type: .caf,
+      adapter: testAdapter(),
+    )
     let synth = CachedSynthesizer(audioStore: testStore)
     let player = SuttaPlayer(synthesizer: synth)
 
     // Verify isActive defaults to true
     #expect(player.isActive == true)
-    cc.ok1(#line, "isActive defaults to true")
 
     // Call setActive(false) - SuttaPlayer should skip interruption handling
     player.setActive(false)
     #expect(player.isActive == false)
-    cc.ok1(#line, "setActive(false) disables interruption handling")
 
     // Call setActive(true) - SuttaPlayer should resume interruption handling
     player.setActive(true)
     #expect(player.isActive == true)
-    cc.ok1(#line, "setActive(true) re-enables interruption handling")
 
     // Cleanup
     try? FileManager.default.removeItem(at: tempDir)
@@ -465,7 +526,7 @@ struct SuttaPlayerTests {
 
   @Test
   @MainActor
-  func suttaPlayerDetectsSilentSynthesisFailureAndStops() async {
+  func S15s_suttaPlayerDetectsSilentSynthesisFailureAndStops() async {
     // Test: playback finishes too quickly (< 0.25s) indicates silent synthesis
     // failure. SuttaPlayer should detect, stop playback, and show alert.
     // NO automatic retry (that was the infinite loop problem).
@@ -474,9 +535,19 @@ struct SuttaPlayerTests {
     {
       let mockSynthesizer = MockSpeechSynthesizerForSuttaPlayer()
       let player = SuttaPlayer(synthesizer: mockSynthesizer)
+      let segments = mlDoc.segments()
 
       player.load(mlDoc)
+
+      // Start at segment 1 to skip audio effects on first segment
+      mlDoc.currentScid = segments[1].scid
+
+      // Use minimal segment pause for faster tests
+      Settings.shared.segmentPause = 0.01
+
       player.play()
+
+      try? await Task.sleep(nanoseconds: 20_000_000)
 
       // Verify initial playText was called
       #expect(mockSynthesizer.playTextWasCalled == true)
@@ -500,11 +571,6 @@ struct SuttaPlayerTests {
 
       // Verify playback stopped
       #expect(player.isPlaying == false)
-
-      cc.ok1(
-        #line,
-        "Silent synthesis failure detected and playback stopped (no retry)",
-      )
     }
   }
 }

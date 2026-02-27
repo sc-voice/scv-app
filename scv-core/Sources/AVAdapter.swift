@@ -317,7 +317,7 @@ extension AVAdapter: @preconcurrency AVAudioPlayerDelegate {
 
   public func audioPlayerDecodeErrorDidOccur(
     _ player: AVAudioPlayer,
-    error: Error?
+    error: Error?,
   ) {
     guard let id = delegateBridges[player],
           let delegate = delegates[id] as? IAVAudioPlayerDelegate

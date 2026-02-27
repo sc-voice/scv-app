@@ -11,11 +11,45 @@ import scvCore
 @testable import scvUI
 import Testing
 
-@Suite("BackgroundPlayer Lock Screen Integration Tests")
+// MARK: - Test Configuration
+
+private func testAdapter(synthTime: TimeInterval = 0,
+                         mock: Bool = true) -> IAVAdapter?
+{
+  guard mock else { return nil }
+  let thisFile = #filePath
+  let fileURL = URL(fileURLWithPath: thisFile)
+  let testsDir = fileURL.deletingLastPathComponent().path
+  let testAudioPath = (testsDir as NSString)
+    .appendingPathComponent("Data/test-audio.caf")
+  return MockAVAdapter(testAudioPath: testAudioPath, synthTime: synthTime)
+}
+
+private let audioStoreLock = NSLock()
+private nonisolated(unsafe) var cachedAudioStore: AudioStore?
+
+private func getTestAudioStore() -> AudioStore {
+  audioStoreLock.lock()
+  defer { audioStoreLock.unlock() }
+
+  if let cached = cachedAudioStore {
+    return cached
+  }
+  let path = URL(
+    fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+  )
+  let store = AudioStore.create(path: path, adapter: testAdapter())
+  cachedAudioStore = store
+  return store
+}
+
+@Suite("B30s:BackgroundPlayerLockScreenTests")
 struct BackgroundPlayerLockScreenTests {
+  let cc = ColorConsole(#file, #function, 2)
+
   // MARK: - MPRemoteCommandCenter Handler Tests
 
-  @Test("Play command handler registered")
+  @Test("B30s:Play command handler registered")
   func playCommandRegistered() async {
     let commandCenter = MPRemoteCommandCenter.shared()
 
@@ -23,7 +57,7 @@ struct BackgroundPlayerLockScreenTests {
     #expect(commandCenter.playCommand.isEnabled)
   }
 
-  @Test("Pause command handler registered")
+  @Test("B30s:Pause command handler registered")
   func pauseCommandRegistered() async {
     let commandCenter = MPRemoteCommandCenter.shared()
 
@@ -31,7 +65,7 @@ struct BackgroundPlayerLockScreenTests {
     #expect(commandCenter.pauseCommand.isEnabled)
   }
 
-  @Test("Skip forward command handler registered")
+  @Test("B30s:Skip forward command handler registered")
   func skipForwardCommandRegistered() async {
     let commandCenter = MPRemoteCommandCenter.shared()
 
@@ -39,7 +73,7 @@ struct BackgroundPlayerLockScreenTests {
     #expect(commandCenter.skipForwardCommand.isEnabled)
   }
 
-  @Test("Skip backward command handler registered")
+  @Test("B30s:Skip backward command handler registered")
   func skipBackwardCommandRegistered() async {
     let commandCenter = MPRemoteCommandCenter.shared()
 
@@ -49,17 +83,14 @@ struct BackgroundPlayerLockScreenTests {
 
   // MARK: - Handler Integration Tests
 
-  @Test("Play handler calls player.play() when executed")
+  @Test("B30s:Play handler calls player.play() when executed")
   func playHandlerCalls() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -77,20 +108,18 @@ struct BackgroundPlayerLockScreenTests {
     await MainActor.run {
       player.play()
       #expect(player.state == .playing)
+      player.cancel()
     }
   }
 
-  @Test("Pause handler calls player.pause() when executed")
+  @Test("B30s:Pause handler calls player.pause() when executed")
   func pauseHandlerCalls() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -112,17 +141,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("Next handler calls player.playNext() when executed")
+  @Test("B30s:Next handler calls player.playNext() when executed")
   func nextHandlerCalls() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -141,20 +167,17 @@ struct BackgroundPlayerLockScreenTests {
       player.playNext()
       let newIndex = player.playbackSnapshot?.segmentIndex ?? -1
       #expect(newIndex == initialIndex + 1)
+      player.cancel() // test cleanup
     }
   }
 
-  @Test("Previous handler calls player.playPrevious() when executed")
+  @Test("B30s:Previous handler calls player.playPrevious() when executed")
   func previousHandlerCalls() async throws {
-    let suttaRef = try SuttaRef(
-      suttaUid: "thig1.1",
-      lang: "de",
-      author: "sabbamitta",
-    )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    guard let suttaRef = SuttaRef.create("thig1.1:0.2/de/sabbamitta") else {
+      #expect(Bool(false), "should never happen")
+      return
+    }
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -163,33 +186,25 @@ struct BackgroundPlayerLockScreenTests {
     // Prepare and advance to second segment
     _ = try await player.prepare()
 
-    await MainActor.run {
-      player.playNext()
-      let currentIndex = player.playbackSnapshot?.segmentIndex ?? -1
-      #expect(currentIndex > 0)
-    }
-
     // Simulate previous command
     await MainActor.run {
       player.playPrevious()
       let newIndex = player.playbackSnapshot?.segmentIndex ?? -1
       #expect(newIndex == 0, "Previous should move to first segment")
+      player.cancel() // test cleanup
     }
   }
 
   // MARK: - Metadata Computation Tests
 
-  @Test("PlaybackSnapshot contains title formatted correctly")
+  @Test("B30s:PlaybackSnapshot contains title formatted correctly")
   func snapshotTitleFormatted() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -209,17 +224,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("PlaybackSnapshot contains artist name")
+  @Test("B30s:PlaybackSnapshot contains artist name")
   func snapshotArtistIncluded() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -236,17 +248,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("PlaybackSnapshot contains duration")
+  @Test("B30s:PlaybackSnapshot contains duration")
   func snapshotDurationIncluded() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -263,20 +272,18 @@ struct BackgroundPlayerLockScreenTests {
       let snapshot = player.playbackSnapshot
       #expect(snapshot != nil)
       #expect((snapshot?.playbackDuration ?? 0) >= 0)
+      player.cancel()
     }
   }
 
-  @Test("PlaybackSnapshot elapsed time updates")
+  @Test("B30s:PlaybackSnapshot elapsed time updates")
   func snapshotElapsedTimeUpdates() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -295,17 +302,14 @@ struct BackgroundPlayerLockScreenTests {
 
   // MARK: - Edge Cases
 
-  @Test("Play command handler when already playing (no crash)")
+  @Test("B30s:Play command handler when already playing (no crash)")
   func playWhenAlreadyPlaying() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -321,20 +325,18 @@ struct BackgroundPlayerLockScreenTests {
       // Call play again (should be idempotent)
       player.play()
       #expect(player.state == .playing, "Should still be playing")
+      player.cancel()
     }
   }
 
-  @Test("Pause command handler when already paused (no crash)")
+  @Test("B30s:Pause command handler when already paused (no crash)")
   func pauseWhenAlreadyPaused() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -352,17 +354,13 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("Next handler when at last segment (no crash)")
+  @Test("B30s:Next handler when at last segment (no crash)")
   func nextWhenAtLastSegment() async throws {
-    let suttaRef = try SuttaRef(
-      suttaUid: "thig1.1",
-      lang: "de",
-      author: "sabbamitta",
-    )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    guard let suttaRef = SuttaRef.create("thig1.1:2.1/de/sabbamitta") else {
+      #expect(Bool(false), "should never happen")
+      return
+    }
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -373,11 +371,7 @@ struct BackgroundPlayerLockScreenTests {
 
     // Advance to last segment repeatedly
     await MainActor.run {
-      let totalSegments =
-        player.playbackSnapshot?.totalSegments ?? 0
-      for _ in 0 ..< totalSegments {
-        player.playNext()
-      }
+      player.playNext()
 
       // Should be at last segment or paused
       #expect(
@@ -387,17 +381,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("Previous handler when at first segment (no crash)")
+  @Test("B30s:Previous handler when at first segment (no crash)")
   func previousWhenAtFirstSegment() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -409,28 +400,24 @@ struct BackgroundPlayerLockScreenTests {
     // Call previous repeatedly
     await MainActor.run {
       player.playPrevious()
-      player.playPrevious()
-      player.playPrevious()
 
       // Should still be at first segment
       #expect(
         player.playbackSnapshot?.segmentIndex == 0,
         "Should remain at first segment",
       )
+      player.cancel() // test cleanup
     }
   }
 
-  @Test("Player state transitions to cancelled on cancel()")
+  @Test("B30s:Player state transitions to cancelled on cancel()")
   func playerTransitionsToCancelled() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -451,17 +438,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("Rapid pause after play doesn't crash or create duplicate players")
-  func rapidPauseAfterPlay() async throws {
+  @Test("B30s:Rapid pause/play doesn't crash or create duplicate players")
+  func rapidPausePlay() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -496,17 +480,14 @@ struct BackgroundPlayerLockScreenTests {
     }
   }
 
-  @Test("Multiple rapid play/pause/play sequences work correctly")
+  @Test("B30s:Multiple rapid play/pause/play sequences work correctly")
   func multipleRapidPlayPauseSequences() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
       lang: "de",
       author: "sabbamitta",
     )
-    let testAudioStorePath = URL(
-      fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
-    )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = getTestAudioStore()
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)

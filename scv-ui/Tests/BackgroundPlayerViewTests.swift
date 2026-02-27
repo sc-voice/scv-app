@@ -10,11 +10,27 @@ import scvCore
 import SwiftUI
 import Testing
 
-@Suite("BackgroundPlayerView Tests")
+// MARK: - Test Configuration
+
+private func testAdapter(synthTime: TimeInterval = 0,
+                         mock: Bool = true) -> IAVAdapter?
+{
+  guard mock else { return nil }
+  let thisFile = #filePath
+  let fileURL = URL(fileURLWithPath: thisFile)
+  let testsDir = fileURL.deletingLastPathComponent().path
+  let testAudioPath = (testsDir as NSString)
+    .appendingPathComponent("Data/test-audio.caf")
+  return MockAVAdapter(testAudioPath: testAudioPath, synthTime: synthTime)
+}
+
+@Suite("B24s:BackgroundPlayerViewTests")
 struct BackgroundPlayerViewTests {
+  let cc = ColorConsole(#file, #function, 2)
+
   // MARK: - State Transition Tests
 
-  @Test("View initializes with provided player and bindings")
+  @Test("B24s:View initializes with provided player and bindings")
   func initialization() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -38,7 +54,9 @@ struct BackgroundPlayerViewTests {
     }
   }
 
-  @Test("View transitions from synthesis to playback phase on state change")
+  @Test(
+    "B24s:View transitions from synthesis to playback phase on state change",
+  )
   func synthesisToPlaybackTransition() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -53,7 +71,7 @@ struct BackgroundPlayerViewTests {
       at: tmpDir,
       withIntermediateDirectories: true,
     )
-    let testAudioStore = AudioStore.create(path: tmpDir)
+    let testAudioStore = AudioStore.create(path: tmpDir, adapter: testAdapter())
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -96,12 +114,13 @@ struct BackgroundPlayerViewTests {
 
   // MARK: - Polling Tests
 
-  @Test("SynthesisSnapshot updates during polling")
+  @Test("B24s:SynthesisSnapshot updates during polling")
   func synthesisSnapshotUpdates() async throws {
+    cc.ok2(#line, #function, "B24s:timing")
     let suttaRef = try SuttaRef(
-      suttaUid: "thig1.1",
-      lang: "de",
-      author: "sabbamitta",
+      suttaUid: "an9.48", // Shortest sutta
+      lang: "en",
+      author: "sujato",
     )
 
     // Use temporary directory to force synthesis (no cache hits)
@@ -111,22 +130,28 @@ struct BackgroundPlayerViewTests {
       at: tmpDir,
       withIntermediateDirectories: true,
     )
-    let testAudioStore = AudioStore.create(path: tmpDir)
+    cc.ok2(#line, #function, "B24s:timing")
+    let testAudioStore = AudioStore.create(path: tmpDir, adapter: testAdapter())
+    cc.ok2(#line, #function, "B24s:timing")
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
     }
+    cc.ok2(#line, #function, "B24s:timing")
 
     // Start preparation
     let prepareTask = Task {
       try await player.prepare()
     }
+    cc.ok2(#line, #function, "B24s:timing")
 
     // Give synthesis time to start
     try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+    cc.ok2(#line, #function, "B24s:timing")
 
     // Wait for synthesis to complete
     _ = try await prepareTask.value
+    cc.ok2(#line, #function, "B24s:timing")
 
     // Verify synthesis completed
     await MainActor.run {
@@ -136,14 +161,16 @@ struct BackgroundPlayerViewTests {
         "Synthesis should complete and transition to paused state",
       )
     }
+    cc.ok2(#line, #function, "B24s:timing")
 
     // Cleanup
     try FileManager.default.removeItem(at: tmpDir)
+    cc.ok1(#line, #function, "B24s:timing")
   }
 
   // MARK: - Playback Phase UI Tests
 
-  @Test("Playback snapshot available after synthesis completes")
+  @Test("B24s:Playback snapshot available after synthesis completes")
   func playbackSnapshotAfterSynthesis() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -154,7 +181,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -174,7 +204,7 @@ struct BackgroundPlayerViewTests {
     }
   }
 
-  @Test("Segment text preview is available for UI display")
+  @Test("B24s:Segment text preview is available for UI display")
   func segmentTextPreview() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -185,7 +215,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -210,7 +243,7 @@ struct BackgroundPlayerViewTests {
 
   // MARK: - Playback Control Tests
 
-  @Test("Play button triggers player.play()")
+  @Test("B24s:Play button triggers player.play()")
   func playButtonAction() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -221,7 +254,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -235,10 +271,11 @@ struct BackgroundPlayerViewTests {
       #expect(player.state == .paused)
       player.play()
       #expect(player.state == .playing)
+      player.cancel() // test cleanup
     }
   }
 
-  @Test("Pause button triggers player.pause()")
+  @Test("B24s:Pause button triggers player.pause()")
   func pauseButtonAction() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -249,7 +286,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -267,7 +307,7 @@ struct BackgroundPlayerViewTests {
     }
   }
 
-  @Test("Next button triggers player.playNext()")
+  @Test("B24s:Next button triggers player.playNext()")
   func nextButtonAction() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -278,7 +318,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -293,10 +336,11 @@ struct BackgroundPlayerViewTests {
       player.playNext()
       let newIndex = player.playbackSnapshot?.segmentIndex ?? -1
       #expect(newIndex == initialIndex + 1, "Next should advance segment")
+      player.cancel() // test cleanup
     }
   }
 
-  @Test("Previous button triggers player.playPrevious()")
+  @Test("B24s:Previous button triggers player.playPrevious()")
   func previousButtonAction() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -307,7 +351,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -336,12 +383,13 @@ struct BackgroundPlayerViewTests {
         indexAfterPrevious == indexBeforePrevious - 1,
         "Previous should go back one segment when paused",
       )
+      player.cancel() // test cleanup
     }
   }
 
   // MARK: - Cancellation Tests
 
-  @Test("Cancellation during synthesis transitions to cancelled state")
+  @Test("B24s:Cancellation during synthesis transitions to cancelled state")
   func cancellationDuringSynthesis() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -356,7 +404,10 @@ struct BackgroundPlayerViewTests {
       at: tmpDir,
       withIntermediateDirectories: true,
     )
-    let testAudioStore = AudioStore.create(path: tmpDir)
+    let testAudioStore = AudioStore.create(
+      path: tmpDir,
+      adapter: testAdapter(synthTime: 0.5),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -384,7 +435,7 @@ struct BackgroundPlayerViewTests {
     try FileManager.default.removeItem(at: tmpDir)
   }
 
-  @Test("Cancellation after synthesis transitions to cancelled state")
+  @Test("B24s:Cancellation after synthesis transitions to cancelled state")
   func cancellationAfterSynthesis() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "thig1.1",
@@ -395,7 +446,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)
@@ -414,7 +468,7 @@ struct BackgroundPlayerViewTests {
 
   // MARK: - Error Handling Tests
 
-  @Test("Synthesis failure transitions to failed state with error message")
+  @Test("B24s:Synthesis failure transitions to failed state with error message")
   func synthesisFailureHandling() async throws {
     let suttaRef = try SuttaRef(
       suttaUid: "nonexistent",
@@ -425,7 +479,10 @@ struct BackgroundPlayerViewTests {
       URL(
         fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
       )
-    let testAudioStore = AudioStore.create(path: testAudioStorePath)
+    let testAudioStore = AudioStore.create(
+      path: testAudioStorePath,
+      adapter: testAdapter(),
+    )
 
     let player = await MainActor.run {
       BackgroundPlayer(suttaRef: suttaRef, audioStore: testAudioStore)

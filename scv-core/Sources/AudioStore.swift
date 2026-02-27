@@ -10,12 +10,15 @@
 //
 //  | Operation | Time | Notes |
 //  |-----------|------|-------|
-//  | AVSpeechSynthesizer synthesis | Varies | Depends on text length and voice |
+//  | AVSpeechSynthesizer synthesis | Varies | Depends on text length and voice
+//  |
 //  | Write to cache (GuidStore) | ~10ms | Atomic, includes directory creation |
 //  | Read from cache | ~5-10ms | File exists check + filesystem lookup |
 //  | MockAVAdapter (test) | <1ms | Copies pre-recorded test audio |
-//  | File size (CAF, short segment) | 85-114KB | Varies by voice and text length |
-//  | File size (CAF, long segment) | ~5.4MB | Example: dn10:2.32.2 (1058 chars) |
+//  | File size (CAF, short segment) | 85-114KB | Varies by voice and text
+//  length |
+//  | File size (CAF, long segment) | ~5.4MB | Example: dn10:2.32.2 (1058 chars)
+//  |
 //  | M4A conversion | ~0.3s | AVAudioConverter, ~7x compression ratio |
 //
 //  ## Disk Scaling (M4A with AAC, 7x compression)

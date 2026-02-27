@@ -15,12 +15,7 @@
     {
       "name" : "Update BackgroundPlayerTests.swift: Add adapter: MockAVAdapter() to 14 AudioStore.create() calls",
       "test" : "update unit tests"
-    }
-  ],
-  "createdAt" : "2026-02-25T15:59:45Z",
-  "id" : "019C9587-1AE2-7000-9BAA-5D711B84BCBF",
-  "name" : "Fix test errors in scv-ui",
-  "plannedActions" : [
+    },
     {
       "name" : "Fix BackgroundPlayerTests: play() from paused state - playbackDuration = 0",
       "test" : "update unit tests"
@@ -44,7 +39,12 @@
     {
       "name" : "Update BackgroundPlayerViewTests.swift: Add adapter: MockAVAdapter() to 11 AudioStore.create() calls",
       "test" : "update unit tests"
-    },
+    }
+  ],
+  "createdAt" : "2026-02-25T15:59:45Z",
+  "id" : "019C9587-1AE2-7000-9BAA-5D711B84BCBF",
+  "name" : "Fix test errors in scv-ui",
+  "plannedActions" : [
     {
       "name" : "Update SuttaPlayerTests.swift: Add adapter: MockAVAdapter() to 5 AudioStore.create() calls",
       "test" : "update unit tests"
@@ -70,5 +70,5 @@
 
   ],
   "summary" : "",
-  "updatedAt" : "2026-02-25T20:38:00Z"
+  "updatedAt" : "2026-02-27T13:52:41Z"
 }

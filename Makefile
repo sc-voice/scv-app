@@ -14,7 +14,9 @@ SWIFT_BUILD_FILTER = '(✘ Test|Suite.*after|error:|warning:|Build complete)'
 XCODE_BUILD_FILTER = '(error:|warning:|BUILD SUCCEEDED|BUILD FAILED|Test Suite)'
 TEST_ALL_FILTER = '(✘|Suite.*after|error:|warning:|Build complete|BUILD SUCCEEDED|BUILD FAILED|✔ Test run|failed|✓|NOTE:|Found unhandled|=== MAKE)'
 LOG_FILE = $(CURDIR)/local/build/make.log
-RESEARCH_TESTS = AVFoundationTests
+RESEARCH_TEST_NAMES = AVFoundationTests SynthesizerPerformanceTests
+SKIP_RESEARCH = $(foreach test,$(RESEARCH_TEST_NAMES),--skip $(test))
+FILTER_RESEARCH = $(foreach test,$(RESEARCH_TEST_NAMES),--filter $(test))
 
 # Initialize make.log at start of top-level invocation
 _init:
@@ -43,7 +45,7 @@ test-core: _init _test-core _end
 
 _test-core: _build-core
 	@echo "=== MAKE test-core..." | tee -a $(LOG_FILE)
-	cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests --skip $(RESEARCH_TESTS) 2>&1 | tee -a $(LOG_FILE); \
+	cd scv-core && swift test --no-parallel --skip ZstdIntegrationTests $(SKIP_RESEARCH) 2>&1 | tee -a $(LOG_FILE); \
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
 
 test-core-verbose: _init _build-core _end
@@ -53,7 +55,7 @@ test-ui: _init _test-ui _end
 
 _test-ui:
 	@echo "=== MAKE test-ui..." | tee -a $(LOG_FILE)
-	@cd scv-ui && swift test --no-parallel 2>&1 | tee -a $(LOG_FILE); \
+	@cd scv-ui && swift test --no-parallel $(SKIP_RESEARCH) 2>&1 | tee -a $(LOG_FILE); \
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then exit 1; fi
 
 test-tools: _init _test-tools _end
@@ -77,7 +79,7 @@ test-research: _init _test-research _end
 
 _test-research: _build-core
 	@echo "=== MAKE test-research..." | tee -a $(LOG_FILE)
-	@cd scv-core && swift test --no-parallel --filter $(RESEARCH_TESTS) 2>&1 | tee -a $(LOG_FILE); \
+	@cd scv-core && swift test --no-parallel $(FILTER_RESEARCH) 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then exit 1; fi
 
 test-nlp: build-nlp

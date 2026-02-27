@@ -18,6 +18,7 @@ import Synchronization
 /// - Allows manual delegate triggering for testing event sequences
 public class MockAVAdapter: IAVAdapter {
   let cc = ColorConsole(#file, #function, dbg.AVAdapter.other)
+
   // MARK: - State Management
 
   private struct State {
@@ -77,7 +78,7 @@ public class MockAVAdapter: IAVAdapter {
 
   public func synthesizeToFile(
     text: String,
-    audioContext: AudioContext,
+    audioContext _: AudioContext,
     outputURL: URL,
   ) async throws {
     cc.ok2(#line, #function, text)
@@ -95,7 +96,7 @@ public class MockAVAdapter: IAVAdapter {
     // Copy test audio file instead of synthesizing (fast mock for testing)
     // Use provided testAudioPath or calculate from #file location
     let resolvedTestAudioPath: String
-    if let providedPath = self.testAudioPath {
+    if let providedPath = testAudioPath {
       resolvedTestAudioPath = providedPath
     } else {
       // Locate test-audio.caf in Tests/Data directory
@@ -103,7 +104,8 @@ public class MockAVAdapter: IAVAdapter {
       let thisFile = #file
       let fileURL = URL(fileURLWithPath: thisFile)
       let sourceDir = fileURL.deletingLastPathComponent().path // .../Sources
-      let scvCoreDir = URL(fileURLWithPath: sourceDir).deletingLastPathComponent()
+      let scvCoreDir = URL(fileURLWithPath: sourceDir)
+        .deletingLastPathComponent()
         .path // .../scv-core
       resolvedTestAudioPath = (scvCoreDir as NSString)
         .appendingPathComponent("Tests/Data/test-audio.caf")
