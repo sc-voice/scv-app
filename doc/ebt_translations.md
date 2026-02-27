@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-02-19
+**Last updated:** 2026-02-27
 
 ## Overview
 
@@ -34,11 +34,12 @@ Run the script with:
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
 |     4306 | ✅ | en | ✅ | 1 | sujato |
-|     4084 | ✅ | de | ✅ | 1 | sabbamitta |
-|      906 | ✅ | ru | ✅ | 1 | sv |
+|     4094 | ✅ | de | ✅ | 1 | sabbamitta |
+|      907 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
+|      574 | ✅ | ru |    | 2 | o |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
-|      337 | ✅ | ru | ✅ | 2 | narinyanievmenenko |
+|      337 | ✅ | ru | ✅ | 3 | narinyanievmenenko |
 |      313 |    | lt |    | 1 | piyadassi |
 |      277 | ✅ | fr | ✅ | 1 | sekha |
 |      276 | ✅ | cs |    | 1 | ashinsarana |
@@ -51,17 +52,17 @@ Run the script with:
 |       57 | ✅ | pl |    | 1 | hardao |
 |       53 | ✅ | fr | ✅ | 2 | noeismet |
 |       31 | ✅ | es | ✅ | 1 | font |
+|       27 | ✅ | fr |    | 3 | christelle |
 |       26 | ✅ | vi |    | 1 | phantuananh |
 |       26 |    | et |    | 1 | thitanana |
 |       26 | ✅ | en |    | 5 | suddhaso |
-|       23 | ✅ | fr |    | 3 | christelle |
 |       19 | ✅ | de | ✅ | 2 | sonjabuege |
 |       10 | ✅ | pl |    | 2 | marcinow |
 |        9 |    | gu |    | 1 | trush |
 |        9 | ✅ | es |    | 2 | maggatr |
-|        8 | ✅ | ru |    | 3 | syrkin |
+|        8 | ✅ | ru |    | 4 | syrkin |
 |        7 | ✅ | hi |    | 1 | trush |
-|        4 | ✅ | ru |    | 4 | khantibalo |
+|        4 | ✅ | ru |    | 5 | khantibalo |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
@@ -69,11 +70,11 @@ Run the script with:
 |        2 |    | lo |    | 1 | jayasaro |
 |        2 |    | gsw |    | 1 | flavio |
 |        2 | ✅ | en |    | 6 | kovilo |
-|        1 | ✅ | ru |    | 5 | team |
+|        1 | ✅ | ru |    | 6 | team |
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    13408 files
+**Total:**    13997 files
 
 ## Inclusion Criteria
 

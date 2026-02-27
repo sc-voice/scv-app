@@ -2,7 +2,7 @@
 				test-zstd-integration test-nlp test-content test-research\
 				build build-core build-ui build-build build-nlp build-ios build-ios-app build-before build-tasks\
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
-				format mock-response-view rebuild rebuild-raw \
+				format mock-response-view rebuild rebuild-raw release \
         version-major version-minor version-patch \
 				commit build-zst content build-db clean-db
 
@@ -192,6 +192,11 @@ _rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
+
+release: _init _release _end
+
+_release: _content _rebuild
+	@echo "=== MAKE release" | tee -a $(LOG_FILE)
 
 # clean-macros:
 # 	@cd scv-macros && swift package clean 2>/dev/null || true
