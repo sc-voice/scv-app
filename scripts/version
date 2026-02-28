@@ -25,6 +25,22 @@ enum VersionBumpType: String {
 
         return "\(major).\(minor).\(patch)"
     }
+
+    func bumpMarketing(version: String) -> String {
+        let parts = version.split(separator: ".", omittingEmptySubsequences: false).map { String($0) }
+        let major = Int(parts.first ?? "0") ?? 0
+
+        // Calculate minor: last two digits of current year
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        let minor = currentYear % 100
+
+        // Calculate patch: month two weeks from now (2-digit)
+        let twoWeeksFromNow = calendar.date(byAdding: .day, value: 14, to: Date()) ?? Date()
+        let patch = calendar.component(.month, from: twoWeeksFromNow)
+
+        return "\(major).\(minor).\(String(format: "%02d", patch))"
+    }
 }
 
 let currentDir = FileManager.default.currentDirectoryPath
@@ -76,13 +92,30 @@ do {
     let currentBuildVersion = String(versionSwiftContent[buildVersionRange])
     let newBuildVersion = bumpType.bump(version: currentBuildVersion)
 
-    // Update buildVersion in Version.swift
+    // Extract marketingVersion using regex: public let marketingVersion = "X.Y.Z"
+    let marketingVersionPattern = "public let marketingVersion = \"([\\d.]+)\""
+    let marketingVersionRegex = try NSRegularExpression(pattern: marketingVersionPattern, options: [])
+    let marketingVersionMatches = marketingVersionRegex.matches(in: versionSwiftContent, options: [], range: NSRange(versionSwiftContent.startIndex..., in: versionSwiftContent))
+
+    guard let marketingVersionMatch = marketingVersionMatches.first,
+          let marketingVersionRange = Range(marketingVersionMatch.range(at: 1), in: versionSwiftContent) else {
+        print("Error: Could not find marketingVersion in Version.swift")
+        exit(1)
+    }
+
+    let currentMarketingVersion = String(versionSwiftContent[marketingVersionRange])
+    let newMarketingVersion = bumpType.bumpMarketing(version: currentMarketingVersion)
+
+    // Update buildVersion and marketingVersion in Version.swift
     versionSwiftContent.replaceSubrange(buildVersionRange, with: newBuildVersion)
+    versionSwiftContent.replaceSubrange(marketingVersionRange, with: newMarketingVersion)
     try versionSwiftContent.write(toFile: versionSwiftPath, atomically: true, encoding: .utf8)
 
     // Update pbxproj files
-    let pbxPattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
-    let pbxRegex = try NSRegularExpression(pattern: pbxPattern, options: [])
+    let buildVersionPbxPattern = "CURRENT_PROJECT_VERSION = ([\\d.]+);"
+    let buildVersionPbxRegex = try NSRegularExpression(pattern: buildVersionPbxPattern, options: [])
+    let marketingVersionPbxPattern = "MARKETING_VERSION = ([\\d.]+);"
+    let marketingVersionPbxRegex = try NSRegularExpression(pattern: marketingVersionPbxPattern, options: [])
 
     for pbxprojPath in pbxprojPaths {
         guard FileManager.default.fileExists(atPath: pbxprojPath) else {
@@ -90,20 +123,32 @@ do {
         }
 
         var pbxContent = try String(contentsOfFile: pbxprojPath, encoding: .utf8)
-        let pbxMatches = pbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
 
-        if !pbxMatches.isEmpty {
-            // Process matches in reverse order to avoid index shifting
-            for match in pbxMatches.reversed() {
+        // Update CURRENT_PROJECT_VERSION
+        let buildVersionMatches = buildVersionPbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
+        if !buildVersionMatches.isEmpty {
+            for match in buildVersionMatches.reversed() {
                 if let versionRange = Range(match.range(at: 1), in: pbxContent) {
                     pbxContent.replaceSubrange(versionRange, with: newBuildVersion)
                 }
             }
-            try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
         }
+
+        // Sync MARKETING_VERSION from Version.swift
+        let marketingVersionMatches = marketingVersionPbxRegex.matches(in: pbxContent, options: [], range: NSRange(pbxContent.startIndex..., in: pbxContent))
+        if !marketingVersionMatches.isEmpty {
+            for match in marketingVersionMatches.reversed() {
+                if let versionRange = Range(match.range(at: 1), in: pbxContent) {
+                    pbxContent.replaceSubrange(versionRange, with: newMarketingVersion)
+                }
+            }
+        }
+
+        try pbxContent.write(toFile: pbxprojPath, atomically: true, encoding: .utf8)
     }
 
     print("✓ Build version bumped to \(newBuildVersion)")
+    print("✓ Marketing version updated to \(newMarketingVersion)")
 
 } catch {
     print("Error: \(error.localizedDescription)")
