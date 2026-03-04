@@ -86,7 +86,7 @@
 "about.feature.highlighting" = "Hervorhebung";
 
 /* About card view: highlighting description */
-"about.feature.highlighting.desc" = "Siehe übereinstimmende Segmente und Zitate";
+"about.feature.highlighting.desc" = "Zeigt übereinstimmende Segmente und Zitate an";
 
 /* About card view: multiple languages feature */
 "about.feature.languages" = "Mehrere Sprachen";
