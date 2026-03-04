@@ -203,7 +203,7 @@
 "about.step.1.desc" = "Tippe auf die Schaltfläche '+', um eine neue Karte zu erstellen";
 
 /* About card view: step 1 title */
-"about.step.1.title" = "Erstelle eine Suchkarte";
+"about.step.1.title" = "Eine Suchkarte erstellen";
 
 /* About card view: step 2 description */
 "about.step.2.desc" = "Suche nach einem Wort, einer Wendung oder einer Sutta-UID";
