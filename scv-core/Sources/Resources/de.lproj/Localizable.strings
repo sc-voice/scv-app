@@ -86,7 +86,7 @@
 "about.feature.highlighting" = "Hervorhebung";
 
 /* About card view: highlighting description */
-"about.feature.highlighting.desc" = "Siehe übereinstimmende Segmente und Zitate";
+"about.feature.highlighting.desc" = "Zeigt übereinstimmende Segmente und Zitate an";
 
 /* About card view: multiple languages feature */
 "about.feature.languages" = "Mehrere Sprachen";
@@ -203,7 +203,7 @@
 "about.step.1.desc" = "Tippe auf die Schaltfläche '+', um eine neue Karte zu erstellen";
 
 /* About card view: step 1 title */
-"about.step.1.title" = "Erstelle eine Suchkarte";
+"about.step.1.title" = "Eine Suchkarte erstellen";
 
 /* About card view: step 2 description */
 "about.step.2.desc" = "Suche nach einem Wort, einer Wendung oder einer Sutta-UID";
@@ -218,7 +218,7 @@
 "about.step.3.title" = "Ergebnisse anzeigen";
 
 /* About card view: step 4 description */
-"about.step.4.desc" = "Tippe auf ein Ergebnis, um den vollständigen Text zu lesen";
+"about.step.4.desc" = "Tippe zweimal auf ein Ergebnis, um den vollständigen Text zu lesen";
 
 /* About card view: step 4 title */
 "about.step.4.title" = "Suttas öffnen";
