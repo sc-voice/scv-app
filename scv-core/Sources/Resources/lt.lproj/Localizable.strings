@@ -283,6 +283,15 @@
 /* Settings section header for accessibility options */
 "settings.accessibility" = "Pritaikymas Negalės Turintiems";
 
+/* Settings label for audio store */
+"settings.audio.store" = "Garso saugykla";
+
+/* Settings loading indicator */
+"settings.loading" = "Kraunasi...";
+
+/* Settings label for maximum column width */
+"settings.max.column.width" = "Maksimalus stulpelio plotis";
+
 /* Settings subsection header for audio options */
 "settings.audio" = "Garsas";
 
@@ -316,8 +325,14 @@
 /* Settings label for customization options */
 "settings.customize" = "Tinkinti";
 
+/* Settings label for dark appearance */
+"settings.dark" = "Tamsi";
+
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Tamsi Tema";
+
+/* Settings label for light appearance */
+"settings.light" = "Šviesi";
 
 /* Settings section header for display options */
 "settings.display" = "Ekranas";

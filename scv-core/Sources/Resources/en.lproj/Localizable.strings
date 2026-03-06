@@ -283,6 +283,15 @@
 /* Settings section header for accessibility options */
 "settings.accessibility" = "Accessibility";
 
+/* Settings label for audio store (disk usage display) */
+"settings.audio.store" = "Audio Store";
+
+/* Settings loading indicator text */
+"settings.loading" = "Loading...";
+
+/* Settings label for max column width */
+"settings.max.column.width" = "Max Column Width";
+
 /* Settings subsection header for audio options */
 "settings.audio" = "Audio";
 
@@ -316,8 +325,14 @@
 /* Settings label for customization options */
 "settings.customize" = "Customize";
 
+/* Settings theme label for dark mode */
+"settings.dark" = "Dark";
+
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Dark Mode";
+
+/* Settings theme label for light mode */
+"settings.light" = "Light";
 
 /* Settings section header for display options */
 "settings.display" = "Display";

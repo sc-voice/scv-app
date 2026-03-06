@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-02-27
+**Last updated:** 2026-03-03
 
 ## Overview
 
@@ -52,7 +52,7 @@ Run the script with:
 |       57 | ✅ | pl |    | 1 | hardao |
 |       53 | ✅ | fr | ✅ | 2 | noeismet |
 |       31 | ✅ | es | ✅ | 1 | font |
-|       27 | ✅ | fr |    | 3 | christelle |
+|       30 | ✅ | fr |    | 3 | christelle |
 |       26 | ✅ | vi |    | 1 | phantuananh |
 |       26 |    | et |    | 1 | thitanana |
 |       26 | ✅ | en |    | 5 | suddhaso |
@@ -74,7 +74,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    13997 files
+**Total:**    14000 files
 
 ## Inclusion Criteria
 

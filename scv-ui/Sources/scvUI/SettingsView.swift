@@ -154,7 +154,7 @@ public struct SettingsView: View {
                       }
                     }
                     .lineLimit(1)
-                    Text(controller.isDarkModeEnabled ? "Dark" : "Light")
+                    Text(controller.isDarkModeEnabled ? "settings.dark".localized : "settings.light".localized)
                       .font(.system(.caption2))
                   }
                 },
@@ -215,11 +215,11 @@ public struct SettingsView: View {
                         .opacity(themeProvider.theme.iconOpacity))
                       .frame(minWidth: 44)
                     VStack(alignment: .leading, spacing: 2) {
-                      Text("Audio Store")
+                      Text("settings.audio.store".localized)
                         .font(.body)
                         .foregroundColor(themeProvider.theme.textColor)
                       if isLoadingDiskSize {
-                        Text("Loading...")
+                        Text("settings.loading".localized)
                           .font(.system(.caption2))
                           .foregroundColor(themeProvider.theme
                             .secondaryTextColor)
@@ -754,7 +754,7 @@ struct DisplaySectionContent: View {
             .opacity(themeProvider.theme.iconOpacity))
           .frame(minWidth: 44)
         VStack(alignment: .leading, spacing: 8) {
-          Text("Max Column Width")
+          Text("settings.max.column.width".localized)
             .font(.body)
             .foregroundColor(themeProvider.theme.textColor)
           Slider(

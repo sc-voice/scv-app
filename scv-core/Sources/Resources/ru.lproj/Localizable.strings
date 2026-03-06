@@ -283,6 +283,15 @@
 /* Settings section header for accessibility options */
 "settings.accessibility" = "Специальные возможности";
 
+/* Settings label for audio store */
+"settings.audio.store" = "Хранилище аудио";
+
+/* Settings loading indicator */
+"settings.loading" = "Загрузка...";
+
+/* Settings label for maximum column width */
+"settings.max.column.width" = "Максимальная ширина столбца";
+
 /* Settings subsection header for audio options */
 "settings.audio" = "Аудио";
 
@@ -316,8 +325,14 @@
 /* Settings label for customization options */
 "settings.customize" = "Настроить";
 
+/* Settings label for dark appearance */
+"settings.dark" = "Тёмный";
+
 /* Settings label for dark mode toggle */
 "settings.dark.mode" = "Тёмная Тема";
+
+/* Settings label for light appearance */
+"settings.light" = "Светлый";
 
 /* Settings section header for display options */
 "settings.display" = "Дисплей";
