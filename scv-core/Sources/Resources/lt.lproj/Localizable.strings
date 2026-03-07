@@ -26,13 +26,13 @@
 "about.ack.database" = "Duomenų Bazė";
 
 /* About card view: database attribution */
-"about.ack.database.names" = "SuttaCentral komanda";
+"about.ack.database.names" = "SuttaCentral vystymo komanda ir vertėjai";
 
 /* About card view: development role */
 "about.ack.development" = "Kūrimas";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "scVoice bendradarbiai";
+"about.ack.development.names" = "Annegret Gratzki, Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet ir daugelis kitų, kurie nori likti anonimūs";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Šaltinio Tekstas";
@@ -197,7 +197,7 @@
 "about.source.suttacentral" = "SuttaCentral";
 
 /* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato ir Komanda";
+"about.source.suttacentral.author" = "Bhikkhu Sujato ir kiti SuttaCentral vertėjai";
 
 /* About card view: step 1 description */
 "about.step.1.desc" = "Bakstelėkite '+' mygtuką, kad sukurtumėte naują kortelę";
@@ -218,7 +218,7 @@
 "about.step.3.title" = "Peržiūrėti Rezultatus";
 
 /* About card view: step 4 description */
-"about.step.4.desc" = "Bakstelėkite rezultatus, kad perskaitytumėte visą tekstą";
+"about.step.4.desc" = "Dvigubai bakstelėkite rezultatus, kad perskaitytumėte visą tekstą";
 
 /* About card view: step 4 title */
 "about.step.4.title" = "Atidaryti Sutas";

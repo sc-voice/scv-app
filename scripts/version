@@ -7,39 +7,38 @@ enum VersionBumpType: String {
 
     func bump(version: String) -> String {
         let parts = version.split(separator: ".", omittingEmptySubsequences: false).map { String($0) }
-        var major = Int(parts.first ?? "0") ?? 0
-        var minor = parts.count > 1 ? (Int(parts[1]) ?? 0) : 0
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        let year = currentYear % 100
+
+        // Calculate month: two weeks from now (2-digit)
+        let twoWeeksFromNow = calendar.date(byAdding: .day, value: 14, to: Date()) ?? Date()
+        let month = calendar.component(.month, from: twoWeeksFromNow)
+
         var patch = parts.count > 2 ? (Int(parts[2]) ?? 0) : 0
 
         switch self {
-        case .major:
-            major += 1
-            minor = 0
-            patch = 0
-        case .minor:
-            minor += 1
+        case .major, .minor:
+            // For major/minor bumps, reset patch to 0
             patch = 0
         case .patch:
+            // For patch bumps, increment patch
             patch += 1
         }
 
-        return "\(major).\(minor).\(patch)"
+        return "\(year).\(String(format: "%02d", month)).\(patch)"
     }
 
     func bumpMarketing(version: String) -> String {
-        let parts = version.split(separator: ".", omittingEmptySubsequences: false).map { String($0) }
-        let major = Int(parts.first ?? "0") ?? 0
-
-        // Calculate minor: last two digits of current year
         let calendar = Calendar.current
         let currentYear = calendar.component(.year, from: Date())
-        let minor = currentYear % 100
+        let year = currentYear % 100
 
-        // Calculate patch: month two weeks from now (2-digit)
+        // Calculate month: two weeks from now (2-digit)
         let twoWeeksFromNow = calendar.date(byAdding: .day, value: 14, to: Date()) ?? Date()
-        let patch = calendar.component(.month, from: twoWeeksFromNow)
+        let month = calendar.component(.month, from: twoWeeksFromNow)
 
-        return "\(major).\(minor).\(String(format: "%02d", patch))"
+        return "\(year).\(String(format: "%02d", month))"
     }
 }
 

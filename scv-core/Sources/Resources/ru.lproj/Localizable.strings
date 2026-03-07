@@ -26,13 +26,13 @@
 "about.ack.database" = "База данных";
 
 /* About card view: database attribution */
-"about.ack.database.names" = "Команда SuttaCentral";
+"about.ack.database.names" = "Команда разработки SuttaCentral и переводчики";
 
 /* About card view: development role */
 "about.ack.development" = "Разработка";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Участники scVoice";
+"about.ack.development.names" = "Annegret Gratzki, Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet и многие другие, желающие остаться анонимными";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Корневой текст";
@@ -197,7 +197,7 @@
 "about.source.suttacentral" = "SuttaCentral";
 
 /* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato & Команда";
+"about.source.suttacentral.author" = "Бхиккху Суджато и другие переводчики SuttaCentral";
 
 /* About card view: step 1 description */
 "about.step.1.desc" = "Нажмите на кнопку '+' для создания новой карточки";
@@ -218,7 +218,7 @@
 "about.step.3.title" = "Просмотреть результаты";
 
 /* About card view: step 4 description */
-"about.step.4.desc" = "Нажмите на результаты для чтения полного текста";
+"about.step.4.desc" = "Дважды коснитесь результатов, чтобы прочитать полный текст";
 
 /* About card view: step 4 title */
 "about.step.4.title" = "Открыть сутты";

@@ -26,13 +26,13 @@
 "about.ack.database" = "Banco de dados";
 
 /* About card view: database attribution */
-"about.ack.database.names" = "Equipe SuttaCentral";
+"about.ack.database.names" = "Equipe de desenvolvimento do SuttaCentral e tradutores";
 
 /* About card view: development role */
 "about.ack.development" = "Desenvolvimento";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Colaboradores scVoice";
+"about.ack.development.names" = "Annegret Gratzki, Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet e muitos outros que desejam permanecer anônimos";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Texto raiz";
@@ -197,7 +197,7 @@
 "about.source.suttacentral" = "SuttaCentral";
 
 /* About card view: SuttaCentral author */
-"about.source.suttacentral.author" = "Bhikkhu Sujato & Equipe";
+"about.source.suttacentral.author" = "Bhikkhu Sujato e outros tradutores de SuttaCentral";
 
 /* About card view: step 1 description */
 "about.step.1.desc" = "Toque no botão '+' para criar um novo cartão";
@@ -218,7 +218,7 @@
 "about.step.3.title" = "Ver resultados";
 
 /* About card view: step 4 description */
-"about.step.4.desc" = "Toque nos resultados para ler o texto completo";
+"about.step.4.desc" = "Toque duas vezes nos resultados para ler o texto completo";
 
 /* About card view: step 4 title */
 "about.step.4.title" = "Abrir Suttas";

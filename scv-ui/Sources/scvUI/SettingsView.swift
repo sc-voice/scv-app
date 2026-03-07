@@ -154,7 +154,8 @@ public struct SettingsView: View {
                       }
                     }
                     .lineLimit(1)
-                    Text(controller.isDarkModeEnabled ? "settings.dark".localized : "settings.light".localized)
+                    Text(controller.isDarkModeEnabled ? "settings.dark"
+                      .localized : "settings.light".localized)
                       .font(.system(.caption2))
                   }
                 },
