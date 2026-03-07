@@ -32,7 +32,7 @@
 "about.ack.development" = "Desarrollo";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Annegret Gratzki, Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet y muchos otros que desean permanecer anónimos";
+"about.ack.development.names" = "Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet y muchos otros que desean permanecer anónimos";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Texto Raíz";
