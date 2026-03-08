@@ -26,7 +26,7 @@
 "about.ack.database" = "Datenbank";
 
 /* About card view: database attribution */
-"about.ack.database.names" = "SuttaCentral-Entwicklungsteam und Übersetzer";
+"about.ack.database.names" = "SuttaCentral-Entwicklerteam und Übersetzer";
 
 /* About card view: development role */
 "about.ack.development" = "Entwicklung";
