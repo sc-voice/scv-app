@@ -302,10 +302,14 @@ public class SuttaCentralId: CustomStringConvertible {
   }
 
   /// Compares two SCIDs using their low values
-  /// Note: For range IDs (e.g., "pj1-4"), only the low numeric part is compared (e.g., 1).
-  /// This means "pj1" and "pj1-4" will have equal numeric comparison but different string representations.
-  /// When used for sorting, equivalence classes from equal numeric values can be disambiguated by compareHigh,
-  /// which uses the high end of ranges to distinguish between documents with the same low value.
+  /// Note: For range IDs (e.g., "pj1-4"), only the low numeric part is compared
+  /// (e.g., 1).
+  /// This means "pj1" and "pj1-4" will have equal numeric comparison but
+  /// different string representations.
+  /// When used for sorting, equivalence classes from equal numeric values can
+  /// be disambiguated by compareHigh,
+  /// which uses the high end of ranges to distinguish between documents with
+  /// the same low value.
   public static func compareLow(_ a: String, _ b: String) -> Int {
     let abase = Self.basename(a)
     let bbase = Self.basename(b)

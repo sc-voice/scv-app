@@ -432,7 +432,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
       // Segment index for lock screen display
       nowPlayingInfo[MPMediaItemPropertyComments] =
         "background_player.lock_screen.segment_info".localized(
-          "\(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)"
+          "\(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)",
         )
 
       // Add artwork if available

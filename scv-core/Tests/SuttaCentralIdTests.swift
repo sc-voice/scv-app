@@ -450,17 +450,28 @@ struct SuttaCentralIdTests {
   @Test("vinaya prefix pairs sort correctly with compareLow+compareHigh")
   func vinayaPrefixPairsSortCorrectly() {
     // When compareLow returns 0, compareHigh determines order
-    let cmpLowPj = SuttaCentralId.compareLow("pli-tv-bi-vb-pj1", "pli-tv-bi-vb-pj1-4")
-    let cmpHighPj = SuttaCentralId.compareHigh("pli-tv-bi-vb-pj1", "pli-tv-bi-vb-pj1-4")
+    let cmpLowPj = SuttaCentralId.compareLow(
+      "pli-tv-bi-vb-pj1",
+      "pli-tv-bi-vb-pj1-4",
+    )
+    let cmpHighPj = SuttaCentralId.compareHigh(
+      "pli-tv-bi-vb-pj1",
+      "pli-tv-bi-vb-pj1-4",
+    )
 
-    #expect(cmpLowPj == 0)  // Same low values
-    #expect(cmpHighPj < 0)  // pj1 < pj1-4 by high value
+    #expect(cmpLowPj == 0) // Same low values
+    #expect(cmpHighPj < 0) // pj1 < pj1-4 by high value
 
-    let cmpLowSk = SuttaCentralId.compareLow("pli-tv-bi-vb-sk1", "pli-tv-bi-vb-sk1-75")
-    let cmpHighSk = SuttaCentralId.compareHigh("pli-tv-bi-vb-sk1", "pli-tv-bi-vb-sk1-75")
+    let cmpLowSk = SuttaCentralId.compareLow(
+      "pli-tv-bi-vb-sk1",
+      "pli-tv-bi-vb-sk1-75",
+    )
+    let cmpHighSk = SuttaCentralId.compareHigh(
+      "pli-tv-bi-vb-sk1",
+      "pli-tv-bi-vb-sk1-75",
+    )
 
-    #expect(cmpLowSk == 0)  // Same low values
-    #expect(cmpHighSk < 0)  // sk1 < sk1-75 by high value
+    #expect(cmpLowSk == 0) // Same low values
+    #expect(cmpHighSk < 0) // sk1 < sk1-75 by high value
   }
-
 }

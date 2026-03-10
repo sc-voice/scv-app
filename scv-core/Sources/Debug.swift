@@ -77,7 +77,7 @@ public struct dbg: Sendable {
 
   public struct EbtData: Sendable {
     public static let other: Int = EBT_DATA
-    public static let segmentsOfSuttaRef: Int = max(1,EBT_DATA)
+    public static let segmentsOfSuttaRef: Int = max(1, EBT_DATA)
   }
 
   public struct EbtDBBuilder: Sendable {

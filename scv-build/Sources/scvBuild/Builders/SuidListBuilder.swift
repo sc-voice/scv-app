@@ -24,7 +24,8 @@ public class SuidListBuilder {
     // Open database
     var db: OpaquePointer?
     guard sqlite3_open(dbPath, &db) == SQLITE_OK else {
-      throw SuidListBuilderError.databaseOpenFailed(String(cString: sqlite3_errmsg(db)))
+      throw SuidListBuilderError
+        .databaseOpenFailed(String(cString: sqlite3_errmsg(db)))
     }
 
     defer { sqlite3_close(db) }
@@ -34,7 +35,8 @@ public class SuidListBuilder {
     let query = "SELECT suttaUid FROM suttas ORDER BY suttaUid"
 
     guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-      throw SuidListBuilderError.queryFailed(String(cString: sqlite3_errmsg(db)))
+      throw SuidListBuilderError
+        .queryFailed(String(cString: sqlite3_errmsg(db)))
     }
 
     defer { sqlite3_finalize(statement) }

@@ -610,7 +610,7 @@ import Testing
     #expect(suids.contains("mn1"))
 
     // Should be sorted using same logic as SuidListBuilder
-    for i in 0..<suids.count - 1 {
+    for i in 0 ..< suids.count - 1 {
       let cmpLow = SuttaCentralId.compareLow(suids[i], suids[i + 1])
       let isSorted = if cmpLow != 0 {
         cmpLow < 0

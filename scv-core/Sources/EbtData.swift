@@ -939,11 +939,11 @@ public actor EbtData {
     let suttaUid = suttaRef.suttaUid
     let ccContext = ccLevel > 0
       ? [
-          "suttaRef:\(suttaRef)",
-          "suttaUid:\(suttaUid)",
-          "matchLemma:\(matchLemma)",
-          "sqlQuery:\(sqlQuery)",
-        ].joined(separator: " ")
+        "suttaRef:\(suttaRef)",
+        "suttaUid:\(suttaUid)",
+        "matchLemma:\(matchLemma)",
+        "sqlQuery:\(sqlQuery)",
+      ].joined(separator: " ")
       : ""
 
     do {

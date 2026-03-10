@@ -140,7 +140,8 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       }
     }
 
-    // Compute scidValue from original suttaUid and segnum BEFORE range resolution
+    // Compute scidValue from original suttaUid and segnum BEFORE range
+    // resolution
     let scidValue = segnum.map { "\(suttaUid):\($0)" } ?? suttaUid
 
     // Handle Pali root text IDs (pli-tv-*) which represent Tipitaka texts

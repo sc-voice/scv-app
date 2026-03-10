@@ -346,6 +346,7 @@
 {"babbling":"babble"}
 {"babes":"babe"}
 {"babies":"baby"}
+{"backbites":"backbite"}
 {"backbiting":"backbite"}
 {"backed":"back"}
 {"backfires":"backfire"}
@@ -1660,7 +1661,6 @@
 {"diverts":"divert"}
 {"dives":"dive"}
 {"divided":"divide"}
-{"dividers":"divider"}
 {"divides":"divide"}
 {"dividing":"divide"}
 {"diving":"dive"}
@@ -2604,6 +2604,7 @@
 {"harassed":"harass"}
 {"harasses":"harass"}
 {"harassing":"harass"}
+{"harbingers":"harbinger"}
 {"harboring":"harbor"}
 {"harbors":"harbor"}
 {"hardened":"harden"}
@@ -2862,6 +2863,7 @@
 {"inflicts":"inflict"}
 {"influences":"influence"}
 {"influxes":"influx"}
+{"informants":"informant"}
 {"informed":"inform"}
 {"informing":"inform"}
 {"informs":"inform"}
@@ -4732,7 +4734,6 @@
 {"shackled":"shackle"}
 {"shackles":"shackle"}
 {"shaded":"shade"}
-{"shafts":"shaft"}
 {"shaken":"shake"}
 {"shakes":"shake"}
 {"shaking":"shake"}
@@ -4856,7 +4857,6 @@
 {"slammed":"slam"}
 {"slamming":"slam"}
 {"slandered":"slander"}
-{"slanderers":"slanderer"}
 {"slandering":"slander"}
 {"slanders":"slander"}
 {"slanted":"slant"}
@@ -5922,8 +5922,6 @@
 {"withdrew":"withdraw"}
 {"withered":"wither"}
 {"withering":"wither"}
-{"withstanding":"withstand"}
-{"withstands":"withstand"}
 {"witnessed":"witness"}
 {"witnesses":"witness"}
 {"witnessing":"witness"}
@@ -5942,6 +5940,7 @@
 {"woodlands":"woodland"}
 {"woodpeckers":"woodpecker"}
 {"woods":"wood"}
+{"wooing":"woo"}
 {"wording":"word"}
 {"words":"word"}
 {"wore":"wear"}
