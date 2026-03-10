@@ -201,10 +201,24 @@ _rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
 
-release: _init _release _end
+release: _init
+	@echo "=== MAKE release" | tee -a $(LOG_FILE)
+	@if [ -n "$$(git status --porcelain)" ]; then \
+		echo "Error: Cannot create release with uncommitted changes" | tee -a $(LOG_FILE); \
+		echo "Please commit or stash changes before release" | tee -a $(LOG_FILE); \
+		exit 1; \
+	fi
+	@if [ -f .commit-msg ]; then \
+		echo "Error: .commit-msg file exists" | tee -a $(LOG_FILE); \
+		echo "Please remove .commit-msg before release" | tee -a $(LOG_FILE); \
+		exit 1; \
+	fi
+	@$(MAKE) _release _end
 
 _release: _content _rebuild
-	@echo "=== MAKE release" | tee -a $(LOG_FILE)
+	@echo Release candidate > $(CURDIR)/.commit-msg
+	@rg -Ie "^public let buildVersion = \"" >> $(CURDIR)/.commit-msg
+	@cat ${CURDIR)/.commit-msg
 
 # clean-macros:
 # 	@cd scv-macros && swift package clean 2>/dev/null || true
