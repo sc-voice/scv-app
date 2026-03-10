@@ -32,7 +32,7 @@
 "about.ack.development" = "Entwicklung";
 
 /* About card view: development attribution */
-"about.ack.development.names" = "Annegret Gratzki, Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet und viele weitere, die anonym bleiben möchten";
+"about.ack.development.names" = "Ayya Sabbamitta, Ben Lee, Karl Lew, Noé Ismet und viele weitere, die anonym bleiben möchten";
 
 /* About card view: root text role */
 "about.ack.root_text" = "Quelltext";
@@ -243,6 +243,24 @@
 
 /* About card sidebar caption - %@ is replaced with bold plus symbol */
 "card.about.sidebar.caption" = "Klicke auf %@, um zu starten";
+
+/* Background Player error: no segments found for sutta */
+"background_player.error.no_segments" = "Keine Segmente gefunden";
+
+/* Background Player error: no segments available for playback */
+"background_player.error.no_segments_available" = "Keine Segmente verfügbar";
+
+/* Background Player error: audio not available for segment */
+"background_player.error.audio_not_available" = "Audiodatei nicht verfügbar";
+
+/* Background Player error: playback failed */
+"background_player.error.playback_failed" = "Wiedergabe fehlgeschlagen";
+
+/* Background Player error: playback interrupted */
+"background_player.error.playback_interrupted" = "Wiedergabe unterbrochen";
+
+/* Background Player lock screen: segment info format (current/total) */
+"background_player.lock_screen.segment_info" = "Segment %@/%@";
 
 /* Placeholder text for empty search query */
 "card.search.placeholder" = "Suche...?";

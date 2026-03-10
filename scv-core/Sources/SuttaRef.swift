@@ -140,6 +140,9 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
       }
     }
 
+    // Compute scidValue from original suttaUid and segnum BEFORE range resolution
+    let scidValue = segnum.map { "\(suttaUid):\($0)" } ?? suttaUid
+
     // Handle Pali root text IDs (pli-tv-*) which represent Tipitaka texts
     // These are valid database UIDs but don't match standard sutta reference
     // format
@@ -163,8 +166,6 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
         throw SuttaRefError.invalidSuttaUid("sutta_uid cannot be empty")
       }
     }
-
-    let scidValue = String(refLower.split(separator: "/")[0])
 
     return try SuttaRef(
       suttaUid: finalSuttaUid,
@@ -201,7 +202,13 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
     let lang = (obj["lang"] as? String) ?? parsed?.lang ?? defaultLang
     var author = obj["author"] as? String ?? parsed?.author
     let segnum = (obj["segnum"] as? String) ?? parsed?.segnum
-    let scid = (obj["scid"] as? String) ?? parsed?.scid
+    let scid: String? = if let explicitScid = obj["scid"] as? String {
+      explicitScid
+    } else if let seg = segnum {
+      "\(suttaUid):\(seg)"
+    } else {
+      parsed?.scid
+    }
 
     // Handle legacy "translator" synonym
     if let translator = obj["translator"] as? String {
@@ -292,11 +299,7 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   /// Returns the string representation of this SuttaRef
   /// Format: "sutta_uid[:segnum][/lang[/author]]"
   public func toString() -> String {
-    var result = suttaUid
-
-    if let seg = segnum {
-      result += ":\(seg)"
-    }
+    var result = scid ?? suttaUid
 
     result += "/\(lang)"
 
@@ -310,33 +313,62 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
   // MARK: - Private Helpers
 
   /// Loads and sorts SUID list
-  private static func loadSortedSuids() -> [String] {
-    guard let suidMap = loadSuidMap() else { return [] }
-    return suidMap.keys
-      .sorted { a, b in
-        SuttaCentralId.compareLow(a, b) < 0
-      }
+  static func loadSortedSuids() -> [String] {
+    guard let suids = loadSuidMap() else { return [] }
+    return suids
   }
 
-  /// Loads the SUID map from embedded JSON
-  private static func loadSuidMap() -> [String: [String: String]]? {
-    guard let url = Bundle.main.url(
-      forResource: "suid-map",
-      withExtension: "json",
-    ),
-      let data = try? Data(contentsOf: url),
-      let dict = try? JSONDecoder().decode(
-        [String: [String: String]].self,
-        from: data,
-      )
-    else {
+  /// Loads the SUID list from embedded JSON
+  /// Returns array of suttauids sorted by SuttaCentralId.compareLow()
+  private static func loadSuidMap() -> [String]? {
+    // Try to find suid-list.json in bundle or file system
+    var url: URL?
+
+    // Method 1: Try Bundle.main
+    url = Bundle.main.url(forResource: "suid-list", withExtension: "json")
+
+    // Method 2: Try other bundles (for tests)
+    if url == nil {
+      for bundle in Bundle.allBundles {
+        if let bundleUrl = bundle.url(
+          forResource: "suid-list",
+          withExtension: "json",
+        ) {
+          url = bundleUrl
+          break
+        }
+      }
+    }
+
+    // Method 3: Try common file paths (for development/debugging)
+    if url == nil {
+      let paths = [
+        "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/suid-list.json",
+      ]
+      for path in paths {
+        if FileManager.default.fileExists(atPath: path) {
+          url = URL(fileURLWithPath: path)
+          break
+        }
+      }
+    }
+
+    guard let fileUrl = url else {
       return nil
     }
-    return dict
+
+    do {
+      let data = try Data(contentsOf: fileUrl)
+      let array = try JSONDecoder().decode([String].self, from: data)
+      return array
+    } catch {
+      Self.cc.bad2(#line, "loadSuidMap", error)
+      return nil
+    }
   }
 
   /// Finds the sutta_uid in a range using binary search
-  private static func findSuttaUidInRange(
+  static func findSuttaUidInRange(
     _ uid: String,
     in suids: [String],
   ) throws -> String {

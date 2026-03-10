@@ -315,7 +315,7 @@ public struct BackgroundPlayerView: View {
           }
 
           // Segment counter
-          Text("synthesis.segment_count".localized(
+          Text("background_player.lock_screen.segment_info".localized(
             "\(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)",
           ))
           .font(.caption)

@@ -7,14 +7,16 @@ public struct dbg: Sendable {
   static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = 0
-  static let PLAYER: Int = 2
+  static let PLAYER: Int = 0
+  static let EBT_DATA: Int = 0
+  static let SPECIAL: Int = 0
 
   public struct AboutCardView: Sendable {
     public static let other: Int = 0
   }
 
   public struct App: Sendable {
-    public static let other: Int = max(2, LAUNCH)
+    public static let other: Int = max(0, LAUNCH)
   }
 
   public struct AppController: Sendable {
@@ -74,7 +76,8 @@ public struct dbg: Sendable {
   }
 
   public struct EbtData: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = EBT_DATA
+    public static let segmentsOfSuttaRef: Int = max(1,EBT_DATA)
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -82,12 +85,12 @@ public struct dbg: Sendable {
   }
 
   public struct EbtQuery: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = EBT_DATA
   }
 
   public struct EbtSeeker: Sendable {
-    public static let other: Int = 2
-    public static let search: Int = 0
+    public static let other: Int = EBT_DATA
+    public static let search: Int = EBT_DATA
   }
 
   public struct IOSView: Sendable {
@@ -131,7 +134,7 @@ public struct dbg: Sendable {
   }
 
   public struct SpeechSynthesizer: Sendable {
-    public static let other: Int = max(2, SYNTH_SPEAK)
+    public static let other: Int = max(0, SYNTH_SPEAK)
   }
 
   public struct SuttaPlayer: Sendable {

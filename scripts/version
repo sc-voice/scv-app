@@ -15,15 +15,22 @@ enum VersionBumpType: String {
         let twoWeeksFromNow = calendar.date(byAdding: .day, value: 14, to: Date()) ?? Date()
         let month = calendar.component(.month, from: twoWeeksFromNow)
 
+        // Extract old year and month from current version
+        let oldYear = parts.count > 0 ? (Int(parts[0]) ?? 0) : 0
+        let oldMonth = parts.count > 1 ? (Int(parts[1]) ?? 0) : 0
         var patch = parts.count > 2 ? (Int(parts[2]) ?? 0) : 0
 
-        switch self {
-        case .major, .minor:
-            // For major/minor bumps, reset patch to 0
+        // Reset patch if year or month changed
+        if year != oldYear || month != oldMonth {
             patch = 0
-        case .patch:
-            // For patch bumps, increment patch
-            patch += 1
+        } else {
+            // Only increment patch if year and month are the same
+            switch self {
+            case .major, .minor:
+                patch = 0
+            case .patch:
+                patch += 1
+            }
         }
 
         return "\(year).\(String(format: "%02d", month)).\(patch)"

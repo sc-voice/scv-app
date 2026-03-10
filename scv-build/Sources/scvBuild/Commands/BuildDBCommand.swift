@@ -13,6 +13,7 @@ public enum RunCommand {
   case buildManifest
   case listManifest
   case listMetadata(lang: String, author: String)
+  case generateSuidList
 }
 
 public class BuildDBCommand {
@@ -71,6 +72,8 @@ public class BuildDBCommand {
       try createManifestBuilder().listManifest()
     case let .listMetadata(lang, author):
       try createManifestBuilder().listMetadata(lang: lang, author: author)
+    case .generateSuidList:
+      try generateSuidList()
     }
     cc.ok1(#line, #function, command)
   }
@@ -82,6 +85,7 @@ public class BuildDBCommand {
     var buildManifest = false
     var listManifest = false
     var rebuildFromManifest = false
+    var generateSuidList = false
     var listMetadata: (lang: String, author: String)? = nil
 
     var i = 0
@@ -94,6 +98,8 @@ public class BuildDBCommand {
         listManifest = true
       } else if arg == "--rebuild-from-manifest" {
         rebuildFromManifest = true
+      } else if arg == "--generate-suid-list" {
+        generateSuidList = true
       } else if arg == "--list-metadata" {
         i += 1
         guard i < args.count else {
@@ -117,6 +123,9 @@ public class BuildDBCommand {
     }
     if listManifest {
       return .listManifest
+    }
+    if generateSuidList {
+      return .generateSuidList
     }
     if let meta = listMetadata {
       return .listMetadata(lang: meta.lang, author: meta.author)
@@ -313,5 +322,13 @@ public class BuildDBCommand {
       return nil
     }
     return nil
+  }
+
+  // MARK: - Suid List Generation
+
+  private func generateSuidList() throws {
+    let builder = SuidListBuilder(projectRoot: projectRoot)
+    try builder.build()
+    cc.ok1(#line, #function, "suid-list.json generated successfully")
   }
 }

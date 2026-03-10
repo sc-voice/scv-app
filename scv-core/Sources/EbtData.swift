@@ -931,19 +931,31 @@ public actor EbtData {
     _ suttaRef: SuttaRef,
     matchLemma: String? = nil,
   ) async -> [Segment] {
+    let ccLevel = dbg.EbtData.segmentsOfSuttaRef
+    let cc = ColorConsole(#file, #function, ccLevel)
+    let sqlQuery = matchLemma != nil
+      ? "SELECT scid, text, (lemmas LIKE ?) as matched FROM segments WHERE suttaUid = ?"
+      : "SELECT scid, text, 0 as matched FROM segments WHERE suttaUid = ?"
+    let suttaUid = suttaRef.suttaUid
+    let ccContext = ccLevel > 0
+      ? [
+          "suttaRef:\(suttaRef)",
+          "suttaUid:\(suttaUid)",
+          "matchLemma:\(matchLemma)",
+          "sqlQuery:\(sqlQuery)",
+        ].joined(separator: " ")
+      : ""
+
     do {
       let db = try getDatabaseForLangAuthor(
         lang: suttaRef.lang,
         author: suttaRef.author ?? "",
       )
 
-      let sqlQuery = matchLemma != nil
-        ? "SELECT scid, text, (lemmas LIKE ?) as matched FROM segments WHERE suttaUid = ?"
-        : "SELECT scid, text, 0 as matched FROM segments WHERE suttaUid = ?"
-
       var stmt: OpaquePointer?
 
       guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        cc.bad1(#line, #function, "sqlite3_prepare_v2", ccContext)
         return []
       }
       defer { sqlite3_finalize(stmt) }
@@ -962,7 +974,7 @@ public actor EbtData {
       sqlite3_bind_text(
         stmt,
         matchLemma != nil ? 2 : 1,
-        (suttaRef.suttaUid as NSString).utf8String,
+        (suttaUid as NSString).utf8String,
         -1,
         nil,
       )
@@ -989,8 +1001,10 @@ public actor EbtData {
       // sort)
       segments.sort { SuttaCentralId.compareLow($0.scid, $1.scid) < 0 }
 
+      cc.ok1(#line, #function, ccContext, "-> \(segments.count) segments")
       return segments
     } catch {
+      cc.bad1(#line, #function, ccContext, "->", error)
       return []
     }
   }

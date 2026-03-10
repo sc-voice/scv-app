@@ -4,7 +4,7 @@
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw release \
         version-major version-minor version-patch \
-				commit build-zst content build-db clean-db
+				commit build-zst content build-db clean-db suid-list
 
 # Enable pipefail so exit codes are preserved when piping to tee
 SHELL := /bin/bash
@@ -138,6 +138,14 @@ _build-tools: _build-core
 	@cd scv-build && swift build 2>&1 | tee -a $(LOG_FILE); \
 	if [ $$? -ne 0 ]; then exit 1; fi
 	@grep -E $(SWIFT_BUILD_FILTER) $(LOG_FILE) | tail -10 || true
+
+suid-list: _init _suid-list _end
+
+_suid-list: _build-core
+	@echo "=== MAKE suid-list..." | tee -a $(LOG_FILE)
+	@cd $(CURDIR)/scv-build && PROJECT_ROOT=$(CURDIR) swift run scv-build-cli --generate-suid-list 2>&1 | tee -a $(LOG_FILE); \
+	if [ $$? -ne 0 ]; then exit 1; fi
+	@echo "✓ suid-list.json regenerated" | tee -a $(LOG_FILE)
 
 build-tasks: _init _build-tasks _end
 
@@ -328,6 +336,7 @@ help:
 	@echo "  make build-tasks       Build scv-tasks package (task CLI)"
 	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-db DB=lang:author    Build single database (e.g. make build-db DB=en:sujato)"
+	@echo "  make suid-list         Regenerate suid-list.json from ebt-pli-ms.db"
 	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
 	@echo "  make clean-core        Clean scv-core package"

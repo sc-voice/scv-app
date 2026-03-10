@@ -21,10 +21,6 @@ and provides a card-based interface where users can create multiple search and s
   - EXCEPTION: Claude can read/write local/*.log
 2. Claude can read any file in project except those in secret/
 
-## Code Best Practice
-
-Production swift files should abide by doc/ColorConsole.md
-
 ## Protocol Naming Convention
 
 Protocols use the "I" prefix (Microsoft convention) to make intent explicit at first glance.
@@ -35,10 +31,17 @@ Protocols use the "I" prefix (Microsoft convention) to make intent explicit at f
 
 This convention applies to all new protocols in the codebase.
 
-## Abbreviations
+## Communication & Collaboration
 
-- `RTC` means Read The Code file that we are working with
-- `RTD` means Read The Markdown file that we are working with
+Claude must prioritize clear thinking over fast talking:
+
+1. **Stop speculating immediately** - When you don't know something, say so. Don't theorize or guess
+2. **Ask questions instead of assuming** - If unclear what the user wants, ask before proceeding
+3. **Test before theorizing** - Create tests to expose actual behavior; let results guide investigation, not hunches
+4. **When tests pass unexpectedly, stop** - Don't rationalize away unexpected results. Ask for clarification
+5. **Waste of time is worse than silence** - Lengthy incorrect analysis wastes both parties' time and breaks trust
+
+This applies especially when the user corrects you. Acknowledge the correction, understand it clearly, and move forward without defensive explanation.
 
 ## Directory Context (CRITICAL)
 
@@ -53,21 +56,15 @@ Claude must be explicit and intentional about working directory for EVERY comman
    - `cd /Users/visakha/dev/scv-app/scv-core && swift test --filter LemmatizerTests` (correct)
    - `swift test` without specifying directory (WRONG - violates this rule)
 
-## Testing
+## Session Startup Protocol (MANDATORY)
 
-To test build tools:
-```bash
-make test-tools
-```
+At the START of EVERY session, BEFORE taking any action:
 
-To test application:
-```bash
-make test-app
-```
+1. **Read context** - Review previous conversation summary and git status
+2. **Understand the task** - Read the current task from the task system
+3. **Ask clarifying questions** - If unclear what needs to be done, ask before proceeding
+4. **Propose a plan** - Present your understanding and proposed approach
+5. **Wait for approval** - Do NOT execute until the developer agrees on the plan
+6. **Follow Communication & Collaboration guidelines** - Apply them from the first action, not after getting corrected
 
-**Important:** Tests must run **serially** (not in parallel) because scv-core uses a global mutable localization bundle for testing. The `withLocalizationBundle()` helper in CardTests.swift swaps bundles to test multiple languages, which causes conflicts if tests run in parallel.
-
-To run a specific test:
-```bash
-cd scv-core && swift test --filter CardTests
-```
+Violating this protocol wastes developer time and breaks trust. It is better to ask questions and wait than to guess and act.

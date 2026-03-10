@@ -86,7 +86,7 @@ public enum BackgroundPlayerError: Error, LocalizedError {
   public var errorDescription: String? {
     switch self {
     case .noSegments:
-      "No segments found for sutta"
+      "background_player.error.no_segments".localized
     case let .synthesisFailure(msg):
       "Synthesis failed: \(msg)"
     }
@@ -431,7 +431,9 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
 
       // Segment index for lock screen display
       nowPlayingInfo[MPMediaItemPropertyComments] =
-        "Segment \(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)"
+        "background_player.lock_screen.segment_info".localized(
+          "\(snapshot.segmentIndex + 1)/\(snapshot.totalSegments)"
+        )
 
       // Add artwork if available
       if let artwork = artWork {
@@ -510,7 +512,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Load segments
     segments = await EbtData.segmentsOfSuttaRef(suttaRef)
     guard !segments.isEmpty else {
-      state = .failed("No segments found")
+      state = .failed("background_player.error.no_segments".localized)
       resetNowPlayingInfo()
       cc.bad1(#line, #function, "No segments found for \(suttaRef)")
       throw BackgroundPlayerError.noSegments
@@ -649,7 +651,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Guard: have valid segments and current index
     guard !segments.isEmpty, currentSegmentIndex < segments.count else {
       cc.bad1(#line, #function, "No segments or invalid index")
-      state = .failed("No segments available")
+      state = .failed("background_player.error.no_segments_available".localized)
       return
     }
 
@@ -728,7 +730,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     ) else {
       let msg = "Audio file not available for segment \(segment.scid)"
       cc.bad1(#line, #function, msg)
-      state = .failed("Audio not available for segment")
+      state = .failed("background_player.error.audio_not_available".localized)
       return
     }
 
@@ -763,7 +765,7 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     } catch {
       let msg = "Failed to create player: \(error)"
       cc.bad1(#line, #function, msg)
-      state = .failed("Playback failed: \(error.localizedDescription)")
+      state = .failed("background_player.error.playback_failed".localized)
     }
   }
 
@@ -903,7 +905,7 @@ extension BackgroundPlayer: @preconcurrency IAVAudioPlayerDelegate {
 
     guard flag else {
       // Playback interrupted
-      state = .failed("Playback interrupted")
+      state = .failed("background_player.error.playback_interrupted".localized)
       resetNowPlayingInfo()
       let msg = "Playback failed segment: \(currentSegmentIndex)"
       cc.bad1(#line, #function, msg)

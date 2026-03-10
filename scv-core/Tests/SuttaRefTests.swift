@@ -335,13 +335,15 @@ import Testing
   ) func abbreviation() {
     // Standard cases - uppercase with numbers
     #expect(SuttaRef.create("mn1")?.abbreviation() == "MN1")
-    #expect(SuttaRef.create("an1.1")?.abbreviation() == "AN1.1")
+    // an1.1 resolves to range document an1.1-10
+    #expect(SuttaRef.create("an1.1")?.abbreviation() == "AN1.1-10")
     #expect(SuttaRef.create("sn22.1")?.abbreviation() == "SN22.1")
     #expect(SuttaRef.create("dn1")?.abbreviation() == "DN1")
 
     // Mixed case input - should normalize to lowercase
     #expect(SuttaRef.create("MN1")?.abbreviation() == "MN1")
-    #expect(SuttaRef.create("An1.1")?.abbreviation() == "AN1.1")
+    // An1.1 resolves to range document an1.1-10
+    #expect(SuttaRef.create("An1.1")?.abbreviation() == "AN1.1-10")
 
     // Mixed case in mapping (snp -> Snp) - preserves case from mapping
     #expect(SuttaRef.create("snp1.1")?.abbreviation() == "Snp1.1")
@@ -350,8 +352,8 @@ import Testing
     // Complex numbers and ranges
     #expect(SuttaRef.create("an1.1-10")?.abbreviation() == "AN1.1-10")
 
-    // Unknown prefix - fallback to uppercase
-    #expect(SuttaRef.create("xyz123")?.abbreviation() == "XYZ123")
+    // Unknown prefix - invalid sutta returns nil
+    #expect(SuttaRef.create("xyz123") == nil)
   }
 
   @Test("SuttaRef rejects invalid lang with path traversal")
@@ -581,5 +583,101 @@ import Testing
 
     let ref3 = SuttaRef.create("pli-tv-kd1/en/brahmali:1.5")
     #expect(ref3?.toString() == "pli-tv-kd1:1.5/en/brahmali")
+  }
+
+  @Test("documentsWithMultipleSuttaUids")
+  func documentsWithMultipleSuttaUids() {
+    let ref = SuttaRef.create("an1.1:0.2/de/sabbamitta")
+
+    #expect(ref?.suttaUid == "an1.1-10")
+    #expect(ref?.segnum == "0.2")
+    #expect(ref?.lang == "de")
+    #expect(ref?.author == "sabbamitta")
+    #expect(ref?.scid == "an1.1:0.2")
+    // toString() uses scid when present
+    #expect(ref?.toString() == "an1.1:0.2/de/sabbamitta")
+  }
+
+  @Test("loadSortedSuids returns non-empty list of document UIDs")
+  func loadSortedSuids() {
+    let suids = SuttaRef.loadSortedSuids()
+
+    // Should return non-empty list
+    #expect(!suids.isEmpty)
+
+    // Should contain expected range documents
+    #expect(suids.contains("an1.1-10"))
+    #expect(suids.contains("mn1"))
+
+    // Should be sorted using same logic as SuidListBuilder
+    for i in 0..<suids.count - 1 {
+      let cmpLow = SuttaCentralId.compareLow(suids[i], suids[i + 1])
+      let isSorted = if cmpLow != 0 {
+        cmpLow < 0
+      } else {
+        SuttaCentralId.compareHigh(suids[i], suids[i + 1]) < 0
+      }
+      #expect(isSorted)
+    }
+  }
+
+  @Test("findSuttaUidInRange resolves individual sutta to range document")
+  func findSuttaUidInRange() {
+    let suids = ["an1.1-10", "an1.11-20", "mn1"]
+
+    // an1.1-10 should resolve to itself (exact match to a range document)
+    let resultExact = try? SuttaRef.findSuttaUidInRange("an1.1-10", in: suids)
+    #expect(resultExact == "an1.1-10")
+
+    // an1.2-3 is a range within an1.1-10, should resolve to an1.1-10
+    let resultRange = try? SuttaRef.findSuttaUidInRange("an1.2-3", in: suids)
+    #expect(resultRange == "an1.1-10")
+
+    // an1.1 should resolve to an1.1-10
+    let result1 = try? SuttaRef.findSuttaUidInRange("an1.1", in: suids)
+    #expect(result1 == "an1.1-10")
+
+    // an1.5 should also resolve to an1.1-10
+    let result2 = try? SuttaRef.findSuttaUidInRange("an1.5", in: suids)
+    #expect(result2 == "an1.1-10")
+
+    // an1.10 should resolve to an1.1-10 (edge case: at end of range)
+    let result2b = try? SuttaRef.findSuttaUidInRange("an1.10", in: suids)
+    #expect(result2b == "an1.1-10")
+
+    // an1.15 should resolve to an1.11-20
+    let result3 = try? SuttaRef.findSuttaUidInRange("an1.15", in: suids)
+    #expect(result3 == "an1.11-20")
+
+    // an1.11 should resolve to an1.11-20 (edge case: at start of range)
+    let result3b = try? SuttaRef.findSuttaUidInRange("an1.11", in: suids)
+    #expect(result3b == "an1.11-20")
+
+    // an1.20 should resolve to an1.11-20 (edge case: at end of range)
+    let result3c = try? SuttaRef.findSuttaUidInRange("an1.20", in: suids)
+    #expect(result3c == "an1.11-20")
+
+    // an1.5-11 spans multiple documents so it cannot be resolved (returns nil)
+    let result5 = try? SuttaRef.findSuttaUidInRange("an1.5-11", in: suids)
+    #expect(result5 == nil)
+
+    // mn1 should resolve to itself (single-item range/non-range)
+    let result4 = try? SuttaRef.findSuttaUidInRange("mn1", in: suids)
+    #expect(result4 == "mn1")
+
+    // an2.1 is out of range (after all documents)
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef.findSuttaUidInRange("an2.1", in: suids)
+    }
+
+    // an1.0 is out of range (before first document)
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef.findSuttaUidInRange("an1.0", in: suids)
+    }
+
+    // Empty suids list should throw
+    #expect(throws: SuttaRefError.self) {
+      _ = try SuttaRef.findSuttaUidInRange("an1.1", in: [])
+    }
   }
 }
