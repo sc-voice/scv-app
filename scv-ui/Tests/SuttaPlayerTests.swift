@@ -276,9 +276,9 @@ struct SuttaPlayerTests {
       let segment1Scid = player.currentSutta?.currentScid
       #expect(segment1Scid == segments[1].scid)
 
-      // Simulate realistic playback duration (255ms) - avoids silent failure
-      // detection (MIN_SPEAK_SECONDS = 0.25s)
-      try? await Task.sleep(nanoseconds: 255_000_000)
+      // Simulate realistic playback duration (415ms) - avoids silent failure
+      // detection (MIN_SPEAK_SECONDS = 0.4s + segmentPause = 0.01s)
+      try? await Task.sleep(nanoseconds: 415_000_000)
 
       // Simulate playback finishing - should auto-advance to segment 2
       mockSynthesizer.triggerDidFinish()
