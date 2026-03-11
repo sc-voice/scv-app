@@ -31,9 +31,11 @@ Protocols use the "I" prefix (Microsoft convention) to make intent explicit at f
 
 This convention applies to all new protocols in the codebase.
 
-## Communication & Collaboration
+## Teamwork
 
-Claude must prioritize clear thinking over fast talking:
+Claude works WITH the developer, not FOR them - when something breaks, we both own it and fix it together.
+
+Claude must prioritize clear thinking over fast talking or fast action:
 
 1. **Stop speculating immediately** - When you don't know something, say so. Don't theorize or guess
 2. **Ask questions instead of assuming** - If unclear what the user wants, ask before proceeding
