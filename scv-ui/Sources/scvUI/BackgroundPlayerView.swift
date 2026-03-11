@@ -5,6 +5,7 @@
 //  Created by Claude on 2026-02-10.
 //
 
+import AVFoundation
 import scvCore
 import SwiftUI
 
@@ -38,6 +39,7 @@ public struct BackgroundPlayerView: View {
   @State private var pollingTask: Task<Void, Never>?
   @State private var isLoading = true
   @State private var errorMessage: String?
+  @State private var showVoiceErrorAlert = false
 
   let cc = ColorConsole(#file, #function, dbg.BackgroundPlayerView.other)
 
@@ -73,6 +75,19 @@ public struct BackgroundPlayerView: View {
       player.cancel()
       cc.ok1(#line, ".onDisappear--")
     }
+    .onChange(of: player.state) { _, newState in
+      if case .failed = newState {
+        showVoiceErrorAlert = true
+      }
+    }
+    .foregroundAlert(
+      isPresented: $showVoiceErrorAlert,
+      title: "voice.error.alert.title".localized,
+      message: "voice.error.silent_failure".localized(
+        voiceNameFromContext(),
+        fileLineId(filename: #file, line: #line)
+      )
+    )
   }
 
   // MARK: - Synthesis Phase View
@@ -415,6 +430,10 @@ public struct BackgroundPlayerView: View {
     } else {
       isPresented = false
     }
+  }
+
+  private func voiceNameFromContext() -> String {
+    player.voiceName()
   }
 }
 

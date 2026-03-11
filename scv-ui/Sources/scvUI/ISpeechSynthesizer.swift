@@ -118,8 +118,8 @@ final class SpeechSynthesizerImpl: NSObject, ISpeechSynthesizer,
     utterance.rate = AVSpeechUtteranceDefaultSpeechRate * docLangSettings.rate
     utterance.pitchMultiplier = docLangSettings.pitch
     let segmentPause = Settings.shared.segmentPause
-    utterance.preUtteranceDelay = segmentPause
-    utterance.postUtteranceDelay = segmentPause
+    utterance.preUtteranceDelay = segmentPause / 2
+    utterance.postUtteranceDelay = segmentPause / 2
 
     try speak(utterance)
   }

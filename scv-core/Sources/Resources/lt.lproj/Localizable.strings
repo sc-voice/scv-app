@@ -465,3 +465,12 @@
 
 /* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
 "voice.error.silent_failure" = "Balsas \"%@\" turi problemų kalbėdamas. Pasirinkite kitą balsą. [%@]";
+
+/* Voice player: no voice available (format: voice ID) */
+"voice.player.no_voice" = "Nėra pasiekiamo balso: %@";
+
+/* Voice player: default voice label */
+"voice.default" = "Numatytasis";
+
+/* Voice error alert title */
+"voice.error.alert.title" = "Balsas Neprieinamas";

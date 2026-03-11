@@ -1,0 +1,41 @@
+{
+  "completedActions" : [
+
+  ],
+  "createdAt" : "2026-03-11T20:48:51Z",
+  "id" : "019CDEA8-D16E-7000-9889-22F03419F06E",
+  "name" : "Update background playback UI to match foreground error handling",
+  "plannedActions" : [
+    {
+      "name" : "Refactor background playback UI to match foreground error alert pattern",
+      "description" : "Update background playback error presentation to use clean alert format matching foreground experience"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 0.95,
+      "text" : "CORRECT MODEL: Foreground playback error alert implementation (line 435) - use this pattern for background UI"
+    },
+    {
+      "relevance" : 0.95,
+      "text" : "CORRECT MODEL: Foreground playback with voice error detection (onPlaybackFinished at line 581)"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "NEEDS REFACTORING: Background playback UI - find where synthesis errors are currently displayed (clunky)"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "Background playback synthesis with file size validation (line 214-231) - understand current behavior"
+    },
+    {
+      "relevance" : 0.7,
+      "text" : "Speech synthesizer protocol and delegate - understand error callback structure"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Update background playback UI to use foreground's error handling approach: clean alert presentation with voice error detection matching foreground experience",
+  "updatedAt" : "2026-03-11T20:52:51Z"
+}

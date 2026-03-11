@@ -465,3 +465,12 @@
 
 /* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
 "voice.error.silent_failure" = "Голос \"%@\" испытывает проблемы с воспроизведением. Выберите другой голос. [%@]";
+
+/* Voice player: no voice available (format: voice ID) */
+"voice.player.no_voice" = "Голос недоступен: %@";
+
+/* Voice player: default voice label */
+"voice.default" = "По умолчанию";
+
+/* Voice error alert title */
+"voice.error.alert.title" = "Голос Недоступен";

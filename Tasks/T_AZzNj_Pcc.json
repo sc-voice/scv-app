@@ -1,15 +1,15 @@
 {
   "completedActions" : [
-
+    {
+      "name" : "Fix scidValue computation in createFromString() - should include segnum when segment extracted from string",
+      "test" : "update unit tests"
+    }
   ],
   "createdAt" : "2026-03-08T13:08:09Z",
   "id" : "019CCD8F-F3DC-7000-8F3C-117D7C2351BE",
   "name" : "scv-core: load and test suid-list.json in SuttaRef",
   "plannedActions" : [
-    {
-      "name" : "Fix scidValue computation in createFromString() - should include segnum when segment extracted from string",
-      "test" : "update unit tests"
-    }
+
   ],
   "references" : [
 
@@ -18,5 +18,5 @@
 
   ],
   "summary" : "Integrate suid-list.json into SuttaRef.swift to load document suttauids, verify sorting, and create tests for loading and validation",
-  "updatedAt" : "2026-03-08T18:46:05Z"
+  "updatedAt" : "2026-03-11T20:40:06Z"
 }

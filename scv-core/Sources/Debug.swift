@@ -1,15 +1,18 @@
 import Foundation
 
-// Application-wide singleton that provides verbosity levels for invocation of
-// ColorConsole methods.
+// Application-wide singleton with ColorConsole verbosity levels:
+//   2: verbose
+//   1: terse
+//   0: silent
 public struct dbg: Sendable {
-  static let SYNTH_WRITE: Int = 0 // AVSpeechSynthesizer.write(), AudioStore
-  static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
+  static let SYNTH_WRITE: Int = 2 // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = 2 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = 0
-  static let PLAYER: Int = 0
+  static let PLAYER: Int = 2
   static let EBT_DATA: Int = 0
-  static let SPECIAL: Int = 0
+  static let BUILD: Int = 2
+  static let CUSTOM: Int = 2
 
   public struct AboutCardView: Sendable {
     public static let other: Int = 0
@@ -28,7 +31,7 @@ public struct dbg: Sendable {
   }
 
   public struct AudioContext: Sendable {
-    public static let other: Int = SYNTH_WRITE
+    public static let other: Int = SYNTH
   }
 
   public struct AudioEffects: Sendable {
@@ -77,11 +80,11 @@ public struct dbg: Sendable {
 
   public struct EbtData: Sendable {
     public static let other: Int = EBT_DATA
-    public static let segmentsOfSuttaRef: Int = max(1, EBT_DATA)
+    public static let segmentsOfSuttaRef: Int = max(0, EBT_DATA)
   }
 
   public struct EbtDBBuilder: Sendable {
-    public static let other: Int = 2
+    public static let other: Int = BUILD
   }
 
   public struct EbtQuery: Sendable {
@@ -126,7 +129,7 @@ public struct dbg: Sendable {
   }
 
   public struct Settings: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = CUSTOM
   }
 
   public struct Shortcut: Sendable {

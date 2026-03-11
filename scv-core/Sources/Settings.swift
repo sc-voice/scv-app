@@ -398,15 +398,15 @@ public class Settings: Codable {
 
     // Filter voices by language and exclude denied voices
     let availableVoices = allVoices.filter { voice in
-      voice.language.hasPrefix(languageCode) && !ScvLanguage
-        .isVoiceDenied(voice.name)
+      voice.language.hasPrefix(languageCode) && 
+        !ScvLanguage.isVoiceDenied(voice.name)
     }
 
     let result = availableVoices.first
     if let voice = result {
-      cc.ok1(#line, "findVoice: found voice:", voice.name)
+      cc.ok1(#line, #function, "found voice:", voice.name)
     } else {
-      cc.ok1(#line, "findVoice: no voice found for language:", language.code)
+      cc.ok1(#line, #function, "no voice found for language:", language.code)
     }
     return result
   }

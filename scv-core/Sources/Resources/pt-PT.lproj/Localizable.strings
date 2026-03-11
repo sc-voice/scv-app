@@ -465,3 +465,12 @@
 
 /* Voice synthesis error: silent failure detected (format: voice name, file:line debug info) */
 "voice.error.silent_failure" = "A voz \"%@\" está tendo dificuldades em falar. Escolha uma voz diferente. [%@]";
+
+/* Voice player: no voice available (format: voice ID) */
+"voice.player.no_voice" = "Nenhuma voz disponível: %@";
+
+/* Voice player: default voice label */
+"voice.default" = "Padrão";
+
+/* Voice error alert title */
+"voice.error.alert.title" = "Voz Indisponível";

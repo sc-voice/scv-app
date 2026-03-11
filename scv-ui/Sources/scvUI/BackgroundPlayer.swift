@@ -205,6 +205,14 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
   private var currentSegmentIndex: Int = 0
   var synthesisSession: AudioSynthesisSession?
   private var audioPlayerId: AudioPlayerID?
+
+  /// Get voice name from audioContext's voiceId for error messaging
+  public func voiceName() -> String {
+    guard let voice = AVSpeechSynthesisVoice(identifier: audioContext.voiceId) else {
+      return "voice.player.no_voice".localized(audioContext.voiceId)
+    }
+    return voice.name
+  }
   private var playbackIterator: SegmentPlaybackIteratorWrapper?
   private var playbackIteratorTask: Task<Void, Never>?
   private var artistName: String = ""

@@ -121,7 +121,7 @@ public struct AudioContext: Codable, Hashable, Sendable {
     } else {
       let defaultVoice = AVSpeechSynthesisVoice(language: langCode.code)
       voiceId = defaultVoice?.identifier ?? ""
-      cc.ok2(#line, #function, "voiceId:\(voiceId)")
+      cc.ok2(#line, #function, "default voiceId:\(voiceId)")
     }
 
     pitch = langSettings.pitch

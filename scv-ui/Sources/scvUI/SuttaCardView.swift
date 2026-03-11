@@ -356,7 +356,12 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }
       },
     )
-    .voiceErrorAlert(player: player)
+    .foregroundAlert(
+      isPresented: $player.showVoiceErrorAlert,
+      title: "voice.error.alert.title".localized,
+      message: player.voiceErrorMessage,
+      onOK: { player.resetPlayer() }
+    )
   }
 
   // MARK: - BackgroundPlayerSheet
@@ -428,22 +433,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   }
 }
 
-// MARK: - View Extensions
-
-extension View {
-  func voiceErrorAlert(player: SuttaPlayer) -> some View {
-    alert("Voice Not Available", isPresented: Binding(
-      get: { player.showVoiceErrorAlert },
-      set: { player.showVoiceErrorAlert = $0 },
-    )) {
-      Button("OK") {
-        player.resetPlayer()
-      }
-    } message: {
-      Text(player.voiceErrorMessage)
-    }
-  }
-}
 
 // MARK: - Preview
 
