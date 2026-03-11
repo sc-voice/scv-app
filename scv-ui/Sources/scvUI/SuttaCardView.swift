@@ -360,7 +360,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       isPresented: $player.showVoiceErrorAlert,
       title: "voice.error.alert.title".localized,
       message: player.voiceErrorMessage,
-      onOK: { player.resetPlayer() }
+      onOK: { player.resetPlayer() },
     )
   }
 
@@ -432,7 +432,6 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     // BackgroundPlayerView will call player.prepare() in its onAppear handler
   }
 }
-
 
 // MARK: - Preview
 

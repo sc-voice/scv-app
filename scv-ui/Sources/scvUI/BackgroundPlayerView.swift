@@ -85,8 +85,8 @@ public struct BackgroundPlayerView: View {
       title: "voice.error.alert.title".localized,
       message: "voice.error.silent_failure".localized(
         voiceNameFromContext(),
-        fileLineId(filename: #file, line: #line)
-      )
+        fileLineId(filename: #file, line: #line),
+      ),
     )
   }
 

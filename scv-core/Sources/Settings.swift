@@ -398,7 +398,7 @@ public class Settings: Codable {
 
     // Filter voices by language and exclude denied voices
     let availableVoices = allVoices.filter { voice in
-      voice.language.hasPrefix(languageCode) && 
+      voice.language.hasPrefix(languageCode) &&
         !ScvLanguage.isVoiceDenied(voice.name)
     }
 

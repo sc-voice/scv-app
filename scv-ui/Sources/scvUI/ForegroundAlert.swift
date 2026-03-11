@@ -18,7 +18,7 @@ extension View {
     isPresented: Binding<Bool>,
     title: String,
     message: String,
-    onOK: @escaping () -> Void = {}
+    onOK: @escaping () -> Void = {},
   ) -> some View {
     alert(title, isPresented: isPresented) {
       Button("OK") {

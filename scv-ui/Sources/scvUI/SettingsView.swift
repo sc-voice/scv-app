@@ -525,7 +525,7 @@ struct AudioSectionContent: View {
 
   static func voiceName(for voiceId: String) -> String {
     let voices = AVFoundation.AVSpeechSynthesisVoice.speechVoices()
-    return voices.first(where: { $0.identifier == voiceId })?.name ?? 
+    return voices.first(where: { $0.identifier == voiceId })?.name ??
       "voice.default".localized
   }
 
