@@ -5,14 +5,14 @@ import Foundation
 //   1: terse
 //   0: silent
 public struct dbg: Sendable {
-  static let SYNTH_WRITE: Int = 2 // AVSpeechSynthesizer.write(), AudioStore
-  static let SYNTH_SPEAK: Int = 2 // AVSpeechSynthesizer.speak()
+  static let SYNTH_WRITE: Int = 0 // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = 0
-  static let PLAYER: Int = 2
+  static let PLAYER: Int = 0
   static let EBT_DATA: Int = 0
-  static let BUILD: Int = 2
-  static let CUSTOM: Int = 2
+  static let BUILD: Int = 0
+  static let CUSTOM: Int = 0
 
   public struct AboutCardView: Sendable {
     public static let other: Int = 0

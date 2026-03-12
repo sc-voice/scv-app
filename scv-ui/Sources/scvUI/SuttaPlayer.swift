@@ -59,7 +59,6 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   @Published public var isPlaying = false
   @Published public var isSynthesizerSpeaking = false
   @Published public var currentSutta: MLDocument?
-  @Published public var audioContext: AudioContext?
   @Published private var _isActive = true
   @Published public var showVoiceErrorAlert = false
   @Published public var voiceErrorMessage = ""
@@ -68,6 +67,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     _isActive
   }
 
+  private var docAudioContext: AudioContext?
   private var clientSynthesizer: ISpeechSynthesizer?
   private var cachedSynthesizer: CachedSynthesizer?
   private var speakSynthesizer: SpeechSynthesizerImpl?
@@ -113,6 +113,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   /// Timestamp when playback started (didStart callback); used to detect silent
   /// synthesis failures
   private var playbackStartTime: Date?
+  /// Whether to validate synthesis duration (set based on text length >= 10
+  /// chars)
+  private var validateSynthesis: Bool = false
   /// Voice identifier being used for current playback; used to get voice name
   /// for
   /// error alerts
@@ -271,16 +274,16 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       return
     }
 
-    // Initialize audioContext from current sutta's language
+    // Initialize docAudioContext from current sutta's language
     let docLang = currentSutta?.docLang ?? "en"
-    audioContext = AudioContext(for: docLang)
+    docAudioContext = AudioContext(for: docLang)
     cc.ok2(
       #line,
       #function,
-      "audioContext initialized for docLang:",
+      "docAudioContext initialized for docLang:",
       docLang,
       "hash:",
-      audioContext?.hash ?? "nil",
+      docAudioContext?.hash ?? "nil",
     )
 
     // Create fresh synthesizer for each play attempt to recover from synthesis
@@ -325,7 +328,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
       segments: segments,
       index: startIndex,
       audioEffects: AudioEffects.shared,
-      audioContext: audioContext!,
+      audioContext: docAudioContext!,
       textKey: "doc",
     )
     playbackIterator = SegmentPlaybackIteratorWrapper(iterator: iterator)
@@ -478,11 +481,10 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   /// - Synthesis happens inline (no prefetch strategy)
   /// - Synthesizer notifies via IPlaybackDelegate callbacks
   /// (onPlaybackStarted/Finished)
-  private func playText(_ text: String) {
-    guard let audioContext else {
-      cc.bad1(#line, #function, "audioContext not initialized")
-      return
-    }
+  private func playText(_ text: String, audioContext: AudioContext) {
+    // Only validate synthesis for text >= 10 characters
+    // Short text naturally has shorter duration, triggering false positives
+    validateSynthesis = (text.count >= 10)
 
     do {
       // Capture voice identifier for error reporting
@@ -545,7 +547,11 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     }
 
     // Play the text via synthesizer
-    playText(segmentText)
+    guard let docAudioContext else {
+      cc.bad1(#line, #function, "docAudioContext not initialized")
+      return
+    }
+    playText(segmentText, audioContext: docAudioContext)
 
     // Wait for playback to complete via continuation
     // onPlaybackFinished() will signal completion
@@ -593,7 +599,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
     let minTime = MIN_SPEAK_SECONDS + Settings.shared.segmentPause
     cc.ok2(#line, #function, duration, minTime)
     playbackStartTime = nil
-    if duration > 0, duration < minTime {
+    if validateSynthesis, duration > 0, duration < minTime {
       cc.bad1(#line, #function,
               "Silent synthesis failure detected: duration",
               String(format: "%.3f", duration),
@@ -613,11 +619,7 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         errId,
       )
       showVoiceErrorAlert = true
-      cc.ok1(
-        #line,
-        #function,
-        "Silent failure alert state set - view will display it",
-      )
+      cc.ok1(#line, #function, "trigger silent failure alert")
 
       // Signal continuation to break iterator loop
       if let continuation = playbackContinuation {
@@ -625,8 +627,12 @@ public final class SuttaPlayer: NSObject, ObservableObject,
         continuation.resume()
       }
 
+      validateSynthesis = false
       return
     }
+
+    // Reset validation flag
+    validateSynthesis = false
 
     // Segment playback completed successfully
     cc.ok1(#line, #function, "currentSegmentIndex:", currentSegmentIndex)
