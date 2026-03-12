@@ -218,7 +218,7 @@ release: _init
 _release: _content _rebuild
 	@echo Release candidate > $(CURDIR)/.commit-msg
 	@rg -Ie "^public let buildVersion = \"" >> $(CURDIR)/.commit-msg
-	@cat ${CURDIR)/.commit-msg
+	@cat $(CURDIR)/.commit-msg
 
 # clean-macros:
 # 	@cd scv-macros && swift package clean 2>/dev/null || true
