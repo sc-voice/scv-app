@@ -345,6 +345,7 @@
 {"anhält":"anhalten"}
 {"anhängern":"anhänger"}
 {"anhänglichen":"anhänglich"}
+{"anhängt":"anhangen"}
 {"anhäufst":"anhäufen"}
 {"anhäuft":"anhäufen"}
 {"anhäufte":"anhäufen"}
@@ -748,6 +749,7 @@
 {"ausgerottet":"ausrotten"}
 {"ausgeräumt":"ausräumen"}
 {"ausgerüstet":"ausrüsten"}
+{"ausgesandten":"aussenden"}
 {"ausgeschaltet":"ausschalten"}
 {"ausgeschieden":"ausscheiden"}
 {"ausgeschlossen":"ausschließen"}
@@ -1479,6 +1481,7 @@
 {"betrogen":"betruegen"}
 {"betrug":"betragen"}
 {"betrunken":"betrinken"}
+{"betrunkene":"betrunken"}
 {"beträchtliche":"beträchtlich"}
 {"beträchtlicher":"beträchtlich"}
 {"beträgt":"betragen"}
@@ -1985,6 +1988,7 @@
 {"dummem":"dumm"}
 {"dummes":"dumm"}
 {"dummköpfe":"dummkopf"}
+{"dummköpfen":"dummkopf"}
 {"dumpfe":"dumpf"}
 {"dumpfes":"dumpf"}
 {"dunkle":"dunkel"}
@@ -3284,8 +3288,8 @@
 {"führt":"führen"}
 {"führte":"führen"}
 {"führten":"führen"}
-{"füll":"füllen"}
 {"fülle":"füllen"}
+{"füll":"füllen"}
 {"füllst":"füllen"}
 {"füllt":"füllen"}
 {"füllte":"füllen"}
@@ -4446,6 +4450,7 @@
 {"hebe":"heben"}
 {"hebt":"heben"}
 {"heere":"heer"}
+{"heeres":"heer"}
 {"heftet":"heften"}
 {"heftige":"heftig"}
 {"heftigem":"heftig"}
@@ -4614,6 +4619,7 @@
 {"hervorkommt":"hervorkommen"}
 {"hervorragende":"hervorragend"}
 {"hervorragender":"hervorragen"}
+{"hervorragendste":"hervorragend"}
 {"hervorragendsten":"hervorragend"}
 {"hervorrief":"hervorrufen"}
 {"hervorstehenden":"hervorstehen"}
@@ -5583,6 +5589,7 @@
 {"läuft":"laufen"}
 {"läutere":"läutern"}
 {"läuternde":"läutern"}
+{"läuternden":"läutern"}
 {"läuterst":"läutern"}
 {"läutert":"läutern"}
 {"läuterte":"läutern"}
@@ -7987,6 +7994,7 @@
 {"unheilbaren":"unheilbar"}
 {"unheilvolle":"unheilvoll"}
 {"unhöflichen":"unhöflich"}
+{"unkeusche":"unkeusch"}
 {"unkeuschen":"unkeusch"}
 {"unkeusches":"unkeusch"}
 {"unklaren":"unklar"}
@@ -8439,6 +8447,7 @@
 {"verhöhnt":"verhöhnen"}
 {"verhüllt":"verhüllen"}
 {"verinnerlicht":"verinnerlichen"}
+{"verirrenden":"verirren"}
 {"verirrt":"verirren"}
 {"verirrte":"verirren"}
 {"verirrten":"verirren"}
@@ -8757,6 +8766,7 @@
 {"verwirklichte":"verwirklichen"}
 {"verwirklichten":"verwirklichen"}
 {"verwirre":"verwirren"}
+{"verwirrenden":"verwirren"}
 {"verwirrt":"verwirren"}
 {"verwirrter":"verwirren"}
 {"verwitterten":"verwittern"}
@@ -8941,6 +8951,7 @@
 {"vorzügliche":"vorzüglich"}
 {"vorzüglichem":"vorzüglich"}
 {"vorzüglichen":"vorzüglich"}
+{"vorzüglicher":"vorzüglich"}
 {"vorzüglichere":"vorzüglich"}
 {"vorzügliches":"vorzüglich"}
 {"vorzüglichste":"vorzüglich"}
@@ -9088,7 +9099,6 @@
 {"wegräumten":"wegräumen"}
 {"wegtreibt":"wegtreiben"}
 {"wegwirft":"wegwerfen"}
-{"wegzieht":"wegziehen"}
 {"wegzog":"wegziehen"}
 {"wehe":"wehen"}
 {"wehenden":"wehen"}

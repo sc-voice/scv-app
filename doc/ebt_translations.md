@@ -34,7 +34,7 @@ Run the script with:
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
 |     4306 | ✅ | en | ✅ | 1 | sujato |
-|     4097 | ✅ | de | ✅ | 1 | sabbamitta |
+|     4100 | ✅ | de | ✅ | 1 | sabbamitta |
 |      909 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
 |      574 | ✅ | ru |    | 2 | o |
@@ -74,7 +74,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    14006 files
+**Total:**    14009 files
 
 ## Inclusion Criteria
 
