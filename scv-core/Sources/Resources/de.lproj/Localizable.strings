@@ -473,4 +473,4 @@
 "voice.default" = "Standard";
 
 /* Voice error alert title */
-"voice.error.alert.title" = "Stimme Nicht Verfügbar";
+"voice.error.alert.title" = "Stimme nicht verfügbar";
