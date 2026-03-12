@@ -826,6 +826,12 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     playbackIteratorTask?.cancel()
     playbackIterator?.cancel()
 
+    // Stop current audio player to prevent multiple voices on lock screen
+    if let id = audioPlayerId {
+      adapter.stop(id: id)
+    }
+    audioPlayerId = nil
+
     // Signal continuation if waiting
     if let continuation = playbackContinuation {
       playbackContinuation = nil
@@ -864,6 +870,12 @@ public final class BackgroundPlayer: NSObject, ObservableObject {
     // Cancel current iterator and task
     playbackIteratorTask?.cancel()
     playbackIterator?.cancel()
+
+    // Stop current audio player to prevent multiple voices on lock screen
+    if let id = audioPlayerId {
+      adapter.stop(id: id)
+    }
+    audioPlayerId = nil
 
     // Signal continuation if waiting
     if let continuation = playbackContinuation {

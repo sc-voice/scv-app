@@ -341,14 +341,15 @@ public struct AboutCardView: View {
                 .foregroundStyle(themeProvider.theme.textColor)
 
               VStack(alignment: .leading, spacing: 8) {
-                AckRow(
-                  role: "about.ack.translations".localized,
-                  names: "about.ack.translations.names".localized,
-                )
-                AckRow(
-                  role: "about.ack.root_text".localized,
-                  names: "about.ack.root_text.names".localized,
-                )
+                // Duplication of Content Sources
+                // AckRow(
+                // role: "about.ack.translations".localized,
+                // names: "about.ack.translations.names".localized,
+                // )
+                // AckRow(
+                // role: "about.ack.root_text".localized,
+                // names: "about.ack.root_text.names".localized,
+                // )
                 AckRow(
                   role: "about.ack.database".localized,
                   names: "about.ack.database.names".localized,

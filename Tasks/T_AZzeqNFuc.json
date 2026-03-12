@@ -1,15 +1,16 @@
 {
   "completedActions" : [
-
+    {
+      "description" : "Update background playback error presentation to use clean alert format matching foreground experience",
+      "name" : "Refactor background playback UI to match foreground error alert pattern",
+      "test" : "update unit tests"
+    }
   ],
   "createdAt" : "2026-03-11T20:48:51Z",
   "id" : "019CDEA8-D16E-7000-9889-22F03419F06E",
   "name" : "Update background playback UI to match foreground error handling",
   "plannedActions" : [
-    {
-      "name" : "Refactor background playback UI to match foreground error alert pattern",
-      "description" : "Update background playback error presentation to use clean alert format matching foreground experience"
-    }
+
   ],
   "references" : [
     {
@@ -22,11 +23,11 @@
     },
     {
       "relevance" : 0.8,
-      "text" : "NEEDS REFACTORING: Background playback UI - find where synthesis errors are currently displayed (clunky)"
+      "text" : "Background playback synthesis with file size validation (line 214-231) - understand current behavior"
     },
     {
       "relevance" : 0.8,
-      "text" : "Background playback synthesis with file size validation (line 214-231) - understand current behavior"
+      "text" : "NEEDS REFACTORING: Background playback UI - find where synthesis errors are currently displayed (clunky)"
     },
     {
       "relevance" : 0.7,
@@ -37,5 +38,5 @@
 
   ],
   "summary" : "Update background playback UI to use foreground's error handling approach: clean alert presentation with voice error detection matching foreground experience",
-  "updatedAt" : "2026-03-11T20:52:51Z"
+  "updatedAt" : "2026-03-12T13:13:38Z"
 }
