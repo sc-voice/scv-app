@@ -1612,7 +1612,7 @@ func printHelpForCommand(_ command: String) throws {
     print("  list")
     print("      List actions for task")
     print("  add DESCRIPTION")
-    print("      Add action (use global -i to insert at position)")
+    print("      Add action (use global -i 1 to push as first planned action, or omit to append)")
     print("  replace DESCRIPTION")
     print("      Replace action (use global -i to specify action number)")
     print("  done")
@@ -1624,8 +1624,8 @@ func printHelpForCommand(_ command: String) throws {
     print("")
     print("Example:")
     print("  task action list")
-    print("  task -t T_AZ action add \"New action\"")
-    print("  task action add -i 1 \"Insert at position 1\" -t T_AZ")
+    print("  task action add \"Append new action\"")
+    print("  task action add -i 1 \"Push new first action\" -t T_AZ")
     print("  task action done -t T_AZ")
     print("  task action delete -i 1 --force")
   case "ref", "reference":
@@ -1696,7 +1696,7 @@ func printUsage() {
       list [-t|--task PREFIX]
                         List actions for task
       add [-i NUMBER] [-t|--task PREFIX] DESCRIPTION
-                        Add action to task (insert at position if -i specified)
+                        Add action to task (use -i 1 to push as first action, omit to append)
       replace -i NUMBER [-t|--task PREFIX] DESCRIPTION
                         Replace action #NUMBER (1-based, use -i|--item)
       done [-i NUMBER] [-t|--task PREFIX]
