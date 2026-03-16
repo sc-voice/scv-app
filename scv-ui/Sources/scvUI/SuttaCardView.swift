@@ -253,7 +253,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                       // Defer scroll to background to unblock initial render
                       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         cc.ok1(#line, fun, "scrollTo:", currentScid)
-                        // Scroll to two line heights from top (no animation on initial scroll)
+                        // Scroll to two line heights from top (no animation on
+                        // initial scroll)
                         scrollProxy.scrollTo(
                           currentScid,
                           anchor: UnitPoint(x: 0.5, y: 0.06),
