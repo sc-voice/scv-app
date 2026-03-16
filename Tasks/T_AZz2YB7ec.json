@@ -1,0 +1,48 @@
+{
+  "completedActions" : [
+    {
+      "name" : "Identify what code blocks EbtData actor between 1.522s and 2.448s (926ms gap)",
+      "test" : "update unit tests"
+    }
+  ],
+  "createdAt" : "2026-03-16T11:20:20Z",
+  "id" : "019CF660-1EDE-7000-A25A-5A402F463B2C",
+  "name" : "Optimize app launch performance",
+  "plannedActions" : [
+    {
+      "name" : "Determine if sequential database queries or lazy-loaded list rendering is causing actor contention",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Refactor blocking operation to async\/background to unblock critical path",
+      "test" : "update unit tests"
+    },
+    {
+      "name" : "Verify launch time reduced to acceptable threshold (<2s)",
+      "test" : "update unit tests"
+    }
+  ],
+  "references" : [
+    {
+      "relevance" : 0.95,
+      "text" : "Launch timeline: Database loads at 1.522s, second getMetaprop blocks until 2.448s (926ms contention)"
+    },
+    {
+      "relevance" : 0.95,
+      "text" : "AppRootView metadata query at line 152-154 - runs in .task block after UI appears"
+    },
+    {
+      "relevance" : 0.9,
+      "text" : "EbtData.ensureDatabase() calls getMetaprop twice (git_hash and git_hash_timestamp) at lines 522-536"
+    },
+    {
+      "relevance" : 0.8,
+      "text" : "SuttaCardView.onAppear() at line 310 - may be queuing database operations"
+    }
+  ],
+  "requiredTasks" : [
+
+  ],
+  "summary" : "Reduce cold launch time from 7.8s to <2s by identifying and fixing EbtData actor contention blocking metadata queries",
+  "updatedAt" : "2026-03-16T13:02:33Z"
+}

@@ -313,59 +313,10 @@ public struct SuttaRef: Equatable, Sendable, Codable, Hashable {
 
   // MARK: - Private Helpers
 
-  /// Loads and sorts SUID list
+  /// Returns the pre-compiled SUID list
+  /// Generated at build time from EBT database suttas table
   static func loadSortedSuids() -> [String] {
-    guard let suids = loadSuidMap() else { return [] }
-    return suids
-  }
-
-  /// Loads the SUID list from embedded JSON
-  /// Returns array of suttauids sorted by SuttaCentralId.compareLow()
-  private static func loadSuidMap() -> [String]? {
-    // Try to find suid-list.json in bundle or file system
-    var url: URL?
-
-    // Method 1: Try Bundle.main
-    url = Bundle.main.url(forResource: "suid-list", withExtension: "json")
-
-    // Method 2: Try other bundles (for tests)
-    if url == nil {
-      for bundle in Bundle.allBundles {
-        if let bundleUrl = bundle.url(
-          forResource: "suid-list",
-          withExtension: "json",
-        ) {
-          url = bundleUrl
-          break
-        }
-      }
-    }
-
-    // Method 3: Try common file paths (for development/debugging)
-    if url == nil {
-      let paths = [
-        "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/suid-list.json",
-      ]
-      for path in paths {
-        if FileManager.default.fileExists(atPath: path) {
-          url = URL(fileURLWithPath: path)
-          break
-        }
-      }
-    }
-
-    guard let fileUrl = url else {
-      return nil
-    }
-
-    do {
-      let data = try Data(contentsOf: fileUrl)
-      let array = try JSONDecoder().decode([String].self, from: data)
-      return array
-    } catch {
-      Self.cc.bad2(#line, "loadSuidMap", error)
-      return nil
-    }
+    SUID_LIST
   }
 
   /// Finds the sutta_uid in a range using binary search

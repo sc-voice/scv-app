@@ -5,21 +5,28 @@ import Foundation
 //   1: terse
 //   0: silent
 public struct dbg: Sendable {
+  // Verbosity Levels
+  static let VERBOSE: Int = 2
+  static let TERSE: Int = 1
+  static let NONE: Int = 0
+
+  // Functional areas
   static let SYNTH_WRITE: Int = 0 // AVSpeechSynthesizer.write(), AudioStore
   static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
-  static let LAUNCH: Int = 0
+  static let LAUNCH: Int = VERBOSE
+  static let LOAD: Int = VERBOSE
   static let PLAYER: Int = 0
-  static let EBT_DATA: Int = 0
+  static let EBT_DATA: Int = 2
   static let BUILD: Int = 0
-  static let CUSTOM: Int = 0
+  static let TAP: Int = 2
 
   public struct AboutCardView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct App: Sendable {
-    public static let other: Int = max(0, LAUNCH)
+    public static let other: Int = LAUNCH
   }
 
   public struct AppController: Sendable {
@@ -35,52 +42,53 @@ public struct dbg: Sendable {
   }
 
   public struct AudioEffects: Sendable {
-    public static let other: Int = max(0, PLAYER)
+    public static let other: Int = PLAYER
   }
 
   public struct AudioStore: Sendable {
-    public static let other: Int = max(0, SYNTH)
+    public static let other: Int = SYNTH
   }
 
   public struct AudioSynthesisSession: Sendable {
-    public static let other: Int = max(0, SYNTH)
+    public static let other: Int = SYNTH
   }
 
   public struct AutoComplete: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct AVAdapter: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct BackgroundPlayer: Sendable {
-    public static let other: Int = max(0, PLAYER)
+    public static let other: Int = PLAYER
   }
 
   public struct BackgroundPlayerView: Sendable {
-    public static let other: Int = max(0, PLAYER)
+    public static let other: Int = PLAYER
   }
 
   public struct CachedSynthesizer: Sendable {
-    public static let other: Int = max(0, SYNTH)
+    public static let other: Int = SYNTH
   }
 
   public struct CardManager: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct CardSidebarView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct ContentView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct EbtData: Sendable {
     public static let other: Int = EBT_DATA
-    public static let segmentsOfSuttaRef: Int = max(0, EBT_DATA)
+    public static let segmentsOfSuttaRef: Int = EBT_DATA
+    public static let load: Int = LOAD
   }
 
   public struct EbtDBBuilder: Sendable {
@@ -97,47 +105,47 @@ public struct dbg: Sendable {
   }
 
   public struct IOSView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct Lemmatizer: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct OpenURL: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct SCVApp: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct SearchCardView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct SegmentLayout: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct SegmentPlaybackIterator: Sendable {
-    public static let other: Int = max(0, PLAYER)
+    public static let other: Int = PLAYER
   }
 
   public struct SegmentView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct Settings: Sendable {
-    public static let other: Int = CUSTOM
+    public static let other: Int = TERSE
   }
 
   public struct Shortcut: Sendable {
-    public static let search: Int = 0
+    public static let search: Int = NONE
   }
 
   public struct SpeechSynthesizer: Sendable {
-    public static let other: Int = max(0, SYNTH_SPEAK)
+    public static let other: Int = SYNTH_SPEAK
   }
 
   public struct SuttaPlayer: Sendable {
@@ -145,28 +153,28 @@ public struct dbg: Sendable {
   }
 
   public struct SuttaCardView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = TERSE
     public static let player: Int = PLAYER
   }
 
   public struct SuttaRef: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct Tipitaka: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct TipitakaView: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct ZStd: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 
   public struct scvUITests: Sendable {
-    public static let other: Int = 0
+    public static let other: Int = NONE
   }
 }
 

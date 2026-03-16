@@ -246,25 +246,23 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 // .scrollContentBackground(.hidden)
                 // .background(.red)
                 .onAppear {
+                  let fun = ".onAppear"
                   do {
-                    cc.ok2(#line, #function, card.suttaReference)
+                    cc.ok2(#line, fun, card.suttaReference)
                     if let currentScid = mlDoc.currentScid {
-                      // Delay scroll to allow segments to load
-                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation(reduceMotion ? nil :
-                          .easeInOut(duration: 0.8))
-                        {
-                          // Scroll to two line heights from top
-                          scrollProxy.scrollTo(
-                            currentScid,
-                            anchor: UnitPoint(x: 0.5, y: 0.06),
-                          )
-                          cc.ok1(#line, "scrollTo:", currentScid)
-                        }
+                      // Defer scroll to background to unblock initial render
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        cc.ok1(#line, fun, "scrollTo:", currentScid)
+                        // Scroll to two line heights from top (no animation on initial scroll)
+                        scrollProxy.scrollTo(
+                          currentScid,
+                          anchor: UnitPoint(x: 0.5, y: 0.06),
+                        )
+                        cc.ok1(#line, fun, "scrolled to:", currentScid)
                       }
                     }
                   } catch {
-                    cc.bad1(#line, #function, card.suttaReference, error)
+                    cc.bad1(#line, fun, card.suttaReference, error)
                   }
                 }
                 .onChange(of: mlDoc.currentScid) { _, newScid in

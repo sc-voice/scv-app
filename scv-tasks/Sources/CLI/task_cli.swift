@@ -1612,7 +1612,9 @@ func printHelpForCommand(_ command: String) throws {
     print("  list")
     print("      List actions for task")
     print("  add DESCRIPTION")
-    print("      Add action (use global -i 1 to push as first planned action, or omit to append)")
+    print(
+      "      Add action (use global -i 1 to push as first planned action, or omit to append)",
+    )
     print("  replace DESCRIPTION")
     print("      Replace action (use global -i to specify action number)")
     print("  done")

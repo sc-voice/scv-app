@@ -15,7 +15,7 @@ public class SuidListBuilder {
 
   public func build() throws {
     let dbPath = "\(buildDir)/ebt-pli-ms.db"
-    let outputPath = "\(resourcesDir)/suid-list.json"
+    let outputPath = "\(projectRoot)/scv-core/Sources/SuidListData.swift"
 
     guard FileManager.default.fileExists(atPath: dbPath) else {
       throw SuidListBuilderError.databaseNotFound(dbPath)
@@ -59,11 +59,19 @@ public class SuidListBuilder {
       return SuttaCentralId.compareHigh(a, b) < 0
     }
 
-    // Write to JSON file with one uid per line, comma-separated, quoted
+    // Generate Swift file with array constant
     let quotedUids = suttauids.map { "\"\($0)\"" }
-    let jsonArray = "[\n" + quotedUids.joined(separator: ",\n") + "\n]"
+    let swiftCode = """
+    // Auto-generated file: SuidListData.swift
+    // Generated from EBT database suttas table
+    // DO NOT EDIT MANUALLY
 
-    try jsonArray.write(toFile: outputPath, atomically: true, encoding: .utf8)
+    let SUID_LIST: [String] = [
+    \(quotedUids.joined(separator: ",\n"))
+    ]
+    """
+
+    try swiftCode.write(toFile: outputPath, atomically: true, encoding: .utf8)
   }
 }
 
