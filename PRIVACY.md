@@ -45,15 +45,15 @@ scVoice erfasst und nutzt keine persönlichen Daten und gibt diese nicht weiter.
 
 ### Lokale Speicherung
 
-- Suchverlauf und gespeicherte Karten werden lokal auf deinem Gerät gespeichert
-- Sprach- und andere Einstellungen werden lokal gespeichert
-- Es werden keine Daten auf einen Server übertragen
+- Suchverlauf und gespeicherte Karten werden lokal auf deinem Gerät gespeichert.
+- Sprach- und andere Einstellungen werden lokal gespeichert.
+- Es werden keine Daten auf einen Server übertragen.
 
 ### Drittanbieter-Dienste
 
-scVoice verwendet keine Analysetools, Tracking oder Drittanbieter-Dienste, die persönliche Informationen erfassen.
+scVoice verwendet keine Analysetools, kein Tracking und keine Drittanbieter-Dienste, die persönliche Informationen erfassen.
 
-### Text-to-Speech
+### Text-zu-Sprache
 
 Die Sprachsynthese wird lokal auf deinem Gerät mit iOS-Sprachsynthesefunktionen durchgeführt.
 
