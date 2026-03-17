@@ -41,25 +41,25 @@ scVoice only accesses data that you explicitly provide through the app (searches
 
 ### Datenerfassung
 
-scVoice erfasst, nutzt oder teilt keine persönlichen Daten. Die App funktioniert vollständig auf Ihrem Gerät ohne Datenübertragung an externe Server.
+scVoice erfasst und nutzt keine persönlichen Daten und gibt diese nicht weiter. Die App funktioniert vollständig auf deinem Gerät ohne Datenübertragung an externe Server.
 
 ### Lokale Speicherung
 
-- Suchverlauf und gespeicherte Karten werden lokal auf Ihrem Gerät gespeichert
-- Spracheinstellungen und Voreinstellungen werden lokal gespeichert
-- Es werden keine Daten an einen Server übertragen
+- Suchverlauf und gespeicherte Karten werden lokal auf deinem Gerät gespeichert.
+- Sprach- und andere Einstellungen werden lokal gespeichert.
+- Es werden keine Daten auf einen Server übertragen.
 
-### Drittanbieter-Services
+### Drittanbieter-Dienste
 
-scVoice verwendet keine Analysen, Tracking oder Drittanbieter-Services, die persönliche Informationen erfassen.
+scVoice verwendet keine Analysetools, kein Tracking und keine Drittanbieter-Dienste, die persönliche Informationen erfassen.
 
-### Text-to-Speech
+### Text-zu-Sprache
 
-Die Sprachsynthese wird lokal auf Ihrem Gerät mit iOS-Sprachsynthesefunktionen durchgeführt.
+Die Sprachsynthese wird lokal auf deinem Gerät mit iOS-Sprachsynthesefunktionen durchgeführt.
 
 ### Datenzugriff
 
-scVoice greift nur auf Daten zu, die Sie explizit über die App bereitstellen (Suchen, Kartenerstellung, Sprachauswahl).
+scVoice greift nur auf Daten zu, die du explizit über die App bereitstellst (Suche, Erstellen von Karten, Sprachauswahl).
 
 ---
 
