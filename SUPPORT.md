@@ -49,33 +49,33 @@ If you discover a security vulnerability, please do **not** open a public GitHub
 
 ### Hilfe erhalten
 
-Wenn Sie auf Probleme stoßen oder Fragen zu scVoice haben, kontaktieren Sie uns mit einer dieser Methoden:
+Wenn du auf Probleme stößt oder Fragen zu scVoice hast, kontaktiere uns mit einer dieser Methoden:
 
-### GitHub Issues
+### GitHub-Issues
 
-Für Fehler, Feature-Anfragen oder technische Probleme:
+Für Fehler, Anfragen für neue Funktionen oder technische Probleme:
 
-1. Besuchen Sie das [scVoice GitHub Repository](https://github.com/sc-voice/scv-app)
-2. Klicken Sie auf die Registerkarte **Issues**
-3. Klicken Sie auf **New Issue**
-4. Beschreiben Sie Ihr Problem oder Ihre Anfrage im Detail:
-   - Was Sie versucht haben zu tun
+1. Besuche das [scVoice-GitHub-Repository](https://github.com/sc-voice/scv-app)
+2. Klicke auf die Registerkarte **Issues**
+3. Klicke auf **New Issue**
+4. Beschreibe dein Problem oder deine Anfrage im Detail:
+   - Was du tun wolltest und versucht hast
    - Was passiert ist
-   - Was Sie erwartet haben
-   - Ihr Gerät und iOS-Version
+   - Was du erwartet hast
+   - Dein Gerät und deine iOS-Version
 
-### SuttaCentral Discuss & Discover
+### SuttaCentral-Diskussionsforum Discuss & Discover
 
-Für allgemeine Fragen, Diskussionen oder Ideenvorschläge:
+Für allgemeine Fragen, Diskussionen oder Ideenvorschläge (englisch):
 
-1. Besuchen Sie [SuttaCentral Discuss & Discover](https://discourse.suttacentral.net/)
-2. Navigieren Sie zur entsprechenden Kategorie
-3. Starten Sie ein neues Thema mit einem klaren Titel und einer Beschreibung
-4. Unsere Community-Mitglieder und Betreuer werden Ihnen helfen
+1. Besuche [SuttaCentral Discuss & Discover](https://discourse.suttacentral.net/)
+2. Navigiere zur entsprechenden Kategorie
+3. Starte ein neues Thema mit einem klaren Titel und einer Beschreibung
+4. Unsere Community-Mitglieder und Betreuer werden dir helfen
 
 ### Sicherheitsprobleme melden
 
-Wenn Sie eine Sicherheitslücke entdecken, öffnen Sie bitte **nicht** öffentlich einen GitHub Issue. Kontaktieren Sie stattdessen sc.voice.friends@gmail.com mit Details über die Sicherheitslücke.
+Wenn du eine Sicherheitslücke entdeckst, öffne bitte **nicht** öffentlich einen GitHub Issue. Kontaktieren Sie stattdessen sc.voice.friends@gmail.com mit Details über die Sicherheitslücke.
 
 ---
 
