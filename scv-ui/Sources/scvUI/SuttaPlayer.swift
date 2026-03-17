@@ -482,9 +482,9 @@ public final class SuttaPlayer: NSObject, ObservableObject,
   /// - Synthesizer notifies via IPlaybackDelegate callbacks
   /// (onPlaybackStarted/Finished)
   private func playText(_ text: String, audioContext: AudioContext) {
-    // Only validate synthesis for text >= 10 characters
+    // Only validate synthesis for text >= 30 characters
     // Short text naturally has shorter duration, triggering false positives
-    validateSynthesis = (text.count >= 10)
+    validateSynthesis = (text.count >= 30)
 
     do {
       // Capture voice identifier for error reporting

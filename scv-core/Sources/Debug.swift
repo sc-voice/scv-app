@@ -11,8 +11,8 @@ public struct dbg: Sendable {
   static let NONE: Int = 0
 
   // Functional areas
-  static let SYNTH_WRITE: Int = 0 // AVSpeechSynthesizer.write(), AudioStore
-  static let SYNTH_SPEAK: Int = 0 // AVSpeechSynthesizer.speak()
+  static let SYNTH_WRITE: Int = 2 // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = 2 // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
   static let LAUNCH: Int = VERBOSE
   static let LOAD: Int = VERBOSE
