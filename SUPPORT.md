@@ -41,7 +41,7 @@ For general questions, discussions, or feature ideas:
 
 ### Reporting Security Issues
 
-If you discover a security vulnerability, please do **not** open a public GitHub issue. Instead, email sc.voice.friends@gmail.com with details of the vulnerability.
+If you discover a security vulnerability, please do **not** open a public GitHub issue. Instead, email friends@sc-voice.net with details of the vulnerability.
 
 ---
 
@@ -75,7 +75,7 @@ Für allgemeine Fragen, Diskussionen oder Ideenvorschläge (englisch):
 
 ### Sicherheitsprobleme melden
 
-Wenn du eine Sicherheitslücke entdeckst, öffne bitte **nicht** öffentlich einen GitHub Issue. Kontaktieren Sie stattdessen sc.voice.friends@gmail.com mit Details über die Sicherheitslücke.
+Wenn du eine Sicherheitslücke entdeckst, öffne bitte **nicht** öffentlich einen GitHub Issue. Kontaktieren Sie stattdessen friends@sc-voice.net mit Details über die Sicherheitslücke.
 
 ---
 
@@ -109,7 +109,7 @@ Para preguntas generales, discusiones o ideas de características:
 
 ### Reportar Problemas de Seguridad
 
-Si descubre una vulnerabilidad de seguridad, **no** abra un problema público de GitHub. En su lugar, envíe un correo a sc.voice.friends@gmail.com con detalles de la vulnerabilidad.
+Si descubre una vulnerabilidad de seguridad, **no** abra un problema público de GitHub. En su lugar, envíe un correo a friends@sc-voice.net con detalles de la vulnerabilidad.
 
 ---
 
@@ -143,7 +143,7 @@ Pour les questions générales, les discussions ou les idées de fonctionnalité
 
 ### Signaler les Problèmes de Sécurité
 
-Si vous découvrez une vulnérabilité de sécurité, veuillez **ne pas** ouvrir un problème GitHub public. Veuillez plutôt envoyer un e-mail à sc.voice.friends@gmail.com avec les détails de la vulnérabilité.
+Si vous découvrez une vulnérabilité de sécurité, veuillez **ne pas** ouvrir un problème GitHub public. Veuillez plutôt envoyer un e-mail à friends@sc-voice.net avec les détails de la vulnérabilité.
 
 ---
 
@@ -177,7 +177,7 @@ Si vous découvrez une vulnérabilité de sécurité, veuillez **ne pas** ouvrir
 
 ### Сообщение о Проблемах Безопасности
 
-Если вы обнаружили уязвимость безопасности, **не** открывайте публичный GitHub Issue. Вместо этого отправьте электронное письмо на sc.voice.friends@gmail.com с информацией об уязвимости.
+Если вы обнаружили уязвимость безопасности, **не** открывайте публичный GitHub Issue. Вместо этого отправьте электронное письмо на friends@sc-voice.net с информацией об уязвимости.
 
 ---
 
@@ -211,7 +211,7 @@ Para questões gerais, discussões ou ideias de recursos:
 
 ### Reportar Problemas de Segurança
 
-Se descobrir uma vulnerabilidade de segurança, **não** abra um GitHub Issue público. Em vez disso, envie um e-mail para sc.voice.friends@gmail.com com os detalhes da vulnerabilidade.
+Se descobrir uma vulnerabilidade de segurança, **não** abra um GitHub Issue público. Em vez disso, envie um e-mail para friends@sc-voice.net com os detalhes da vulnerabilidade.
 
 ---
 
@@ -245,5 +245,5 @@ Bendriems klausimams, diskusijoms ar funkcijų ideoms:
 
 ### Saugumo Problemų Pranešimas
 
-Jei atradote saugumo spragą, **neatidarytkite** viešo GitHub Issue. Vietoj to, siųskite el. laišką adresu sc.voice.friends@gmail.com su saugumo spragos informacija.
+Jei atradote saugumo spragą, **neatidarytkite** viešo GitHub Issue. Vietoj to, siųskite el. laišką adresu friends@sc-voice.net su saugumo spragos informacija.
 
