@@ -49,7 +49,7 @@ If you discover a security vulnerability, please do **not** open a public GitHub
 
 ### Hilfe erhalten
 
-Wenn du auf Probleme stößt oder Fragen zu scVoice hast, kontaktiere uns mit einer dieser Methoden:
+Wenn du auf Probleme stößt oder Fragen zu scVoice hast, kontaktiere uns auf einem der folgenden Wege:
 
 ### GitHub-Issues
 
@@ -64,9 +64,9 @@ Für Fehler, Anfragen für neue Funktionen oder technische Probleme:
    - Was du erwartet hast
    - Dein Gerät und deine iOS-Version
 
-### SuttaCentral-Diskussionsforum Discuss & Discover
+### SuttaCentral-Diskussionsforum Discuss & Discover (englisch)
 
-Für allgemeine Fragen, Diskussionen oder Ideenvorschläge (englisch):
+Für allgemeine Fragen, Diskussionen oder Ideenvorschläge:
 
 1. Besuche [SuttaCentral Discuss & Discover](https://discourse.suttacentral.net/)
 2. Navigiere zur entsprechenden Kategorie
@@ -75,7 +75,7 @@ Für allgemeine Fragen, Diskussionen oder Ideenvorschläge (englisch):
 
 ### Sicherheitsprobleme melden
 
-Wenn du eine Sicherheitslücke entdeckst, öffne bitte **nicht** öffentlich einen GitHub Issue. Kontaktieren Sie stattdessen friends@sc-voice.net mit Details über die Sicherheitslücke.
+Wenn du eine Sicherheitslücke entdeckst, öffne bitte **nicht** öffentlich einen GitHub-Issue. Kontaktiere stattdessen friends@sc-voice.net mit Details über die Sicherheitslücke.
 
 ---
 
