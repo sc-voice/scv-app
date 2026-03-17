@@ -1,128 +1,196 @@
 # Privacy Policy
 
-## Overview
-
-SC-Voice is committed to protecting user privacy. This application is designed with privacy as a core principle—all data processing occurs locally on your device, and no information is transmitted to external servers.
-
-## Data Collection
-
-SC-Voice collects minimal data, exclusively for core application functionality. Importantly, **there is no explicit user identification system**. Instead, SC-Voice stores information on behalf of the user for local use only—organizing user-created cards, searches, and browsing history with internal identifiers that exist solely to structure data within the app.
-
-### User-Collected Data
-
-#### 1. Search Queries
-- **What:** Text that users enter into search fields
-- **How collected:** Through the SearchCardView interface
-- **Storage:** Persisted locally via SwiftData on device
-- **Purpose:** To enable search functionality and maintain search history
-- **Tracking:** Not used for tracking
-- **User control:** Users can clear search history manually
-
-#### 2. Browsing History
-- **What:** Sutta references (scripture identifiers) that users view
-- **How collected:** Automatically when users select and view scriptures
-- **Storage:** Persisted locally via SwiftData on device
-- **Purpose:** To enable sutta viewer cards and maintain browsing history
-- **Tracking:** Not used for tracking
-- **User control:** Users can delete cards to clear history
-
-#### 3. Card Preferences
-- **What:** User-created search cards and sutta viewer cards with their configuration
-- **How collected:** Automatically when users create and configure cards
-- **Storage:** Persisted locally via SwiftData on device
-- **Purpose:** To preserve user interface state and preferences across app sessions
-- **Tracking:** Not used for tracking
-- **User control:** Users can delete cards at any time
-
-#### 4. Product Interaction
-- **What:** General app usage patterns (which views users interact with within cards)
-- **How collected:** Implicitly through normal app usage
-- **Storage:** Persisted locally via SwiftData on device
-- **Purpose:** To improve user experience and app stability
-- **Tracking:** Not used for tracking
-- **User control:** Users can delete card-specific interaction data by deleting the card; not shared with third parties
-
-#### 5. User ID (Data Storage Identifiers)
-- **What:** SC-Voice does not maintain an explicit user identifier. Instead, the app generates unique identifiers (UUIDs) for internal data organization when storing user-created cards and associated information on the device.
-- **How collected:** Automatically generated when users create search cards, sutta viewer cards, or when the app stores search queries and browsing history associated with those cards.
-- **Storage:** Persisted locally via SwiftData on device as part of the card and data record structure
-- **Purpose:** To organize and link user-created data on behalf of the user for local app functionality only (e.g., matching a search query to its card, linking browsing history to a sutta viewer)
-- **Tracking:** These identifiers have no tracking purpose and are never shared with third parties
-- **User control:** Identifiers exist only while their associated data exists; deleting a card or clearing data removes all associated identifiers
-
-## Data Storage
-
-All collected data is stored **exclusively on your device** using SwiftData, Apple's local persistence framework. Data is never:
-
-- Transmitted to external servers
-- Shared with third parties
-- Used for advertising or marketing
-- Sold or monetized
-- Accessed by developers or other parties
-
-## Data Deletion
-
-Users can delete personal data at any time:
-
-1. **Search History:** Clear by deleting search cards or editing individual search queries
-2. **Browsing History:** Clear by deleting sutta viewer cards
-3. **Preferences:** Reset by reinstalling the application
-
-Uninstalling the application removes all associated data from the device.
-
-## Security
-
-SC-Voice uses Apple's native SwiftData framework with device-level encryption. Data is protected by:
-
-- iOS device-level encryption (automatically enabled)
-- No external network transmission (eliminating transmission vulnerabilities)
-- No external dependencies (minimizing attack surface)
-
-## Third-Party Services
-
-SC-Voice does not integrate with, transmit data to, or depend on any third-party services or analytics platforms. The application is entirely self-contained.
-
-## Children's Privacy
-
-SC-Voice is not targeted at children under 13. The application does not knowingly collect information from children under 13.
-
-## Data Processing Location
-
-All data processing occurs on the user's device. No processing occurs on external servers.
-
-## Changes to Privacy Policy
-
-This privacy policy may be updated to reflect changes in the application or regulatory requirements. Users will be notified of significant changes.
-
-## Compliance
-
-SC-Voice complies with:
-
-- Apple App Store privacy requirements
-- GDPR privacy principles
-- CCPA privacy principles
-- Other applicable privacy regulations
-
-## Contact
-
-For privacy-related questions or concerns, please visit:
-
-**Project:** SC-Voice
-**Repository:** https://github.com/buddhistcanon/sc-voice
-**Issues:** https://github.com/buddhistcanon/sc-voice/issues
-
-## Data Categories (Apple Privacy Manifest)
-
-The following data types are collected for app functionality purposes:
-
-| Category | Collected | Linked | Tracking | Purpose |
-|----------|-----------|--------|----------|---------|
-| User ID | Yes | No | No | App Functionality |
-| Search History | Yes | No | No | App Functionality |
-| Browsing History | Yes | No | No | App Functionality |
-| Product Interaction | Yes | No | No | App Functionality |
+**Available Languages:**
+- [English](#english)
+- [Deutsch](#deutsch)
+- [Español](#español)
+- [Français](#français)
+- [Русский](#русский)
+- [Português](#português-portugal)
+- [Lietuvių](#lietuvių)
 
 ---
 
-**Last Updated:** January 2026
-**Version:** 1.0
+## English
+
+### Data Collection
+
+scVoice does not collect, use, or share any personal data. The app operates entirely on your device with no data transmission to external servers.
+
+### Local Storage
+
+- Search history and saved cards are stored locally on your device using on-device storage
+- Voice settings and preferences are stored locally
+- No data is transmitted to any server
+
+### Third-Party Services
+
+scVoice does not use any analytics, tracking, or third-party services that collect personal information.
+
+### Text-to-Speech
+
+Voice synthesis is performed locally on your device using iOS system text-to-speech capabilities.
+
+### Data Access
+
+scVoice only accesses data that you explicitly provide through the app (searches, card creation, voice selection).
+
+---
+
+## Deutsch
+
+### Datenerfassung
+
+scVoice erfasst, nutzt oder teilt keine persönlichen Daten. Die App funktioniert vollständig auf Ihrem Gerät ohne Datenübertragung an externe Server.
+
+### Lokale Speicherung
+
+- Suchverlauf und gespeicherte Karten werden lokal auf Ihrem Gerät gespeichert
+- Spracheinstellungen und Voreinstellungen werden lokal gespeichert
+- Es werden keine Daten an einen Server übertragen
+
+### Drittanbieter-Services
+
+scVoice verwendet keine Analysen, Tracking oder Drittanbieter-Services, die persönliche Informationen erfassen.
+
+### Text-to-Speech
+
+Die Sprachsynthese wird lokal auf Ihrem Gerät mit iOS-Sprachsynthesefunktionen durchgeführt.
+
+### Datenzugriff
+
+scVoice greift nur auf Daten zu, die Sie explizit über die App bereitstellen (Suchen, Kartenerstellung, Sprachauswahl).
+
+---
+
+## Español
+
+### Recopilación de Datos
+
+scVoice no recopila, utiliza ni comparte ningún dato personal. La aplicación funciona completamente en su dispositivo sin transmisión de datos a servidores externos.
+
+### Almacenamiento Local
+
+- El historial de búsqueda y las tarjetas guardadas se almacenan localmente en su dispositivo
+- La configuración de voz y las preferencias se almacenan localmente
+- No se transmiten datos a ningún servidor
+
+### Servicios de Terceros
+
+scVoice no utiliza análisis, seguimiento o servicios de terceros que recopilen información personal.
+
+### Síntesis de Voz
+
+La síntesis de voz se realiza localmente en su dispositivo utilizando las capacidades de síntesis de voz del sistema iOS.
+
+### Acceso a Datos
+
+scVoice solo accede a los datos que usted proporciona explícitamente a través de la aplicación (búsquedas, creación de tarjetas, selección de voz).
+
+---
+
+## Français
+
+### Collecte de Données
+
+scVoice ne collecte, n'utilise ni ne partage aucune donnée personnelle. L'application fonctionne entièrement sur votre appareil sans transmission de données à des serveurs externes.
+
+### Stockage Local
+
+- L'historique de recherche et les cartes enregistrées sont stockés localement sur votre appareil
+- Les paramètres de voix et les préférences sont stockés localement
+- Aucune donnée n'est transmise à un serveur
+
+### Services Tiers
+
+scVoice n'utilise pas d'analyses, de suivi ou de services tiers qui collectent des informations personnelles.
+
+### Synthèse Vocale
+
+La synthèse vocale est effectuée localement sur votre appareil à l'aide des capacités de synthèse vocale du système iOS.
+
+### Accès aux Données
+
+scVoice accède uniquement aux données que vous fournissez explicitement via l'application (recherches, création de cartes, sélection de voix).
+
+---
+
+## Русский
+
+### Сбор Данных
+
+scVoice не собирает, не использует и не передает никакие личные данные. Приложение работает полностью на вашем устройстве без передачи данных на внешние серверы.
+
+### Локальное Хранилище
+
+- История поиска и сохраненные карточки хранятся локально на вашем устройстве
+- Настройки голоса и предпочтения хранятся локально
+- Никакие данные не передаются на сервер
+
+### Сторонние Сервисы
+
+scVoice не использует аналитику, отслеживание или сторонние сервисы, которые собирают личную информацию.
+
+### Синтез Речи
+
+Синтез речи выполняется локально на вашем устройстве с использованием возможностей синтеза речи системы iOS.
+
+### Доступ к Данным
+
+scVoice получает доступ только к данным, которые вы явно предоставляете через приложение (поиск, создание карточек, выбор голоса).
+
+---
+
+## Português (Portugal)
+
+### Recolha de Dados
+
+scVoice não recolhe, utiliza nem partilha quaisquer dados pessoais. A aplicação funciona inteiramente no seu dispositivo sem transmissão de dados para servidores externos.
+
+### Armazenamento Local
+
+- O histórico de pesquisa e os cartões guardados são armazenados localmente no seu dispositivo
+- As definições de voz e preferências são armazenadas localmente
+- Nenhum dado é transmitido a um servidor
+
+### Serviços de Terceiros
+
+scVoice não utiliza análises, rastreamento ou serviços de terceiros que recolham informações pessoais.
+
+### Síntese de Voz
+
+A síntese de voz é realizada localmente no seu dispositivo utilizando as capacidades de síntese de voz do sistema iOS.
+
+### Acesso aos Dados
+
+scVoice acede apenas aos dados que fornece explicitamente através da aplicação (pesquisas, criação de cartões, seleção de voz).
+
+---
+
+## Lietuvių
+
+### Duomenų Rinkimas
+
+scVoice nerinika, nenaudoja ir nesikielia jokių asmeninių duomenų. Programa veikia visiškai jūsų įrenginyje be duomenų perdavimo išoriniams serveriams.
+
+### Vietinis Saugojimas
+
+- Paieškos istorija ir išsaugoti korteliai saugomi lokaliai jūsų įrenginyje
+- Balso nustatymai ir nuostatos saugomos lokaliai
+- Jokie duomenys nėra persiunčiami serveriui
+
+### Trečiųjų Šalių Paslaugos
+
+scVoice nenaudoja jokios analitikos, sekimo ar trečiųjų šalių paslaugų, kurios rinktų asmeninę informaciją.
+
+### Balso Sintezė
+
+Balso sintezė atliekama lokaliai jūsų įrenginyje naudojant iOS sistemos balso sintezės galimybes.
+
+### Duomenų Prieiga
+
+scVoice pasiekia tik duomenis, kuriuos jūs aiškiai pateikiate per programą (paieškos, kortelių kūrimą, balso pasirinkimą).
+
+---
+
+Last Updated: March 2026
