@@ -11,15 +11,15 @@ public struct dbg: Sendable {
   static let NONE: Int = 0
 
   // Functional areas
-  static let SYNTH_WRITE: Int = 2 // AVSpeechSynthesizer.write(), AudioStore
-  static let SYNTH_SPEAK: Int = 2 // AVSpeechSynthesizer.speak()
+  static let SYNTH_WRITE: Int = NONE // AVSpeechSynthesizer.write(), AudioStore
+  static let SYNTH_SPEAK: Int = NONE // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
-  static let LAUNCH: Int = VERBOSE
-  static let LOAD: Int = VERBOSE
-  static let PLAYER: Int = 0
-  static let EBT_DATA: Int = 2
-  static let BUILD: Int = 0
-  static let TAP: Int = 2
+  static let LAUNCH: Int = TERSE
+  static let LOAD: Int = NONE
+  static let PLAYER: Int = NONE
+  static let EBT_DATA: Int = NONE
+  static let BUILD: Int = NONE
+  static let TAP: Int = NONE
 
   public struct AboutCardView: Sendable {
     public static let other: Int = NONE

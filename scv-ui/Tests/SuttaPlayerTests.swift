@@ -539,8 +539,10 @@ struct SuttaPlayerTests {
 
       player.load(mlDoc)
 
-      // Start at segment 1 to skip audio effects on first segment
-      mlDoc.currentScid = segments[1].scid
+      // Use segment with sufficient text (>= 30 chars) for validateSynthesis check
+      // validateSynthesis is only set to true if text.count >= 30
+      // sn42.11:1.2 has long English translation
+      mlDoc.currentScid = "sn42.11:1.2"
 
       // Use minimal segment pause for faster tests
       Settings.shared.segmentPause = 0.01
