@@ -1,0 +1,13 @@
+{
+  "focusStack": [
+    {
+      "id": "0PsXLZN100eq9W2ZjcDUNW",
+      "formaId": "0PsWpVLb00eq9W2ZjcDUNW",
+      "formaType": "task",
+      "name": "Rebuild worktree",
+      "summary": "scv-next is a new worktree of ../scv-app, which is the current release whose tests all pass"
+    }
+  ],
+  "id": "0PsWl_-y00bhP6g_km6gdW",
+  "numeronym": {}
+}

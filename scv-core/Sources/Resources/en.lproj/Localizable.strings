@@ -133,6 +133,9 @@
 /* About card view: overview description */
 "about.overview.description" = "Search, read, and hear SuttaCentral-aligned Early Buddhist Text (EBT) scriptures (suttas) offline for selected authors in multiple languages.";
 
+/* About card view: overview subtitle */
+"overview.subtitle" = "A SuttaCentral-aligned Reader";
+
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice respects your privacy:";
 

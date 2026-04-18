@@ -539,7 +539,8 @@ struct SuttaPlayerTests {
 
       player.load(mlDoc)
 
-      // Use segment with sufficient text (>= 30 chars) for validateSynthesis check
+      // Use segment with sufficient text (>= 30 chars) for validateSynthesis
+      // check
       // validateSynthesis is only set to true if text.count >= 30
       // sn42.11:1.2 has long English translation
       mlDoc.currentScid = "sn42.11:1.2"

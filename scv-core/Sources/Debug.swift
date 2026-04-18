@@ -190,11 +190,11 @@ public func projectRoot() -> URL {
     let rootPath = String(currentFile[..<range.lowerBound])
     return URL(fileURLWithPath: rootPath)
   }
-  // Fallback: traverse up to find scv-app directory
+  // Fallback: traverse up to find scv-core folder parent
   var current = URL(fileURLWithPath: currentFile).deletingLastPathComponent()
   while current.path != "/" {
-    if current.lastPathComponent == "scv-app" {
-      return current
+    if current.lastPathComponent == "scv-core" {
+      return current.deletingLastPathComponent()
     }
     current = current.deletingLastPathComponent()
   }

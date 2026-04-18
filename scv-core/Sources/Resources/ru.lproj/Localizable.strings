@@ -133,6 +133,9 @@
 /* About card view: overview description */
 "about.overview.description" = "Ищите, читайте и слушайте ранние буддийские тексты (сутты), совместимые с SuttaCentral, в автономном режиме для выбранных авторов на нескольких языках.";
 
+/* About card view: overview subtitle */
+"overview.subtitle" = "Средство чтения, согласованное с SuttaCentral";
+
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice уважает вашу конфиденциальность:";
 

@@ -133,6 +133,9 @@
 /* About card view: overview description */
 "about.overview.description" = "Pesquise, leia e ouça textos budistas antigos (suttas) alinhados com o SuttaCentral offline para autores selecionados em vários idiomas.";
 
+/* About card view: overview subtitle */
+"overview.subtitle" = "Um leitor alinhado com SuttaCentral";
+
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice respeita sua privacidade:";
 

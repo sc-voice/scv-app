@@ -133,6 +133,9 @@
 /* About card view: overview description */
 "about.overview.description" = "Durchsuche, lies und höre ausgerichtete frühe buddhistische Texte (Suttas) von SuttaCentral von ausgewählten Autoren in mehreren Sprachen offline.";
 
+/* About card view: overview subtitle */
+"overview.subtitle" = "Ein Leseprogramm begleitend zu SuttaCentral";
+
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice achtet deine Privatsphäre:";
 

@@ -4,7 +4,7 @@
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw release \
         version-major version-minor version-patch \
-				commit build-zst content build-db clean-db suid-list
+				commit build-zst content build-db clean-db suid-list local
 
 # Enable pipefail so exit codes are preserved when piping to tee
 SHELL := /bin/bash
@@ -23,7 +23,24 @@ _init:
 	@mkdir -p $(CURDIR)/local/build
 	@echo "=== MAKE START $$(date '+%Y-%m-%d %H:%M:%S') ===" > ${LOG_FILE}
 
-summary: 
+local: _init _local _end
+
+_local:
+	@echo "=== MAKE local..." | tee -a $(LOG_FILE)
+	@mkdir -p $(CURDIR)/local
+	@if [ ! -d "$(CURDIR)/local/ebt-data" ]; then \
+		echo "Cloning ebt-data from github..." | tee -a $(LOG_FILE); \
+		git clone git@github.com:ebt-site/ebt-data.git $(CURDIR)/local/ebt-data 2>&1 | tee -a $(LOG_FILE); \
+	else \
+		echo "ebt-data already exists at $(CURDIR)/local/ebt-data" | tee -a $(LOG_FILE); \
+	fi
+	@mkdir -p $(CURDIR)/local/audio
+	@mkdir -p $(CURDIR)/local/test-audio
+	@mkdir -p $(CURDIR)/local/test-audio-m4a
+	@mkdir -p $(CURDIR)/local/build
+	@echo "✓ Local directories initialized" | tee -a $(LOG_FILE)
+
+summary:
 	@echo
 	@echo MAKE SUMMARY:
 	@grep -E $(TEST_ALL_FILTER) $(LOG_FILE) < ${LOG_FILE} || true
@@ -190,7 +207,7 @@ _build-ios: _build-ui
 
 rebuild: _init _rebuild _end
 
-_rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst 
+_rebuild: _local scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@echo "=== MAKE rebuild" | tee -a $(LOG_FILE)
 	@scripts/version patch 2>&1 | tee -a ${LOG_FILE}
 	@$(MAKE) _clean 2>&1 | tee -a $(LOG_FILE); \

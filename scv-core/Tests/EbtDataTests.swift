@@ -137,7 +137,7 @@ struct EbtDataTests {
     guard let mlDoc else { return }
 
     // Load source file to compare formatting
-    let sourceFile = "/Users/visakha/dev/scv-app/local/ebt-data/translation/en/sujato/sutta/an/an1/an1.1-10_translation-en-sujato.json"
+    let sourceFile = projectRoot().appendingPathComponent("local/ebt-data/translation/en/sujato/sutta/an/an1/an1.1-10_translation-en-sujato.json").path
     guard let sourceJson = try? String(
       contentsOfFile: sourceFile,
       encoding: .utf8,

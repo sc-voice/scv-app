@@ -133,6 +133,9 @@
 /* About card view: overview description */
 "about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
 
+/* About card view: overview subtitle */
+"overview.subtitle" = "Skaitytuvas, suderintas su SuttaCentral";
+
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice gerbia jūsų privatumą:";
 

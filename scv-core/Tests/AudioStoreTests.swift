@@ -581,7 +581,7 @@ struct AudioStoreTests {
     let fileManager = FileManager.default
     let root = projectRoot()
     let inputPath = root
-      .appendingPathComponent("local/audio/so_i_have_heard.caf").path
+      .appendingPathComponent("scv-core/Tests/Data/so_i_have_heard.caf").path
     let outputPath = root
       .appendingPathComponent("local/audio/so_i_have_heard_av.m4a").path
 
