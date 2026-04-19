@@ -108,7 +108,8 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
+        filePath: projectRoot()
+          .appendingPathComponent("local/ebt-data/_author.json").path,
       ),
       gitHash: nil,
     )
@@ -134,7 +135,8 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
+        filePath: projectRoot()
+          .appendingPathComponent("local/ebt-data/_author.json").path,
       ),
       gitHash: nil,
     )
@@ -160,7 +162,8 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
+        filePath: projectRoot()
+          .appendingPathComponent("local/ebt-data/_author.json").path,
       ),
       gitHash: nil,
     )
@@ -192,7 +195,8 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
+        filePath: projectRoot()
+          .appendingPathComponent("local/ebt-data/_author.json").path,
       ),
       gitHash: nil,
     )
@@ -228,7 +232,8 @@ struct BuildTests {
       resourcesDir: "/tmp",
       translationDir: "/tmp",
       authorInfoImporter: AuthorInfoImporter(
-        filePath: "/Users/visakha/dev/scv-app/local/ebt-data/_author.json",
+        filePath: projectRoot()
+          .appendingPathComponent("local/ebt-data/_author.json").path,
       ),
       gitHash: nil,
     )

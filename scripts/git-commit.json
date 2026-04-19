@@ -1,7 +1,7 @@
 {
   "session_id": "claude-session-abc123xyz",
   "transcript_path": "/Users/visakha/.claude/sessions/conversation.jsonl",
-  "cwd": "/Users/visakha/dev/scv-app",
+  "cwd": "/Users/visakha/dev/scv-next",
   "permission_mode": "default",
   "hook_event_name": "PreToolUse",
   "tool_name": "Bash",

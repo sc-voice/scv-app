@@ -294,6 +294,8 @@ _clean-content: _clean-lemmatizer _clean-cache
 	@echo "Cleared .zst database resource files" 2>&1 | tee -a ${LOG_FILE}
 	@rm -f scv-core/Sources/Resources/*.db 2>/dev/null || true
 	@echo "Cleared .db database resource files" 2>&1 | tee -a ${LOG_FILE}
+	@rm -f local/build/ebt-*.db 2>/dev/null || true
+	@echo "Cleared .db database build files" 2>&1 | tee -a ${LOG_FILE}
 	@cd scv-build && swift package clean 2>/dev/null || true
 
 clean-ui: _init _clean-ui _end

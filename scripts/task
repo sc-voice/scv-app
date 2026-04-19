@@ -1,0 +1,2 @@
+#!/bin/bash
+scv-tasks/.build/debug/task $*

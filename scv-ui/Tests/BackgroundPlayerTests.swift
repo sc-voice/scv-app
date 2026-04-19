@@ -55,7 +55,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -94,7 +95,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -140,7 +142,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -225,7 +228,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -292,7 +296,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -329,7 +334,8 @@ struct BackgroundPlayerTests {
     )
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,
@@ -372,7 +378,8 @@ struct BackgroundPlayerTests {
     }
     let testAudioStorePath =
       URL(
-        fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+        fileURLWithPath: projectRoot()
+          .appendingPathComponent("local/build/test-background-player").path,
       )
     let testAudioStore = AudioStore.create(
       path: testAudioStorePath,

@@ -36,7 +36,8 @@ private func getTestAudioStore() -> AudioStore {
     return cached
   }
   let path = URL(
-    fileURLWithPath: "/Users/visakha/dev/scv-app/local/build/test-background-player",
+    fileURLWithPath: projectRoot()
+      .appendingPathComponent("local/build/test-background-player").path,
   )
   let store = AudioStore.create(path: path, adapter: testAdapter())
   cachedAudioStore = store

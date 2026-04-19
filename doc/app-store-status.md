@@ -245,7 +245,7 @@ Steps:
 **Status**: Partially complete
 
 Steps:
-1. [x] Open `/Users/visakha/dev/scv-app/scv-ios/scv-ios.xcodeproj` in Xcode
+1. [x] Open `/Users/visakha/dev/scv-next/scv-ios/scv-ios.xcodeproj` in Xcode
 2. [x] Verify code signing:
    - Select "scv-ios" target
    - Signing & Capabilities tab

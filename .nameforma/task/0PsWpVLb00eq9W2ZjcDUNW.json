@@ -14,106 +14,106 @@
       "id": "0PsWxh4700eq9W2ZjcDUNW",
       "name": "replace absolute paths with project relative paths",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "All hardcoded paths replaced"
     },
     {
       "id": "0PsXKZAl00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-ui/Tests/BackgroundPlayerTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "All 7 occurrences fixed, tests passing"
     },
     {
       "id": "0PsXKZBb00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-ui/Tests/BackgroundPlayerViewTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "tests passing: all 12 tests pass"
     },
     {
       "id": "0PsXL0d200eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-build/Sources/pali-words/pali-words-main.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Both paths fixed"
     },
     {
       "id": "0PsXL0dt00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-build/Tests/scvBuildTests/BuildTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "All 5 occurrences fixed"
     },
     {
       "id": "0PsXL0ek00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-ui/Tests/BackgroundPlayerLockScreenTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "tests passing: all 19 tests pass"
     },
     {
       "id": "0PsXL0fc00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-core/Tests/AudioStoreTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "no hardcoded paths found"
     },
     {
       "id": "0PsXL0gS00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-core/Tests/AVAdapterTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "no hardcoded paths found"
     },
     {
       "id": "0PsXL0hK00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scv-core/Tests/TipitakaTests.swift",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "no hardcoded paths found"
     },
     {
       "id": "0PsXLgiw00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in CLAUDE.md",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Examples updated to scv-next"
     },
     {
       "id": "0PsXLgjn00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in doc/ebt_translations.md",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Path updated to scv-next"
     },
     {
       "id": "0PsXLgke00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in doc/app-store-status.md",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Path updated to scv-next"
     },
     {
       "id": "0PsXLglU00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in doc/MerkleJson.md",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "References different project"
     },
     {
       "id": "0PsXLgmM00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scripts/git-commit.json",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Path updated to scv-next"
     },
     {
       "id": "0PsXLgnE00eq9W2ZjcDUNW",
       "name": "Fix hardcoded paths in scripts/ls.json",
       "summary": "",
-      "status": "req",
-      "statusNote": ""
+      "status": "done",
+      "statusNote": "Path updated to scv-next"
     }
   ],
   "rawReferences": [

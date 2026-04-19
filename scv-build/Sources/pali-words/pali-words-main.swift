@@ -85,7 +85,7 @@ func countSuttaPali(suttaRef: String) async throws {
   )
 
   // Create output directory if needed
-  let buildDir = "/Users/visakha/dev/scv-app/local/build"
+  let buildDir = projectRoot().appendingPathComponent("local/build").path
   try FileManager.default.createDirectory(
     atPath: buildDir,
     withIntermediateDirectories: true,
@@ -145,7 +145,8 @@ func countDocPali(lang: String) async throws {
   // Sort docPaliDict by count (descending) and write JSONL
   let sortedWords = counter.docPaliDict.sorted { $0.value > $1.value }
 
-  let resourcesDir = "/Users/visakha/dev/scv-app/scv-build/Sources/Resources"
+  let resourcesDir = projectRoot()
+    .appendingPathComponent("scv-build/Sources/Resources").path
   try FileManager.default.createDirectory(
     atPath: resourcesDir,
     withIntermediateDirectories: true,

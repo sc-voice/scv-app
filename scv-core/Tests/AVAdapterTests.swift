@@ -32,7 +32,10 @@ import Testing
     let adapter: IAVAdapter = AVAdapter()
 
     // Create audio file in local/build
-    let outDir = projectRoot().appendingPathComponent("local/audio", isDirectory: true)
+    let outDir = projectRoot().appendingPathComponent(
+      "local/audio",
+      isDirectory: true,
+    )
     try? FileManager.default.createDirectory(
       at: outDir,
       withIntermediateDirectories: true,

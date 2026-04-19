@@ -149,6 +149,7 @@
 {"alcoholics":"alcoholic"}
 {"alienated":"alienate"}
 {"alighting":"alight"}
+{"alights":"alight"}
 {"allayed":"allay"}
 {"allaying":"allay"}
 {"allays":"allay"}
@@ -1167,7 +1168,6 @@
 {"counted":"count"}
 {"counteracting":"counteract"}
 {"countering":"counter"}
-{"counterparts":"counterpart"}
 {"counters":"counter"}
 {"counting":"count"}
 {"countries":"country"}
@@ -1571,6 +1571,7 @@
 {"disguised":"disguise"}
 {"disgusted":"disgust"}
 {"disgusting":"disgust"}
+{"disheartened":"dishearten"}
 {"dishes":"dish"}
 {"disheveled":"dishevel"}
 {"disintegrated":"disintegrate"}
@@ -1883,6 +1884,7 @@
 {"encroaching":"encroach"}
 {"encumbered":"encumber"}
 {"endangered":"endanger"}
+{"endearing":"endear"}
 {"endeavors":"endeavor"}
 {"ended":"end"}
 {"ending":"end"}
@@ -2780,6 +2782,7 @@
 {"illusions":"illusion"}
 {"illustrated":"illustrate"}
 {"illustrating":"illustrate"}
+{"illustrations":"illustration"}
 {"images":"image"}
 {"imagined":"imagine"}
 {"imagines":"imagine"}
@@ -3801,6 +3804,7 @@
 {"phrased":"phrase"}
 {"phrases":"phrase"}
 {"phrasing":"phrase"}
+{"phrasings":"phrasing"}
 {"physicians":"physician"}
 {"picked":"pick"}
 {"picking":"pick"}
@@ -4926,6 +4930,7 @@
 {"snakes":"snake"}
 {"snapped":"snap"}
 {"snapping":"snap"}
+{"snared":"snare"}
 {"snares":"snare"}
 {"snarled":"snarl"}
 {"snarls":"snarl"}
@@ -5245,6 +5250,7 @@
 {"suited":"suit"}
 {"suitors":"suitor"}
 {"sullied":"sully"}
+{"sullying":"sully"}
 {"summaries":"summary"}
 {"summing":"sum"}
 {"summoned":"summon"}
@@ -5359,7 +5365,6 @@
 {"tantalizing":"tantalize"}
 {"tapped":"tap"}
 {"targets":"target"}
-{"tarred":"tar"}
 {"tasks":"task"}
 {"tasted":"taste"}
 {"tastes":"taste"}

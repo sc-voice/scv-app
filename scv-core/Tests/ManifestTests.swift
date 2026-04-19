@@ -458,4 +458,38 @@ import Testing
       )
     }
   }
+
+  @Test("Manifest contains all expected language/author combinations")
+  func manifestHasAllExpectedDatabases() {
+    let manifest = DatabaseManifest.shared
+
+    // Explicit list of expected language/author combinations from db-manifest.json
+    let expected: [(language: String, author: String)] = [
+      ("de", "sabbamitta"),
+      ("de", "sonjabuege"),
+      ("en", "brahmali"),
+      ("en", "kelly"),
+      ("en", "soma"),
+      ("en", "sujato"),
+      ("es", "font"),
+      ("fr", "noeismet"),
+      ("fr", "sekha"),
+      ("pli", "ms"),
+      ("pt", "laera-quaresma"),
+      ("ru", "narinyanievmenenko"),
+      ("ru", "sv"),
+    ]
+
+    var missing: [String] = []
+    for (lang, author) in expected {
+      if manifest.info(language: lang, author: author) == nil {
+        missing.append("\(lang)/\(author)")
+      }
+    }
+
+    #expect(
+      missing.isEmpty,
+      "Manifest missing: \(missing.joined(separator: ", ")). Run: make content",
+    )
+  }
 }
