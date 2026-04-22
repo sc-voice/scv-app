@@ -463,7 +463,8 @@ import Testing
   func manifestHasAllExpectedDatabases() {
     let manifest = DatabaseManifest.shared
 
-    // Explicit list of expected language/author combinations from db-manifest.json
+    // Explicit list of expected language/author combinations from
+    // db-manifest.json
     let expected: [(language: String, author: String)] = [
       ("de", "sabbamitta"),
       ("de", "sonjabuege"),

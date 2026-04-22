@@ -1,0 +1,37 @@
+{
+  "id": "0PsrD0LA00u_KkoOU3qU7W",
+  "name": "Add More menu to sutta card menu bar",
+  "summary": "Reorganize sutta card menu bar: remove title/author text, arrange icons left-to-right as [back] [play] [more]. More menu (rightmost, ellipsis.circle per Apple HIG) contains 'Background playback' action.",
+  "rawActions": [
+    {
+      "id": "0PsrEGLH00u_KkoOU3qU7W",
+      "name": "Add More menu",
+      "summary": "Remove title/author VStack (lines 115-134), restructure HStack: play button left, Spacer(), Menu button right with ellipsis.circle icon (More icon per Apple HIG). Menu styling matches play button (title2 font, same foreground). Menu button: minWidth/minHeight 44.",
+      "status": "manage",
+      "statusNote": "Implemented and fixed: separated toolbar into two ToolbarItems (.principal for play, .navigationBarTrailing for More menu)"
+    },
+    {
+      "id": "0PsrEGzO00u_KkoOU3qU7W",
+      "name": "Add background playback menu item",
+      "summary": "Add 'Background playback' action to More menu (ellipsis.circle). Keep existing contextMenu on play button unchanged.",
+      "status": "manage",
+      "statusNote": "Implemented: More menu with background playback action in navigationBarTrailing position"
+    }
+  ],
+  "rawReferences": [
+    {
+      "id": "0PsrFjfk00u_KkoOU3qU7W",
+      "name": "SuttaCardView.swift",
+      "summary": "Main toolbar implementation for sutta card menu bar",
+      "relevance": 1,
+      "source": "scv-ui/Sources/scvUI/SuttaCardView.swift"
+    },
+    {
+      "id": "0PsrKSsv00u_KkoOU3qU7W",
+      "name": "Apple HIG - Menu Icons",
+      "summary": "iOS design guidelines for toolbar menu icons and action menus",
+      "relevance": 1,
+      "source": "https://developer.apple.com/design/human-interface-guidelines/menus"
+    }
+  ]
+}

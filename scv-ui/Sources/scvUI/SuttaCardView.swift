@@ -33,6 +33,8 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var backgroundPlayer: BackgroundPlayer?
   @State private var showBackgroundPlayerView = false
   @State private var showBackgroundPlaybackTip = false
+  @State private var scrollOffset: CGFloat = 0
+  let onSettingsTap: (() -> Void)?
   let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
 
@@ -50,32 +52,47 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     return authorBaseUrl.lowercased().contains("suttacentral")
   }
 
-  private var title: String {
-    var abbr: String?
+  private var authorName: String {
+    guard let mlDoc = card.mlDoc else { return "" }
+    return DatabaseManifest.shared.info(
+      language: mlDoc.docLang,
+      author: mlDoc.docAuthor
+    )?.authorName ?? mlDoc.docAuthor
+  }
 
-    if let mlDoc = card.mlDoc, let currentScid = mlDoc.currentScid {
+  private var suttaId: String {
+    var abbr: String?
+    let mlDoc = card.mlDoc;
+
+    if mlDoc == nil {
+      return "mlDoc?";
+    }
+
+    if let currentScid = mlDoc!.currentScid {
       if let currentRef = SuttaRef.create(currentScid) {
         abbr = currentRef.abbreviation()
       }
     }
     if abbr == nil {
-      abbr = suttaRef?.abbreviation() ?? "suttaRef?"
+      abbr = suttaRef?.abbreviation()
+    }
+    if abbr == nil {
+      return "suttaRef?"
     }
 
-    if isSuttaCentral {
-      return "SuttaCentral \(abbr ?? "")"
-    }
-    return abbr ?? "suttaRef?"
+    return abbr!
   }
 
   public init(
     card: Binding<Card>,
     cardManager: Manager,
     player: SuttaPlayer = .shared,
+    onSettingsTap: (() -> Void)? = nil,
   ) {
     _card = card
     self.cardManager = cardManager
     self.player = player
+    self.onSettingsTap = onSettingsTap
   }
 
   func calcSegmentNumberWidth() -> CGFloat {
@@ -104,6 +121,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   private var suttaCentralUrl: URL? {
     guard isSuttaCentral, let mlDoc = card.mlDoc else { return nil }
     let urlString = "https://suttacentral.net/\(mlDoc.sutta_uid)/\(mlDoc.docLang)/\(mlDoc.docAuthor)"
+    cc.ok1(#line, #function, urlString);
     return URL(string: urlString)
   }
 
@@ -111,76 +129,82 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     let step1 = view
       .toolbar {
         ToolbarItem(placement: .principal) {
-          HStack {
-            VStack(spacing: 0) {
-              if isSuttaCentral, let url = suttaCentralUrl {
-                Link(title, destination: url)
-                  .font(.headline)
-                  .lineLimit(nil)
-                  .foregroundColor(themeProvider.theme.accentColor)
-              } else {
-                Text(title)
-                  .font(.headline)
-                  .lineLimit(1)
-                  .foregroundColor(themeProvider.theme.toolbarForeground)
-              }
-              if let mlDoc = card.mlDoc {
-                Text(mlDoc.docAuthorName)
-                  .font(.body)
-                  .lineLimit(nil)
-                  .frame(width: MIN_COLUMN_WIDTH)
-              }
-            } // VStack
-            .fixedSize(horizontal: false, vertical: true)
-            .foregroundColor(themeProvider.theme.toolbarForeground)
-            Spacer()
-            if let mlDoc = card.mlDoc {
-              Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                .font(.title2)
-                .foregroundColor(player
-                  .isSynthesizerSpeaking ? .green : themeProvider.theme
-                  .toolbarForeground)
-                .frame(minWidth: 44, minHeight: 44)
-                .padding(.leading, 20)
-                .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
-                  .localized : "a11y.button.play_audio".localized)
-                .onTapGesture {
-                  if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
-                    player.load(mlDoc)
-                  }
-                  player.togglePlayback()
+          if let mlDoc = card.mlDoc {
+            Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+              .font(.title2)
+              .foregroundColor(player
+                .isSynthesizerSpeaking ? .green : themeProvider.theme
+                .toolbarForeground)
+              .frame(minWidth: 44, minHeight: 44)
+              .accessibilityLabel(player.isPlaying ? "a11y.button.pause_audio"
+                .localized : "a11y.button.play_audio".localized)
+              .onTapGesture {
+                if player.currentSutta?.sutta_uid != mlDoc.sutta_uid {
+                  player.load(mlDoc)
                 }
-                .contextMenu {
-                  Button(action: startBackgroundPlayback) {
-                    Label(
-                      "synthesis.background_playback".localized,
-                      systemImage: "waveform.circle.fill",
-                    )
-                  }
-                }
-                .sheet(isPresented: $showBackgroundPlaybackTip) {
-                  TipView(
-                    title: "settings.background.playback.info.title".localized,
-                    text: "settings.background.playback.info.message".localized
-                      + "\n\n"
-                      + "settings.background.playback.info.trigger".localized,
-                    isPresented: $showBackgroundPlaybackTip,
-                    onConfirm: {
-                      Settings.shared.backgroundPlayback = true
-                      startBackgroundPlayback()
-                    },
+                player.togglePlayback()
+              }
+              .sheet(isPresented: $showBackgroundPlaybackTip) {
+                TipView(
+                  title: "settings.background.playback.info.title".localized,
+                  text: "settings.background.playback.info.message".localized
+                    + "\n\n"
+                    + "settings.background.playback.info.trigger".localized,
+                  isPresented: $showBackgroundPlaybackTip,
+                  onConfirm: {
+                    Settings.shared.backgroundPlayback = true
+                    startBackgroundPlayback()
+                  },
+                )
+                .environmentObject(themeProvider)
+                .presentationDetents([.medium])
+              }
+          } else {
+            Image(systemName: "text.page.slash")
+              .font(.title2)
+              .foregroundColor(themeProvider.theme.errorTextColor)
+              .frame(minWidth: 44, minHeight: 44)
+          }
+        }
+        ToolbarItem(placement: {
+          #if os(iOS)
+            return .navigationBarTrailing
+          #else
+            return .automatic
+          #endif
+        }()) {
+          if let mlDoc = card.mlDoc {
+            Menu {
+              Section(header: 
+                Text(suttaId)
+                  .font(.headline)
+                  .foregroundColor(themeProvider.theme.textColor)
+              ) {
+                Button(action: startBackgroundPlayback) {
+                  Label(
+                    "synthesis.background_playback".localized,
+                    systemImage: "waveform.circle.fill",
                   )
-                  .environmentObject(themeProvider)
-                  .presentationDetents([.medium])
                 }
-            } else {
-              Image(systemName: "text.page.slash")
+              }
+              if let onSettingsTap {
+                Button(action: onSettingsTap) {
+                  Label("settings.title".localized, systemImage: "gearshape")
+                }
+              }
+              if isSuttaCentral, let url = suttaCentralUrl {
+                Link(destination: url) {
+                  Label("SuttaCentral", systemImage: "globe")
+                }
+              }
+            } label: {
+              Image(systemName: "ellipsis.circle")
                 .font(.title2)
-                .foregroundColor(themeProvider.theme.errorTextColor)
+                .foregroundColor(themeProvider.theme.toolbarForeground)
                 .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel("a11y.button.menu".localized)
             }
           }
-          .frame(minWidth: MIN_COLUMN_WIDTH)
         }
       }
 
@@ -203,16 +227,16 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   public var body: some View {
     applySuttaModifiers(
       VStack(alignment: .leading, spacing: 0) { // VStack1
-        // Title Header
-        /*
-         SuttaHeaderView(
-           card: card,
-           player: player,
-         )
-         .environmentObject(themeProvider)
-         .frame(maxWidth: layout?.totalContentWidth ?? .infinity)
-         .frame(maxWidth: .infinity, alignment: .center)
-         */
+        if card.mlDoc != nil {
+          HStack {
+            Text(suttaId)
+            Spacer()
+            Text(authorName)
+          }
+          .font(.caption)
+          .padding(.horizontal)
+          .background(themeProvider.theme.toolbarBackground)
+        }
 
         // Segments Content
         if let mlDoc = card.mlDoc {
@@ -268,6 +292,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                 }
                 .onChange(of: mlDoc.currentScid) { _, newScid in
                   if let newScid {
+                    scrollOffset = 1
                     withAnimation(reduceMotion ? nil :
                       .easeInOut(duration: 0.8))
                     {

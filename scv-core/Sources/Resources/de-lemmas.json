@@ -507,6 +507,7 @@
 {"aufbraust":"aufbrausen"}
 {"aufbringt":"aufbringen"}
 {"aufbäumt":"aufbäumen"}
+{"aufeinanderfolgende":"aufeinanderfolgen"}
 {"aufenthalte":"aufenthalt"}
 {"aufenthalten":"aufenthalt"}
 {"auferlegt":"auferlegen"}
@@ -956,6 +957,7 @@
 {"bedeutungsloses":"bedeutungslos"}
 {"bedeutungsvolle":"bedeutungsvoll"}
 {"bediene":"bedienen"}
+{"bedienstete":"bedienstet"}
 {"bediensteten":"bedienstete"}
 {"bedient":"bedienen"}
 {"bediente":"bedienen"}
@@ -2629,6 +2631,7 @@
 {"erhebe":"erheben"}
 {"erhebst":"erheben"}
 {"erhebt":"erheben"}
+{"erhelle":"erhellen"}
 {"erhellt":"erhellen"}
 {"erhellte":"erhellen"}
 {"erhellten":"erhellen"}
@@ -2661,6 +2664,7 @@
 {"erkennbaren":"erkennbar"}
 {"erkenne":"erkennen"}
 {"erkennenden":"erkennend"}
+{"erkennender":"erkennend"}
 {"erkennens":"erkennen"}
 {"erkennst":"erkennen"}
 {"erkennt":"erkennen"}
@@ -3077,6 +3081,7 @@
 {"fleckenloses":"fleckenlos"}
 {"fleckigen":"fleckig"}
 {"flecks":"fleck"}
+{"flehe":"flehen"}
 {"fleischigem":"fleischig"}
 {"fleischliche":"fleischlich"}
 {"fleischlichen":"fleischlich"}
@@ -3915,6 +3920,7 @@
 {"geschnarcht":"schnarchen"}
 {"geschnitten":"schneiden"}
 {"geschnittenen":"schneiden"}
+{"geschoben":"schieben"}
 {"gescholten":"schelten"}
 {"geschoren":"scheren"}
 {"geschorenem":"scheren"}
@@ -5431,6 +5437,7 @@
 {"lebensmitteln":"lebensmittel"}
 {"lebensnotwendige":"lebensnotwendig"}
 {"lebensnotwendigen":"lebensnotwendig"}
+{"lebensstils":"lebensstil"}
 {"lebensweisen":"lebensweise"}
 {"lebest":"leben"}
 {"lebhafte":"lebhaft"}
@@ -5894,6 +5901,7 @@
 {"musterte":"mustern"}
 {"mutige":"mutig"}
 {"mutwilligen":"mutwillig"}
+{"myriaden":"myriade"}
 {"mystische":"mystisch"}
 {"mächtige":"mächtig"}
 {"mächtigem":"mächtig"}
@@ -8784,6 +8792,7 @@
 {"verteidigt":"verteidigen"}
 {"verteilt":"verteilen"}
 {"vertieft":"vertiefen"}
+{"vertieften":"vertiefen"}
 {"vertiefungen":"vertiefung"}
 {"vertikaler":"vertikal"}
 {"vertraut":"vertrauen"}
@@ -9236,6 +9245,7 @@
 {"weiteres":"weit"}
 {"weitergeführt":"weiterführen"}
 {"weitergegeben":"weitergeben"}
+{"weitergeht":"weitergehen"}
 {"weitergereicht":"weiterreichen"}
 {"weitergibt":"weitergeben"}
 {"weiterging":"weitergehen"}
@@ -9245,6 +9255,7 @@
 {"weiterziehst":"weiterziehen"}
 {"weiterzieht":"weiterziehen"}
 {"weiterzuleben":"weiterleben"}
+{"weiterzureisen":"weiterreisen"}
 {"weiß":"weißen"}
 {"weiße":"weißen"}
 {"weißem":"weiß"}

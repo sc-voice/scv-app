@@ -204,6 +204,10 @@ public struct AppRootView<Manager: ICardManager>: View {
         SuttaCardView(
           card: cardBinding,
           cardManager: cardManager,
+          onSettingsTap: {
+            cc.ok1(#line, "Settings gear button pressed from sutta card")
+            showSettings = true
+          },
         )
         .environmentObject(themeProvider)
 

@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-04-19
+**Last updated:** 2026-04-21
 
 ## Overview
 
@@ -34,8 +34,8 @@ Run the script with:
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
 |     4307 | ✅ | en | ✅ | 1 | sujato |
-|     4122 | ✅ | de | ✅ | 1 | sabbamitta |
-|      919 | ✅ | ru | ✅ | 1 | sv |
+|     4138 | ✅ | de | ✅ | 1 | sabbamitta |
+|      921 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
 |      574 | ✅ | ru |    | 2 | o |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
@@ -63,6 +63,7 @@ Run the script with:
 |        8 | ✅ | ru |    | 4 | syrkin |
 |        7 | ✅ | hi |    | 1 | trush |
 |        5 | ✅ | ru |    | 5 | khantibalo |
+|        5 |    | ka |    | 1 | luka |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
@@ -74,7 +75,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    14049 files
+**Total:**    14072 files
 
 ## Inclusion Criteria
 
