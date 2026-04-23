@@ -56,16 +56,16 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     guard let mlDoc = card.mlDoc else { return "" }
     return DatabaseManifest.shared.info(
       language: mlDoc.docLang,
-      author: mlDoc.docAuthor
+      author: mlDoc.docAuthor,
     )?.authorName ?? mlDoc.docAuthor
   }
 
   private var suttaId: String {
     var abbr: String?
-    let mlDoc = card.mlDoc;
+    let mlDoc = card.mlDoc
 
     if mlDoc == nil {
-      return "mlDoc?";
+      return "mlDoc?"
     }
 
     if let currentScid = mlDoc!.currentScid {
@@ -121,7 +121,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   private var suttaCentralUrl: URL? {
     guard isSuttaCentral, let mlDoc = card.mlDoc else { return nil }
     let urlString = "https://suttacentral.net/\(mlDoc.sutta_uid)/\(mlDoc.docLang)/\(mlDoc.docAuthor)"
-    cc.ok1(#line, #function, urlString);
+    cc.ok1(#line, #function, urlString)
     return URL(string: urlString)
   }
 
@@ -175,11 +175,11 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         }()) {
           if let mlDoc = card.mlDoc {
             Menu {
-              Section(header: 
+              Section(header:
                 Text(suttaId)
                   .font(.headline)
-                  .foregroundColor(themeProvider.theme.textColor)
-              ) {
+                  .foregroundColor(themeProvider.theme.textColor))
+              {
                 Button(action: startBackgroundPlayback) {
                   Label(
                     "synthesis.background_playback".localized,

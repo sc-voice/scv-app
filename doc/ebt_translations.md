@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-04-21
+**Last updated:** 2026-04-22
 
 ## Overview
 
@@ -35,7 +35,7 @@ Run the script with:
 |-------|-------|------|----|----|--------|
 |     4307 | ✅ | en | ✅ | 1 | sujato |
 |     4138 | ✅ | de | ✅ | 1 | sabbamitta |
-|      921 | ✅ | ru | ✅ | 1 | sv |
+|      922 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
 |      574 | ✅ | ru |    | 2 | o |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
@@ -62,8 +62,8 @@ Run the script with:
 |        9 | ✅ | es |    | 2 | maggatr |
 |        8 | ✅ | ru |    | 4 | syrkin |
 |        7 | ✅ | hi |    | 1 | trush |
+|        6 |    | ka |    | 1 | luka |
 |        5 | ✅ | ru |    | 5 | khantibalo |
-|        5 |    | ka |    | 1 | luka |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
@@ -75,7 +75,7 @@ Run the script with:
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
 
-**Total:**    14072 files
+**Total:**    14074 files
 
 ## Inclusion Criteria
 
