@@ -315,7 +315,10 @@ public actor EbtSeeker {
     query: String,
   ) async -> [Segment] {
     let lemmaWords = lemmatize(query)
-    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(suttaRef, lemmaWords: lemmaWords)
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(
+      suttaRef,
+      lemmaWords: lemmaWords,
+    )
     return segments
   }
 

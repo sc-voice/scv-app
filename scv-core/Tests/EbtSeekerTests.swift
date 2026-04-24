@@ -21,9 +21,16 @@ struct EbtSeekerTests {
       return
     }
 
-    let results = await seeker.searchWithinSutta(suttaRef: ref, query: "suffering")
+    let results = await seeker.searchWithinSutta(
+      suttaRef: ref,
+      query: "suffering",
+    )
     #expect(results.count > 0, "Should find segments with 'suffering'")
-    #expect(results.allSatisfy { $0.matched }, "All results should have matched=true")
+    let allMatched = results.allSatisfy(\.matched)
+    #expect(
+      allMatched,
+      "All results should have matched=true",
+    )
   }
 
   @Test("searchWithinSutta with empty query returns empty")

@@ -197,7 +197,10 @@ public actor EbtData {
     ) else {
       return []
     }
-    return await ebtData.segmentsOfSuttaWithLemmaMatch(suttaRef, lemmaWords: lemmaWords)
+    return await ebtData.segmentsOfSuttaWithLemmaMatch(
+      suttaRef,
+      lemmaWords: lemmaWords,
+    )
   }
 
   /// Static convenience method to get segments for a SuttaRef
@@ -940,7 +943,8 @@ public actor EbtData {
   }
 
   /// Returns segments matching lemmatized query within a single sutta
-  /// Executes: SELECT scid, text FROM segments WHERE suttaUid = ? AND lemmas LIKE %
+  /// Executes: SELECT scid, text FROM segments WHERE suttaUid = ? AND lemmas
+  /// LIKE %
   /// - Parameters:
   ///   - suttaRef: The sutta reference (contains lang, author, suttaUid)
   ///   - lemmaWords: Array of lemmatized words to match

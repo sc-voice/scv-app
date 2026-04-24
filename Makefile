@@ -216,7 +216,8 @@ _rebuild: _local scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@$(MAKE) _test-app 2>&1 | tee -a $(LOG_FILE); \
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
-	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
+	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi; \
+	afplay scv-ui/Sources/scvUI/Resources/Audio/370507__craigmaloney__bell.mp3
 
 release: _init
 	@echo "=== MAKE release" | tee -a $(LOG_FILE)

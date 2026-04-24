@@ -193,7 +193,10 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                   )
                 }
                 Button(action: { showSearchModal = true }) {
-                  Label("search.within_sutta".localized, systemImage: "magnifyingglass")
+                  Label(
+                    "search.within_sutta".localized,
+                    systemImage: "magnifyingglass",
+                  )
                 }
               }
               if let onSettingsTap {
@@ -409,7 +412,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
         searchQuery: $card.searchQuery,
         suttaRef: suttaRef,
         currentScid: card.mlDoc?.currentScid,
-        onSelectSegment: goToSegment
+        onSelectSegment: goToSegment,
       )
     }
   }

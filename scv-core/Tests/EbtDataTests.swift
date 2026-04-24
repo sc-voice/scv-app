@@ -15,9 +15,16 @@ struct EbtDataTests {
       return
     }
 
-    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(ref, lemmaWords: ["suffer"])
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(
+      ref,
+      lemmaWords: ["suffer"],
+    )
     #expect(segments.count > 0, "Should find segments with 'suffer' lemma")
-    #expect(segments.allSatisfy { $0.matched }, "All results should have matched=true")
+    let allMatched = segments.allSatisfy(\.matched)
+    #expect(
+      allMatched,
+      "All results should have matched=true",
+    )
   }
 
   @Test("segmentsOfSuttaWithLemmaMatch with empty lemmas returns empty")
@@ -27,7 +34,10 @@ struct EbtDataTests {
       return
     }
 
-    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(ref, lemmaWords: [])
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(
+      ref,
+      lemmaWords: [],
+    )
     #expect(segments.isEmpty, "Empty lemma words should return no results")
   }
 

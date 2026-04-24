@@ -27,10 +27,10 @@ struct SearchWithinSuttaModal: View {
         SearchField(
           query: $searchQuery,
           isSearching: $isSearching,
-          onSearch: performSearch
+          onSearch: performSearch,
         )
 
-        if results.isEmpty && !searchQuery.isEmpty && !isSearching {
+        if results.isEmpty, !searchQuery.isEmpty, !isSearching {
           VStack(alignment: .center, spacing: 12) {
             Image(systemName: "magnifyingglass")
               .font(.title)
@@ -44,7 +44,7 @@ struct SearchWithinSuttaModal: View {
           SearchResultsList(
             results: results,
             currentScid: currentScid,
-            onSelectSegment: selectSegment
+            onSelectSegment: selectSegment,
           )
         }
       }
@@ -54,26 +54,29 @@ struct SearchWithinSuttaModal: View {
       .tint(themeProvider.theme.toolbarForeground)
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(themeProvider.theme.toolbarBackground, for: .navigationBar)
+        .toolbarBackground(
+          themeProvider.theme.toolbarBackground,
+          for: .navigationBar,
+        )
         .toolbarBackground(.visible, for: .navigationBar)
       #endif
-      .toolbar {
-        #if os(iOS)
-          ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: { dismiss() }) {
-              Image(systemName: "xmark")
-                .foregroundColor(themeProvider.theme.toolbarForeground)
+        .toolbar {
+          #if os(iOS)
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(action: { dismiss() }) {
+                Image(systemName: "xmark")
+                  .foregroundColor(themeProvider.theme.toolbarForeground)
+              }
             }
-          }
-        #else
-          ToolbarItem(placement: .automatic) {
-            Button(action: { dismiss() }) {
-              Image(systemName: "xmark")
-                .foregroundColor(themeProvider.theme.toolbarForeground)
+          #else
+            ToolbarItem(placement: .automatic) {
+              Button(action: { dismiss() }) {
+                Image(systemName: "xmark")
+                  .foregroundColor(themeProvider.theme.toolbarForeground)
+              }
             }
-          }
-        #endif
-      }
+          #endif
+        }
     }
   }
 
@@ -87,7 +90,10 @@ struct SearchWithinSuttaModal: View {
     Task {
       do {
         let seeker = try await EbtData.getSeeker(suttaRef: suttaRef)
-        let segments = await seeker.searchWithinSutta(suttaRef: suttaRef, query: searchQuery)
+        let segments = await seeker.searchWithinSutta(
+          suttaRef: suttaRef,
+          query: searchQuery,
+        )
         await MainActor.run {
           results = segments
           isSearching = false
@@ -149,7 +155,10 @@ struct SearchResultsList: View {
   let onSelectSegment: (Segment) -> Void
 
   private var nearestScid: String? {
-    (results.first(where: { SuttaCentralId.compareLow($0.scid, currentScid ?? "") >= 0 })
+    (results.first(where: { SuttaCentralId.compareLow(
+      $0.scid,
+      currentScid ?? "",
+    ) >= 0 })
       ?? results.first)?.scid
   }
 
@@ -157,14 +166,17 @@ struct SearchResultsList: View {
     ScrollViewReader { proxy in
       List {
         ForEach(results, id: \.scid) { segment in
-          SearchResultRow(segment: segment, isNearest: segment.scid == nearestScid)
-            .onTapGesture { onSelectSegment(segment) }
-            .id(segment.scid)
-            .listRowBackground(
-              segment.scid == nearestScid
-                ? themeProvider.theme.accentColor.opacity(0.15)
-                : themeProvider.theme.backgroundColor
-            )
+          SearchResultRow(
+            segment: segment,
+            isNearest: segment.scid == nearestScid,
+          )
+          .onTapGesture { onSelectSegment(segment) }
+          .id(segment.scid)
+          .listRowBackground(
+            segment.scid == nearestScid
+              ? themeProvider.theme.accentColor.opacity(0.15)
+              : themeProvider.theme.backgroundColor,
+          )
         }
       }
       .listStyle(.plain)
@@ -188,7 +200,8 @@ struct SearchResultRow: View {
     VStack(alignment: .leading, spacing: 4) {
       Text(segment.scid)
         .font(.caption)
-        .foregroundColor(isNearest ? themeProvider.theme.accentColor : themeProvider.theme.secondaryTextColor)
+        .foregroundColor(isNearest ? themeProvider.theme
+          .accentColor : themeProvider.theme.secondaryTextColor)
 
       if let doc = segment.doc {
         Text(truncateText(doc, maxLength: 100))
@@ -208,4 +221,3 @@ struct SearchResultRow: View {
     return text
   }
 }
-
