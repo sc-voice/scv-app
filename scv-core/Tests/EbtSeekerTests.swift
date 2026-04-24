@@ -13,6 +13,31 @@ import Testing
 struct EbtSeekerTests {
   let cc = ColorConsole(#file, #function, dbg.EbtSeeker.other)
 
+  @Test("searchWithinSutta returns matching segments")
+  func searchWithinSuttaMatches() async throws {
+    let seeker = try await EbtData.getSeeker(lang: "en", author: "sujato")
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let results = await seeker.searchWithinSutta(suttaRef: ref, query: "suffering")
+    #expect(results.count > 0, "Should find segments with 'suffering'")
+    #expect(results.allSatisfy { $0.matched }, "All results should have matched=true")
+  }
+
+  @Test("searchWithinSutta with empty query returns empty")
+  func searchWithinSuttaEmptyQuery() async throws {
+    let seeker = try await EbtData.getSeeker(lang: "en", author: "sujato")
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let results = await seeker.searchWithinSutta(suttaRef: ref, query: "")
+    #expect(results.isEmpty, "Empty query should return no results")
+  }
+
   @Test("getSeeker with invalid author throws error")
   func getSeekerInvalidAuthor() async throws {
     do {

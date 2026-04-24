@@ -1,0 +1,93 @@
+{
+  "id": "0Ps_KhfR00-9g54-xfnCtW",
+  "name": "search within sutta",
+  "summary": "Add search menu item to sutta card that opens modal dialog allowing user to search/filter segments within the current sutta",
+  "rawActions": [
+    {
+      "id": "0Ps_MwMW00-9g54-xfnCtW",
+      "name": "handle lemmatized search query",
+      "summary": "Use lemmatizer to convert searchQuery to lemmas, query matching segments: SELECT scid, text FROM segments WHERE suttaUid = ? AND lemmas LIKE %, return matching segments only",
+      "status": "done",
+      "statusNote": "ok"
+    },
+    {
+      "id": "0Ps_MwvW00-9g54-xfnCtW",
+      "name": "display search results modal",
+      "summary": "Modal with search field, scrollable 2-row results (scid + truncated text with ellipsis), highlight matched lemmas with accentColor, auto-scroll to first match >= current segment, tap to goto segment and close",
+      "status": "done",
+      "statusNote": "ok"
+    },
+    {
+      "id": "0Ps_ebJ200-9g54-xfnCtW",
+      "name": "localize search within sutta: Find segment",
+      "summary": "Localize 'search.within_sutta' string to all 7 languages",
+      "status": "done",
+      "statusNote": "ok"
+    },
+    {
+      "id": "0Ps_oxoS00-9g54-xfnCtW",
+      "name": "search modal light mode",
+      "summary": "Use themeProvider theme colors throughout SearchWithinSuttaModal (textColor, toolbarBackground, etc.) instead of hardcoded .gray or system colors",
+      "status": "done",
+      "statusNote": "done: light mode implemented"
+    },
+    {
+      "id": "0Ps_pE7J00-9g54-xfnCtW",
+      "name": "search modal searchQuery",
+      "summary": "Bind modal search field to card.searchQuery instead of local @State so query persists when modal is dismissed and reopened; pass card binding into SearchWithinSuttaModal",
+      "status": "done",
+      "statusNote": "done: searchQuery binding implemented"
+    },
+    {
+      "id": "0Ps_pW6U00-9g54-xfnCtW",
+      "name": "search modal use close X",
+      "summary": "Replace Button('button.close'.localized) with Image(systemName: 'xmark') toolbar button in SearchWithinSuttaModal",
+      "status": "done",
+      "statusNote": "done: xmark close button implemented"
+    },
+    {
+      "id": "0Ps_ugTV00-9g54-xfnCtW",
+      "name": "modal find on open",
+      "summary": "When modal opens with non-blank searchQuery, auto-search and scroll so first result at-or-after currentScid is at top of list",
+      "status": "done",
+      "statusNote": "done: auto-search and scroll on modal open implemented"
+    },
+    {
+      "id": "0Pt0BWBP00-9g54-xfnCtW",
+      "name": "decrease segment visibility when ellipsis menu is shown",
+      "summary": "Replace Menu with Button + .confirmationDialog(isPresented: $showMoreMenu) for reliable state. Apply .opacity(showMoreMenu ? 0.5 : 1.0) to ScrollView in SuttaCardView. Native Menu has no isPresented binding.",
+      "status": "done",
+      "statusNote": "rejected due to complexity"
+    }
+  ],
+  "rawReferences": [
+    {
+      "id": "0Ps_KwvQ00-9g54-xfnCtW",
+      "name": "SuttaCardView.swift",
+      "summary": "Add search menu item to More menu and handle search modal logic",
+      "relevance": 1,
+      "source": ""
+    },
+    {
+      "id": "0Ps_LP2I00-9g54-xfnCtW",
+      "name": "Card.swift",
+      "summary": "Check/use suttaQuery property for search within sutta",
+      "relevance": 1,
+      "source": ""
+    },
+    {
+      "id": "0Ps_WHd_00-9g54-xfnCtW",
+      "name": "EbtData.swift",
+      "summary": "Add segmentsOfSuttaRef method or implement lemma search query for single sutta",
+      "relevance": 1,
+      "source": ""
+    },
+    {
+      "id": "0Ps_WICB00-9g54-xfnCtW",
+      "name": "EbtSeeker.swift",
+      "summary": "Reference for lemmatizer usage pattern and findLemmaMatch implementation",
+      "relevance": 1,
+      "source": ""
+    }
+  ]
+}

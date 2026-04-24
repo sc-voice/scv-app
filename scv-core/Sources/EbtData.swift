@@ -181,6 +181,25 @@ public actor EbtData {
     return mlDoc
   }
 
+  /// Static convenience method to get segments matching lemmas for a SuttaRef
+  /// Uses factory to create/retrieve instance for the suttaRef's lang/author
+  /// - Parameters:
+  ///   - suttaRef: SuttaRef containing language, author, and sutta identifier
+  ///   - lemmaWords: Array of lemmatized words to match
+  /// - Returns: Array of matching Segment objects, or empty array if not found
+  public static func segmentsOfSuttaWithLemmaMatch(
+    _ suttaRef: SuttaRef,
+    lemmaWords: [String],
+  ) async -> [Segment] {
+    guard let ebtData = await forLangAuthor(
+      lang: suttaRef.lang,
+      author: suttaRef.author,
+    ) else {
+      return []
+    }
+    return await ebtData.segmentsOfSuttaWithLemmaMatch(suttaRef, lemmaWords: lemmaWords)
+  }
+
   /// Static convenience method to get segments for a SuttaRef
   /// Uses factory to create/retrieve instance for the suttaRef's lang/author
   /// - Parameter suttaRef: SuttaRef containing language, author, and sutta
@@ -917,6 +936,57 @@ public actor EbtData {
           detail: error.localizedDescription,
         ),
       )
+    }
+  }
+
+  /// Returns segments matching lemmatized query within a single sutta
+  /// Executes: SELECT scid, text FROM segments WHERE suttaUid = ? AND lemmas LIKE %
+  /// - Parameters:
+  ///   - suttaRef: The sutta reference (contains lang, author, suttaUid)
+  ///   - lemmaWords: Array of lemmatized words to match
+  /// - Returns: Array of matching Segment objects in document order
+  func segmentsOfSuttaWithLemmaMatch(
+    _ suttaRef: SuttaRef,
+    lemmaWords: [String],
+  ) async -> [Segment] {
+    guard !lemmaWords.isEmpty else { return [] }
+
+    do {
+      let db = try getDatabaseForLangAuthor(
+        lang: suttaRef.lang,
+        author: suttaRef.author ?? "",
+      )
+
+      let likePattern = "% " + lemmaWords.joined(separator: " ") + " %"
+      let sqlQuery = "SELECT scid, text FROM segments WHERE suttaUid = ? AND lemmas LIKE ?"
+      let suttaUid = suttaRef.suttaUid
+
+      var stmt: OpaquePointer?
+      guard sqlite3_prepare_v2(db, sqlQuery, -1, &stmt, nil) == SQLITE_OK else {
+        return []
+      }
+      defer { sqlite3_finalize(stmt) }
+
+      sqlite3_bind_text(stmt, 1, (suttaUid as NSString).utf8String, -1, nil)
+      sqlite3_bind_text(stmt, 2, (likePattern as NSString).utf8String, -1, nil)
+
+      var segments: [Segment] = []
+      while sqlite3_step(stmt) == SQLITE_ROW {
+        guard let scidC = sqlite3_column_text(stmt, 0) else { continue }
+        let scid = String(cString: scidC)
+        let text = if let textC = sqlite3_column_text(stmt, 1) {
+          String(cString: textC)
+        } else {
+          ""
+        }
+        let segment = Segment(scid: scid, doc: text, matched: true)
+        segments.append(segment)
+      }
+
+      segments.sort { SuttaCentralId.compareLow($0.scid, $1.scid) < 0 }
+      return segments
+    } catch {
+      return []
     }
   }
 

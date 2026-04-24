@@ -304,6 +304,21 @@ public actor EbtSeeker {
     return nil
   }
 
+  /// Search for segments within a single sutta matching lemmatized query
+  /// Used for in-sutta search feature
+  /// - Parameters:
+  ///   - suttaRef: The sutta to search within
+  ///   - query: Search query to lemmatize
+  /// - Returns: Array of matching segments in document order
+  public func searchWithinSutta(
+    suttaRef: SuttaRef,
+    query: String,
+  ) async -> [Segment] {
+    let lemmaWords = lemmatize(query)
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(suttaRef, lemmaWords: lemmaWords)
+    return segments
+  }
+
   /// Query total segment count for this sutta
   func querySegmentCount(suttaRef: SuttaRef) async throws -> Int? {
     // Get all segments and count them

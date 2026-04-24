@@ -7,15 +7,29 @@
       "id": "0PsrEGLH00u_KkoOU3qU7W",
       "name": "Add More menu",
       "summary": "Remove title/author VStack (lines 115-134), restructure HStack: play button left, Spacer(), Menu button right with ellipsis.circle icon (More icon per Apple HIG). Menu styling matches play button (title2 font, same foreground). Menu button: minWidth/minHeight 44.",
-      "status": "manage",
-      "statusNote": "Implemented and fixed: separated toolbar into two ToolbarItems (.principal for play, .navigationBarTrailing for More menu)"
+      "status": "done",
+      "statusNote": "ok"
     },
     {
       "id": "0PsrEGzO00u_KkoOU3qU7W",
       "name": "Add background playback menu item",
       "summary": "Add 'Background playback' action to More menu (ellipsis.circle). Keep existing contextMenu on play button unchanged.",
-      "status": "manage",
-      "statusNote": "Implemented: More menu with background playback action in navigationBarTrailing position"
+      "status": "done",
+      "statusNote": "ok"
+    },
+    {
+      "id": "0Ps_IF6C00u_KkoOU3qU7W",
+      "name": "add search menu item",
+      "summary": "Opens up a modal dialog that allows the user to view/edit the sutta search text",
+      "status": "done",
+      "statusNote": "done: search menu item added"
+    },
+    {
+      "id": "0Ps_KSe400u_KkoOU3qU7W",
+      "name": "search within sutta",
+      "summary": "Add search menu item to sutta card that opens modal dialog allowing user to search/filter segments within the current sutta",
+      "status": "done",
+      "statusNote": "done: search within sutta implemented"
     }
   ],
   "rawReferences": [

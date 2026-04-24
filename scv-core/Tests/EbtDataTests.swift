@@ -8,6 +8,29 @@ import Testing
 struct EbtDataTests {
   let cc = ColorConsole(#file, #function, dbg.EbtData.other)
 
+  @Test("segmentsOfSuttaWithLemmaMatch returns matching segments")
+  func segmentsOfSuttaWithLemmaMatchValid() async {
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(ref, lemmaWords: ["suffer"])
+    #expect(segments.count > 0, "Should find segments with 'suffer' lemma")
+    #expect(segments.allSatisfy { $0.matched }, "All results should have matched=true")
+  }
+
+  @Test("segmentsOfSuttaWithLemmaMatch with empty lemmas returns empty")
+  func segmentsOfSuttaWithLemmaMatchEmpty() async {
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(ref, lemmaWords: [])
+    #expect(segments.isEmpty, "Empty lemma words should return no results")
+  }
+
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
     await EbtData.shared.clearDatabaseCache()

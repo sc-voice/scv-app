@@ -1,20 +1,5 @@
 {
-  "focusStack": [
-    {
-      "id": "0PsrEGKM00u_KkoOU3qU7W",
-      "formaId": "0PsrD0LA00u_KkoOU3qU7W",
-      "formaType": "task",
-      "name": "Add hamburger menu to sutta card menu bar",
-      "summary": "Replace sutta title text with hamburger menu. Menu bar should display 3 icons: back button (<), play button, and hamburger menu (☰). Hamburger menu must include 'Background playback' action (same as long-press on play button)."
-    },
-    {
-      "id": "0PsrU4sp00LiMpHWujMQtW",
-      "formaId": "0PsrU3EP00LiMpHWujMQtW",
-      "formaType": "task",
-      "name": "Add Settings action to More menu",
-      "summary": "Add Settings button to the More menu in SuttaCardView that triggers the settings popup. Implemented with onSettingsTap callback parameter and Settings button in the More Menu."
-    }
-  ],
+  "focusStack": [],
   "id": "0PsWl_-y00bhP6g_km6gdW",
   "numeronym": {}
 }

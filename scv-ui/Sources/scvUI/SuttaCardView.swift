@@ -34,6 +34,7 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
   @State private var showBackgroundPlayerView = false
   @State private var showBackgroundPlaybackTip = false
   @State private var scrollOffset: CGFloat = 0
+  @State private var showSearchModal = false
   let onSettingsTap: (() -> Void)?
   let cc = ColorConsole(#file, #function, dbg.SuttaCardView.other)
   @Environment(\.accessibilityReduceMotion) var reduceMotion
@@ -118,6 +119,11 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
     )
   }
 
+  private func goToSegment(_ segment: Segment) {
+    card.mlDoc?.currentScid = segment.scid
+    cc.ok1(#line, #function, "navigated to segment: \(segment.scid)")
+  }
+
   private var suttaCentralUrl: URL? {
     guard isSuttaCentral, let mlDoc = card.mlDoc else { return nil }
     let urlString = "https://suttacentral.net/\(mlDoc.sutta_uid)/\(mlDoc.docLang)/\(mlDoc.docAuthor)"
@@ -185,6 +191,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
                     "synthesis.background_playback".localized,
                     systemImage: "waveform.circle.fill",
                   )
+                }
+                Button(action: { showSearchModal = true }) {
+                  Label("search.within_sutta".localized, systemImage: "magnifyingglass")
                 }
               }
               if let onSettingsTap {
@@ -373,6 +382,9 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       .sheet(isPresented: $showBackgroundPlayerView) {
         backgroundPlayerSheet
       }
+      .sheet(isPresented: $showSearchModal) {
+        searchModalSheet
+      }
       .onChange(of: backgroundPlayer?.playbackSnapshot) { _, newSnapshot in
         if let mlDoc = card.mlDoc, let segment = newSnapshot?.segment {
           mlDoc.currentScid = segment.scid
@@ -386,6 +398,20 @@ public struct SuttaCardView<Card: ICard, Manager: ICardManager>: View
       message: player.voiceErrorMessage,
       onOK: { player.resetPlayer() },
     )
+  }
+
+  // MARK: - SearchModalSheet
+
+  @ViewBuilder
+  private var searchModalSheet: some View {
+    if let suttaRef {
+      SearchWithinSuttaModal(
+        searchQuery: $card.searchQuery,
+        suttaRef: suttaRef,
+        currentScid: card.mlDoc?.currentScid,
+        onSelectSegment: goToSegment
+      )
+    }
   }
 
   // MARK: - BackgroundPlayerSheet
