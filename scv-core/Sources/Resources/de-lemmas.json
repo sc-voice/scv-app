@@ -817,9 +817,11 @@
 {"ausrottet":"ausrotten"}
 {"ausrottete":"ausrotten"}
 {"ausrufe":"ausrufen"}
+{"ausruft":"ausrufen"}
 {"ausruht":"ausruhen"}
 {"aussage":"aussagen"}
 {"aussah":"aussehen"}
+{"ausschaut":"ausschauen"}
 {"ausscheidungen":"ausscheidung"}
 {"ausschlägt":"ausschlagen"}
 {"ausschnitt":"ausschneiden"}
@@ -2297,6 +2299,7 @@
 {"einsetzten":"einsetzen"}
 {"einsichten":"einsicht"}
 {"einsieht":"einsehen"}
+{"einsinkt":"einsinken"}
 {"einstellt":"einstellen"}
 {"eintauche":"eintauchen"}
 {"eintauchst":"eintauchen"}
@@ -2555,6 +2558,7 @@
 {"erbärmlichen":"erbärmlich"}
 {"erbärmliches":"erbärmlich"}
 {"erdachte":"erdenken"}
+{"erdenkliche":"erdenklich"}
 {"erdenklichen":"erdenklich"}
 {"erdreistet":"erdreisten"}
 {"erdreisteten":"erdreisten"}
@@ -3148,6 +3152,7 @@
 {"formlosen":"formlos"}
 {"formloses":"formlos"}
 {"formt":"formen"}
+{"forschte":"forschen"}
 {"fortbestand":"fortbestehen"}
 {"fortbestanden":"fortbestehen"}
 {"fortbestehe":"fortbestehen"}
@@ -3222,6 +3227,7 @@
 {"freu":"freuen"}
 {"freuden":"freude"}
 {"freudige":"freudig"}
+{"freudigem":"freudig"}
 {"freudigen":"freudig"}
 {"freudvollen":"freudvoll"}
 {"freund":"freunden"}
@@ -3278,6 +3284,7 @@
 {"früheren":"früh"}
 {"früherer":"früh"}
 {"früheres":"früh"}
+{"frühester":"früh"}
 {"frühstück":"frühstücken"}
 {"fuchtelt":"fuchteln"}
 {"fuhr":"fahren"}
@@ -3326,8 +3333,8 @@
 {"führt":"führen"}
 {"führte":"führen"}
 {"führten":"führen"}
-{"füll":"füllen"}
 {"fülle":"füllen"}
+{"füll":"füllen"}
 {"füllst":"füllen"}
 {"füllt":"füllen"}
 {"füllte":"füllen"}
@@ -3369,10 +3376,12 @@
 {"garten":"garen"}
 {"gastgeschenke":"gastgeschenk"}
 {"gasthäusern":"gasthaus"}
+{"gasthöfe":"gasthof"}
 {"gatte":"gatten"}
 {"gattungen":"gattung"}
 {"geachtet":"achten"}
 {"geachtete":"achten"}
+{"geachteten":"achten"}
 {"geachteter":"achten"}
 {"gealtert":"altern"}
 {"geantwortet":"antworten"}
@@ -3814,6 +3823,7 @@
 {"gerann":"gerinnen"}
 {"gerate":"geraten"}
 {"geratet":"geraten"}
+{"geraubt":"rauben"}
 {"gerechnet":"rechnen"}
 {"gerecht":"rechen"}
 {"gerechte":"gerecht"}
@@ -4254,6 +4264,7 @@
 {"glänzenden":"glänzend"}
 {"glänzender":"glänzen"}
 {"gläubigern":"gläubiger"}
+{"glückes":"glück"}
 {"glückliche":"glücklich"}
 {"glücklichem":"glücklich"}
 {"glücklichen":"glücklich"}
@@ -5130,6 +5141,7 @@
 {"kindern":"kind"}
 {"kinderspiele":"kinderspiel"}
 {"kindes":"kind"}
+{"kindeskindern":"kindeskind"}
 {"kindische":"kindisch"}
 {"kippt":"kippen"}
 {"klage":"klagen"}
@@ -5373,6 +5385,7 @@
 {"künftiges":"künftig"}
 {"künste":"kunst"}
 {"künsten":"kunst"}
+{"kürbisse":"kürbis"}
 {"kürzer":"kurz"}
 {"kürzere":"kurz"}
 {"kürzeren":"kurz"}
@@ -6059,6 +6072,7 @@
 {"niederen":"nieder"}
 {"niederer":"nieder"}
 {"niedergangs":"niedergang"}
+{"niedergebrannt":"niederbrennen"}
 {"niedergelassen":"niederlassen"}
 {"niedergelegt":"niederlegen"}
 {"niedergemacht":"niedermachen"}
@@ -6567,6 +6581,7 @@
 {"ruhmreichen":"ruhmreich"}
 {"ruhms":"ruhm"}
 {"ruhst":"ruhen"}
+{"ruhte":"ruhen"}
 {"runde":"runden"}
 {"rundungen":"rundung"}
 {"runzelige":"runzelig"}
@@ -6736,6 +6751,7 @@
 {"schimmernd":"schimmern"}
 {"schimmernde":"schimmern"}
 {"schimmerndem":"schimmern"}
+{"schimmernden":"schimmern"}
 {"schimmerndes":"schimmern"}
 {"schimpfworte":"schimpfwort"}
 {"schindet":"schinden"}
@@ -6986,6 +7002,7 @@
 {"schwillt":"schwellen"}
 {"schwimme":"schwimmen"}
 {"schwimmend":"schwimmen"}
+{"schwimmendes":"schwimmen"}
 {"schwimmt":"schwimmen"}
 {"schwindet":"schwinden"}
 {"schwindlern":"schwindler"}
@@ -7008,6 +7025,7 @@
 {"schädlichen":"schädlich"}
 {"schädlicher":"schädlich"}
 {"schämt":"schämen"}
+{"schänken":"schank"}
 {"schätze":"schätzen"}
 {"schätzt":"schätzen"}
 {"schöne":"schönen"}
@@ -7996,6 +8014,7 @@
 {"unendliches":"unendlich"}
 {"unentwickelten":"unentwickelt"}
 {"unerfreuliche":"unerfreulich"}
+{"unerfreulichen":"unerfreulich"}
 {"unerfüllten":"unerfüllt"}
 {"unerkannte":"unerkannt"}
 {"unerlaubten":"unerlaubt"}
@@ -8010,6 +8029,7 @@
 {"unerreichte":"unerreicht"}
 {"unerreichtem":"unerreicht"}
 {"unerreichter":"unerreicht"}
+{"unerschrockenem":"unerschrocken"}
 {"unerschrockenen":"unerschrocken"}
 {"unerschütterliche":"unerschütterlich"}
 {"unerschütterlichem":"unerschütterlich"}
@@ -8309,6 +8329,7 @@
 {"verankerte":"verankern"}
 {"veranlasst":"veranlassen"}
 {"veranlasste":"veranlassen"}
+{"veranschaulichte":"veranschaulichen"}
 {"verarbeitet":"verarbeiten"}
 {"verbale":"verbal"}
 {"verbalen":"verbal"}
@@ -8431,6 +8452,7 @@
 {"verfechte":"verfechten"}
 {"verfechtet":"verfechten"}
 {"verfehlst":"verfehlen"}
+{"verfehlt":"verfehlen"}
 {"verfehlungen":"verfehlung"}
 {"verfeinert":"verfeinern"}
 {"verfestigt":"verfestigen"}
@@ -8732,6 +8754,7 @@
 {"versorge":"versorgen"}
 {"versorgt":"versorgen"}
 {"versorgte":"versorgen"}
+{"verspotteten":"verspotten"}
 {"versprach":"versprechen"}
 {"versprochen":"versprechen"}
 {"verstand":"verstehen"}
@@ -9139,6 +9162,7 @@
 {"wartet":"warten"}
 {"wartete":"warten"}
 {"warteten":"warten"}
+{"warzen":"warze"}
 {"wasch":"waschen"}
 {"wasche":"waschen"}
 {"wascht":"waschen"}
@@ -9411,6 +9435,7 @@
 {"wirkst":"wirken"}
 {"wirkt":"wirken"}
 {"wirst":"werden"}
+{"wirtshäuser":"wirtshaus"}
 {"wischte":"wischen"}
 {"wissend":"wissen"}
 {"wissende":"wissen"}
@@ -9514,6 +9539,7 @@
 {"wärmte":"wärmen"}
 {"wärst":"sein"}
 {"wäscht":"waschen"}
+{"wässrigen":"wässrig"}
 {"wöge":"wiegen"}
 {"wölbungen":"wölbung"}
 {"wörter":"wort"}
