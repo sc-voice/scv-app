@@ -100,6 +100,9 @@
 /* About card view: full-text search description */
 "about.feature.search.desc" = "Durchsuche Tausende von Suttas";
 
+/* Search within sutta modal title and menu item */
+"search.within_sutta" = "Suchen";
+
 /* About card view: graphics & design intro */
 "about.graphics_design.intro" = "Hintergrundbilder und Design:";
 
@@ -132,6 +135,9 @@
 
 /* About card view: overview description */
 "about.overview.description" = "Durchsuche, lies und höre ausgerichtete frühe buddhistische Texte (Suttas) von SuttaCentral von ausgewählten Autoren in mehreren Sprachen offline.";
+
+/* About card view: overview subtitle */
+"overview.subtitle" = "Ein Leseprogramm begleitend zu SuttaCentral";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice achtet deine Privatsphäre:";

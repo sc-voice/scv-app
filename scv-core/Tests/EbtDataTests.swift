@@ -8,6 +8,39 @@ import Testing
 struct EbtDataTests {
   let cc = ColorConsole(#file, #function, dbg.EbtData.other)
 
+  @Test("segmentsOfSuttaWithLemmaMatch returns matching segments")
+  func segmentsOfSuttaWithLemmaMatchValid() async {
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(
+      ref,
+      lemmaWords: ["suffer"],
+    )
+    #expect(segments.count > 0, "Should find segments with 'suffer' lemma")
+    let allMatched = segments.allSatisfy(\.matched)
+    #expect(
+      allMatched,
+      "All results should have matched=true",
+    )
+  }
+
+  @Test("segmentsOfSuttaWithLemmaMatch with empty lemmas returns empty")
+  func segmentsOfSuttaWithLemmaMatchEmpty() async {
+    guard let ref = SuttaRef.create("mn1/en/sujato") else {
+      Issue.record("Could not create sutta reference")
+      return
+    }
+
+    let segments = await EbtData.segmentsOfSuttaWithLemmaMatch(
+      ref,
+      lemmaWords: [],
+    )
+    #expect(segments.isEmpty, "Empty lemma words should return no results")
+  }
+
   @Test("searchSuttaRef returns single result for valid sutta reference")
   func searchSuttaRefValid() async {
     await EbtData.shared.clearDatabaseCache()
@@ -137,7 +170,11 @@ struct EbtDataTests {
     guard let mlDoc else { return }
 
     // Load source file to compare formatting
-    let sourceFile = "/Users/visakha/dev/scv-app/local/ebt-data/translation/en/sujato/sutta/an/an1/an1.1-10_translation-en-sujato.json"
+    let sourceFile = projectRoot()
+      .appendingPathComponent(
+        "local/ebt-data/translation/en/sujato/sutta/an/an1/an1.1-10_translation-en-sujato.json",
+      )
+      .path
     guard let sourceJson = try? String(
       contentsOfFile: sourceFile,
       encoding: .utf8,

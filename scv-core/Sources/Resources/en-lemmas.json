@@ -149,6 +149,7 @@
 {"alcoholics":"alcoholic"}
 {"alienated":"alienate"}
 {"alighting":"alight"}
+{"alights":"alight"}
 {"allayed":"allay"}
 {"allaying":"allay"}
 {"allays":"allay"}
@@ -377,10 +378,10 @@
 {"bands":"band"}
 {"bangles":"bangle"}
 {"banished":"banish"}
-{"banishing":"banish"}
 {"banisters":"banister"}
 {"banks":"bank"}
 {"banners":"banner"}
+{"barbering":"barber"}
 {"barbers":"barber"}
 {"barred":"bar"}
 {"barrels":"barrel"}
@@ -903,7 +904,6 @@
 {"clings":"cling"}
 {"clipped":"clip"}
 {"clippers":"clipper"}
-{"cloaks":"cloak"}
 {"clods":"clod"}
 {"closed":"close"}
 {"closing":"close"}
@@ -993,7 +993,6 @@
 {"composed":"compose"}
 {"composes":"compose"}
 {"compounded":"compound"}
-{"compounds":"compound"}
 {"comprehended":"comprehend"}
 {"comprehending":"comprehend"}
 {"comprehends":"comprehend"}
@@ -1167,7 +1166,6 @@
 {"counted":"count"}
 {"counteracting":"counteract"}
 {"countering":"counter"}
-{"counterparts":"counterpart"}
 {"counters":"counter"}
 {"counting":"count"}
 {"countries":"country"}
@@ -1353,6 +1351,7 @@
 {"decreed":"decree"}
 {"decrees":"decree"}
 {"dedicated":"dedicate"}
+{"dedications":"dedication"}
 {"deeds":"deed"}
 {"deemed":"deem"}
 {"deeper":"deep"}
@@ -1451,6 +1450,7 @@
 {"designates":"designate"}
 {"designating":"designate"}
 {"designations":"designation"}
+{"designators":"designator"}
 {"designs":"design"}
 {"desired":"desire"}
 {"desires":"desire"}
@@ -1511,7 +1511,6 @@
 {"digging":"dig"}
 {"digs":"dig"}
 {"dilapidated":"dilapidate"}
-{"dildos":"dildo"}
 {"dilemmas":"dilemma"}
 {"dimensions":"dimension"}
 {"diminished":"diminish"}
@@ -1571,6 +1570,7 @@
 {"disguised":"disguise"}
 {"disgusted":"disgust"}
 {"disgusting":"disgust"}
+{"disheartened":"dishearten"}
 {"dishes":"dish"}
 {"disheveled":"dishevel"}
 {"disintegrated":"disintegrate"}
@@ -1883,6 +1883,7 @@
 {"encroaching":"encroach"}
 {"encumbered":"encumber"}
 {"endangered":"endanger"}
+{"endearing":"endear"}
 {"endeavors":"endeavor"}
 {"ended":"end"}
 {"ending":"end"}
@@ -2210,7 +2211,6 @@
 {"finishing":"finish"}
 {"firebrands":"firebrand"}
 {"fired":"fire"}
-{"fireplaces":"fireplace"}
 {"fires":"fire"}
 {"firing":"fire"}
 {"fishermen":"fisherman"}
@@ -2564,7 +2564,6 @@
 {"guards":"guard"}
 {"guardsmen":"guardsman"}
 {"guessing":"guess"}
-{"guesthouses":"guesthouse"}
 {"guests":"guest"}
 {"guided":"guide"}
 {"guidelines":"guideline"}
@@ -2596,7 +2595,6 @@
 {"hands":"hand"}
 {"handspans":"handspan"}
 {"hanging":"hang"}
-{"hangs":"hang"}
 {"hankering":"hanker"}
 {"happened":"happen"}
 {"happening":"happen"}
@@ -2673,7 +2671,6 @@
 {"hens":"hen"}
 {"herbs":"herb"}
 {"herds":"herd"}
-{"hermaphrodites":"hermaphrodite"}
 {"hermitages":"hermitage"}
 {"heroes":"hero"}
 {"herons":"heron"}
@@ -2780,6 +2777,7 @@
 {"illusions":"illusion"}
 {"illustrated":"illustrate"}
 {"illustrating":"illustrate"}
+{"illustrations":"illustration"}
 {"images":"image"}
 {"imagined":"imagine"}
 {"imagines":"imagine"}
@@ -2838,7 +2836,6 @@
 {"increasing":"increase"}
 {"incubated":"incubate"}
 {"incurred":"incur"}
-{"incurs":"incur"}
 {"indecisions":"indecision"}
 {"indentured":"indenture"}
 {"indicated":"indicate"}
@@ -3615,7 +3612,6 @@
 {"originating":"originate"}
 {"originations":"origination"}
 {"origins":"origin"}
-{"ornamentations":"ornamentation"}
 {"ornamented":"ornament"}
 {"ornaments":"ornament"}
 {"others":"other"}
@@ -3801,6 +3797,7 @@
 {"phrased":"phrase"}
 {"phrases":"phrase"}
 {"phrasing":"phrase"}
+{"phrasings":"phrasing"}
 {"physicians":"physician"}
 {"picked":"pick"}
 {"picking":"pick"}
@@ -4926,6 +4923,7 @@
 {"snakes":"snake"}
 {"snapped":"snap"}
 {"snapping":"snap"}
+{"snared":"snare"}
 {"snares":"snare"}
 {"snarled":"snarl"}
 {"snarls":"snarl"}
@@ -5245,6 +5243,7 @@
 {"suited":"suit"}
 {"suitors":"suitor"}
 {"sullied":"sully"}
+{"sullying":"sully"}
 {"summaries":"summary"}
 {"summing":"sum"}
 {"summoned":"summon"}
@@ -5359,7 +5358,6 @@
 {"tantalizing":"tantalize"}
 {"tapped":"tap"}
 {"targets":"target"}
-{"tarred":"tar"}
 {"tasks":"task"}
 {"tasted":"taste"}
 {"tastes":"taste"}
@@ -5479,6 +5477,7 @@
 {"tips":"tip"}
 {"titans":"titan"}
 {"titillations":"titillation"}
+{"toenails":"toenail"}
 {"toes":"toe"}
 {"toggles":"toggle"}
 {"told":"tell"}

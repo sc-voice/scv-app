@@ -100,6 +100,9 @@
 /* About card view: full-text search description */
 "about.feature.search.desc" = "Ieškokite tūkstančiuose sutų";
 
+/* Search within sutta modal title and menu item */
+"search.within_sutta" = "Rasti";
+
 /* About card view: graphics & design intro */
 "about.graphics_design.intro" = "Foniniai paveikslai ir temos:";
 
@@ -132,6 +135,9 @@
 
 /* About card view: overview description */
 "about.overview.description" = "Ieškokite, skaitykite ir klausykitės su SuttaCentral suderintų ankstyvųjų budistų tekstų (sutų) neprisijungus, pasirinktų autorių keliomis kalbomis.";
+
+/* About card view: overview subtitle */
+"overview.subtitle" = "Skaitytuvas, suderintas su SuttaCentral";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice gerbia jūsų privatumą:";

@@ -4,7 +4,7 @@
         clean clean-core clean-build clean-ui clean-ios clean-cache clean-lemmatizer\
 				format mock-response-view rebuild rebuild-raw release \
         version-major version-minor version-patch \
-				commit build-zst content build-db clean-db suid-list
+				commit build-zst content build-db clean-db suid-list local
 
 # Enable pipefail so exit codes are preserved when piping to tee
 SHELL := /bin/bash
@@ -23,7 +23,24 @@ _init:
 	@mkdir -p $(CURDIR)/local/build
 	@echo "=== MAKE START $$(date '+%Y-%m-%d %H:%M:%S') ===" > ${LOG_FILE}
 
-summary: 
+local: _init _local _end
+
+_local:
+	@echo "=== MAKE local..." | tee -a $(LOG_FILE)
+	@mkdir -p $(CURDIR)/local
+	@if [ ! -d "$(CURDIR)/local/ebt-data" ]; then \
+		echo "Cloning ebt-data from github..." | tee -a $(LOG_FILE); \
+		git clone git@github.com:ebt-site/ebt-data.git $(CURDIR)/local/ebt-data 2>&1 | tee -a $(LOG_FILE); \
+	else \
+		echo "ebt-data already exists at $(CURDIR)/local/ebt-data" | tee -a $(LOG_FILE); \
+	fi
+	@mkdir -p $(CURDIR)/local/audio
+	@mkdir -p $(CURDIR)/local/test-audio
+	@mkdir -p $(CURDIR)/local/test-audio-m4a
+	@mkdir -p $(CURDIR)/local/build
+	@echo "✓ Local directories initialized" | tee -a $(LOG_FILE)
+
+summary:
 	@echo
 	@echo MAKE SUMMARY:
 	@grep -E $(TEST_ALL_FILTER) $(LOG_FILE) < ${LOG_FILE} || true
@@ -190,7 +207,7 @@ _build-ios: _build-ui
 
 rebuild: _init _rebuild _end
 
-_rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst 
+_rebuild: _local scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@echo "=== MAKE rebuild" | tee -a $(LOG_FILE)
 	@scripts/version patch 2>&1 | tee -a ${LOG_FILE}
 	@$(MAKE) _clean 2>&1 | tee -a $(LOG_FILE); \
@@ -199,7 +216,8 @@ _rebuild: scv-core/Sources/Resources/ebt-en-soma.db.zst
 	@$(MAKE) _test-app 2>&1 | tee -a $(LOG_FILE); \
 	if [ $${PIPESTATUS[0]} -ne 0 ]; then echo "=== MAKE TEST FAILED" | tee -a $(LOG_FILE); exit 1; fi
 	@$(MAKE) _build-ios 2>&1 | tee -a $(LOG_FILE); \
-	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi
+	if [ $$? -ne 0 ]; then echo "=== MAKE BUILD FAILED" | tee -a $(LOG_FILE); exit 1; fi; \
+	afplay scv-ui/Sources/scvUI/Resources/Audio/370507__craigmaloney__bell.mp3
 
 release: _init
 	@echo "=== MAKE release" | tee -a $(LOG_FILE)
@@ -277,6 +295,8 @@ _clean-content: _clean-lemmatizer _clean-cache
 	@echo "Cleared .zst database resource files" 2>&1 | tee -a ${LOG_FILE}
 	@rm -f scv-core/Sources/Resources/*.db 2>/dev/null || true
 	@echo "Cleared .db database resource files" 2>&1 | tee -a ${LOG_FILE}
+	@rm -f local/build/ebt-*.db 2>/dev/null || true
+	@echo "Cleared .db database build files" 2>&1 | tee -a ${LOG_FILE}
 	@cd scv-build && swift package clean 2>/dev/null || true
 
 clean-ui: _init _clean-ui _end
@@ -332,37 +352,38 @@ commit: _init _format _end
 help:
 	@echo "SC-Voice Build Targets"
 	@echo ""
-	@echo "  make rebuild           Update version, clean, build and test and all packages"
-	@echo "  make test              Run all package tests (shortcut for test-app)"
-	@echo "  make test-app          Run all application tests"
-	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
-	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
-	@echo "  make test-tools        Run scv-build tests serially"
-	@echo "  make test-tasks        Run scv-tasks tests serially"
-	@echo "  make test-ui           Run scv-ui tests serially"
-	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
-	@echo "  make test-research     Run research tests (platform API exploration)"
-	@echo "  make test-content      Verify all manifest databases are present in build"
 	@echo "  make build             Build all (core and iOS) with new version"
 	@echo "  make build-core        Build scv-core package"
-	@echo "  make build-ui	        Build scv-ui package"
-	@echo "  make build-tools 			Build scv-build package (build tools)"
-	@echo "  make build-tasks       Build scv-tasks package (task CLI)"
-	@echo "  make build-ios         Build scv-ios app with new version"
 	@echo "  make build-db DB=lang:author    Build single database (e.g. make build-db DB=en:sujato)"
-	@echo "  make suid-list         Regenerate suid-list.json from ebt-pli-ms.db"
-	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
+	@echo "  make build-ios         Build scv-ios app with new version"
+	@echo "  make build-tasks       Build scv-tasks package (task CLI)"
+	@echo "  make build-tools 			Build scv-build package (build tools)"
+	@echo "  make build-ui	        Build scv-ui package"
 	@echo "  make clean             Clean all build artifacts and apply SwiftFormat"
-	@echo "  make clean-core        Clean scv-core package"
-	@echo "  make clean-content 		Clean database content"
-	@echo "  make clean-ui          Clean scv-ui package"
-	@echo "  make clean-ios         Clean scv-ios app build artifacts"
-	@echo "  make clean-db DB=lang:author    Clean database caches (e.g. make clean-db DB=en:sujato)"
 	@echo "  make clean-cache       Clean all app caches from ~/Library/Caches"
+	@echo "  make clean-content 		Clean database content"
+	@echo "  make clean-core        Clean scv-core package"
+	@echo "  make clean-db DB=lang:author    Clean database caches (e.g. make clean-db DB=en:sujato)"
+	@echo "  make clean-ios         Clean scv-ios app build artifacts"
 	@echo "  make clean-lemmatizer  Clean all lemmatizer cache files"
+	@echo "  make clean-ui          Clean scv-ui package"
+	@echo "  make commit            Review and approve commit from .commit-msg file"
+	@echo "  make content						Pull latest ebt-data and rebuild all databases from manifest"
 	@echo "  make format            Apply SwiftFormat to project"
 	@echo "  make mock-response-view Build and launch mock-response-view app"
+	@echo "  make rebuild           Update version, clean, build and test and all packages"
+	@echo "  make release           Update content, and rebuild for release"
+	@echo "  make suid-list         Regenerate suid-list.json from ebt-pli-ms.db"
+	@echo "  make test              Run all package tests (shortcut for test-app)"
+	@echo "  make test-app          Run all application tests"
+	@echo "  make test-content      Verify all manifest databases are present in build"
+	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"
+	@echo "  make test-core-verbose Run scv-core tests serially with verbose output"
+	@echo "  make test-research     Run research tests (platform API exploration)"
+	@echo "  make test-tasks        Run scv-tasks tests serially"
+	@echo "  make test-tools        Run scv-build tests serially"
+	@echo "  make test-ui           Run scv-ui tests serially"
+	@echo "  make test-zstd-integration Run zstd integration tests (database decompression)"
 	@echo "  make version-major     Increment major version (X.0.0)"
 	@echo "  make version-minor     Increment minor version (X.Y.0)"
 	@echo "  make version-patch     Increment patch version (X.Y.Z)"
-	@echo "  make commit            Review and approve commit from .commit-msg file"

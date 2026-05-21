@@ -163,6 +163,11 @@ public struct AboutCardView: View {
             },
           ) {
             VStack(alignment: .leading, spacing: 12) {
+              Text("overview.subtitle".localized)
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(themeProvider.theme.textColor)
+
               Text("about.overview.description".localized)
                 .font(.body)
                 .foregroundStyle(themeProvider.theme.textColor)

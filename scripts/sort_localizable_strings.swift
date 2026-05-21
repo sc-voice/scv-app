@@ -114,13 +114,13 @@ func writeLocalizableStrings(filePath: String, entries: [LocalizationEntry]) {
 
 // Main
 let localizableFilePaths = [
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/en.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/fr.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/es.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/pt-PT.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/ru.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/lt.lproj/Localizable.strings",
-  "/Users/visakha/dev/scv-app/scv-core/Sources/Resources/de.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/en.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/fr.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/es.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/pt-PT.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/ru.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/lt.lproj/Localizable.strings",
+  "scv-core/Sources/Resources/de.lproj/Localizable.strings",
 ]
 
 for filePath in localizableFilePaths {

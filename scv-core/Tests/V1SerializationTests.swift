@@ -25,7 +25,8 @@ struct V1SerializationTests {
   static func getFixtureJSON(_ settings: Settings,
                              testName: String) throws -> Data
   {
-    let fixturesPath = "/Users/visakha/dev/scv-app/scv-core/Tests/Fixtures"
+    let fixturesPath = projectRoot()
+      .appendingPathComponent("scv-core/Tests/Fixtures").path
     let filePath = "\(fixturesPath)/V1_\(testName).json"
 
     if GENERATE_V1_FIXTURES {

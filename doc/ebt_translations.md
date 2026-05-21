@@ -1,6 +1,6 @@
 # EBT Translations
 
-**Last updated:** 2026-03-17
+**Last updated:** 2026-05-20
 
 ## Overview
 
@@ -14,7 +14,7 @@ The `ebt-translations.sh` script lists all available translations grouped by lan
 
 Run the script with:
 ```bash
-/Users/visakha/dev/scv-app/scripts/ebt-translations.sh
+/Users/visakha/dev/scv-next/scripts/ebt-translations.sh
 ```
 
 ## Column Descriptions
@@ -33,9 +33,9 @@ Run the script with:
 
 | Count | Apple | Lang | DB | Order | Author |
 |-------|-------|------|----|----|--------|
-|     4306 | ✅ | en | ✅ | 1 | sujato |
-|     4100 | ✅ | de | ✅ | 1 | sabbamitta |
-|      909 | ✅ | ru | ✅ | 1 | sv |
+|     4308 | ✅ | en | ✅ | 1 | sujato |
+|     4168 | ✅ | de | ✅ | 1 | sabbamitta |
+|      957 | ✅ | ru | ✅ | 1 | sv |
 |      761 |    | sr |    | 1 | brankokovacevic |
 |      574 | ✅ | ru |    | 2 | o |
 |      427 | ✅ | en | ✅ | 2 | brahmali |
@@ -51,18 +51,19 @@ Run the script with:
 |       60 |    | jpn |    | 1 | kaz |
 |       57 | ✅ | pl |    | 1 | hardao |
 |       53 | ✅ | fr | ✅ | 2 | noeismet |
-|       31 | ✅ | fr |    | 3 | christelle |
+|       37 | ✅ | fr |    | 3 | christelle |
 |       31 | ✅ | es | ✅ | 1 | font |
+|       30 | ✅ | en |    | 5 | suddhaso |
 |       26 | ✅ | vi |    | 1 | phantuananh |
 |       26 |    | et |    | 1 | thitanana |
-|       26 | ✅ | en |    | 5 | suddhaso |
 |       19 | ✅ | de | ✅ | 2 | sonjabuege |
+|       18 |    | ka |    | 1 | luka |
 |       10 | ✅ | pl |    | 2 | marcinow |
 |        9 |    | gu |    | 1 | trush |
 |        9 | ✅ | es |    | 2 | maggatr |
 |        8 | ✅ | ru |    | 4 | syrkin |
 |        7 | ✅ | hi |    | 1 | trush |
-|        4 | ✅ | ru |    | 5 | khantibalo |
+|        6 | ✅ | ru |    | 5 | khantibalo |
 |        4 |    | my |    | 1 | my-team |
 |        2 | ✅ | th |    | 2 | jayasaro |
 |        2 | ✅ | th |    | 1 | dhiranandi |
@@ -73,8 +74,9 @@ Run the script with:
 |        1 | ✅ | ru |    | 6 | team |
 |        1 | ✅ | fr |    | 4 | wijayaratna |
 |        1 | ✅ | fi |    | 1 | mudito |
+|        1 |    | et |    | 2 | mgvali |
 
-**Total:**    14009 files
+**Total:**    14158 files
 
 ## Inclusion Criteria
 

@@ -185,20 +185,22 @@ public struct dbg: Sendable {
 ///
 /// - Returns: URL to project root directory
 public func projectRoot() -> URL {
-  let currentFile = #file
+  let currentFile = #filePath
   if let range = currentFile.range(of: "/scv-core/") {
     let rootPath = String(currentFile[..<range.lowerBound])
     return URL(fileURLWithPath: rootPath)
   }
-  // Fallback: traverse up to find scv-app directory
+  // Fallback: traverse up to find scv-core folder parent
   var current = URL(fileURLWithPath: currentFile).deletingLastPathComponent()
   while current.path != "/" {
-    if current.lastPathComponent == "scv-app" {
-      return current
+    if current.lastPathComponent == "scv-core" {
+      return current.deletingLastPathComponent()
     }
     current = current.deletingLastPathComponent()
   }
-  return current
+  fatalError(
+    "projectRoot() could not determine project root. currentFile: \(currentFile)",
+  )
 }
 
 public func fileLineId(filename: String, line: Int) -> String {

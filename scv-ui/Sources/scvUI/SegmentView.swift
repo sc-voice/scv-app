@@ -126,7 +126,7 @@ struct SegmentView: View {
           ),
         ),
     )
-    .id(segment.scid)
+    .id("\(segment.scid)-\(themeProvider.currentTheme)")
     .onTapGesture {
       mlDoc.currentScid = segment.scid
       if player.isPlaying {

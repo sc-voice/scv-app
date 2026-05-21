@@ -52,8 +52,7 @@ enum VersionBumpType: String {
 let currentDir = FileManager.default.currentDirectoryPath
 let versionSwiftPath = currentDir + "/scv-core/Sources/Version.swift"
 let pbxprojPaths = [
-    currentDir + "/scv-ios/scv-ios.xcodeproj/project.pbxproj",
-    currentDir + "/scv-demo-ios/scv-demo-ios.xcodeproj/project.pbxproj"
+    currentDir + "/scv-ios/scv-ios.xcodeproj/project.pbxproj"
 ]
 
 guard FileManager.default.fileExists(atPath: versionSwiftPath) else {
@@ -70,13 +69,31 @@ for pbxprojPath in pbxprojPaths {
 
 // Parse arguments
 let args = Array(CommandLine.arguments.dropFirst())
-guard args.count > 0 else {
-    print("Usage: version.swift [major|minor|patch]")
-    exit(1)
+
+// Handle show/current command
+if args.count == 0 || args[0] == "show" || args[0] == "current" {
+    do {
+        let versionSwiftContent = try String(contentsOfFile: versionSwiftPath, encoding: .utf8)
+        let buildVersionPattern = "public let buildVersion = \"([\\d.]+)\""
+        let buildVersionRegex = try NSRegularExpression(pattern: buildVersionPattern, options: [])
+        let buildVersionMatches = buildVersionRegex.matches(in: versionSwiftContent, options: [], range: NSRange(versionSwiftContent.startIndex..., in: versionSwiftContent))
+
+        guard let buildVersionMatch = buildVersionMatches.first,
+              let buildVersionRange = Range(buildVersionMatch.range(at: 1), in: versionSwiftContent) else {
+            print("Error: Could not find buildVersion in Version.swift")
+            exit(1)
+        }
+
+        print(String(versionSwiftContent[buildVersionRange]))
+        exit(0)
+    } catch {
+        print("Error: \(error.localizedDescription)")
+        exit(1)
+    }
 }
 
 guard let bumpType = VersionBumpType(rawValue: args[0]) else {
-    print("Error: invalid version type '\(args[0])'. Use 'major', 'minor', or 'patch'")
+    print("Error: invalid version type '\(args[0])'. Use 'major', 'minor', 'patch', or 'show'")
     exit(1)
 }
 

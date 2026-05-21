@@ -100,6 +100,9 @@
 /* About card view: full-text search description */
 "about.feature.search.desc" = "Search across thousands of suttas";
 
+/* Search within sutta modal title and menu item */
+"search.within_sutta" = "Find";
+
 /* About card view: graphics & design intro */
 "about.graphics_design.intro" = "Background images and themes:";
 
@@ -132,6 +135,9 @@
 
 /* About card view: overview description */
 "about.overview.description" = "Search, read, and hear SuttaCentral-aligned Early Buddhist Text (EBT) scriptures (suttas) offline for selected authors in multiple languages.";
+
+/* About card view: overview subtitle */
+"overview.subtitle" = "A SuttaCentral-aligned Reader";
 
 /* About card view: privacy intro */
 "about.privacy.intro" = "scVoice respects your privacy:";
