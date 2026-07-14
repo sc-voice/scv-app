@@ -6,10 +6,10 @@
 //
 
 /// Marketing version shown to users (software.year.month format)
-public let marketingVersion = "26.06"
+public let marketingVersion = "26.07"
 
 /// Build version for App Store (software.yearmonth.patch format)
-public let buildVersion = "26.06.0"
+public let buildVersion = "26.07.0"
 
 /// Serialization format version (bumped when Settings/Card format changes)
 /// Used to track backward compatibility and fixture versions

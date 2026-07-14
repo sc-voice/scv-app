@@ -2,7 +2,6 @@
 {"abbaut":"abbauen"}
 {"abbilder":"abbild"}
 {"abblätternde":"abblättern"}
-{"abbrennt":"abbrennen"}
 {"abbricht":"abbrechen"}
 {"abbringt":"abbringen"}
 {"aberglauben":"aberglaube"}
@@ -24,6 +23,7 @@
 {"abgebrühter":"abbrühen"}
 {"abgedeckt":"abdecken"}
 {"abgefallen":"abfallen"}
+{"abgefressenen":"abfressen"}
 {"abgeführt":"abführen"}
 {"abgegangen":"abgehen"}
 {"abgegeben":"abgeben"}
@@ -39,6 +39,7 @@
 {"abgekürzte":"abkürzen"}
 {"abgekürzten":"abkürzen"}
 {"abgelassen":"ablassen"}
+{"abgelaufen":"ablaufen"}
 {"abgelegen":"abliegen"}
 {"abgelegene":"abgelegen"}
 {"abgelegenem":"abliegen"}
@@ -56,6 +57,7 @@
 {"abgerutscht":"abrutschen"}
 {"abgeschabt":"abschaben"}
 {"abgeschieden":"abscheiden"}
+{"abgeschiedenen":"abscheiden"}
 {"abgeschiedenes":"abgeschieden"}
 {"abgeschirmt":"abschirmen"}
 {"abgeschlachtet":"abschlachten"}
@@ -83,6 +85,8 @@
 {"abgetragenen":"abtragen"}
 {"abgetrennt":"abtrennen"}
 {"abgetrennte":"abtrennen"}
+{"abgetrennten":"abtrennen"}
+{"abgetötet":"abtöten"}
 {"abgewandt":"abwenden"}
 {"abgewaschen":"abwaschen"}
 {"abgewehrt":"abwehren"}
@@ -92,6 +96,7 @@
 {"abgewischt":"abwischen"}
 {"abgewogen":"abwaegen"}
 {"abgeworfen":"abwerfen"}
+{"abgezehrt":"abzehren"}
 {"abgezogen":"abziehen"}
 {"abging":"abgehen"}
 {"abgleitet":"abgleiten"}
@@ -115,6 +120,7 @@
 {"ablehnt":"ablehnen"}
 {"ableite":"ableiten"}
 {"abläufen":"ablauf"}
+{"abläuft":"ablaufen"}
 {"abmühte":"abmühen"}
 {"abnehmende":"abnehmen"}
 {"abneigungen":"abneigung"}
@@ -208,9 +214,11 @@
 {"aggregaten":"aggregat"}
 {"aktivem":"aktiv"}
 {"aktives":"aktiv"}
+{"aktivitäten":"aktivität"}
 {"alberne":"albern"}
 {"albernem":"albern"}
 {"alle":"all"}
+{"alleine":"allein"}
 {"allem":"all"}
 {"allen":"all"}
 {"aller":"all"}
@@ -236,6 +244,7 @@
 {"am":"an"}
 {"ameisen":"ameise"}
 {"amüsiert":"amüsieren"}
+{"amüsierte":"amüsieren"}
 {"anbiete":"anbieten"}
 {"anbietet":"anbieten"}
 {"anbot":"anbieten"}
@@ -309,11 +318,13 @@
 {"angeordnete":"anordnen"}
 {"angeordneten":"anordnen"}
 {"angepackt":"anpacken"}
+{"angepflanzter":"anpflanzen"}
 {"angeredet":"anreden"}
 {"angeregt":"anregen"}
 {"angerichtet":"anrichten"}
 {"angesammelt":"ansammeln"}
 {"angeschirrten":"anschirren"}
+{"angeschlagen":"anschlagen"}
 {"angeschlossen":"anschliessen"}
 {"angeschwollen":"anschwellen"}
 {"angesehen":"ansehen"}
@@ -349,6 +360,7 @@
 {"anhielten":"anhalten"}
 {"anhingen":"anhaengen"}
 {"anhält":"anhalten"}
+{"anhängenden":"anhängen"}
 {"anhängern":"anhänger"}
 {"anhänglichen":"anhänglich"}
 {"anhängt":"anhangen"}
@@ -403,6 +415,7 @@
 {"ansehe":"ansehen"}
 {"ansichten":"ansicht"}
 {"ansieht":"ansehen"}
+{"anspielt":"anspielen"}
 {"anspornt":"anspornen"}
 {"anspornte":"anspornen"}
 {"ansprechendem":"ansprechen"}
@@ -493,6 +506,7 @@
 {"arzneilicher":"arzneilich"}
 {"asketen":"asket"}
 {"asketinnen":"asketin"}
+{"asketische":"asketisch"}
 {"aspekte":"aspekt"}
 {"aspekten":"aspekt"}
 {"aspekts":"aspekt"}
@@ -548,8 +562,10 @@
 {"aufgekommenen":"aufkommen"}
 {"aufgelegt":"auflegen"}
 {"aufgelesen":"auflesen"}
+{"aufgelesene":"auflesen"}
 {"aufgelöst":"auflösen"}
 {"aufgelöste":"auflösen"}
+{"aufgelöstem":"auflösen"}
 {"aufgenommen":"aufnehmen"}
 {"aufgepickt":"aufpicken"}
 {"aufgeplatzte":"aufplatzen"}
@@ -633,8 +649,10 @@
 {"aufsagt":"aufsagen"}
 {"aufsagte":"aufsagen"}
 {"aufschlügen":"aufschlagen"}
+{"aufspaltete":"aufspalten"}
 {"aufstand":"aufstehen"}
 {"aufsteht":"aufstehen"}
+{"aufsteigend":"aufsteigen"}
 {"aufsteigender":"aufsteigen"}
 {"aufsteigt":"aufsteigen"}
 {"aufstellt":"aufstellen"}
@@ -662,12 +680,12 @@
 {"aufzehrt":"aufzehren"}
 {"aufzeige":"aufzeigen"}
 {"aufzieht":"aufziehen"}
-{"aufzubrechen":"aufbrechen"}
 {"aufzubringen":"aufbringen"}
 {"aufzugeben":"aufgeben"}
 {"aufzugliedern":"aufgliedern"}
 {"aufzuhalten":"aufhalten"}
 {"aufzuheben":"aufheben"}
+{"aufzuhängen":"aufhängen"}
 {"aufzuhören":"aufhören"}
 {"aufzulösen":"auflösen"}
 {"aufzunehmen":"aufnehmen"}
@@ -707,6 +725,7 @@
 {"auseinanderreißt":"auseinanderreißen"}
 {"auseinandersetzungen":"auseinandersetzung"}
 {"ausfließenden":"ausfließen"}
+{"ausfließender":"ausfließen"}
 {"ausführliche":"ausführlich"}
 {"ausführlicher":"ausführlich"}
 {"ausführt":"ausfahren"}
@@ -715,6 +734,7 @@
 {"ausgebeult":"ausbeulen"}
 {"ausgebildet":"ausbilden"}
 {"ausgebleicht":"ausbleichen"}
+{"ausgebrannt":"ausbrennen"}
 {"ausgebreitet":"ausbreiten"}
 {"ausgebreitete":"ausbreiten"}
 {"ausgebreiteten":"ausbreiten"}
@@ -743,6 +763,7 @@
 {"ausgehöhlt":"aushöhlen"}
 {"ausgeklügelte":"ausklügeln"}
 {"ausgelassen":"auslassen"}
+{"ausgelebt":"ausleben"}
 {"ausgelegt":"auslegen"}
 {"ausgelesen":"auslesen"}
 {"ausgeliefert":"ausliefern"}
@@ -773,11 +794,13 @@
 {"ausgesprochen":"aussprechen"}
 {"ausgespäht":"ausspähen"}
 {"ausgestattet":"ausstatten"}
+{"ausgestatteten":"ausstatten"}
 {"ausgestopft":"ausstopfen"}
 {"ausgestoßen":"ausstoßen"}
 {"ausgeteilt":"austeilen"}
 {"ausgetilgt":"austilgen"}
 {"ausgetreten":"austreten"}
+{"ausgetrieben":"austreiben"}
 {"ausgetrocknet":"austrocknen"}
 {"ausgetrocknete":"austrocknen"}
 {"ausgetrocknetem":"austrocknen"}
@@ -878,6 +901,7 @@
 {"außenbezirken":"außenbezirk"}
 {"außenstehenden":"außenstehend"}
 {"außenstehender":"außenstehend"}
+{"außergewöhnlichen":"außergewöhnlich"}
 {"außerordentliche":"außerordentlich"}
 {"außerordentlicher":"außerordentlich"}
 {"außerordentliches":"außerordentlich"}
@@ -974,6 +998,7 @@
 {"bedränge":"bedrängen"}
 {"bedrängende":"bedrängen"}
 {"bedrängenden":"bedrängen"}
+{"bedrängnisse":"bedrängnis"}
 {"bedrängt":"bedrängen"}
 {"bedrängte":"bedrängen"}
 {"bedrängten":"bedrängen"}
@@ -991,6 +1016,7 @@
 {"beeinträchtigte":"beeinträchtigen"}
 {"beendet":"beenden"}
 {"beendete":"beenden"}
+{"beendeter":"beenden"}
 {"beeren":"beere"}
 {"befahl":"befehlen"}
 {"befahlen":"befehlen"}
@@ -1023,6 +1049,7 @@
 {"beflissener":"befleissen"}
 {"beflissenes":"beflissen"}
 {"befolge":"befolgen"}
+{"befolgend":"befolgen"}
 {"befolgt":"befolgen"}
 {"befolgte":"befolgen"}
 {"befolgten":"befolgen"}
@@ -1040,6 +1067,7 @@
 {"befreiten":"befreien"}
 {"befreiter":"befreien"}
 {"befreiungen":"befreiung"}
+{"befreundet":"befreunden"}
 {"befreundete":"befreunden"}
 {"befreundeten":"befreunden"}
 {"befreundeter":"befreunden"}
@@ -1058,6 +1086,7 @@
 {"befürwortet":"befürworten"}
 {"begab":"begaben"}
 {"begangen":"begehen"}
+{"begangene":"begehen"}
 {"begann":"beginnen"}
 {"begannen":"beginnen"}
 {"begebt":"begeben"}
@@ -1096,6 +1125,8 @@
 {"begleitet":"begleiten"}
 {"begleitete":"begleiten"}
 {"begleiteten":"begleiten"}
+{"beglückend":"beglücken"}
+{"beglückt":"beglücken"}
 {"beglückwünschte":"beglückwünschen"}
 {"begonnen":"beginnen"}
 {"begreift":"begreifen"}
@@ -1168,6 +1199,7 @@
 {"beides":"beide"}
 {"beigelegt":"beilegen"}
 {"beigelegte":"beilegen"}
+{"beilagen":"beilage"}
 {"beilen":"beil"}
 {"beim":"bei"}
 {"beine":"beinen"}
@@ -1217,6 +1249,7 @@
 {"belastet":"belasten"}
 {"belastungen":"belastung"}
 {"belauschte":"belauschen"}
+{"belebenden":"beleben"}
 {"belegt":"belegen"}
 {"belehrt":"belehren"}
 {"belehrte":"belehren"}
@@ -1237,6 +1270,7 @@
 {"belästigte":"belästigen"}
 {"bemalt":"bemalen"}
 {"bemalte":"bemalen"}
+{"bemalten":"bemalen"}
 {"bemeistert":"bemeistern"}
 {"bemeisterter":"bemeistern"}
 {"bemerkenswertem":"bemerkenswert"}
@@ -1269,6 +1303,7 @@
 {"benötigst":"benötigen"}
 {"benötigt":"benötigen"}
 {"benötigten":"benötigen"}
+{"beobachtbaren":"beobachtbar"}
 {"beobachte":"beobachten"}
 {"beobachtest":"beobachten"}
 {"beobachtet":"beobachten"}
@@ -1351,6 +1386,7 @@
 {"beschloss":"beschließen"}
 {"beschmiert":"beschmieren"}
 {"beschmierte":"beschmieren"}
+{"beschmutzend":"beschmutzen"}
 {"beschmutzt":"beschmutzen"}
 {"beschmutzte":"beschmutzen"}
 {"beschreibe":"beschreiben"}
@@ -1427,6 +1463,7 @@
 {"besteige":"besteigen"}
 {"besteigt":"besteigen"}
 {"bestellt":"bestellen"}
+{"bestem":"gut"}
 {"besten":"gut"}
 {"bester":"gut"}
 {"bestes":"gut"}
@@ -1446,6 +1483,8 @@
 {"bestimmungsorten":"bestimmungsort"}
 {"bestrafe":"bestrafen"}
 {"bestraft":"bestrafen"}
+{"bestrebens":"bestreben"}
+{"bestrebungen":"bestrebung"}
 {"bestreite":"bestreiten"}
 {"bestreute":"bestreuen"}
 {"bestreuten":"bestreuen"}
@@ -1497,6 +1536,7 @@
 {"betrifft":"betreffen"}
 {"betrinkt":"betrinken"}
 {"betritt":"betreten"}
+{"betrittst":"betreten"}
 {"betroffen":"betreffen"}
 {"betrog":"betruegen"}
 {"betrogen":"betruegen"}
@@ -1507,11 +1547,14 @@
 {"beträchtlicher":"beträchtlich"}
 {"beträgt":"betragen"}
 {"betrübst":"betrüben"}
+{"betrübt":"betrüben"}
 {"betrüge":"betragen"}
+{"betrügerischer":"betrügerisch"}
 {"betrügerisches":"betrügerisch"}
 {"betrügern":"betrüger"}
 {"betrügst":"betrügen"}
 {"betrügt":"betrügen"}
+{"bettelnd":"betteln"}
 {"bettelt":"betteln"}
 {"bettet":"betten"}
 {"bettlern":"bettler"}
@@ -1588,6 +1631,7 @@
 {"bewässerungsanlagen":"bewässerungsanlage"}
 {"bezahle":"bezahlen"}
 {"bezahlt":"bezahlen"}
+{"bezaubernden":"bezaubern"}
 {"bezaubernder":"bezaubern"}
 {"bezaubert":"bezaubern"}
 {"bezeichnet":"bezeichnen"}
@@ -1671,6 +1715,7 @@
 {"blockaden":"blockade"}
 {"blockierende":"blockieren"}
 {"blockiert":"blockieren"}
+{"blockierte":"blockieren"}
 {"blockierten":"blockieren"}
 {"bloße":"bloß"}
 {"bloßem":"bloß"}
@@ -1679,6 +1724,7 @@
 {"bloßes":"bloß"}
 {"bluffs":"bluff"}
 {"blumen":"blume"}
+{"blutbeschmierte":"blutbeschmiert"}
 {"blutete":"bluten"}
 {"blutigem":"blutig"}
 {"blutsverwandte":"blutsverwandt"}
@@ -1695,6 +1741,7 @@
 {"blüten":"blüte"}
 {"blütenblättern":"blütenblatt"}
 {"blütenstaubs":"blütenstaub"}
+{"bock":"bocken"}
 {"bodens":"boden"}
 {"bodensatzes":"bodensatz"}
 {"bogen":"biegen"}
@@ -1708,6 +1755,7 @@
 {"bordells":"bordell"}
 {"borten":"borte"}
 {"bot":"bieten"}
+{"bote":"bot"}
 {"boten":"bieten"}
 {"botengänge":"botengang"}
 {"botschaften":"botschaft"}
@@ -1747,6 +1795,7 @@
 {"brich":"brechen"}
 {"brichst":"brechen"}
 {"bricht":"brechen"}
+{"brillante":"brillant"}
 {"bring":"bringen"}
 {"bringe":"bringen"}
 {"bringende":"bringend"}
@@ -1786,6 +1835,7 @@
 {"buddhas":"buddha"}
 {"buh":"buhen"}
 {"bullen":"bulle"}
+{"bungalows":"bungalow"}
 {"bunte":"bunt"}
 {"bunten":"bunt"}
 {"bäche":"bach"}
@@ -1805,12 +1855,14 @@
 {"bösen":"bös"}
 {"böser":"bös"}
 {"böses":"bös"}
+{"bösewichter":"bösewicht"}
 {"böswillige":"böswillig"}
 {"böswilligem":"böswillig"}
 {"böswilligen":"böswillig"}
 {"böswilliges":"böswillig"}
 {"bündels":"bündel"}
 {"bürde":"bürden"}
+{"bürste":"bürsten"}
 {"büsche":"busch"}
 {"büscheln":"büschel"}
 {"büschen":"busch"}
@@ -1832,6 +1884,7 @@
 {"dahinfließt":"dahinfließen"}
 {"dahinfloss":"dahinfliessen"}
 {"dahingesagt":"dahinsagen"}
+{"dahingeschieden":"dahinscheiden"}
 {"daliege":"daliegen"}
 {"daliegt":"daliegen"}
 {"damen":"dame"}
@@ -1880,6 +1933,7 @@
 {"deinen":"dein"}
 {"deiner":"dein"}
 {"deines":"dein"}
+{"delikateren":"delikat"}
 {"dem":"der"}
 {"demonstrationen":"demonstration"}
 {"den":"der"}
@@ -1902,6 +1956,7 @@
 {"derselben":"derselbe"}
 {"derzeitigen":"derzeitig"}
 {"des":"der"}
+{"desillusioniert":"desillusionieren"}
 {"dessen":"der"}
 {"deutliches":"deutlich"}
 {"deutungen":"deutung"}
@@ -1943,8 +1998,10 @@
 {"dingen":"ding"}
 {"dir":"du"}
 {"direkte":"direkt"}
+{"direkten":"direkt"}
 {"diskussionen":"diskussion"}
 {"diskutiert":"diskutieren"}
+{"distanziert":"distanzieren"}
 {"disziplinarische":"disziplinarisch"}
 {"disziplinarischen":"disziplinarisch"}
 {"dogmatische":"dogmatisch"}
@@ -1981,6 +2038,7 @@
 {"dreifacher":"dreifach"}
 {"dreifaches":"dreifach"}
 {"dreisten":"dreist"}
+{"dreißigsten":"dreißigste"}
 {"dreschflegeln":"dreschflegel"}
 {"dringe":"dringen"}
 {"dringende":"dringend"}
@@ -2050,6 +2108,7 @@
 {"durchmischt":"durchmischen"}
 {"durchnässt":"durchnässen"}
 {"durchschneide":"durchschneiden"}
+{"durchschneidend":"durchschneiden"}
 {"durchschneidet":"durchschneiden"}
 {"durchschnitt":"durchschneiden"}
 {"durchschnitte":"durchschneiden"}
@@ -2082,6 +2141,7 @@
 {"durstiger":"durstig"}
 {"dächte":"denken"}
 {"dächten":"denken"}
+{"dämonen":"dämon"}
 {"därme":"darm"}
 {"därmen":"darm"}
 {"dörfer":"dorf"}
@@ -2112,6 +2172,8 @@
 {"echten":"echt"}
 {"echter":"echt"}
 {"echtes":"echt"}
+{"edelmütigen":"edelmütig"}
+{"edelste":"edel"}
 {"edelsteine":"edelstein"}
 {"edelsteinen":"edelstein"}
 {"edle":"edel"}
@@ -2192,6 +2254,7 @@
 {"einfältigen":"einfältig"}
 {"einführte":"einführen"}
 {"eingebettet":"einbetten"}
+{"eingebetteten":"einbetten"}
 {"eingebildet":"einbilden"}
 {"eingebildete":"einbilden"}
 {"eingebildeten":"einbilden"}
@@ -2236,6 +2299,7 @@
 {"eingesperrt":"einsperren"}
 {"eingestanden":"eingestehen"}
 {"eingesteht":"eingestehen"}
+{"eingestellt":"einstellen"}
 {"eingetaucht":"eintauchen"}
 {"eingetreten":"eintreten"}
 {"eingetretene":"eintreten"}
@@ -2248,6 +2312,7 @@
 {"eingewiesen":"einweisen"}
 {"eingezogen":"einziehen"}
 {"eingeübt":"einüben"}
+{"eingraviert":"eingravieren"}
 {"eingrenzungen":"eingrenzung"}
 {"einheimische":"einheimisch"}
 {"einheimischen":"einheimisch"}
@@ -2290,6 +2355,7 @@
 {"einschließt":"einschließen"}
 {"einschläft":"einschlafen"}
 {"einschlägt":"einschlagen"}
+{"einschmeichelnd":"einschmeicheln"}
 {"einschneidet":"einschneiden"}
 {"einschnitt":"einschneiden"}
 {"einschüchtert":"einschüchtern"}
@@ -2320,6 +2386,7 @@
 {"einzelnen":"einzeln"}
 {"einzelner":"einzeln"}
 {"einzelnes":"einzeln"}
+{"einzelteilen":"einzelteil"}
 {"einzige":"einzig"}
 {"einzigen":"einzig"}
 {"einziger":"einzig"}
@@ -2377,12 +2444,14 @@
 {"empfehle":"empfehlen"}
 {"empfiehlt":"empfehlen"}
 {"empfinde":"empfinden"}
+{"empfindenden":"empfinden"}
 {"empfindest":"empfinden"}
 {"empfindet":"empfinden"}
 {"empfohlen":"empfehlen"}
 {"empfunden":"empfinden"}
 {"empfängt":"empfangen"}
 {"emporgehoben":"emporheben"}
+{"emporsteigt":"emporsteigen"}
 {"endes":"ende"}
 {"endet":"enden"}
 {"endete":"enden"}
@@ -2412,14 +2481,17 @@
 {"entdeckt":"entdecken"}
 {"entehrt":"entehren"}
 {"entfaltet":"entfalten"}
+{"entfalteten":"entfalten"}
 {"entfernt":"entfernen"}
 {"entfernte":"entfernen"}
 {"entfesselt":"entfesseln"}
+{"entflammten":"entflammen"}
 {"entflochten":"entflechten"}
 {"entfremdet":"entfremden"}
 {"entfuhr":"entfahren"}
 {"entfuhren":"entfahren"}
 {"entführten":"entführen"}
+{"entgangen":"entgehen"}
 {"entgegengegangen":"entgegengehen"}
 {"entgegengeht":"entgegengehen"}
 {"entgegengesetzt":"entgegensetzen"}
@@ -2438,6 +2510,7 @@
 {"enthüllte":"enthüllen"}
 {"enthüllungen":"enthüllung"}
 {"entkam":"entkommen"}
+{"entkommend":"entkommen"}
 {"entkommt":"entkommen"}
 {"entkräftet":"entkräften"}
 {"entlanggehe":"entlanggehen"}
@@ -2458,6 +2531,8 @@
 {"entsagender":"entsagen"}
 {"entsagte":"entsagen"}
 {"entsagungsvollen":"entsagungsvoll"}
+{"entsandt":"entsenden"}
+{"entsann":"entsinnen"}
 {"entschieden":"entscheiden"}
 {"entschließe":"entschließen"}
 {"entschließt":"entschließen"}
@@ -2475,6 +2550,7 @@
 {"entsetzlichen":"entsetzlich"}
 {"entsetzlicher":"entsetzlich"}
 {"entsetzt":"entsetzen"}
+{"entsorgt":"entsorgen"}
 {"entspann":"entspannen"}
 {"entspannt":"entspannen"}
 {"entsprach":"entsprechen"}
@@ -2503,6 +2579,7 @@
 {"entwachsene":"entwachsen"}
 {"entwachsenen":"entwachsen"}
 {"entwachsener":"entwachsen"}
+{"entwichen":"entweichen"}
 {"entwickele":"entwickeln"}
 {"entwickelst":"entwickeln"}
 {"entwickelt":"entwickeln"}
@@ -2537,6 +2614,7 @@
 {"erachtet":"erachten"}
 {"erarbeite":"erarbeiten"}
 {"erarbeitet":"erarbeiten"}
+{"erbarmend":"erbarmen"}
 {"erbaut":"erbauen"}
 {"erbauten":"erbauen"}
 {"erbe":"erben"}
@@ -2585,9 +2663,11 @@
 {"erforsche":"erforschen"}
 {"erforscht":"erforschen"}
 {"erfreulichen":"erfreulich"}
+{"erfreuliches":"erfreulich"}
 {"erfreust":"erfreuen"}
 {"erfreut":"erfreuen"}
 {"erfreute":"erfreuen"}
+{"erfreuten":"erfreuen"}
 {"erfrischt":"erfrischen"}
 {"erfrischungen":"erfrischung"}
 {"erfroren":"erfrieren"}
@@ -2667,6 +2747,7 @@
 {"erkennbare":"erkennbar"}
 {"erkennbaren":"erkennbar"}
 {"erkenne":"erkennen"}
+{"erkennende":"erkennend"}
 {"erkennenden":"erkennend"}
 {"erkennender":"erkennend"}
 {"erkennens":"erkennen"}
@@ -2686,6 +2767,8 @@
 {"erkundet":"erkunden"}
 {"erlange":"erlangen"}
 {"erlangende":"erlangen"}
+{"erlangender":"erlangen"}
+{"erlangens":"erlangen"}
 {"erlangst":"erlangen"}
 {"erlangt":"erlangen"}
 {"erlangte":"erlangen"}
@@ -2719,6 +2802,7 @@
 {"erloschen":"erloeschen"}
 {"erläutere":"erläutern"}
 {"erläutert":"erläutern"}
+{"erläuterte":"erläutern"}
 {"erläuterungen":"erläuterung"}
 {"erlösche":"erlöschen"}
 {"erlöschenden":"erlöschen"}
@@ -2736,6 +2820,7 @@
 {"ermuntert":"ermuntern"}
 {"ermunterte":"ermuntern"}
 {"ermutigt":"ermutigen"}
+{"ermutigte":"ermutigen"}
 {"ermächtigt":"ermächtigen"}
 {"ermöglichte":"ermöglichen"}
 {"ermöglichten":"ermöglichen"}
@@ -2797,6 +2882,7 @@
 {"erschienen":"erscheinen"}
 {"erschienenen":"erscheinen"}
 {"erschient":"erscheinen"}
+{"erschlafft":"erschlaffen"}
 {"erschlossen":"erschliessen"}
 {"erschlug":"erschlagen"}
 {"erschlugen":"erschlagen"}
@@ -2807,6 +2893,7 @@
 {"erschöpften":"erschöpfen"}
 {"erschütterst":"erschüttern"}
 {"erschüttert":"erschüttern"}
+{"ersehne":"ersehnen"}
 {"ersparnisse":"ersparnis"}
 {"erspart":"ersparen"}
 {"erspäht":"erspähen"}
@@ -2825,12 +2912,14 @@
 {"erstklassiger":"erstklassig"}
 {"erstklassiges":"erstklassig"}
 {"erstrahlt":"erstrahlen"}
+{"erstrebt":"erstreben"}
 {"erstreckt":"erstrecken"}
 {"erstreckte":"erstrecken"}
 {"erteilt":"erteilen"}
 {"erteilte":"erteilen"}
 {"ertrag":"ertragen"}
 {"ertrage":"ertragen"}
+{"ertragende":"ertragen"}
 {"ertragreichen":"ertragreich"}
 {"ertrags":"ertrag"}
 {"ertrinkt":"ertrinken"}
@@ -2845,6 +2934,7 @@
 {"erwachte":"erwachen"}
 {"erwachten":"erwachen"}
 {"erwachter":"erwachen"}
+{"erwarb":"erwerben"}
 {"erwarte":"erwarten"}
 {"erwartet":"erwarten"}
 {"erwartete":"erwarten"}
@@ -2854,6 +2944,7 @@
 {"erweckt":"erwecken"}
 {"erweckte":"erwecken"}
 {"erweise":"erweisen"}
+{"erweisend":"erweisen"}
 {"erweist":"erweisen"}
 {"erwerbs":"erwerb"}
 {"erwidert":"erwidern"}
@@ -2884,17 +2975,21 @@
 {"erzieht":"erziehen"}
 {"erzielt":"erzielen"}
 {"erzogen":"erziehen"}
+{"erzählt":"erzählen"}
 {"erzählte":"erzählen"}
 {"erzürnt":"erzürnen"}
 {"erzürnte":"erzürnen"}
 {"eröffne":"eröffnen"}
 {"essbare":"essbar"}
+{"essbarer":"essbar"}
 {"essbares":"essbar"}
 {"esse":"essen"}
 {"essens":"essen"}
 {"esst":"essen"}
 {"etabliere":"etablieren"}
 {"etabliert":"etablieren"}
+{"ethischen":"ethisch"}
+{"ethischer":"ethisch"}
 {"euch":"ihr"}
 {"eulen":"eule"}
 {"eure":"euer"}
@@ -2902,11 +2997,15 @@
 {"euren":"euer"}
 {"eurer":"euer"}
 {"eures":"euer"}
+{"evaporiert":"evaporieren"}
+{"existenzen":"existenz"}
 {"existiert":"existieren"}
 {"existierte":"existieren"}
 {"exploriert":"explorieren"}
+{"exquisiten":"exquisit"}
 {"extreme":"extrem"}
 {"extremistischen":"extremistisch"}
+{"exzellente":"exzellent"}
 {"facetten":"facette"}
 {"fachleute":"fachmann"}
 {"facht":"fachen"}
@@ -2925,6 +3024,7 @@
 {"falken":"falke"}
 {"fall":"fallen"}
 {"falle":"fallen"}
+{"fallend":"fallen"}
 {"falsche":"falsch"}
 {"falschem":"falsch"}
 {"falschen":"falsch"}
@@ -2953,6 +3053,8 @@
 {"faulendem":"faulen"}
 {"faulenden":"faulen"}
 {"fauler":"faul"}
+{"faules":"faul"}
+{"faulige":"faulig"}
 {"fauligen":"faulig"}
 {"fegt":"fegen"}
 {"fehl":"fehlen"}
@@ -3000,6 +3102,7 @@
 {"feineren":"fein"}
 {"feines":"fein"}
 {"feinmaschiges":"feinmaschig"}
+{"feinste":"fein"}
 {"felder":"feld"}
 {"feldern":"feld"}
 {"feldfrüchte":"feldfrucht"}
@@ -3022,6 +3125,7 @@
 {"festgeklebt":"festkleben"}
 {"festgeknotet":"festknoten"}
 {"festgelegt":"festlegen"}
+{"festgelegten":"festlegen"}
 {"festgemacht":"festmachen"}
 {"festgenommen":"festnehmen"}
 {"festgesetzt":"festsetzen"}
@@ -3031,6 +3135,7 @@
 {"festhältst":"festhalten"}
 {"festige":"festigen"}
 {"festigt":"festigen"}
+{"festlegend":"festlegen"}
 {"festsetzten":"festsetzen"}
 {"festsitzt":"festsitzen"}
 {"feststeckend":"feststecken"}
@@ -3160,7 +3265,9 @@
 {"fortflog":"fortfliegen"}
 {"fortgeführt":"fortführen"}
 {"fortgegangen":"fortgehen"}
+{"fortgehe":"fortgehen"}
 {"fortgehst":"fortgehen"}
+{"fortgeht":"fortgehen"}
 {"fortgejagt":"fortjagen"}
 {"fortgenommen":"fortnehmen"}
 {"fortgerissen":"fortreissen"}
@@ -3221,6 +3328,7 @@
 {"freitreppen":"freitreppe"}
 {"freizusetzen":"freisetzen"}
 {"fremde":"fremd"}
+{"fremdes":"fremd"}
 {"fresse":"fressen"}
 {"fressenden":"fressen"}
 {"fressender":"fressen"}
@@ -3285,6 +3393,7 @@
 {"früherer":"früh"}
 {"früheres":"früh"}
 {"frühester":"früh"}
+{"frühsten":"früh"}
 {"frühstück":"frühstücken"}
 {"fuchtelt":"fuchteln"}
 {"fuhr":"fahren"}
@@ -3295,7 +3404,10 @@
 {"funkelndem":"funkeln"}
 {"furche":"furchen"}
 {"furchtbaren":"furchtbar"}
+{"furchtlose":"furchtlos"}
 {"furchtsames":"furchtsam"}
+{"fuße":"fußen"}
+{"fußgelenke":"fußgelenk"}
 {"fußsohlen":"fußsohle"}
 {"fußspuren":"fußspur"}
 {"fächelte":"fächeln"}
@@ -3328,13 +3440,14 @@
 {"fühlte":"fühlen"}
 {"fühlten":"fühlen"}
 {"führe":"fahren"}
+{"führend":"führen"}
 {"führenden":"führend"}
 {"führst":"führen"}
 {"führt":"führen"}
 {"führte":"führen"}
 {"führten":"führen"}
-{"füll":"füllen"}
 {"fülle":"füllen"}
+{"füll":"füllen"}
 {"füllst":"füllen"}
 {"füllt":"füllen"}
 {"füllte":"füllen"}
@@ -3345,12 +3458,14 @@
 {"fünffachen":"fünffach"}
 {"fünffacher":"fünffach"}
 {"fünfköpfigen":"fünfköpfig"}
+{"fünfteiligen":"fünfteilig"}
 {"fünftem":"fünfte"}
 {"fünften":"fünfte"}
 {"fünfter":"fünfte"}
 {"fünftes":"fünfte"}
 {"fünfzehnten":"fünfzehnte"}
 {"fürchte":"fürchten"}
+{"fürchtend":"fürchten"}
 {"fürchtest":"fürchten"}
 {"fürchtet":"fürchten"}
 {"fürchtete":"fürchten"}
@@ -3396,6 +3511,7 @@
 {"gebar":"gebaeren"}
 {"gebaut":"bauen"}
 {"gebe":"geben"}
+{"gebeine":"gebein"}
 {"gebet":"geben"}
 {"gebete":"gebet"}
 {"gebeten":"bitten"}
@@ -3439,6 +3555,7 @@
 {"gebunden":"binden"}
 {"gebundene":"gebunden"}
 {"gebundenen":"binden"}
+{"gebundener":"binden"}
 {"geburten":"geburt"}
 {"gebändigt":"bändigen"}
 {"gebäuden":"gebäude"}
@@ -3483,6 +3600,7 @@
 {"geendet":"enden"}
 {"geerntet":"ernten"}
 {"gefahren":"fahren"}
+{"gefallene":"fallen"}
 {"gefallenen":"fallen"}
 {"gefaltet":"falten"}
 {"gefaltete":"falten"}
@@ -3503,19 +3621,24 @@
 {"gefleckt":"flecken"}
 {"gefleckte":"flecken"}
 {"gefleckten":"flecken"}
+{"geflochten":"flechten"}
 {"geflochtene":"flechten"}
 {"geflochtenen":"flechten"}
 {"geflohen":"fliehen"}
 {"gefolges":"gefolge"}
+{"gefolgsleute":"gefolgsmann"}
 {"gefolgt":"folgen"}
 {"gefoltert":"foltern"}
 {"gefordert":"fordern"}
 {"geformt":"formen"}
+{"geformter":"formen"}
 {"gefragt":"fragen"}
 {"gefressen":"fressen"}
 {"gefreut":"freuen"}
 {"gefunden":"finden"}
 {"gefährliche":"gefährlich"}
+{"gefährlichen":"gefährlich"}
+{"gefährliches":"gefährlich"}
 {"gefährte":"gefährt"}
 {"gefährten":"gefährt"}
 {"gefällige":"gefällig"}
@@ -3542,6 +3665,7 @@
 {"gefüttert":"füttern"}
 {"gegabelten":"gabeln"}
 {"gegangen":"gehen"}
+{"gegangenen":"gegangen"}
 {"gegeben":"geben"}
 {"gegebenen":"gegeben"}
 {"gegebener":"gegeben"}
@@ -3577,6 +3701,7 @@
 {"geh":"gehen"}
 {"gehabt":"gehaben"}
 {"gehalten":"halten"}
+{"gehaltene":"gehalten"}
 {"gehandelt":"handeln"}
 {"gehassten":"hassen"}
 {"gehe":"gehen"}
@@ -3602,6 +3727,7 @@
 {"gehässige":"gehässig"}
 {"gehässigem":"gehässig"}
 {"gehässigen":"gehässig"}
+{"gehässiges":"gehässig"}
 {"gehäutet":"häuten"}
 {"gehäutete":"häuten"}
 {"gehör":"gehören"}
@@ -3619,8 +3745,10 @@
 {"gehüllt":"hüllen"}
 {"gehütet":"hüten"}
 {"gehüteter":"hüten"}
+{"geiste":"geist"}
 {"geister":"geist"}
 {"geistes":"geist"}
+{"geisteszuständen":"geisteszustand"}
 {"geistige":"geistig"}
 {"geistigem":"geistig"}
 {"geistigen":"geistig"}
@@ -3654,6 +3782,7 @@
 {"gekleideter":"kleiden"}
 {"geklettert":"klettern"}
 {"geklungen":"klingen"}
+{"geklärt":"klären"}
 {"geknabbert":"knabbern"}
 {"geknotet":"knoten"}
 {"geknüpft":"knüpfen"}
@@ -3734,6 +3863,7 @@
 {"gelübden":"gelübde"}
 {"gelüste":"gelüsten"}
 {"gemacht":"machen"}
+{"gemachtes":"gemacht"}
 {"gemalt":"malen"}
 {"gemehrt":"mehren"}
 {"gemehrter":"mehren"}
@@ -3741,6 +3871,7 @@
 {"gemeinen":"gemein"}
 {"gemeines":"gemein"}
 {"gemeinsame":"gemeinsam"}
+{"gemeinsamen":"gemeinsam"}
 {"gemeinschaften":"gemeinschaft"}
 {"gemeinschaftlichen":"gemeinschaftlich"}
 {"gemeint":"meinen"}
@@ -3778,7 +3909,6 @@
 {"genutzt":"nutzen"}
 {"genährt":"nähren"}
 {"genäht":"nähen"}
-{"genösse":"geniessen"}
 {"genügend":"genügen"}
 {"genügsame":"genügsam"}
 {"genügsamen":"genügsam"}
@@ -3792,6 +3922,7 @@
 {"geordnet":"ordnen"}
 {"gepackt":"packen"}
 {"gepeinigt":"peinigen"}
+{"gepeinigten":"peinigen"}
 {"gepflanzt":"pflanzen"}
 {"gepflegt":"pflegen"}
 {"gepflegten":"pflegen"}
@@ -3817,6 +3948,7 @@
 {"geprüft":"prüfen"}
 {"gequirlt":"quirlen"}
 {"gequält":"quälen"}
+{"gequälten":"quälen"}
 {"geraden":"gerade"}
 {"gerader":"gerade"}
 {"geradlinige":"geradlinig"}
@@ -3894,9 +4026,11 @@
 {"geschadet":"schaden"}
 {"geschaffen":"schaffen"}
 {"geschaffenen":"geschaffen"}
+{"geschaffenes":"geschaffen"}
 {"geschah":"geschehen"}
 {"geschaut":"schauen"}
 {"geschehene":"geschehen"}
+{"gescheitelte":"scheiteln"}
 {"geschenke":"geschenk"}
 {"geschenkt":"schenken"}
 {"geschichten":"geschichte"}
@@ -3914,6 +4048,7 @@
 {"geschlagenen":"geschlagen"}
 {"geschlechtsmerkmale":"geschlechtsmerkmal"}
 {"geschlechtsverkehrs":"geschlechtsverkehr"}
+{"geschleppt":"schleppen"}
 {"geschliffen":"schleifen"}
 {"geschlossen":"schliessen"}
 {"geschlossene":"geschlossen"}
@@ -3981,6 +4116,7 @@
 {"gesichtern":"gesicht"}
 {"gesiegt":"siegen"}
 {"gesinnte":"gesinnt"}
+{"gesonnen":"sinnen"}
 {"gesorgt":"sorgen"}
 {"gespaltene":"gespalten"}
 {"gespaltenen":"gespalten"}
@@ -4013,6 +4149,7 @@
 {"gestand":"gestehen"}
 {"gestanden":"gestehen"}
 {"gestapelt":"stapeln"}
+{"gestatte":"gestatten"}
 {"gesteckt":"stecken"}
 {"gestehe":"gestehen"}
 {"gestehende":"gestehen"}
@@ -4048,6 +4185,7 @@
 {"gesät":"säen"}
 {"gesättigt":"sättigen"}
 {"gesäubert":"säubern"}
+{"gesäuberte":"säubern"}
 {"gesäugt":"säugen"}
 {"getadelt":"tadeln"}
 {"getan":"tun"}
@@ -4074,6 +4212,7 @@
 {"getröstet":"getrösten"}
 {"getrübt":"trüben"}
 {"getäuscht":"täuschen"}
+{"getäuschte":"täuschen"}
 {"getötet":"töten"}
 {"getürmt":"türmen"}
 {"gewachsen":"wachsen"}
@@ -4106,6 +4245,7 @@
 {"geweckt":"wecken"}
 {"geweigert":"weigern"}
 {"geweiht":"weihen"}
+{"geweilt":"weilen"}
 {"gewendet":"wenden"}
 {"gewesen":"sein"}
 {"gewichen":"weichen"}
@@ -4199,7 +4339,6 @@
 {"gib":"geben"}
 {"gibst":"geben"}
 {"gibt":"geben"}
-{"giebelhauses":"giebelhaus"}
 {"gier":"gieren"}
 {"gierige":"gierig"}
 {"gierigen":"gierig"}
@@ -4223,6 +4362,7 @@
 {"glanzes":"glanz"}
 {"glanzvollen":"glanzvoll"}
 {"glatter":"glatt"}
+{"glattes":"glatt"}
 {"glatzköpfe":"glatzkopf"}
 {"glatzköpfen":"glatzkopf"}
 {"glaube":"glauben"}
@@ -4263,6 +4403,7 @@
 {"glänzende":"glänzen"}
 {"glänzenden":"glänzend"}
 {"glänzender":"glänzen"}
+{"glänzte":"glänzen"}
 {"gläubigern":"gläubiger"}
 {"glückes":"glück"}
 {"glückliche":"glücklich"}
@@ -4286,6 +4427,8 @@
 {"goldener":"golden"}
 {"goldes":"gold"}
 {"goldmünzen":"goldmünze"}
+{"goldschmieds":"goldschmied"}
+{"goldstücken":"goldstück"}
 {"goss":"gießen"}
 {"gottes":"gott"}
 {"gottheiten":"gottheit"}
@@ -4364,6 +4507,7 @@
 {"gruppen":"gruppe"}
 {"grußes":"gruß"}
 {"gräben":"graben"}
+{"gräbern":"grab"}
 {"gräbt":"graben"}
 {"grämt":"grämen"}
 {"gräser":"gras"}
@@ -4386,6 +4530,7 @@
 {"grüner":"grün"}
 {"grünes":"grün"}
 {"grüße":"grüßen"}
+{"grüßend":"grüßen"}
 {"grüßt":"grüßen"}
 {"grüßte":"grüßen"}
 {"gute":"gut"}
@@ -4427,11 +4572,13 @@
 {"haarsträubenden":"haarsträubend"}
 {"hab":"haben"}
 {"habe":"haben"}
+{"habend":"haben"}
 {"habest":"haben"}
 {"habichte":"habicht"}
 {"habichten":"habicht"}
 {"habichts":"habicht"}
 {"habt":"haben"}
+{"hack":"hacken"}
 {"hackte":"hacken"}
 {"hackten":"hacken"}
 {"hafte":"haften"}
@@ -4507,6 +4654,7 @@
 {"haust":"hauen"}
 {"hauste":"hausen"}
 {"haut":"hauen"}
+{"heb":"heben"}
 {"hebe":"heben"}
 {"hebt":"heben"}
 {"heere":"heer"}
@@ -4584,6 +4732,7 @@
 {"heranwachsende":"heranwachsen"}
 {"heranwachsenden":"heranwachsen"}
 {"heranwächst":"heranwachsen"}
+{"heraufstieg":"heraufsteigen"}
 {"heraufzieht":"heraufziehen"}
 {"herausfordere":"herausfordern"}
 {"herausforderte":"herausfordern"}
@@ -4606,6 +4755,7 @@
 {"herausragenden":"herausragen"}
 {"herausragender":"herausragen"}
 {"herausragendes":"herausragen"}
+{"herausschnitt":"herausschneiden"}
 {"herausstellt":"herausstellen"}
 {"heraustrat":"heraustreten"}
 {"heraustritt":"heraustreten"}
@@ -4619,6 +4769,7 @@
 {"herauszuwinden":"herauswinden"}
 {"herauszuziehen":"herausziehen"}
 {"herbeiführt":"herbeifahren"}
+{"herbeigekommen":"herbeikommen"}
 {"herbeizuführen":"herbeiführen"}
 {"herde":"herd"}
 {"herden":"herd"}
@@ -4627,6 +4778,7 @@
 {"hereinkommt":"hereinkommen"}
 {"hergegeben":"hergeben"}
 {"hergekommen":"herkommen"}
+{"hergekommenen":"herkommen"}
 {"hergerichtet":"herrichten"}
 {"hergerichteten":"herrichten"}
 {"hergezogen":"herziehen"}
@@ -4639,6 +4791,7 @@
 {"herren":"herr"}
 {"herrichtet":"herrichten"}
 {"herrichteten":"herrichten"}
+{"herrinnen":"herrin"}
 {"herrliche":"herrlich"}
 {"herrlichen":"herrlich"}
 {"herrlicher":"herrlich"}
@@ -4659,10 +4812,10 @@
 {"herumrennt":"herumrennen"}
 {"herumtreibt":"herumtreiben"}
 {"herumträgst":"herumtragen"}
+{"herumwandert":"herumwandern"}
 {"herumwirbelt":"herumwirbeln"}
 {"herumzieht":"herumziehen"}
 {"herumzulungern":"herumlungern"}
-{"herumzuwandern":"herumwandern"}
 {"herumzuwirbeln":"herumwirbeln"}
 {"heruntergefallen":"herunterfallen"}
 {"heruntergekommen":"herunterkommen"}
@@ -4724,7 +4877,9 @@
 {"himmlischer":"himmlisch"}
 {"himmlisches":"himmlisch"}
 {"hinabgestoßen":"hinabstoßen"}
+{"hinabsteigst":"hinabsteigen"}
 {"hinabzustürzen":"hinabstürzen"}
+{"hinaufgestiegen":"hinaufsteigen"}
 {"hinaufzubringen":"hinaufbringen"}
 {"hinausführt":"hinausfahren"}
 {"hinausgebracht":"hinausbringen"}
@@ -4733,6 +4888,8 @@
 {"hinausgeht":"hinausgehen"}
 {"hinausgelangt":"hinausgelangen"}
 {"hinausgeworfen":"hinauswerfen"}
+{"hinausgezogen":"hinausziehen"}
+{"hinausgezogene":"hinausziehen"}
 {"hinausging":"hinausgehen"}
 {"hinausginge":"hinausgehen"}
 {"hinausläuft":"hinauslaufen"}
@@ -4740,9 +4897,12 @@
 {"hinaustritt":"hinaustreten"}
 {"hinauswill":"hinauswollen"}
 {"hinauswächst":"hinauswachsen"}
+{"hinausziehe":"hinausziehen"}
+{"hinauszog":"hinausziehen"}
 {"hinauszugehen":"hinausgehen"}
 {"hinauszukommen":"hinauskommen"}
 {"hinauszuwerfen":"hinauswerfen"}
+{"hinauszuziehen":"hinausziehen"}
 {"hindernisse":"hindernis"}
 {"hindernissen":"hindernis"}
 {"hindert":"hindern"}
@@ -4753,6 +4913,7 @@
 {"hineinsteckt":"hineinstecken"}
 {"hinfällst":"hinfallen"}
 {"hing":"haengen"}
+{"hingab":"hingeben"}
 {"hingebracht":"hinbringen"}
 {"hingeführt":"hinführen"}
 {"hingegangen":"hingehen"}
@@ -4776,6 +4937,7 @@
 {"hinlege":"hinlegen"}
 {"hinlegst":"hinlegen"}
 {"hinlegt":"hinlegen"}
+{"hinrichtet":"hinrichten"}
 {"hinschaut":"hinschauen"}
 {"hinschaute":"hinschauen"}
 {"hinschauten":"hinschauen"}
@@ -4844,6 +5006,7 @@
 {"hoffnungsvollen":"hoffnungsvoll"}
 {"hofft":"hoffen"}
 {"hoffte":"hoffen"}
+{"hofiert":"hofieren"}
 {"hofs":"hof"}
 {"hohe":"hoch"}
 {"hoheitsgebiete":"hoheitsgebiet"}
@@ -4853,6 +5016,7 @@
 {"hohepriesters":"hohepriester"}
 {"hoher":"hoch"}
 {"hohes":"hoch"}
+{"hohle":"hohl"}
 {"hohlem":"hohl"}
 {"hohlen":"hohl"}
 {"hohlräume":"hohlraum"}
@@ -4863,6 +5027,7 @@
 {"holz":"holzen"}
 {"holzarten":"holzart"}
 {"holzblöcke":"holzblock"}
+{"honigbienen":"honigbiene"}
 {"honiggelbem":"honiggelb"}
 {"honiggelbes":"honiggelb"}
 {"honigs":"honig"}
@@ -4947,6 +5112,7 @@
 {"hörbare":"hörbar"}
 {"hörbaren":"hörbar"}
 {"höre":"hören"}
+{"hörend":"hören"}
 {"hörenden":"hörend"}
 {"hörensagens":"hörensagen"}
 {"hörst":"hören"}
@@ -4968,6 +5134,9 @@
 {"hütet":"hüten"}
 {"hüteten":"hüten"}
 {"hütten":"hütte"}
+{"ideen":"idee"}
+{"ignorante":"ignorant"}
+{"ignoranten":"ignorant"}
 {"ihm":"er"}
 {"ihn":"er"}
 {"ihnen":"sie"}
@@ -4985,11 +5154,13 @@
 {"individuums":"individuum"}
 {"indoktriniert":"indoktrinieren"}
 {"initiative":"initiativ"}
+{"initiierter":"initiieren"}
 {"innerem":"innere"}
 {"inneren":"innere"}
 {"innerer":"innere"}
 {"inneres":"innere"}
 {"innerliche":"innerlich"}
+{"innerstes":"innerste"}
 {"innige":"innig"}
 {"innigen":"innig"}
 {"ins":"in"}
@@ -4999,6 +5170,7 @@
 {"interessiert":"interessieren"}
 {"internen":"intern"}
 {"interstellaren":"interstellar"}
+{"irdischen":"irdisch"}
 {"irgendeine":"irgendein"}
 {"irgendeinem":"irgendein"}
 {"irgendeinen":"irgendein"}
@@ -5009,6 +5181,7 @@
 {"irrglauben":"irrglaube"}
 {"irrglaubens":"irrglaube"}
 {"irrlehren":"irrlehre"}
+{"irrte":"irren"}
 {"iss":"essen"}
 {"isst":"essen"}
 {"ist":"sein"}
@@ -5056,6 +5229,7 @@
 {"junger":"jung"}
 {"junges":"jung"}
 {"jungfräuliche":"jungfräulich"}
+{"jungfräulichen":"jungfräulich"}
 {"juwelen":"juwel"}
 {"juwels":"juwel"}
 {"jägern":"jäger"}
@@ -5087,6 +5261,7 @@
 {"karrens":"karren"}
 {"kasteit":"kasteien"}
 {"kastriert":"kastrieren"}
+{"kastrierte":"kastrieren"}
 {"kategorische":"kategorisch"}
 {"kategorischen":"kategorisch"}
 {"kategorisches":"kategorisch"}
@@ -5121,6 +5296,7 @@
 {"kenners":"kenner"}
 {"kennst":"kennen"}
 {"kennt":"kennen"}
+{"kenntnisse":"kenntnis"}
 {"kerle":"kerl"}
 {"kern":"kernen"}
 {"kette":"ketten"}
@@ -5147,6 +5323,7 @@
 {"klage":"klagen"}
 {"klagend":"klagen"}
 {"klagenden":"klagen"}
+{"klagst":"klagen"}
 {"klagt":"klagen"}
 {"klagte":"klagen"}
 {"klagten":"klagen"}
@@ -5188,6 +5365,7 @@
 {"kleinigkeiten":"kleinigkeit"}
 {"kleinste":"klein"}
 {"kleinsten":"klein"}
+{"kleinstes":"klein"}
 {"kleintieren":"kleintier"}
 {"klettere":"klettern"}
 {"kletterst":"klettern"}
@@ -5199,6 +5377,7 @@
 {"klopfe":"klopfen"}
 {"klopft":"klopfen"}
 {"klopfte":"klopfen"}
+{"klosters":"kloster"}
 {"kluge":"klug"}
 {"klugen":"klug"}
 {"kluger":"klug"}
@@ -5220,6 +5399,7 @@
 {"knospenden":"knospen"}
 {"knotet":"knoten"}
 {"knöcheln":"knöchel"}
+{"knüpfend":"knüpfen"}
 {"knüpft":"knüpfen"}
 {"knütteln":"knüttel"}
 {"kobolde":"kobold"}
@@ -5231,8 +5411,10 @@
 {"kollegen":"kollege"}
 {"komm":"kommen"}
 {"komme":"kommen"}
+{"kommens":"kommen"}
 {"kommst":"kommen"}
 {"kommt":"kommen"}
+{"kommunalen":"kommunal"}
 {"konfessionelle":"konfessionell"}
 {"konfessionen":"konfession"}
 {"konnte":"koennen"}
@@ -5243,6 +5425,8 @@
 {"kontakten":"kontakt"}
 {"kontaktiert":"kontaktieren"}
 {"kontakts":"kontakt"}
+{"kontemplierte":"kontemplieren"}
+{"kontinente":"kontinent"}
 {"konzentriere":"konzentrieren"}
 {"konzentriert":"konzentrieren"}
 {"konzentrierte":"konzentrieren"}
@@ -5252,10 +5436,13 @@
 {"kopfschmerzen":"kopfschmerz"}
 {"korallen":"koralle"}
 {"korbflechtern":"korbflechter"}
+{"kordeln":"kordel"}
 {"kostbare":"kostbar"}
 {"kostbaren":"kostbar"}
+{"kostbarkeiten":"kostbarkeit"}
 {"kot":"koten"}
 {"kots":"kot"}
+{"kotze":"kotzen"}
 {"krachendes":"krachen"}
 {"kracht":"krachen"}
 {"krachte":"krachen"}
@@ -5268,6 +5455,8 @@
 {"kreis":"kreisen"}
 {"kreischt":"kreischen"}
 {"kreischte":"kreischen"}
+{"kreislaufs":"kreislauf"}
+{"kreisläufe":"kreislauf"}
 {"kriechtiere":"kriechtier"}
 {"kriechtieren":"kriechtier"}
 {"krieg":"kriegen"}
@@ -5304,6 +5493,7 @@
 {"kuckucke":"kuckuck"}
 {"kuckucks":"kuckuck"}
 {"kuhhirten":"kuhhirt"}
+{"kultiviert":"kultivieren"}
 {"kummers":"kummer"}
 {"kummervolle":"kummervoll"}
 {"kumpane":"kumpan"}
@@ -5470,6 +5660,7 @@
 {"leeres":"leer"}
 {"lege":"legen"}
 {"legenden":"legend"}
+{"legitime":"legitim"}
 {"legitimiert":"legitimieren"}
 {"legt":"legen"}
 {"legte":"legen"}
@@ -5494,16 +5685,19 @@
 {"leiblicher":"leiblich"}
 {"leiche":"leich"}
 {"leichen":"leich"}
+{"leichenteile":"leichenteil"}
 {"leichnams":"leichnam"}
 {"leichte":"leichten"}
 {"leichter":"leicht"}
 {"leichtes":"leicht"}
 {"leichtesten":"leicht"}
 {"leid":"leiden"}
+{"leide":"leiden"}
 {"leidens":"leiden"}
 {"leidenschaften":"leidenschaft"}
 {"leidenschaftslosen":"leidenschaftslos"}
 {"leidet":"leiden"}
+{"leidvolle":"leidvoll"}
 {"leine":"leinen"}
 {"leinene":"leinen"}
 {"leise":"leis"}
@@ -5536,6 +5730,7 @@
 {"leuchtende":"leuchten"}
 {"leuchtenden":"leuchten"}
 {"leuchtender":"leuchten"}
+{"leuchtest":"leuchten"}
 {"leuchtet":"leuchten"}
 {"leuchtete":"leuchten"}
 {"leugne":"leugnen"}
@@ -5551,6 +5746,7 @@
 {"liebendem":"lieben"}
 {"liebender":"lieben"}
 {"liebenswürdige":"liebenswürdig"}
+{"lieberes":"lieb"}
 {"liebes":"lieb"}
 {"liebevolle":"liebevoll"}
 {"liebevollem":"liebevoll"}
@@ -5567,6 +5763,7 @@
 {"liebt":"lieben"}
 {"liebte":"lieben"}
 {"liebten":"lieben"}
+{"lieder":"lied"}
 {"liefe":"laufen"}
 {"liefen":"laufen"}
 {"liefere":"liefern"}
@@ -5647,6 +5844,7 @@
 {"länger":"lang"}
 {"längere":"lang"}
 {"längeren":"lang"}
+{"länglichen":"länglich"}
 {"lärm":"lärmen"}
 {"lärmend":"lärmen"}
 {"lärmende":"lärmen"}
@@ -5680,6 +5878,7 @@
 {"lügt":"lügen"}
 {"lüste":"lust"}
 {"lüsten":"lust"}
+{"lüsternen":"lüstern"}
 {"mach":"machen"}
 {"mache":"machen"}
 {"machende":"machend"}
@@ -5693,6 +5892,7 @@
 {"magen":"mage"}
 {"magens":"magen"}
 {"mageren":"mager"}
+{"magische":"magisch"}
 {"magischen":"magisch"}
 {"magst":"moegen"}
 {"mahlenden":"mahlen"}
@@ -5750,6 +5950,7 @@
 {"maßvollen":"maßvoll"}
 {"meditationen":"meditation"}
 {"meditative":"meditativ"}
+{"meditativen":"meditativ"}
 {"meditativer":"meditativ"}
 {"meditiere":"meditieren"}
 {"meditierend":"meditieren"}
@@ -5788,6 +5989,7 @@
 {"meisters":"meister"}
 {"meistert":"meistern"}
 {"meisterte":"meistern"}
+{"meisterten":"meistern"}
 {"meißelt":"meißeln"}
 {"melde":"melden"}
 {"meldete":"melden"}
@@ -5802,6 +6004,7 @@
 {"menschlichen":"menschlich"}
 {"menschlicher":"menschlich"}
 {"menschliches":"menschlich"}
+{"mentalen":"mental"}
 {"mentoren":"mentor"}
 {"merkmale":"merkmal"}
 {"merkmalen":"merkmal"}
@@ -5814,7 +6017,6 @@
 {"messern":"messer"}
 {"metalle":"metall"}
 {"methoden":"methode"}
-{"methodische":"methodisch"}
 {"mich":"ich"}
 {"mieden":"meiden"}
 {"milchkühe":"milchkuh"}
@@ -5880,6 +6082,7 @@
 {"mixturen":"mixtur"}
 {"mochte":"moegen"}
 {"modi":"modus"}
+{"momentanen":"momentan"}
 {"monate":"monat"}
 {"monaten":"monat"}
 {"monats":"monat"}
@@ -5939,6 +6142,7 @@
 {"möchten":"mögen"}
 {"möchtest":"mögen"}
 {"möchtet":"mögen"}
+{"möge":"mögen"}
 {"mögliche":"möglich"}
 {"möglichen":"möglich"}
 {"möglichkeiten":"möglichkeit"}
@@ -5994,6 +6198,7 @@
 {"nachspricht":"nachsprechen"}
 {"nachteile":"nachteil"}
 {"nachteils":"nachteil"}
+{"nachtschwarzen":"nachtschwarz"}
 {"nachtwachen":"nachtwache"}
 {"nachweist":"nachweisen"}
 {"nachwuchs":"nachwachsen"}
@@ -6012,6 +6217,8 @@
 {"nahesteht":"nahestehen"}
 {"nahm":"nehmen"}
 {"nahmen":"nehmen"}
+{"nahrhafte":"nahrhaft"}
+{"naives":"naiv"}
 {"namen":"name"}
 {"namhafte":"namhaft"}
 {"namhaften":"namhaft"}
@@ -6023,6 +6230,7 @@
 {"nasenlöchern":"nasenloch"}
 {"nassem":"nass"}
 {"nassen":"nass"}
+{"naturgemäßen":"naturgemäß"}
 {"natürliche":"natürlich"}
 {"natürlichen":"natürlich"}
 {"natürlicher":"natürlich"}
@@ -6031,6 +6239,7 @@
 {"nebensächlichkeiten":"nebensächlichkeit"}
 {"neckt":"necken"}
 {"neffen":"neffe"}
+{"nehm":"nehmen"}
 {"nehme":"nehmen"}
 {"nehmende":"nehmend"}
 {"nehmt":"nehmen"}
@@ -6104,6 +6313,7 @@
 {"nimm":"nehmen"}
 {"nimmst":"nehmen"}
 {"nimmt":"nehmen"}
+{"noble":"nobel"}
 {"nonen":"non"}
 {"nonnen":"nonne"}
 {"norden":"nord"}
@@ -6163,6 +6373,8 @@
 {"ochse":"ochsen"}
 {"ockerfarbene":"ockerfarben"}
 {"ockerfarbenen":"ockerfarben"}
+{"offenbart":"offenbaren"}
+{"offenbarte":"offenbaren"}
 {"offene":"offen"}
 {"offenem":"offen"}
 {"offenen":"offen"}
@@ -6176,6 +6388,7 @@
 {"ohren":"ohr"}
 {"ohres":"ohr"}
 {"ohrfeige":"ohrfeigen"}
+{"ohrmuscheln":"ohrmuschel"}
 {"ohrringe":"ohrring"}
 {"ohrringen":"ohrring"}
 {"ohrs":"ohr"}
@@ -6187,6 +6400,8 @@
 {"opferten":"opfern"}
 {"orchesters":"orchester"}
 {"ordentliche":"ordentlich"}
+{"ordiniere":"ordinieren"}
+{"ordinierte":"ordinieren"}
 {"ordnet":"ordnen"}
 {"ordnete":"ordnen"}
 {"organe":"organ"}
@@ -6195,9 +6410,12 @@
 {"organisierte":"organisieren"}
 {"orkanartige":"orkanartig"}
 {"orkanartigen":"orkanartig"}
+{"ornamente":"ornament"}
+{"ornamenten":"ornament"}
 {"orte":"orten"}
 {"ortes":"ort"}
 {"osten":"ost"}
+{"ozeane":"ozean"}
 {"paare":"paaren"}
 {"packt":"packen"}
 {"packte":"packen"}
@@ -6254,8 +6472,10 @@
 {"pflückt":"pflücken"}
 {"pflüge":"pflügen"}
 {"pfosten":"pfoste"}
+{"pfählt":"pfählen"}
 {"pfützen":"pfütze"}
 {"philosophische":"philosophisch"}
+{"phänomene":"phänomen"}
 {"phönixe":"phönix"}
 {"phönixen":"phönix"}
 {"pikante":"pikant"}
@@ -6283,6 +6503,10 @@
 {"prahlst":"prahlen"}
 {"prahlt":"prahlen"}
 {"prahlte":"prahlen"}
+{"praktiziere":"praktizieren"}
+{"praktizierenden":"praktizieren"}
+{"praktiziert":"praktizieren"}
+{"praktizierte":"praktizieren"}
 {"prangert":"prangern"}
 {"prangerte":"prangern"}
 {"prasselt":"prasseln"}
@@ -6291,6 +6515,7 @@
 {"predige":"predigen"}
 {"preis":"preisen"}
 {"preise":"preis"}
+{"preisgegeben":"preisgeben"}
 {"preist":"preien"}
 {"preiswürdige":"preiswürdig"}
 {"presst":"pressen"}
@@ -6316,6 +6541,7 @@
 {"prunk":"prunken"}
 {"prunkvolle":"prunkvoll"}
 {"prunkvolles":"prunkvoll"}
+{"prächtige":"prächtig"}
 {"präge":"prägen"}
 {"prägt":"prägen"}
 {"prägte":"prägen"}
@@ -6327,6 +6553,7 @@
 {"psalmodierte":"psalmodieren"}
 {"punkte":"punkten"}
 {"puppe":"puppen"}
+{"purem":"pur"}
 {"purpurfarbene":"purpurfarben"}
 {"purpurfarbenen":"purpurfarben"}
 {"purzelbäume":"purzelbaum"}
@@ -6340,9 +6567,11 @@
 {"quillt":"quellen"}
 {"quollen":"quellen"}
 {"quäle":"quälen"}
+{"quälend":"quälen"}
 {"quälende":"quälen"}
 {"quälenden":"quälen"}
 {"quälender":"quälen"}
+{"quälst":"quälen"}
 {"quält":"quälen"}
 {"quälte":"quälen"}
 {"quälten":"quälen"}
@@ -6392,6 +6621,8 @@
 {"rauscht":"rauschen"}
 {"reagiert":"reagieren"}
 {"reaktionen":"reaktion"}
+{"realisiert":"realisieren"}
+{"realisierte":"realisieren"}
 {"rechte":"rechen"}
 {"rechtem":"recht"}
 {"rechter":"recht"}
@@ -6425,6 +6656,7 @@
 {"regiert":"regieren"}
 {"regierte":"regieren"}
 {"regierten":"regieren"}
+{"regionale":"regional"}
 {"regnet":"regnen"}
 {"regnete":"regnen"}
 {"regt":"regen"}
@@ -6461,6 +6693,7 @@
 {"reiner":"rein"}
 {"reines":"rein"}
 {"reinigt":"reinigen"}
+{"reinigte":"reinigen"}
 {"reinrassigen":"reinrassig"}
 {"reinste":"rein"}
 {"reinstem":"rein"}
@@ -6492,10 +6725,12 @@
 {"repariert":"reparieren"}
 {"reparierten":"reparieren"}
 {"reserven":"reserve"}
+{"residenzen":"residenz"}
 {"residierst":"residieren"}
 {"residiert":"residieren"}
 {"residierte":"residieren"}
 {"respektvolle":"respektvoll"}
+{"respektvollem":"respektvoll"}
 {"respektvoller":"respektvoll"}
 {"reste":"rest"}
 {"resten":"rest"}
@@ -6546,6 +6781,7 @@
 {"riten":"ritus"}
 {"ritt":"reiten"}
 {"rituale":"ritual"}
+{"ritualen":"ritual"}
 {"rituals":"ritual"}
 {"roben":"robe"}
 {"roch":"riechen"}
@@ -6690,6 +6926,7 @@
 {"schakals":"schakal"}
 {"schale":"schal"}
 {"schalt":"schalen"}
+{"schamlose":"schamlos"}
 {"schar":"scharen"}
 {"scharfe":"scharf"}
 {"scharfen":"scharf"}
@@ -6835,6 +7072,7 @@
 {"schlägt":"schlagen"}
 {"schlänge":"schlingen"}
 {"schlügen":"schlagen"}
+{"schlüpfe":"schlüpfen"}
 {"schlüpft":"schlüpfen"}
 {"schlüpfte":"schlüpfen"}
 {"schmackhafte":"schmackhaft"}
@@ -6870,6 +7108,7 @@
 {"schmutziger":"schmutzig"}
 {"schmutziges":"schmutzig"}
 {"schmäht":"schmähen"}
+{"schmücke":"schmücken"}
 {"schmückt":"schmücken"}
 {"schmückte":"schmücken"}
 {"schnarchten":"schnarchen"}
@@ -7014,6 +7253,7 @@
 {"schwäne":"schwan"}
 {"schwärme":"schwärmen"}
 {"schwärze":"schwärzen"}
+{"schwätzte":"schwätzen"}
 {"schwöre":"schwären"}
 {"schäbige":"schäbig"}
 {"schäbigen":"schäbig"}
@@ -7089,6 +7329,7 @@
 {"sehvermögens":"sehvermögen"}
 {"sei":"sein"}
 {"seichte":"seicht"}
+{"seichten":"seicht"}
 {"seid":"sein"}
 {"seidenen":"seiden"}
 {"seien":"sein"}
@@ -7153,6 +7394,7 @@
 {"siegt":"siegen"}
 {"siegten":"siegen"}
 {"sieh":"sehen"}
+{"siehe":"sehen"}
 {"siehst":"sehen"}
 {"sieht":"sehen"}
 {"silben":"silbe"}
@@ -7167,6 +7409,7 @@
 {"sinnenfreuden":"sinnenfreude"}
 {"sinnes":"sinn"}
 {"sinneseindrücke":"sinneseindruck"}
+{"sinnesorgane":"sinnesorgan"}
 {"sinneswahrnehmungen":"sinneswahrnehmung"}
 {"sinnliche":"sinnlich"}
 {"sinnlichem":"sinnlich"}
@@ -7176,8 +7419,10 @@
 {"sinnlose":"sinnlos"}
 {"sinnt":"sinnen"}
 {"sirenen":"sirene"}
+{"situierten":"situieren"}
 {"sitz":"sitzen"}
 {"sitze":"sitzen"}
+{"sitzenden":"sitzend"}
 {"sitzt":"sitzen"}
 {"skeletts":"skelett"}
 {"sklaven":"sklave"}
@@ -7216,7 +7461,9 @@
 {"sonnensystemen":"sonnensystem"}
 {"sonstige":"sonstig"}
 {"sorge":"sorgen"}
+{"sorgenfreie":"sorgenfrei"}
 {"sorgenvolle":"sorgenvoll"}
+{"sorgfältigen":"sorgfältig"}
 {"sorgt":"sorgen"}
 {"sorgte":"sorgen"}
 {"sorgten":"sorgen"}
@@ -7225,6 +7472,7 @@
 {"spalt":"spalten"}
 {"spaltet":"spalten"}
 {"spaltete":"spalten"}
+{"spangen":"spange"}
 {"spanne":"spannen"}
 {"spannte":"spannen"}
 {"spannungen":"spannung"}
@@ -7237,6 +7485,7 @@
 {"speichen":"speiche"}
 {"speise":"speisen"}
 {"speiseopfers":"speiseopfer"}
+{"speisereste":"speiserest"}
 {"spekulationen":"spekulation"}
 {"spekuliert":"spekulieren"}
 {"spekulierte":"spekulieren"}
@@ -7345,6 +7594,7 @@
 {"starb":"sterben"}
 {"starben":"sterben"}
 {"starke":"stark"}
+{"starkem":"stark"}
 {"starken":"stark"}
 {"starker":"stark"}
 {"starkes":"stark"}
@@ -7381,6 +7631,7 @@
 {"steif":"steifen"}
 {"steifem":"steif"}
 {"steige":"steigen"}
+{"steigenden":"steigend"}
 {"steigt":"steigen"}
 {"steile":"steilen"}
 {"stein":"steinen"}
@@ -7435,6 +7686,7 @@
 {"stimmte":"stimmen"}
 {"stimmten":"stimmen"}
 {"stinkend":"stinken"}
+{"stinkenden":"stinken"}
 {"stinkendes":"stinken"}
 {"stinkst":"stinken"}
 {"stinkt":"stinken"}
@@ -7472,6 +7724,8 @@
 {"straßen":"straße"}
 {"straßenkreuzungen":"straßenkreuzung"}
 {"strebe":"streben"}
+{"strebend":"streben"}
+{"strebenden":"streben"}
 {"strebens":"streben"}
 {"strebt":"streben"}
 {"strebte":"streben"}
@@ -7500,6 +7754,7 @@
 {"strohdaches":"strohdach"}
 {"stromes":"strom"}
 {"strophen":"strophe"}
+{"strähnen":"strähn"}
 {"stränge":"strängen"}
 {"sträubende":"sträuben"}
 {"sträubt":"sträuben"}
@@ -7540,6 +7795,7 @@
 {"stücke":"stücken"}
 {"stühle":"stuhl"}
 {"stülpst":"stülpen"}
+{"stülpte":"stülpen"}
 {"stünde":"stehen"}
 {"stünden":"stehen"}
 {"stürme":"stürmen"}
@@ -7555,6 +7811,7 @@
 {"substanzielle":"substanziell"}
 {"substanziellen":"substanziell"}
 {"substanzieller":"substanziell"}
+{"substanzlosen":"substanzlos"}
 {"subtile":"subtil"}
 {"subtilen":"subtil"}
 {"subtiles":"subtil"}
@@ -7570,6 +7827,7 @@
 {"suppen":"suppe"}
 {"systematische":"systematisch"}
 {"systematischen":"systematisch"}
+{"systems":"system"}
 {"säe":"säen"}
 {"säend":"säen"}
 {"säge":"sägen"}
@@ -7600,14 +7858,16 @@
 {"sümpfe":"sümpfen"}
 {"süße":"süßen"}
 {"süßem":"süß"}
+{"süßes":"süß"}
 {"süßen":"süß"}
 {"süßer":"süß"}
-{"süßes":"süß"}
 {"süßeste":"süß"}
 {"tadele":"tadeln"}
 {"tadellosen":"tadellos"}
 {"tadelloses":"tadellos"}
 {"tadelnd":"tadeln"}
+{"tadelnden":"tadeln"}
+{"tadelndes":"tadeln"}
 {"tadelnswerte":"tadelnswert"}
 {"tadelnswerten":"tadelnswert"}
 {"tadelnswertes":"tadelnswert"}
@@ -7622,11 +7882,13 @@
 {"talers":"taler"}
 {"talg":"talgen"}
 {"tamtams":"tamtam"}
+{"tanzend":"tanzen"}
 {"tanzt":"tanzen"}
 {"tanzte":"tanzen"}
 {"tanzten":"tanzen"}
 {"tat":"tun"}
 {"taten":"tun"}
+{"tatkräftige":"tatkräftig"}
 {"tatsachen":"tatsache"}
 {"taube":"taub"}
 {"tauber":"taub"}
@@ -7741,6 +8003,7 @@
 {"treibe":"treiben"}
 {"treibt":"treiben"}
 {"trennt":"trennen"}
+{"trennte":"trennen"}
 {"treppen":"treppe"}
 {"treppenhäuser":"treppenhaus"}
 {"trete":"treten"}
@@ -7794,8 +8057,10 @@
 {"tränkte":"tränken"}
 {"tränkten":"tränken"}
 {"träume":"träumen"}
+{"träumst":"träumen"}
 {"tröste":"trösten"}
 {"tröstete":"trösten"}
+{"trübungen":"trübung"}
 {"trüge":"tragen"}
 {"trügerische":"trügerisch"}
 {"trügerischen":"trügerisch"}
@@ -7853,6 +8118,7 @@
 {"ulanen":"ulan"}
 {"umarme":"umarmen"}
 {"umarmt":"umarmen"}
+{"umarmte":"umarmen"}
 {"umbindet":"umbinden"}
 {"umfang":"umfangen"}
 {"umfangreiche":"umfangreich"}
@@ -7933,11 +8199,13 @@
 {"umwandert":"umwandern"}
 {"umwarf":"umwerfen"}
 {"umwickelt":"umwickeln"}
+{"umworben":"umwerben"}
 {"umwölkt":"umwölken"}
 {"umzubringen":"umbringen"}
 {"umzugraben":"umgraben"}
 {"umzukehren":"umkehren"}
 {"umzulenken":"umlenken"}
+{"umzustimmen":"umstimmen"}
 {"umzustoßen":"umstoßen"}
 {"umzuwenden":"umwenden"}
 {"unabhängige":"unabhängig"}
@@ -7974,6 +8242,7 @@
 {"unbeirrbare":"unbeirrbar"}
 {"unbeirrbaren":"unbeirrbar"}
 {"unbeirrbarer":"unbeirrbar"}
+{"unbenannten":"unbenannt"}
 {"unberechenbare":"unberechenbar"}
 {"unberechenbaren":"unberechenbar"}
 {"unberührte":"unberührt"}
@@ -7993,10 +8262,12 @@
 {"unbeständiger":"unbeständig"}
 {"unbeständiges":"unbeständig"}
 {"unbeteiligte":"unbeteiligt"}
+{"unbeteiligten":"unbeteiligt"}
 {"unbewachter":"unbewacht"}
 {"unbewegte":"unbewegt"}
 {"unbewegten":"unbewegt"}
 {"unbewohnten":"unbewohnt"}
+{"unbezwingbare":"unbezwingbar"}
 {"unbrauchbaren":"unbrauchbar"}
 {"undankbare":"undankbar"}
 {"unebene":"uneben"}
@@ -8081,10 +8352,12 @@
 {"ungesehene":"ungesehen"}
 {"ungestörten":"ungestört"}
 {"ungestümem":"ungestüm"}
+{"ungewollte":"ungewollt"}
 {"ungezogenen":"ungezogen"}
 {"ungezogenes":"ungezogen"}
 {"ungezähmten":"ungezähmt"}
 {"ungezähmter":"ungezähmt"}
+{"ungezähmte":"ungezähmt"}
 {"ungezügelte":"ungezügelt"}
 {"ungezügeltem":"ungezügelt"}
 {"ungezügelten":"ungezügelt"}
@@ -8093,6 +8366,7 @@
 {"unglaublichen":"unglaublich"}
 {"ungleiche":"ungleich"}
 {"unglücklichen":"unglücklich"}
+{"unglückselige":"unglückselig"}
 {"unheilbare":"unheilbar"}
 {"unheilbaren":"unheilbar"}
 {"unheilvolle":"unheilvoll"}
@@ -8148,6 +8422,7 @@
 {"unsaubere":"unsauber"}
 {"unsauberem":"unsauber"}
 {"unschickliche":"unschicklich"}
+{"unschickliches":"unschicklich"}
 {"unschuldige":"unschuldig"}
 {"unschuldigen":"unschuldig"}
 {"unsere":"unser"}
@@ -8233,6 +8508,7 @@
 {"unterwarf":"unterwerfen"}
 {"unterweise":"unterweisen"}
 {"unterweist":"unterweisen"}
+{"unterweisungen":"unterweisung"}
 {"unterwies":"unterweisen"}
 {"unterwiesen":"unterweisen"}
 {"unterwirft":"unterwerfen"}
@@ -8264,6 +8540,7 @@
 {"unwahren":"unwahr"}
 {"unwegsamem":"unwegsam"}
 {"unwesentliche":"unwesentlich"}
+{"unwettern":"unwetter"}
 {"unwiderlegbarem":"unwiderlegbar"}
 {"unwiderstehliche":"unwiderstehlich"}
 {"unwillkommene":"unwillkommen"}
@@ -8303,6 +8580,7 @@
 {"ursprungs":"ursprung"}
 {"ursprüngliche":"ursprünglich"}
 {"ursprünglichen":"ursprünglich"}
+{"ursächliche":"ursächlich"}
 {"urteile":"urteilen"}
 {"urteilsfähige":"urteilsfähig"}
 {"urteilsfähigen":"urteilsfähig"}
@@ -8348,6 +8626,7 @@
 {"verbindenden":"verbindend"}
 {"verbindet":"verbinden"}
 {"verbindliches":"verbindlich"}
+{"verbindlichkeiten":"verbindlichkeit"}
 {"verbindungen":"verbindung"}
 {"verbirgt":"verbergen"}
 {"verbittert":"verbittern"}
@@ -8376,6 +8655,7 @@
 {"verbreitet":"verbreiten"}
 {"verbreiteten":"verbreiten"}
 {"verbrenne":"verbrennen"}
+{"verbrennend":"verbrennen"}
 {"verbrennt":"verbrennen"}
 {"verbringe":"verbringen"}
 {"verbringst":"verbringen"}
@@ -8426,6 +8706,7 @@
 {"verehrt":"verehren"}
 {"verehrte":"verehren"}
 {"verehrten":"verehren"}
+{"verehrungswürdige":"verehrungswürdig"}
 {"verehrungswürdigen":"verehrungswürdig"}
 {"vereinbart":"vereinbaren"}
 {"vereinbarten":"vereinbaren"}
@@ -8469,6 +8750,7 @@
 {"verfluchten":"verfluchen"}
 {"verflüssigt":"verflüssigen"}
 {"verfochten":"verfechten"}
+{"verfolgst":"verfolgen"}
 {"verfolgt":"verfolgen"}
 {"verfolgte":"verfolgen"}
 {"verfolgten":"verfolgen"}
@@ -8484,15 +8766,19 @@
 {"verfügbaren":"verfügbar"}
 {"verfügt":"verfügen"}
 {"verfügungen":"verfügung"}
+{"verführe":"verfahren"}
 {"verführt":"verfahren"}
 {"verführte":"verführen"}
 {"vergangen":"vergehen"}
 {"vergangene":"vergangen"}
 {"vergangenem":"vergehen"}
 {"vergangenen":"vergehen"}
+{"vergangener":"vergangen"}
 {"vergangenes":"vergangen"}
+{"vergaß":"vergessen"}
 {"vergebe":"vergeben"}
 {"vergeblichen":"vergeblich"}
+{"vergehend":"vergehen"}
 {"vergehens":"vergehen"}
 {"vergeht":"vergehen"}
 {"vergeude":"vergeuden"}
@@ -8527,8 +8813,10 @@
 {"verhaftet":"verhaften"}
 {"verhalte":"verhalten"}
 {"verhaltens":"verhalten"}
+{"verhaltensregeln":"verhaltensregel"}
 {"verhaltensweisen":"verhalten"}
 {"verhaltet":"verhalten"}
+{"verharrend":"verharren"}
 {"verharrt":"verharren"}
 {"verharrte":"verharren"}
 {"verhassten":"verhasst"}
@@ -8554,6 +8842,8 @@
 {"verhätschelt":"verhätscheln"}
 {"verhätschelter":"verhätscheln"}
 {"verhöhnt":"verhöhnen"}
+{"verhöhnte":"verhöhnen"}
+{"verhüllendes":"verhüllen"}
 {"verhüllt":"verhüllen"}
 {"verinnerlicht":"verinnerlichen"}
 {"verirrenden":"verirren"}
@@ -8563,8 +8853,10 @@
 {"verkauft":"verkaufen"}
 {"verkaufte":"verkaufen"}
 {"verkauften":"verkaufen"}
+{"verkehrend":"verkehren"}
 {"verkeilten":"verkeilen"}
 {"verkleidet":"verkleiden"}
+{"verknittert":"verknittern"}
 {"verknotet":"verknoten"}
 {"verknoteten":"verknoten"}
 {"verkohlter":"verkohlen"}
@@ -8603,6 +8895,7 @@
 {"verletzungen":"verletzung"}
 {"verleumdet":"verleumden"}
 {"verliebt":"verlieben"}
+{"verliebten":"verlieben"}
 {"verliehen":"verleihen"}
 {"verliere":"verlieren"}
 {"verlierst":"verlieren"}
@@ -8612,6 +8905,7 @@
 {"verließen":"verlassen"}
 {"verlischt":"verloeschen"}
 {"verlobter":"verloben"}
+{"verlockend":"verlocken"}
 {"verlor":"verlieren"}
 {"verloren":"verlieren"}
 {"verlorene":"verloren"}
@@ -8624,14 +8918,18 @@
 {"verloschenen":"verloeschen"}
 {"verluste":"verlust"}
 {"verlusten":"verlust"}
+{"verlässlichen":"verlässlich"}
 {"verlässlicher":"verlässlich"}
 {"verlässt":"verlassen"}
 {"verlöre":"verlieren"}
+{"verlöscht":"verlöschen"}
+{"vermehrenden":"vermehren"}
 {"vermehrt":"vermehren"}
 {"vermeide":"vermeiden"}
 {"vermeidest":"vermeiden"}
 {"vermeidet":"vermeiden"}
 {"vermied":"vermeiden"}
+{"vermieden":"vermeiden"}
 {"vermischt":"vermischen"}
 {"vermisse":"vermissen"}
 {"vermisst":"vermessen"}
@@ -8647,6 +8945,7 @@
 {"vermögender":"vermögen"}
 {"vermögens":"vermögen"}
 {"vernachlässige":"vernachlässigen"}
+{"vernachlässigend":"vernachlässigen"}
 {"vernachlässigt":"vernachlässigen"}
 {"vernachlässigte":"vernachlässigen"}
 {"vernachlässigten":"vernachlässigen"}
@@ -8657,6 +8956,7 @@
 {"verneint":"verneinen"}
 {"vernichte":"vernichten"}
 {"vernichtet":"vernichten"}
+{"vernommen":"vernehmen"}
 {"vernünftige":"vernünftig"}
 {"vernünftigem":"vernünftig"}
 {"vernünftigen":"vernünftig"}
@@ -8673,6 +8973,7 @@
 {"verputzt":"verputzen"}
 {"verputzte":"verputzen"}
 {"verraucht":"verrauchen"}
+{"verrichte":"verrichten"}
 {"verrichtet":"verrichten"}
 {"verrichteten":"verrichten"}
 {"verriegelte":"verriegeln"}
@@ -8704,6 +9005,7 @@
 {"verschlagene":"verschlagen"}
 {"verschlang":"verschlingen"}
 {"verschlangen":"verschlingen"}
+{"verschleiere":"verschleiern"}
 {"verschließe":"verschließen"}
 {"verschließt":"verschließen"}
 {"verschlingt":"verschlingen"}
@@ -8725,6 +9027,7 @@
 {"verschreibt":"verschreiben"}
 {"verschrieb":"verschreiben"}
 {"verschrieben":"verschreiben"}
+{"verschrumpelte":"verschrumpeln"}
 {"verschuldet":"verschulden"}
 {"verschwand":"verschwinden"}
 {"verschwanden":"verschwinden"}
@@ -8735,11 +9038,14 @@
 {"verschwitzt":"verschwitzen"}
 {"verschwunden":"verschwinden"}
 {"verschwundenen":"verschwinden"}
+{"verschönt":"verschönen"}
 {"verschüttest":"verschütten"}
 {"verschüttet":"verschütten"}
 {"verse":"vers"}
+{"versehene":"versehen"}
 {"versehenen":"versehen"}
 {"versen":"vers"}
+{"versengend":"versengen"}
 {"versengt":"versengen"}
 {"versenke":"versenken"}
 {"versenkst":"versenken"}
@@ -8773,6 +9079,8 @@
 {"verstehender":"verstehend"}
 {"verstehst":"verstehen"}
 {"versteht":"verstehen"}
+{"verstieß":"verstoßen"}
+{"verstießen":"verstoßen"}
 {"verstimmt":"verstimmen"}
 {"verstorben":"versterben"}
 {"verstorbene":"verstorben"}
@@ -8788,6 +9096,7 @@
 {"verständige":"verständigen"}
 {"verständigen":"verständig"}
 {"verständiger":"verständig"}
+{"verstörenden":"verstören"}
 {"verstört":"verstören"}
 {"verstörter":"verstören"}
 {"verstöße":"verstoß"}
@@ -8865,15 +9174,17 @@
 {"verweilt":"verweilen"}
 {"verweilte":"verweilen"}
 {"verweilten":"verweilen"}
+{"verweisend":"verweisen"}
 {"verwelkt":"verwelken"}
 {"verwelkten":"verwelken"}
 {"verwendet":"verwenden"}
+{"verwerfend":"verwerfen"}
 {"verwerfliche":"verwerflich"}
+{"verwerflicher":"verwerflich"}
 {"verwerflichste":"verwerflich"}
 {"verwesend":"verwesen"}
 {"verwesenden":"verwesen"}
 {"verwickelt":"verwickeln"}
-{"verwickelte":"verwickeln"}
 {"verwicklungen":"verwicklung"}
 {"verwirf":"verwerfen"}
 {"verwirft":"verwerfen"}
@@ -8884,6 +9195,7 @@
 {"verwirre":"verwirren"}
 {"verwirrenden":"verwirren"}
 {"verwirrt":"verwirren"}
+{"verwirrte":"verwirren"}
 {"verwirrter":"verwirren"}
 {"verwitterten":"verwittern"}
 {"verwitweten":"verwitwet"}
@@ -8920,6 +9232,7 @@
 {"vielem":"viel"}
 {"vielen":"viele"}
 {"vieler":"viele"}
+{"vielfache":"vielfach"}
 {"vielfacher":"vielfach"}
 {"vielfältige":"vielfältig"}
 {"vielfältigen":"vielfältig"}
@@ -8972,6 +9285,7 @@
 {"vollständiger":"vollständig"}
 {"vollständiges":"vollständig"}
 {"vollzieht":"vollziehen"}
+{"vollzog":"vollziehen"}
 {"vollzogen":"vollziehen"}
 {"vom":"von"}
 {"vorangebracht":"voranbringen"}
@@ -9011,7 +9325,7 @@
 {"vorgefallen":"vorfallen"}
 {"vorgefassten":"vorgefasst"}
 {"vorgeführt":"vorführen"}
-{"vorgehens":"vorgehen"}
+{"vorgegaukelte":"vorgaukeln"}
 {"vorgeht":"vorgehen"}
 {"vorgelegt":"vorlegen"}
 {"vorgerücktem":"vorrücken"}
@@ -9087,6 +9401,7 @@
 {"völliger":"völlig"}
 {"völliges":"völlig"}
 {"wache":"wachen"}
+{"wachgerüttelt":"wachrütteln"}
 {"wachleute":"wachmann"}
 {"wachleuten":"wachmann"}
 {"wachsame":"wachsam"}
@@ -9133,6 +9448,7 @@
 {"wanderers":"wanderer"}
 {"wandernd":"wandern"}
 {"wandernden":"wandern"}
+{"wandernder":"wandern"}
 {"wanderst":"wandern"}
 {"wandert":"wandern"}
 {"wanderte":"wandern"}
@@ -9437,6 +9753,7 @@
 {"wirst":"werden"}
 {"wirtshäuser":"wirtshaus"}
 {"wischte":"wischen"}
+{"wisse":"wissen"}
 {"wissend":"wissen"}
 {"wissende":"wissen"}
 {"wissenden":"wissen"}
@@ -9447,6 +9764,7 @@
 {"witwen":"witwe"}
 {"wochen":"woche"}
 {"wog":"waegen"}
+{"wohle":"wohl"}
 {"wohlgeformten":"wohlgeformt"}
 {"wohlgesetzte":"wohlgesetzt"}
 {"wohlgesetzten":"wohlgesetzt"}
@@ -9454,6 +9772,7 @@
 {"wohlhabende":"wohlhabend"}
 {"wohlhabenden":"wohlhabend"}
 {"wohlriechendem":"wohlriechend"}
+{"wohlriechender":"wohlriechend"}
 {"wohls":"wohl"}
 {"wohltäters":"wohltäter"}
 {"wohltätige":"wohltätig"}
@@ -9565,6 +9884,7 @@
 {"würdigten":"würdigen"}
 {"würfe":"werfen"}
 {"würgers":"würger"}
+{"würmer":"wurm"}
 {"würmern":"wurm"}
 {"wüsste":"wissen"}
 {"wüssten":"wissen"}
@@ -9609,6 +9929,7 @@
 {"zehntes":"zehnte"}
 {"zehrt":"zehren"}
 {"zehrten":"zehren"}
+{"zeichne":"zeichnen"}
 {"zeichnet":"zeichnen"}
 {"zeichnungen":"zeichnung"}
 {"zeige":"zeigen"}
@@ -9652,6 +9973,9 @@
 {"zerriss":"zerreissen"}
 {"zerrissen":"zerreissen"}
 {"zerrissener":"zerrissen"}
+{"zerschlage":"zerschlagen"}
+{"zerschlagenen":"zerschlagen"}
+{"zerschlug":"zerschlagen"}
 {"zerschlägt":"zerschlagen"}
 {"zerschmettere":"zerschmettern"}
 {"zerschmettert":"zerschmettern"}
@@ -9683,7 +10007,6 @@
 {"ziehst":"zeihen"}
 {"zieht":"zeihen"}
 {"ziele":"zielen"}
-{"ziellosen":"ziellos"}
 {"ziels":"ziel"}
 {"ziere":"zieren"}
 {"zierlichen":"zierlich"}
@@ -9731,12 +10054,14 @@
 {"zugeschnitten":"zuschneiden"}
 {"zugesichert":"zusichern"}
 {"zugestimmt":"zustimmen"}
+{"zugetan":"zutun"}
 {"zugeteilt":"zuteilen"}
 {"zugetragen":"zutragen"}
 {"zugewandt":"zuwenden"}
 {"zugewiesen":"zuweisen"}
 {"zugs":"zug"}
 {"zugänge":"zugang"}
+{"zugänglichen":"zugänglich"}
 {"zuhöre":"zuhören"}
 {"zuhört":"zuhören"}
 {"zuhörte":"zuhören"}
@@ -9749,6 +10074,7 @@
 {"zum":"zu"}
 {"zunahm":"zunehmen"}
 {"zunahmen":"zunehmen"}
+{"zunehmende":"zunehmend"}
 {"zunehmenden":"zunehmend"}
 {"zungen":"zunge"}
 {"zunimmt":"zunehmen"}
@@ -9833,6 +10159,7 @@
 {"zusammengedrückt":"zusammendrücken"}
 {"zusammengefallenen":"zusammenfallen"}
 {"zusammengefügt":"zusammenfügen"}
+{"zusammengefügten":"zusammenfügen"}
 {"zusammengehalten":"zusammenhalten"}
 {"zusammengeklebt":"zusammenkleben"}
 {"zusammengekommen":"zusammenkommen"}
@@ -9914,6 +10241,7 @@
 {"zweibeinern":"zweibeiner"}
 {"zweiergruppen":"zweiergruppe"}
 {"zweifaches":"zweifach"}
+{"zweifelhaften":"zweifelhaft"}
 {"zweifelnd":"zweifeln"}
 {"zweifels":"zweifel"}
 {"zweifelst":"zweifeln"}
@@ -9936,6 +10264,7 @@
 {"zählt":"zählen"}
 {"zählte":"zählen"}
 {"zähme":"zähmen"}
+{"zähmenden":"zähmen"}
 {"zähmt":"zähmen"}
 {"zähmte":"zähmen"}
 {"zähne":"zähnen"}
@@ -9947,6 +10276,7 @@
 {"zögert":"zögern"}
 {"zögerte":"zögern"}
 {"zöglinge":"zögling"}
+{"zöpfe":"zopf"}
 {"zöpfen":"zopf"}
 {"zügele":"zügeln"}
 {"zügelt":"zügeln"}
@@ -9967,6 +10297,7 @@
 {"ältester":"alt"}
 {"ändert":"ändern"}
 {"ängste":"ängsten"}
+{"ängstigt":"ängstigen"}
 {"ängstliche":"ängstlich"}
 {"äonen":"äon"}
 {"äons":"äon"}
@@ -9982,10 +10313,10 @@
 {"äußerer":"äußere"}
 {"äußeres":"äußere"}
 {"äußerlichkeiten":"äußerlichkeit"}
+{"äußerstes":"äußerste"}
 {"äußerstem":"äußerste"}
 {"äußersten":"äußerste"}
 {"äußerster":"äußerste"}
-{"äußerstes":"äußerste"}
 {"äußert":"äußern"}
 {"äußerte":"äußern"}
 {"äußerungen":"äußerung"}
@@ -10001,11 +10332,14 @@
 {"öffnete":"öffnen"}
 {"öffneten":"öffnen"}
 {"öffnungen":"öffnung"}
+{"öle":"ölen"}
 {"öllampen":"öllampe"}
 {"östliche":"östlich"}
 {"östlichen":"östlich"}
 {"östlicher":"östlich"}
 {"übe":"üben"}
+{"übels":"übel"}
+{"übeltaten":"übeltun"}
 {"übenden":"üben"}
 {"übender":"üben"}
 {"überbrachte":"überbringen"}
@@ -10013,6 +10347,7 @@
 {"überbringe":"überbringen"}
 {"überdachte":"überdachen"}
 {"übereinstimmt":"übereinstimmen"}
+{"überfiel":"überfallen"}
 {"überfließend":"überfließen"}
 {"überfließende":"überfließen"}
 {"überfließendem":"überfließen"}
@@ -10045,6 +10380,7 @@
 {"überlegten":"überlegen"}
 {"überlegungen":"überlegung"}
 {"überliefert":"überliefern"}
+{"überlässt":"überlassen"}
 {"übermacht":"übermachen"}
 {"übermannt":"übermannen"}
 {"übermenschliche":"übermenschlich"}
@@ -10065,6 +10401,7 @@
 {"überreiche":"überreichen"}
 {"überreicher":"überreich"}
 {"überreicht":"überreichen"}
+{"überreichte":"überreichen"}
 {"überreste":"überrest"}
 {"überschreitet":"überschreiten"}
 {"überschwänglicher":"überschwänglich"}
@@ -10100,7 +10437,10 @@
 {"überwinde":"überwinden"}
 {"überwindet":"überwinden"}
 {"überwunden":"überwinden"}
+{"überwältigend":"überwältigen"}
 {"überwältigt":"überwältigen"}
+{"überwältigten":"überwältigen"}
+{"überzeugende":"überzeugen"}
 {"überzeugt":"überzeugen"}
 {"überzeugte":"überzeugen"}
 {"überzeugten":"überzeugen"}
@@ -10108,7 +10448,10 @@
 {"überzogen":"überziehen"}
 {"überzogener":"überziehen"}
 {"überzufließen":"überfließen"}
+{"üble":"übel"}
+{"üblem":"übel"}
 {"üblen":"übel"}
+{"übles":"übel"}
 {"übliche":"üblich"}
 {"üblichen":"üblich"}
 {"übrigen":"übrig"}

@@ -8,6 +8,7 @@ DerivedData/
 WORK.md
 work*.md
 .DS_Store
+**/nf.log
 **/*.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
 .commit-msg

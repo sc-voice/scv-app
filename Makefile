@@ -374,7 +374,6 @@ help:
 	@echo "  make rebuild           Update version, clean, build and test and all packages"
 	@echo "  make release           Update content, and rebuild for release"
 	@echo "  make suid-list         Regenerate suid-list.json from ebt-pli-ms.db"
-	@echo "  make test              Run all package tests (shortcut for test-app)"
 	@echo "  make test-app          Run all application tests"
 	@echo "  make test-content      Verify all manifest databases are present in build"
 	@echo "  make test-core         Run scv-core tests serially (excludes integration tests)"

@@ -21,6 +21,7 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
   case russian = "ru"
   case italian = "it"
   case lithuanian = "lt"
+  case polish = "pl"
 
   // MARK: - Properties
 
@@ -50,6 +51,8 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
       "Italiano"
     case .lithuanian:
       "Lietuvių"
+    case .polish:
+      "Polski"
     }
   }
 
@@ -105,6 +108,7 @@ public enum ScvLanguage: String, CaseIterable, Codable, Sendable {
     .german,
     .french,
     .lithuanian,
+    .polish,
   ]
 
   /// Novelty voices to exclude from narration voice selection

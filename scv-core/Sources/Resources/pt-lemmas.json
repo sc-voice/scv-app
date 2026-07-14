@@ -83,6 +83,7 @@
 {"afortunados":"afortunado"}
 {"afundei":"afundar"}
 {"agindo":"agir"}
+{"agisse":"agir"}
 {"agitada":"agitado"}
 {"agitados":"agitado"}
 {"aglomerado":"aglomerar"}
@@ -277,6 +278,7 @@
 {"bondosos":"bondoso"}
 {"bonita":"bonito"}
 {"bons":"bom"}
+{"borda":"border"}
 {"bordados":"bordado"}
 {"branca":"branco"}
 {"brancos":"branco"}
@@ -322,6 +324,7 @@
 {"caçadores":"caçador"}
 {"caídos":"caer"}
 {"ceifado":"ceifar"}
+{"censura":"censurer"}
 {"censuráveis":"censurável"}
 {"centenas":"centena"}
 {"cercado":"cercar"}
@@ -423,6 +426,7 @@
 {"condições":"condição"}
 {"conduz":"conduzir"}
 {"conduzem":"conduzir"}
+{"confessa":"confesser"}
 {"confessado":"confessar"}
 {"confiado":"confiar"}
 {"confiantes":"confiante"}
@@ -442,6 +446,8 @@
 {"conhecimentos":"conhecimento"}
 {"conosco":"conoscere"}
 {"conquistar":"conquistare"}
+{"consciente":"conscient"}
+{"conscientes":"conscient"}
 {"consegue":"conseguir"}
 {"conseguem":"conseguir"}
 {"conseguiria":"conseguir"}
@@ -450,6 +456,7 @@
 {"conselhos":"conselho"}
 {"consente":"consentire"}
 {"consentiu":"consentir"}
+{"conserva":"conserver"}
 {"considera":"considerar"}
 {"considerada":"considerado"}
 {"considerado":"considerar"}
@@ -476,6 +483,7 @@
 {"contemplativos":"contemplativo"}
 {"contendo":"contendere"}
 {"contente":"contento"}
+{"contentes":"content"}
 {"contenções":"contenção"}
 {"contido":"conter"}
 {"continentes":"continente"}
@@ -721,6 +729,7 @@
 {"direcionadas":"direcionado"}
 {"direta":"direto"}
 {"direções":"direção"}
+{"dirige":"diriger"}
 {"dirigem":"dirigir"}
 {"dirigindo":"dirigir"}
 {"dirigiu":"dirigir"}
@@ -849,6 +858,7 @@
 {"ensinará":"ensinar"}
 {"ensinavam":"ensinar"}
 {"ensinou":"ensinar"}
+{"entende":"entendre"}
 {"entenderam":"entender"}
 {"entendeu":"entender"}
 {"entendo":"entender"}
@@ -911,6 +921,7 @@
 {"espíritos":"espírito"}
 {"esquecida":"esquecer"}
 {"esquilos":"esquilo"}
+{"esquiva":"esquiver"}
 {"essas":"esse"}
 {"estabelecem":"estabelecer"}
 {"estabelecendo":"estabelecer"}
@@ -1064,6 +1075,7 @@
 {"fornecem":"fornecer"}
 {"fornecendo":"fornecer"}
 {"forneceu":"fornecer"}
+{"forte":"fort"}
 {"fortes":"forte"}
 {"fosse":"essere"}
 {"fracassado":"fracassar"}
@@ -1108,6 +1120,7 @@
 {"governam":"governar"}
 {"governantes":"governante"}
 {"gramática":"gramático"}
+{"grande":"grand"}
 {"grandes":"grande"}
 {"gratificantes":"gratificante"}
 {"gratos":"grato"}
@@ -1183,6 +1196,7 @@
 {"incharão":"inchar"}
 {"inclui":"incluir"}
 {"incluídas":"incluir"}
+{"inconscientes":"inconscient"}
 {"inconsequentes":"inconsequente"}
 {"incríveis":"incrível"}
 {"indesejáveis":"indesejável"}
@@ -1276,6 +1290,9 @@
 {"liderava":"liderar"}
 {"ligada":"ligar"}
 {"limitado":"limitar"}
+{"limites":"limite"}
+{"livre":"livrer"}
+{"livres":"livre"}
 {"livrou":"livrar"}
 {"longa":"longo"}
 {"longos":"longo"}
@@ -1284,6 +1301,7 @@
 {"luxuosos":"luxuoso"}
 {"lágrimas":"lágrima"}
 {"lâminas":"lâmina"}
+{"léguas":"léguer"}
 {"límpida":"límpido"}
 {"lógica":"lógico"}
 {"machados":"machado"}
@@ -1415,6 +1433,7 @@
 {"numerados":"numerado"}
 {"obrigado":"obrigar"}
 {"obrigações":"obrigação"}
+{"observa":"observer"}
 {"observado":"observar"}
 {"observo":"observar"}
 {"observâncias":"observância"}
@@ -1431,6 +1450,7 @@
 {"ocorrerá":"ocorrer"}
 {"ocorreu":"ocorrer"}
 {"ocorrido":"ocorrer"}
+{"ocre":"ocrer"}
 {"oculta":"ocultar"}
 {"ocupa":"ocupar"}
 {"ocupe":"ocupar"}
@@ -1464,6 +1484,7 @@
 {"ouço":"ouvir"}
 {"pacífica":"pacífico"}
 {"pacíficos":"pacífico"}
+{"pais":"paître"}
 {"palavras":"palavra"}
 {"pano":"panare"}
 {"parada":"parado"}
@@ -1507,6 +1528,7 @@
 {"pensaram":"pensar"}
 {"pensará":"pensar"}
 {"pensasse":"pensare"}
+{"pense":"penser"}
 {"pensou":"pensar"}
 {"pequena":"pequeno"}
 {"pequenos":"pequeno"}
@@ -1897,6 +1919,7 @@
 {"sido":"ser"}
 {"siga":"seguir"}
 {"significado":"significar"}
+{"simples":"simple"}
 {"sistemas":"sistema"}
 {"situações":"situação"}
 {"sobrepuja":"sobrepujar"}
@@ -1911,6 +1934,8 @@
 {"sombra":"sombrar"}
 {"sombrias":"sombrio"}
 {"somos":"ser"}
+{"sons":"son"}
+{"sorte":"sortir"}
 {"sossegam":"sossegar"}
 {"sozinhos":"sozinho"}
 {"sua":"suo"}
@@ -1978,6 +2003,7 @@
 {"tenham":"ter"}
 {"tenho":"ter"}
 {"tentam":"tentar"}
+{"tente":"tenter"}
 {"terceira":"terceiro"}
 {"terem":"ter"}
 {"terminado":"terminar"}
@@ -2021,6 +2047,7 @@
 {"tranquilos":"tranquilo"}
 {"transações":"transação"}
 {"transcendido":"transcender"}
+{"transforma":"transformer"}
 {"transgressões":"transgressão"}
 {"trata":"tratar"}
 {"tratava":"tratar"}

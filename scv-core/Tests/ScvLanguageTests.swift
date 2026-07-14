@@ -25,6 +25,7 @@ import Testing
     #expect(ScvLanguage(code: "pli") == .pli)
     #expect(ScvLanguage(code: "it") == .italian)
     #expect(ScvLanguage(code: "lt") == .lithuanian)
+    #expect(ScvLanguage(code: "pl") == .polish)
   }
 
   @Test func initFromInvalidCode() {
@@ -46,6 +47,7 @@ import Testing
     #expect(ScvLanguage.pli.displayName == "PLI / Pali")
     #expect(ScvLanguage.italian.displayName == "IT / Italiano")
     #expect(ScvLanguage.lithuanian.displayName == "LT / Lietuvių")
+    #expect(ScvLanguage.polish.displayName == "PL / Polski")
   }
 
   // MARK: - Native Name Tests
@@ -60,6 +62,7 @@ import Testing
     #expect(ScvLanguage.pli.nativeName == "Pali")
     #expect(ScvLanguage.italian.nativeName == "Italiano")
     #expect(ScvLanguage.lithuanian.nativeName == "Lietuvių")
+    #expect(ScvLanguage.polish.nativeName == "Polski")
   }
 
   // MARK: - Code Property Tests
@@ -74,6 +77,7 @@ import Testing
     #expect(ScvLanguage.pli.code == "pli")
     #expect(ScvLanguage.italian.code == "it")
     #expect(ScvLanguage.lithuanian.code == "lt")
+    #expect(ScvLanguage.polish.code == "pl")
   }
 
   // MARK: - toVoiceLanguage Tests
@@ -142,11 +146,13 @@ import Testing
       .german,
       .french,
       .lithuanian,
+      .polish,
     ])
     #expect(ScvLanguage.uiLanguages.contains(.english))
     #expect(ScvLanguage.uiLanguages.contains(.german))
     #expect(ScvLanguage.uiLanguages.contains(.french))
     #expect(ScvLanguage.uiLanguages.contains(.lithuanian))
+    #expect(ScvLanguage.uiLanguages.contains(.polish))
     #expect(!ScvLanguage.uiLanguages.contains(.portuguese))
   }
 
@@ -172,7 +178,7 @@ import Testing
 
   @Test func caseIterable() {
     let allLanguages = ScvLanguage.allCases
-    #expect(allLanguages.count == 9)
+    #expect(allLanguages.count == 10)
     #expect(allLanguages.contains(.english))
     #expect(allLanguages.contains(.portuguese))
     #expect(allLanguages.contains(.spanish))
@@ -182,5 +188,6 @@ import Testing
     #expect(allLanguages.contains(.pli))
     #expect(allLanguages.contains(.italian))
     #expect(allLanguages.contains(.lithuanian))
+    #expect(allLanguages.contains(.polish))
   }
 }

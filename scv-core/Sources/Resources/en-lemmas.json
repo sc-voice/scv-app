@@ -354,6 +354,7 @@
 {"backs":"back"}
 {"backsliders":"backslider"}
 {"backsliding":"backslide"}
+{"backtracked":"backtrack"}
 {"bade":"bid"}
 {"badmouthed":"badmouth"}
 {"bagged":"bag"}
@@ -789,7 +790,6 @@
 {"challenging":"challenge"}
 {"chamberlains":"chamberlain"}
 {"chambers":"chamber"}
-{"championed":"champion"}
 {"changed":"change"}
 {"changes":"change"}
 {"changing":"change"}
@@ -904,6 +904,7 @@
 {"clings":"cling"}
 {"clipped":"clip"}
 {"clippers":"clipper"}
+{"cloaked":"cloak"}
 {"clods":"clod"}
 {"closed":"close"}
 {"closing":"close"}
@@ -1158,6 +1159,7 @@
 {"cosmetics":"cosmetic"}
 {"cosmologists":"cosmologist"}
 {"cosmos":"cosmo"}
+{"costumed":"costume"}
 {"cots":"cot"}
 {"couches":"couch"}
 {"coughing":"cough"}
@@ -1534,7 +1536,6 @@
 {"disasters":"disaster"}
 {"disavowed":"disavow"}
 {"disavowing":"disavow"}
-{"disavows":"disavow"}
 {"discarded":"discard"}
 {"discarding":"discard"}
 {"discards":"discard"}
@@ -1984,6 +1985,7 @@
 {"evicted":"evict"}
 {"evicting":"evict"}
 {"evidences":"evidence"}
+{"evildoers":"evildoer"}
 {"evils":"evil"}
 {"evokes":"evoke"}
 {"evolved":"evolve"}
@@ -2556,7 +2558,6 @@
 {"grows":"grow"}
 {"grumbled":"grumble"}
 {"grumbling":"grumble"}
-{"grunts":"grunt"}
 {"guaranteed":"guarantee"}
 {"guarded":"guard"}
 {"guardians":"guardian"}
@@ -3058,6 +3059,7 @@
 {"lacking":"lack"}
 {"lacks":"lack"}
 {"ladies":"lady"}
+{"lads":"lad"}
 {"ladybugs":"ladybug"}
 {"lagged":"lag"}
 {"lags":"lag"}
@@ -3615,6 +3617,7 @@
 {"ornamented":"ornament"}
 {"ornaments":"ornament"}
 {"others":"other"}
+{"ounces":"ounce"}
 {"our":"my"}
 {"ours":"i"}
 {"ourselves":"i"}
@@ -3818,6 +3821,7 @@
 {"pimples":"pimple"}
 {"pins":"pin"}
 {"pinwheels":"pinwheel"}
+{"pipes":"pipe"}
 {"pitchers":"pitcher"}
 {"pitting":"pit"}
 {"placed":"place"}
@@ -4010,6 +4014,7 @@
 {"produces":"produce"}
 {"producing":"produce"}
 {"products":"product"}
+{"professing":"profess"}
 {"professions":"profession"}
 {"proffered":"proffer"}
 {"profits":"profit"}
@@ -4751,6 +4756,7 @@
 {"shaves":"shave"}
 {"shaving":"shave"}
 {"shears":"shear"}
+{"sheathed":"sheathe"}
 {"sheaths":"sheath"}
 {"sheaves":"sheaf"}
 {"shedding":"shed"}
@@ -5306,6 +5312,7 @@
 {"swamped":"swamp"}
 {"swans":"swan"}
 {"swarms":"swarm"}
+{"swathed":"swathe"}
 {"swayed":"sway"}
 {"swaying":"sway"}
 {"sways":"sway"}
@@ -5955,7 +5962,6 @@
 {"worsened":"worsen"}
 {"worshiped":"worship"}
 {"worshiping":"worship"}
-{"worshipped":"worship"}
 {"worshipping":"worship"}
 {"worships":"worship"}
 {"worsted":"worst"}
