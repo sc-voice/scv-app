@@ -5,7 +5,7 @@
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/de/sabbamitta",
       "authorName" : "Sabbamitta",
       "authorUrl" : "https://dhammaregen.net",
-      "buildTimestamp" : "2026-07-14T11:46:42Z",
+      "buildTimestamp" : "2026-07-14T12:26:31Z",
       "files" : {
         "other" : 0,
         "sutta" : 4168,
@@ -20,7 +20,7 @@
       "author" : "sonjabuege",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/de/sonjabuege",
       "authorName" : "Sonja Büge",
-      "buildTimestamp" : "2026-07-14T11:46:47Z",
+      "buildTimestamp" : "2026-07-14T12:26:32Z",
       "files" : {
         "other" : 0,
         "sutta" : 73,
@@ -35,7 +35,7 @@
       "author" : "brahmali",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/en/brahmali",
       "authorName" : "Bhikkhu Brahmali",
-      "buildTimestamp" : "2026-07-14T11:47:22Z",
+      "buildTimestamp" : "2026-07-14T12:27:10Z",
       "files" : {
         "other" : 0,
         "sutta" : 0,
@@ -50,7 +50,7 @@
       "author" : "kelly",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/en/kelly",
       "authorName" : "John Kelly",
-      "buildTimestamp" : "2026-07-14T11:47:24Z",
+      "buildTimestamp" : "2026-07-14T12:27:12Z",
       "files" : {
         "other" : 0,
         "sutta" : 100,
@@ -66,7 +66,7 @@
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/en/soma",
       "authorName" : "Ayya Soma",
       "authorUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/en/soma",
-      "buildTimestamp" : "2026-07-14T11:47:25Z",
+      "buildTimestamp" : "2026-07-14T12:27:13Z",
       "files" : {
         "other" : 0,
         "sutta" : 73,
@@ -82,7 +82,7 @@
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/en/sujato",
       "authorName" : "Bhikkhu Sujato",
       "authorUrl" : "https://suttacentral.net",
-      "buildTimestamp" : "2026-07-14T11:49:20Z",
+      "buildTimestamp" : "2026-07-14T12:29:06Z",
       "files" : {
         "other" : 0,
         "sutta" : 4167,
@@ -97,7 +97,7 @@
       "author" : "font",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/es/font",
       "authorName" : "Bernat Font",
-      "buildTimestamp" : "2026-07-14T11:49:22Z",
+      "buildTimestamp" : "2026-07-14T12:29:08Z",
       "files" : {
         "other" : 0,
         "sutta" : 31,
@@ -113,7 +113,7 @@
       "authorBaseUrl" : "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet",
       "authorName" : "Noé Ismet",
       "authorUrl" : "https://github.com/ebt-site/ebt-data/tree/published/translation/fr/noeismet",
-      "buildTimestamp" : "2026-07-14T11:49:24Z",
+      "buildTimestamp" : "2026-07-14T12:29:11Z",
       "files" : {
         "other" : 0,
         "sutta" : 53,
@@ -128,7 +128,7 @@
       "author" : "sekha",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/fr/sekha",
       "authorName" : "Rémy Zins",
-      "buildTimestamp" : "2026-07-14T11:49:27Z",
+      "buildTimestamp" : "2026-07-14T12:29:19Z",
       "files" : {
         "other" : 0,
         "sutta" : 277,
@@ -143,7 +143,7 @@
       "author" : "hardao",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/pl/hardao",
       "authorName" : "Piotr Jagodziński",
-      "buildTimestamp" : "2026-07-14T11:55:38Z",
+      "buildTimestamp" : "2026-07-14T12:29:21Z",
       "files" : {
         "other" : 0,
         "sutta" : 58,
@@ -158,7 +158,7 @@
       "author" : "ms",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/root/pli/ms",
       "authorName" : "Mahāsaṅgīti Tipiṭaka Buddhavasse 2500",
-      "buildTimestamp" : "2026-07-14T11:54:39Z",
+      "buildTimestamp" : "2026-07-14T12:34:40Z",
       "files" : {
         "other" : 0,
         "sutta" : 5764,
@@ -172,7 +172,7 @@
     {
       "author" : "laera-quaresma",
       "authorName" : "laera-quaresma",
-      "buildTimestamp" : "2026-07-14T11:54:42Z",
+      "buildTimestamp" : "2026-07-14T12:34:50Z",
       "files" : {
         "other" : 0,
         "sutta" : 193,
@@ -187,7 +187,7 @@
       "author" : "narinyanievmenenko",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/ru/narinyanievmenenko",
       "authorName" : "Evgenia Evmenenko",
-      "buildTimestamp" : "2026-07-14T11:54:47Z",
+      "buildTimestamp" : "2026-07-14T12:34:54Z",
       "files" : {
         "other" : 0,
         "sutta" : 337,
@@ -202,7 +202,7 @@
       "author" : "sv",
       "authorBaseUrl" : "https://github.com/suttacentral/bilara-data/tree/published/translation/ru/sv",
       "authorName" : "SV theravada.ru",
-      "buildTimestamp" : "2026-07-14T11:55:34Z",
+      "buildTimestamp" : "2026-07-14T12:35:25Z",
       "files" : {
         "other" : 0,
         "sutta" : 1094,
