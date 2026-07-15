@@ -480,3 +480,12 @@
 
 /* Voice error alert title */
 "voice.error.alert.title" = "Voz Indisponível";
+
+/* Update alert: title */
+"update.available.title" = "Nova versão disponível";
+
+/* Update alert: message (format: %@ is replaced with version number) */
+"update.available.message" = "scVoice %@ está disponível na App Store.";
+
+/* Update alert: button to open App Store */
+"update.available.button" = "Atualizar";

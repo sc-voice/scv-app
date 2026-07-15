@@ -56,10 +56,6 @@ public class SettingsModalController: NSObject, ObservableObject {
     didSet { autosave() }
   }
 
-  @Published var docAuthor: String {
-    didSet { autosave() }
-  }
-
   @Published var segmentPause: Double {
     didSet { autosave() }
   }
@@ -93,6 +89,18 @@ public class SettingsModalController: NSObject, ObservableObject {
   }
 
   @Published var maxColumnWidth: CGFloat {
+    didSet { autosave() }
+  }
+
+  @Published var lastApplicationVersion: String {
+    didSet { autosave() }
+  }
+
+  @Published var lastAlertedUpdateVersion: String {
+    didSet { autosave() }
+  }
+
+  @Published var docAuthor: String {
     didSet { autosave() }
   }
 
@@ -131,6 +139,8 @@ public class SettingsModalController: NSObject, ObservableObject {
     showRef = settings.showRef
     soundEffectVolume = settings.soundEffectVolume
     maxColumnWidth = settings.maxColumnWidth
+    lastApplicationVersion = settings.lastApplicationVersion 
+    lastAlertedUpdateVersion = settings.lastAlertedUpdateVersion 
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang
@@ -168,6 +178,8 @@ public class SettingsModalController: NSObject, ObservableObject {
     Settings.shared.showRef = showRef
     Settings.shared.soundEffectVolume = soundEffectVolume
     Settings.shared.maxColumnWidth = maxColumnWidth
+    Settings.shared.lastApplicationVersion = lastApplicationVersion
+    Settings.shared.lastAlertedUpdateVersion = lastAlertedUpdateVersion
 
     // Update docLangSettings for current language
     if Settings.shared.docLangSettings[docLang] == nil {
@@ -302,5 +314,7 @@ public class SettingsModalController: NSObject, ObservableObject {
     showRef = false
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
     maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
+    lastApplicationVersion = ""
+    lastAlertedUpdateVersion = ""
   }
 }

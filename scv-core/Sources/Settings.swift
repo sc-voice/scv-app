@@ -153,6 +153,7 @@ public class Settings: Codable {
 
   /// Application version when last run
   public var lastApplicationVersion: String = ""
+  public var lastAlertedUpdateVersion: String = ""
 
   /// Maximum number of documents to return in search results
   public var maxDoc: Int = MAX_DOC_DEFAULT
@@ -208,6 +209,7 @@ public class Settings: Codable {
     case showRef
     case soundEffectVolume
     case lastApplicationVersion
+    case lastAlertedUpdateVersion
     case maxDoc
     case maxColumnWidth
     case autoCompleteData
@@ -235,6 +237,10 @@ public class Settings: Codable {
     try container.encode(
       lastApplicationVersion,
       forKey: .lastApplicationVersion,
+    )
+    try container.encode(
+      lastAlertedUpdateVersion,
+      forKey: .lastAlertedUpdateVersion,
     )
     try container.encode(maxDoc, forKey: .maxDoc)
     try container.encode(maxColumnWidth, forKey: .maxColumnWidth)
@@ -350,6 +356,10 @@ public class Settings: Codable {
         String.self,
         forKey: .lastApplicationVersion,
       ) ?? ""
+      lastAlertedUpdateVersion = try container.decodeIfPresent(
+        String.self,
+        forKey: .lastAlertedUpdateVersion,
+      ) ?? ""
       maxDoc = try container
         .decodeIfPresent(Int.self, forKey: .maxDoc) ?? MAX_DOC_DEFAULT
       maxColumnWidth = try container.decodeIfPresent(
@@ -377,6 +387,7 @@ public class Settings: Codable {
       showRef = false
       soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
       lastApplicationVersion = ""
+      lastAlertedUpdateVersion = ""
       maxDoc = MAX_DOC_DEFAULT
       maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
       autoCompleteData = []
@@ -520,15 +531,16 @@ public class Settings: Codable {
       showDoc = decoded.showDoc
       showRef = decoded.showRef
       soundEffectVolume = decoded.soundEffectVolume
-      lastApplicationVersion = decoded.lastApplicationVersion
       maxDoc = decoded.maxDoc
       maxColumnWidth = decoded.maxColumnWidth
+      lastApplicationVersion = decoded.lastApplicationVersion
+      lastAlertedUpdateVersion = decoded.lastAlertedUpdateVersion
       autoCompleteData = decoded.autoCompleteData
     }
   }
 
   /// Clears all settings and restores defaults
-  public func reset() {
+  public func reset() { // resetToDefaults
     version = 1
     docLang = .default
     refLang = .default
@@ -544,9 +556,10 @@ public class Settings: Codable {
     showDoc = true
     showRef = false
     soundEffectVolume = SOUND_EFFECT_VOLUME_DEFAULT
-    lastApplicationVersion = ""
     maxDoc = MAX_DOC_DEFAULT
     maxColumnWidth = (MIN_COLUMN_WIDTH + MAX_COLUMN_WIDTH) / 2
+    lastApplicationVersion = ""
+    lastAlertedUpdateVersion = ""
     autoCompleteData = []
     (userDefaults ?? UserDefaults.standard)
       .removeObject(forKey: "com.scv.settings")

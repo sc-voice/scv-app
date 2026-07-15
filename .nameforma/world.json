@@ -1,5 +1,17 @@
 {
-  "focusStack": [],
   "id": "0PsWl_-y00bhP6g_km6gdW",
-  "numeronym": {}
+  "name": "nf:~/dev/scv-app",
+  "summary": "/Users/visakha/dev/scv-app/.nameforma",
+  "focusManager": {
+    "rgaFocusStack": {
+      "id": "0PzZ6AF000GzuIiGvI94NW",
+      "name": "Focus Stack",
+      "summary": "",
+      "nodes": []
+    }
+  },
+  "numeronym": {},
+  "watermark": {
+    "20n1YZVkrlNW": "0PvBM2jG00R_117ZqDCLNW"
+  }
 }

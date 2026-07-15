@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - TipView
 
-/// A modal tip sheet with a title, body text, X close button, and OK button.
+/// A modal tip sheet with a title, body text, X close button, and customizable action button.
 /// Caller controls visibility via `isPresented` binding.
 ///
 /// Usage:
@@ -11,7 +11,8 @@ import SwiftUI
 /// .sheet(isPresented: $showTip) {
 ///   TipView(title: "tip.title".localized,
 ///           text: "tip.body".localized,
-///           isPresented: $showTip)
+///           isPresented: $showTip,
+///           buttonTitle: "Update")
 ///     .presentationDetents([.medium])
 /// }
 /// ```
@@ -20,18 +21,24 @@ public struct TipView: View {
   let title: String
   let text: String
   @Binding var isPresented: Bool
+  let buttonTitle: String
   let onConfirm: (() -> Void)?
+  let onCancel: (() -> Void)?
 
   public init(
     title: String,
     text: String,
     isPresented: Binding<Bool>,
+    buttonTitle: String = "OK",
     onConfirm: (() -> Void)? = nil,
+    onCancel: (() -> Void)? = nil,
   ) {
     self.title = title
     self.text = text
     _isPresented = isPresented
+    self.buttonTitle = buttonTitle
     self.onConfirm = onConfirm
+    self.onCancel = onCancel
   }
 
   public var body: some View {
@@ -50,7 +57,7 @@ public struct TipView: View {
             .fontWeight(.semibold)
             .foregroundStyle(fg)
           Spacer()
-          Button(action: { isPresented = false }) {
+          Button(action: { isPresented = false; onCancel?() }) {
             Image(systemName: "xmark")
               .font(.body)
               .foregroundColor(fg)
@@ -80,7 +87,7 @@ public struct TipView: View {
         // MARK: Footer
 
         Button(action: { isPresented = false; onConfirm?() }) {
-          Text("OK")
+          Text(buttonTitle)
             .font(.body)
             .foregroundColor(fg)
             .frame(maxWidth: .infinity)

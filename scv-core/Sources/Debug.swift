@@ -14,7 +14,8 @@ public struct dbg: Sendable {
   static let SYNTH_WRITE: Int = NONE // AVSpeechSynthesizer.write(), AudioStore
   static let SYNTH_SPEAK: Int = NONE // AVSpeechSynthesizer.speak()
   static let SYNTH: Int = max(SYNTH_WRITE, SYNTH_SPEAK)
-  static let LAUNCH: Int = TERSE
+  static let LAUNCH: Int = NONE
+  static let LAUNCH_VIEW: Int = TERSE
   static let LOAD: Int = NONE
   static let PLAYER: Int = NONE
   static let EBT_DATA: Int = NONE
@@ -34,7 +35,7 @@ public struct dbg: Sendable {
   }
 
   public struct AppRootView: Sendable {
-    public static let other: Int = LAUNCH
+    public static let other: Int = LAUNCH_VIEW
   }
 
   public struct AudioContext: Sendable {

@@ -25,9 +25,16 @@ public struct AppRootView<Manager: ICardManager>: View {
   @State private var showSettings = false
   @State private var settingsController = SettingsModalController(from: Settings
     .shared)
+  @State private var updateAlert: UpdateAlert?
   @State private var isReady = false
   let appIcon: Image?
   let cc = ColorConsole(#file, #function, dbg.AppRootView.other)
+
+  private struct UpdateAlert: Identifiable {
+    let id: String
+    let storeURL: URL
+    var version: String { id }
+  }
 
   public init(
     cardManager: Manager,
@@ -163,6 +170,52 @@ public struct AppRootView<Manager: ICardManager>: View {
             .environmentObject(themeProvider)
         }
         .modifier(SheetBackgroundDimmingModifier(isPresented: $showSettings))
+        .sheet(item: $updateAlert) { alert in
+          TipView(
+            title: "update.available.title".localized,
+            text: String(
+              format: "update.available.message".localized,
+              alert.version
+            ),
+            isPresented: Binding(
+              get: { updateAlert != nil },
+              set: { if !$0 { updateAlert = nil } }
+            ),
+            buttonTitle: "update.available.button".localized,
+            onConfirm: {
+              Settings.shared.lastAlertedUpdateVersion = alert.version
+              Settings.shared.save()
+              cc.ok1(#line, "updateAlert confirmed");
+              #if os(iOS)
+                UIApplication.shared.open(alert.storeURL)
+              #endif
+            },
+            onCancel: {
+              Settings.shared.lastAlertedUpdateVersion = alert.version
+              Settings.shared.save()
+              cc.ok1(#line, "updateAlert cancelled");
+            }
+          )
+          .environmentObject(themeProvider)
+          .presentationDetents([.medium])
+        }
+        .task(id: isReady) {
+          guard isReady else { return }
+          let lastAlertVersion = Settings.shared.lastAlertedUpdateVersion;
+          if let updateInfo = await AppUpdateChecker.checkForUpdate() {
+            if updateInfo.version != lastAlertVersion {
+              updateAlert = UpdateAlert(id: updateInfo.version, storeURL: updateInfo.storeURL)
+              Settings.shared.lastAlertedUpdateVersion = updateInfo.version;
+              cc.ok1(#line, "downrev-new storeVersion:", updateInfo.version, 
+                "lastAlertVersion:", lastAlertVersion);
+            } else {
+              cc.ok1(#line, "downrev-alerted storeVersion:", 
+                updateInfo.version, "lastAlertVersion:", lastAlertVersion);
+            }
+          } else {
+            cc.ok1(#line, "same-rev lastAlertVersion:", lastAlertVersion)
+          }
+        }
       } // VStack
 
       if !isReady {
