@@ -8,9 +8,9 @@
 
 ### DE Deutsch
 
-* Unterstützung für PT Polski (Polnisch) Übersetzungen von Piotr Jagodziński hinzugefügt
-* Einmalige Anweisung, wenn noch eine andere Version von scVoice im App Store verfügbar ist
-* Vorhandene Inhalte für Juli 2026 aktualisiert
+* Unterstützung für PT Polski (Polnisch), Übersetzungen von Piotr Jagodziński hinzugefügt
+* Einmalige Anweisung, wenn noch eine andere Version von scVoice im App-Store verfügbar ist
+* Vorhandene Übersetzungen für Juli 2026 aktualisiert
 
 ### ES Español
 
