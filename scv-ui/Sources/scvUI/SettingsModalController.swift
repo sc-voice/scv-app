@@ -139,8 +139,8 @@ public class SettingsModalController: NSObject, ObservableObject {
     showRef = settings.showRef
     soundEffectVolume = settings.soundEffectVolume
     maxColumnWidth = settings.maxColumnWidth
-    lastApplicationVersion = settings.lastApplicationVersion 
-    lastAlertedUpdateVersion = settings.lastAlertedUpdateVersion 
+    lastApplicationVersion = settings.lastApplicationVersion
+    lastAlertedUpdateVersion = settings.lastAlertedUpdateVersion
 
     originalDocLang = settings.docLang
     originalRefLang = settings.refLang

@@ -175,17 +175,17 @@ public struct AppRootView<Manager: ICardManager>: View {
             title: "update.available.title".localized,
             text: String(
               format: "update.available.message".localized,
-              alert.version
+              alert.version,
             ),
             isPresented: Binding(
               get: { updateAlert != nil },
-              set: { if !$0 { updateAlert = nil } }
+              set: { if !$0 { updateAlert = nil } },
             ),
             buttonTitle: "update.available.button".localized,
             onConfirm: {
               Settings.shared.lastAlertedUpdateVersion = alert.version
               Settings.shared.save()
-              cc.ok1(#line, "updateAlert confirmed");
+              cc.ok1(#line, "updateAlert confirmed")
               #if os(iOS)
                 UIApplication.shared.open(alert.storeURL)
               #endif
@@ -193,24 +193,27 @@ public struct AppRootView<Manager: ICardManager>: View {
             onCancel: {
               Settings.shared.lastAlertedUpdateVersion = alert.version
               Settings.shared.save()
-              cc.ok1(#line, "updateAlert cancelled");
-            }
+              cc.ok1(#line, "updateAlert cancelled")
+            },
           )
           .environmentObject(themeProvider)
           .presentationDetents([.medium])
         }
         .task(id: isReady) {
           guard isReady else { return }
-          let lastAlertVersion = Settings.shared.lastAlertedUpdateVersion;
+          let lastAlertVersion = Settings.shared.lastAlertedUpdateVersion
           if let updateInfo = await AppUpdateChecker.checkForUpdate() {
             if updateInfo.version != lastAlertVersion {
-              updateAlert = UpdateAlert(id: updateInfo.version, storeURL: updateInfo.storeURL)
-              Settings.shared.lastAlertedUpdateVersion = updateInfo.version;
-              cc.ok1(#line, "downrev-new storeVersion:", updateInfo.version, 
-                "lastAlertVersion:", lastAlertVersion);
+              updateAlert = UpdateAlert(
+                id: updateInfo.version,
+                storeURL: updateInfo.storeURL,
+              )
+              Settings.shared.lastAlertedUpdateVersion = updateInfo.version
+              cc.ok1(#line, "downrev-new storeVersion:", updateInfo.version,
+                     "lastAlertVersion:", lastAlertVersion)
             } else {
-              cc.ok1(#line, "downrev-alerted storeVersion:", 
-                updateInfo.version, "lastAlertVersion:", lastAlertVersion);
+              cc.ok1(#line, "downrev-alerted storeVersion:",
+                     updateInfo.version, "lastAlertVersion:", lastAlertVersion)
             }
           } else {
             cc.ok1(#line, "same-rev lastAlertVersion:", lastAlertVersion)

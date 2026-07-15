@@ -2975,8 +2975,8 @@
 {"erzieht":"erziehen"}
 {"erzielt":"erzielen"}
 {"erzogen":"erziehen"}
-{"erzählt":"erzählen"}
 {"erzählte":"erzählen"}
+{"erzählt":"erzählen"}
 {"erzürnt":"erzürnen"}
 {"erzürnte":"erzürnen"}
 {"eröffne":"eröffnen"}
@@ -3447,9 +3447,9 @@
 {"führte":"führen"}
 {"führten":"führen"}
 {"fülle":"füllen"}
+{"füllt":"füllen"}
 {"füll":"füllen"}
 {"füllst":"füllen"}
-{"füllt":"füllen"}
 {"füllte":"füllen"}
 {"füllten":"füllen"}
 {"fünfergruppen":"fünfergruppe"}
@@ -4406,12 +4406,12 @@
 {"glänzte":"glänzen"}
 {"gläubigern":"gläubiger"}
 {"glückes":"glück"}
+{"glücklichen":"glücklich"}
+{"glücks":"glück"}
 {"glückliche":"glücklich"}
 {"glücklichem":"glücklich"}
-{"glücklichen":"glücklich"}
 {"glücklicher":"glücklich"}
 {"glückliches":"glücklich"}
-{"glücks":"glück"}
 {"glücksspiels":"glücksspiel"}
 {"glühend":"glühen"}
 {"glühende":"glühen"}
@@ -8355,9 +8355,9 @@
 {"ungewollte":"ungewollt"}
 {"ungezogenen":"ungezogen"}
 {"ungezogenes":"ungezogen"}
+{"ungezähmte":"ungezähmt"}
 {"ungezähmten":"ungezähmt"}
 {"ungezähmter":"ungezähmt"}
-{"ungezähmte":"ungezähmt"}
 {"ungezügelte":"ungezügelt"}
 {"ungezügeltem":"ungezügelt"}
 {"ungezügelten":"ungezügelt"}
@@ -9884,8 +9884,8 @@
 {"würdigten":"würdigen"}
 {"würfe":"werfen"}
 {"würgers":"würger"}
-{"würmer":"wurm"}
 {"würmern":"wurm"}
+{"würmer":"wurm"}
 {"wüsste":"wissen"}
 {"wüssten":"wissen"}
 {"wüsstest":"wissen"}

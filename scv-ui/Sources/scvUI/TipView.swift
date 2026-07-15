@@ -3,7 +3,8 @@ import SwiftUI
 
 // MARK: - TipView
 
-/// A modal tip sheet with a title, body text, X close button, and customizable action button.
+/// A modal tip sheet with a title, body text, X close button, and customizable
+/// action button.
 /// Caller controls visibility via `isPresented` binding.
 ///
 /// Usage:

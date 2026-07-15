@@ -18,11 +18,11 @@ public enum AppUpdateChecker {
   public static func checkForUpdate(
     bundleId: String = "net.sc-voice.app",
     currentVersion: String? = nil,
-    urlSession: URLSession = .shared
+    urlSession: URLSession = .shared,
   ) async -> UpdateInfo? {
     let version = currentVersion ?? marketingVersion
     guard let url = URL(
-      string: "https://itunes.apple.com/lookup?bundleId=\(bundleId)"
+      string: "https://itunes.apple.com/lookup?bundleId=\(bundleId)",
     ) else {
       return nil
     }

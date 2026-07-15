@@ -10,7 +10,7 @@ import Testing
     let storeVersionUnwrapped = try #require(storeVersion)
 
     let sameVersionResult = await AppUpdateChecker.checkForUpdate(
-      currentVersion: storeVersionUnwrapped.version
+      currentVersion: storeVersionUnwrapped.version,
     )
 
     #expect(sameVersionResult == nil)
